@@ -180,7 +180,7 @@ Unityのビルド時に、自動実行されるプログラムが、纏められ
   が優秀な為、クラスごとシリアライズ保存でき、IL2CPPビルド用の事前コード生成の必要もない。  
   （当然、PlayerPrefsは未使用の為、安全である。）  
   データの保存先は、PC対象時は
-  [Data/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/Data)
+  [Data/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Data)
   であり、WindowsPCでAndroid対象時は
   [DataForAndroid.lnk](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/DataForAndroid.lnk)
   のリンク先となる。  
