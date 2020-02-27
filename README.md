@@ -1,6 +1,6 @@
 # Submarine Mirage Framework for Unity
 ##### Version 0.1
-![Logo.png](/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png?raw=true)  
+![Logo.png](/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png)  
 
 
 
