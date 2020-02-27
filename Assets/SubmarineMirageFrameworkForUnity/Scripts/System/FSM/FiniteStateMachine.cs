@@ -6,9 +6,11 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.FSM {
 	using System;
+	using System.Linq;
 	using System.Collections;
 	using System.Collections.Generic;
 	using UniRx;
+	using KoganeUnityLib;
 	using Debug;
 	using Extension;
 	using Process;
@@ -70,11 +72,21 @@ namespace SubmarineMirageFramework.FSM {
 				var type = state.GetType();
 				_states[type] = state;
 			}
-			ChangeState( states[0].GetType() );
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 初期化
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public void Initialize() {
+			_states.ForEach( pair => pair.Value.Initialize() );
+			ChangeState( _states.First().Key );
 
-#if DEVELOP
+#if DEVELOP && false
 			// デバッグ設定
-			_debugUpdateProcess = CoreProcessManager.s_instance._updateEvent.Subscribe( _ => {
+			_debugUpdateProcess = CoreProcessManager.s_instance._updateEvent
+				.TakeWhile( _ => this != null )
+				.Subscribe( _ => {
 				DebugDisplay.s_instance.Add(
 					$"{_owner.GetAboutName()}.{this.GetAboutName()} : " +
 					$"{_state.GetAboutName()}.{_runState}"
@@ -105,6 +117,7 @@ namespace SubmarineMirageFramework.FSM {
 			if ( _changeStateProcess != null )	{ return; }
 			_changeStateProcess = Observable
 				.FromCoroutine( () => ChangeStateSub() )
+				.TakeWhile( _ => this != null )
 				.Subscribe();
 		}
 		/// <summary>
@@ -132,6 +145,7 @@ namespace SubmarineMirageFramework.FSM {
 				_runState = RunState.OnUpdate;
 				_stateUpdateProcess = Observable
 					.FromCoroutine( () => _state.OnUpdate() )
+					.TakeWhile( _ => this != null )
 					.Subscribe();
 				_stateUpdateDeltaProcess = CoreProcessManager.s_instance._updateEvent
 					.Subscribe( _ => _state.OnUpdateDelta() );
@@ -142,6 +156,7 @@ namespace SubmarineMirageFramework.FSM {
 			} else {
 				_changeStateProcess = Observable
 					.FromCoroutine( () => ChangeStateSub() )
+					.TakeWhile( _ => this != null )
 					.Subscribe();
 			}
 		}
