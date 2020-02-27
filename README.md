@@ -1,8 +1,8 @@
 # Submarine Mirage Framework for Unity
 ##### Version 0.1
 ![Logo.png](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png?raw=true)  
-
-
+![Logo.png](/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png?raw=true)  
+![Logo.png](/blob/master/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png?raw=true)  
 
 ## 概要
 Submarine Mirage Framework for Unityとは、Unityでのゲーム開発時に、不便さを補い、安定、迅速、堅牢な実装を行う為の、フレームワークである。  
@@ -24,10 +24,12 @@ Unity用の総合機能フレームワークは、オープンソースで多々
 [GameFramework](https://github.com/EllanJiang/GameFramework)、
 [QFramework](https://github.com/liangxiegame/QFramework)、
 [BDFramework.Core](https://github.com/yimengfan/BDFramework.Core)、
-[KSFramework](https://github.com/mr-kelly/KSFramework)等のフレームワークの方が出来が良い為、そちらをお勧めする。  
+[KSFramework](https://github.com/mr-kelly/KSFramework)
+等のフレームワークの方が出来が良い為、そちらをお勧めする。  
 
 + 導入事例  
-[夢想海の水底より](https://seabed-of-reverie.wixsite.com/front)（インディーゲーム開発スタジオ）の開発環境に採用中である。  
+[夢想海の水底より](https://seabed-of-reverie.wixsite.com/front)
+（インディーゲーム開発スタジオ）の開発環境に採用中である。  
 
 
 #### 特徴
@@ -54,28 +56,31 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
   動作確認は、2018.4.16f1を使用している。
 
 + ビルド対応  
-  + Windows（IL2CPP含む）  
-  + Android（IL2CPP含む）  
+  + Windows（Mono、IL2CPP）  
+  + Android（Mono、IL2CPP）  
 
 
 
 ## 使用方法
-現在、執筆中。  
-
-<!--
 + 導入  
 Assets/以下のファイルを全てコピー
 UnityAds、UnityIAPを導入
+PlayerSettings
+Scripting Runtime Versionを.NET 4.x Equivalentに設定
+Api Compatibility Levelを.NET 4.xに設定
 
 
 + サンプル  
 SubmarineMirageFrameworkForUnity\Sample\Scenes\Sample.unity
 
 + 使い方  
-BaseProcessを使い、
-MonoBehaiviorProcessを使い、
-Singletonを使い、管理クラス作成
-MainProcessに、登録
+MonoBehaiviorProcess
+Singleton
+MainProcess
+
+
+
+
 
 
 + 狙い  
@@ -109,7 +114,7 @@ Finalizeで、破棄に時間が掛かる処理を想定し、非同期破棄
 Load、Initialize（非同期の為、サーバー受信やロードに使用できる）が順番に呼ばれ、
 初期化が完了してから、FixedUpdate、Update、LateUpdateを繰り返し呼び出し、
 シーンが破棄される前に、Finalizeが、非同期で呼ばれる
--->
+
 
 
 ## 実装処理
@@ -118,8 +123,12 @@ Load、Initialize（非同期の為、サーバー受信やロードに使用で
 に、フレームワークが配置されている。  
 以降は、このフォルダ直下の説明を行う。  
 
-+ [/Sample/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Sample)  
-使用例のシーンが存在する。  
++ [/Test/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Test)  
+テスト用プログラムが存在する。  
+当項目では、このフォルダ直下の説明を行う。  
+  + [/Sample/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Sample)  
+  使用例のシーンが存在する。  
+  デバッグ表示は、1キーで切り替える。  
 
 + [/Scripts/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts)  
 開発プログラムが存在している。  
@@ -194,6 +203,7 @@ Unityのビルド時に、自動実行されるプログラムが、纏められ
 + [/Debug/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Debug)  
 デバッグ関連のプログラムが纏められている。  
 処理の種類別に色文字を追加するデバッグログ、ゲーム画面にデバッグ文章の描画、FPS計測の処理を記述している。  
+デバッグ表示は、1キーで切り替える。  
 
 + [/Extension/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Extension)  
 拡張クラス関連のプログラムが纏められている。  
@@ -238,7 +248,7 @@ MonoBehaviourを介さずゲームループを行う、プログラムが纏め�
 ゲームオブジェクト、フォルダ階層、シリアライズ、等の便利処理を記述している。  
 ビルボード、
 [CoroutineProcess](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Coroutine/CoroutineProcess.cs)
-の簡易呼出、DEVELOPのみ存在のゲームオブジェクト、
+の簡易呼出、#DEVELOPのみ存在のゲームオブジェクト、
 [MonoBehaviourProcess](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)
 のテンプレートを実装している。  
 
@@ -250,47 +260,39 @@ MonoBehaviourを介さずゲームループを行う、プログラムが纏め�
 （Plugins/以下に配置する理由は、.csprojを別アセンブリ化し、ゲーム本体プログラム変更の度に、外部プログラム全体を再ビルドしない為である。）  
 主に、前職のゲーム開発企業で使用した、ライブラリを導入している。  
 
-
 + [DOTween](http://dotween.demigiant.com/index.php)  
 これは、音、画像、移動、数値等、様々な処理に、トゥイーン動作を付けるライブラリである。  
 様々なゲーム開発企業で使用される有名ライブラリの為、これに対応する事で、業界水準と鑑みている。  
 当フレームワークでは、音のフェード処理や、UIの処理に使用している。  
 
-
 + [Json & MessagePack Serialization](https://github.com/deniszykov/msgpack-unity3d)  
 これは、プログラムのクラスや構造体のデータを、文章化し、JSONやMessagePack形式に変換するライブラリである。  
 Unity固有のクラスや構造体も文章化でき、IL2CPPビルド時に事前コード生成が要らず、特殊な属性を付ける必要も無く（除外属性は付ける事が可能）、扱い易い。  
 ただし、クラスのポリモーフィズムに未対応の為、配列等で基底クラス読込の場合、継承先クラスのメンバが復元されない。  
-当フレームワークでは、書類の読み書き（Save & Load）、クラス中身のデバッグ表示（ToDeepString）、クラスのコピー（DeepCopy）等に使用している。  
-
+当フレームワークでは、書類の読み書き（Save()、Load()）、クラス中身のデバッグ表示（ToDeepString()）、クラスのコピー（DeepCopy()）等に使用している。  
 
 + [KoganeUnityLib](https://github.com/baba-s/kogane-unity-lib)  
 これは、C#やUnityの簡易記述を可能にする、拡張、便利クラスのライブラリである。  
 当初、同じような便利プログラムの実装を検討していたが、車輪の再開発をする必要は無い為、ライブラリに依存した。  
 当フレームワークでは、至る所で、便利記述に使用している。  
 
-
 + [Lunar Unity Mobile Console](https://github.com/SpaceMadness/lunar-unity-console)  
 これは、スマートフォン端末で、画面にデバッグログを表示する為のライブラリである。  
 uGUI装飾による色文字等は反映せず、余計な画像によりアプリサイズが大きくなる問題があり、他ライブラリと差し替えを検討している。  
 当フレームワークでは、Androidのデバッグの為に使用している。  
 
-
 + [ReferenceViewer](https://github.com/anchan828/ReferenceViewer)  
 これは、Unity内のアセットが何処で使われているか、全参照を表示するライブラリである。  
 当フレームワークでは、アセットの整理整頓に使用している。  
-
 
 + [ScriptingDefineSymbolsEditor](https://github.com/kankikuchi/ScriptingDefineSymbolsEditor)  
 これは、#シンボルをPlayerSettingsでプラットフォーム別に設定する手間を省き、簡単に定義できるライブラリである。  
 当フレームワークでは、#DEVELOP等のシンボル定義に使用している。  
 
-
 + [UniRx](https://github.com/neuecc/UniRx)  
 これは、ラムダ式等を用い、関数定義を簡略化し、複雑な処理の簡略化を行うライブラリである。  
 様々なゲーム開発企業で使用される有名ライブラリの為、これに対応する事で、業界水準と鑑みている。  
 当フレームワークでは、至る所で全面的に積極的に使用している。  
-
 
 + [UniTask](https://github.com/Cysharp/UniTask)  
 これは、C#のasync/awaitの非同期処理を、Unityに対応させ、簡易記述ができるライブラリである。  
@@ -341,7 +343,8 @@ Unity用の、海底の蜃気楼フレームワーク。
 
 
 ## ライセンス
-+ [MIT License](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE)  
++ Submarine Mirage Framework for Unity  
+[MIT License](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE)  
 
 + 外部ライブラリ  
 他人が開発した外部ライブラリを多数使用している為、それぞれ別々のライセンスが存在する。  
