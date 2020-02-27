@@ -66,22 +66,77 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
 
 ## 使用方法
 + 導入  
-Assets/以下のファイルを全てコピー
-UnityAds、UnityIAPを導入
-PlayerSettings
-Scripting Runtime Versionを.NET 4.x Equivalentに設定
-Api Compatibility Levelを.NET 4.xに設定
+  1. フレームワークを導入  
+  [Assets/](/Assets)
+  内の書類を全て複製、移植する。  
+
+  1. Unity内のPlayerSettingsを変更  
+  ScriptingRuntimeVersionを.NET4.xEquivalentに設定する。  
+  ApiCompatibilityLevelを.NET4.xに設定する。  
+
+  1. Unity内でパッケージを導入  
+  PackageManager、Service等から、UnityAds、UnityIAPを導入する。  
 
 
-+ サンプル  
-SubmarineMirageFrameworkForUnity\Sample\Scenes\Sample.unity
++ 使用例  
+[Sample.unity](/Assets/SubmarineMirageFrameworkForUnity/Test/Sample/Sample.unity)
+に、サンプルシーンが存在する。  
+1対1の3Dシューティングゲームで、戦闘時に音楽を切り替え、キャラクターの死亡時に（ゲーム成功、失敗別の）ジングル音を再生する。  
+[Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)、
+[MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)、
+[FSM/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/FSM)、
+[Audio/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Audio)
+等の使用例を示している。  
+実行中にWASDキーでプレイヤーの移動、マウス移動でプレイヤーの方向転換、マウス左押下で銃撃、1キーでデバッグ表示を切り替える。  
+
 
 + 使い方  
-MonoBehaiviorProcess
-Singleton
-MainProcess
+  + [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)  
+  ```csharp
+    using UniRx;
+    using UniRx.Async;
+    using SubmarineMirageFramework.Process;
 
+    // MonoBehaviourProcessは、処理順序に規則を持たせる
+    // UniRxで無理矢理組むような、リアクティブスパゲッティを防止できる
+    public class Test : MonoBehaviourProcess {
+	    // 疑似的コンストラクタ
+	    // 生成時に呼ばれるが、実際のコンストラクタは実行時以外にも呼ばれる為、これを使用
+	    protected override void Constructor() {
+		    // 読込処理を設定
+		    // 各種管理クラスの初期化後、最初に管理クラスから呼ばれる
+		    _loadEvent += async () => {
+			    // AssetBundle、ServerData等、自身で完結する非同期処理を記述
+			    await UniTask.Delay( 0 );
+		    };
+		    // 初期化処理を設定
+		    // _loadEvent実行後、管理クラスから呼ばれる
+		    _initializeEvent += async () => {
+			    // 他オブジェクトの要素、管理クラスの要素等、読込済の他者の取得処理を記述
+			    await UniTask.Delay( 0 );
+		    };
+		    // 更新処理を設定
+		    // _initializeEvent実行後、管理クラスから毎フレーム呼ばれる
+		    _updateEvent.Subscribe( _ => {
+			    // 毎フレーム実行する処理を記述
+		    } );
+		    // 終了処理を設定
+		    // 破棄直前に管理クラスから呼ばれる
+		    _finalizeEvent += async () => {
+			    // 破棄が必要な、非同期処理を記述
+			    await UniTask.Delay( 0 );
+		    };
+	    }
+    }
+  ```
 
+  + [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
+  ```csharp
+  ```
+
+  + [MainProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)  
+  ```csharp
+  ```
 
 
 
@@ -133,7 +188,7 @@ Load、Initialize（非同期の為、サーバー受信やロードに使用で
   使用例の書類が纏められている。  
   [Sample.unity](/Assets/SubmarineMirageFrameworkForUnity/Test/Sample/Sample.unity)
   シーンにて、使用例を確認できる。  
-  実行中のデバッグ表示切り替えは、1キーを使用する。  
+  実行中にWASDキーでプレイヤーの移動、マウス移動でプレイヤーの方向転換、マウス左押下で銃撃、1キーでデバッグ表示を切り替える。  
 
   + [/Test/](/Assets/SubmarineMirageFrameworkForUnity/Test/Test)  
   各処理の試験プログラムが纏められている。  
@@ -209,7 +264,7 @@ Unityのビルド時に、自動実行されるプログラムが、纏められ
 + [/Debug/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Debug)  
 デバッグ関連のプログラムが纏められている。  
 処理の種類別に色文字を追加するデバッグログ、ゲーム画面にデバッグ文章の描画、FPS計測の処理を記述している。  
-デバッグ表示は、1キーで切り替える。  
+実行中のデバッグ表示切り替えは、1キーを使用する。  
 
 + [/Extension/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Extension)  
 拡張クラス関連のプログラムが纏められている。  
