@@ -8,9 +8,7 @@
 Submarine Mirage Framework for Unityとは、Unityでのゲーム開発時に、不便さを補い、安定、迅速、堅牢な実装を行う為の、フレームワークである。  
 市販レベルのゲームで、一般的、汎用的、必須な機能を、全体的に実装している。  
 しかし、現在開発中の為、
-[未実装機能](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/issues)
 [未実装機能](/../../issues)
-[未実装機能](/issues)
 が沢山あり、不安定である。  
 
 
@@ -124,144 +122,148 @@ Load、Initialize（非同期の為、サーバー受信やロードに使用で
 
 ## 実装処理
 #### フレームワークの配置フォルダ
-[Assets/SubmarineMirageFrameworkForUnity/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity)
+[Assets/SubmarineMirageFrameworkForUnity/](/Assets/SubmarineMirageFrameworkForUnity)
 に、フレームワークが配置されている。  
 以降は、このフォルダ直下の説明を行う。  
 
-+ [/Test/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Test)  
-テスト用プログラムが存在する。  
++ [/Test/](/Assets/SubmarineMirageFrameworkForUnity/Test)  
+機能試験用の書類が存在する。  
 当項目では、このフォルダ直下の説明を行う。  
-  + [/Sample/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Sample)  
-  使用例のシーンが存在する。  
-  デバッグ表示は、1キーで切り替える。  
+  + [/Sample/](/Assets/SubmarineMirageFrameworkForUnity/Test/Sample)  
+  使用例の書類が纏められている。  
+  [Sample.unity](/Assets/SubmarineMirageFrameworkForUnity/Test/Sample/Sample.unity)
+  シーンにて、使用例を確認できる。  
+  実行中のデバッグ表示切り替えは、1キーを使用する。  
 
-+ [/Scripts/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts)  
+  + [/Test/](/Assets/SubmarineMirageFrameworkForUnity/Test/Test)  
+  各処理の試験プログラムが纏められている。  
+  [Test.unity](/Assets/SubmarineMirageFrameworkForUnity/Test/Test/Test.unity)
+  シーン内、Scriptsゲームオブジェクトに、試験プログラムを挿入している。  
+  実行中のデバッグ表示切り替えは、1キーを使用する。  
+
++ [/Scripts/](/Assets/SubmarineMirageFrameworkForUnity/Scripts)  
 開発プログラムが存在している。  
 以降は、このフォルダ直下の説明を行う。  
-  + [/Main/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main)  
-  [/MainProcess.cs](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)
+  + [/Main/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main)  
+  [/MainProcess.cs](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)
   は、Unity実行時に、一番最初に実行するプログラムである。  
-
-  + [/Test/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/Test)  
-  各処理の試験プログラムが纏められている。  
-  [Sample.unity](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Sample/Scenes/Sample.unity)
-  シーンの、Scriptsゲームオブジェクトの、コンポーネントプログラムも、このフォルダに存在する。  
 
 
 #### 中心プログラム
-[/System/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System)
+[/System/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System)
 に、フレームワークの中心プログラムが纏められている。  
 直下に、ネットワーク通信管理、時間管理のプログラムが存在する。  
 以降は、このフォルダ直下の説明を行う。  
 
-+ [/Audio/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Audio)  
++ [/Audio/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Audio)  
 音関連のプログラムが纏められている。  
 ゲームオブジェクトに貼り付けることなく、プログラムから呼び出せる。  
 音楽（BGM）、背景音（BGS）、ジングル音（Jingle）、効果音（SE）、ループ効果音（LoopSE）、声音（Voice）を再生できる。  
 
-+ [/Build/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Build)  
++ [/Build/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Build)  
 Unityのビルド時に、自動実行されるプログラムが、纏められている。  
 プログラム書類に、ライセンス文章を追加するプログラムが存在する。  
 
-+ [/Data/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data)  
++ [/Data/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data)  
 データ関連のプログラムが纏められている。  
 当項目では、このフォルダ直下の説明を行う。  
 
-  + [/File/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/File)  
+  + [/File/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/File)  
   書類の読み書き関連のプログラムが纏められている。  
   画像、音、シリアライズされたクラス、CSV、文章、生のデータを読み書きできる。  
   アプリ内（リソース）、アプリ外、サーバーから読み書きできる。  
   暗号化、キャッシュ（ローカル保存可）に対応している。  
   （アセットバンドルは、未対応である。）  
 
-  + [/Master/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Master)  
+  + [/Master/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Master)  
   マスターデータ関連のプログラムが纏められている。  
   広告、課金、エラー、システム、アイテムのデータを、CSV書類から読み込む。  
   当項目では、このフォルダ直下の説明を行う。  
 
-    + [/Command/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Master/Command)  
+    + [/Command/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Master/Command)  
     命令データ関連のプログラムが纏められている。  
     人工知能の命令、構文解析のデータを、CSV文章から読み込む。  
 
-  + [/Raw/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Raw)  
+  + [/Raw/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Raw)  
   生データ関連のプログラムが纏められている。  
   UnityのAudioSource、Texture、Sprite等は、そのままでは書類に読み書きできない為、生データと相互変換する。  
 
-  + [/Save/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Save)  
+  + [/Save/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Save)  
   セーブデータ関連のプログラムが纏められている。  
   遊戯、設定、サーバーキャッシュのデータを、暗号化し、書類に読み書きする。  
   [外部シリアライザ](https://github.com/deniszykov/msgpack-unity3d)
   が優秀な為、クラスごとシリアライズ保存でき、IL2CPPビルド用の事前コード生成の必要もない。  
   （当然、PlayerPrefsは未使用の為、安全である。）  
   データの保存先は、PC対象時は
-  [Data/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Data)
+  [Data/](/Data)
   であり、WindowsPCでAndroid対象時は
-  [DataForAndroid.lnk](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/DataForAndroid.lnk)
+  [DataForAndroid.lnk](/DataForAndroid.lnk)
   のリンク先となる。  
 
-  + [/Server/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Server)  
+  + [/Server/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Data/Server)  
   サーバーデータ関連のプログラムが纏められている。  
   アプリ、製品版宣伝、他アプリ宣伝のデータを、指定URLからダウンロードし、CSV書類を読み込む。  
   [サーバー（GoogleDrive）](https://drive.google.com/open?id=18zwqZntrghe_CXDFTHbBmCcd-jDUedVi)
   に、ダウンロード元の各種サーバーデータが存在する。  
 
-+ [/Debug/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Debug)  
++ [/Debug/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Debug)  
 デバッグ関連のプログラムが纏められている。  
 処理の種類別に色文字を追加するデバッグログ、ゲーム画面にデバッグ文章の描画、FPS計測の処理を記述している。  
 デバッグ表示は、1キーで切り替える。  
 
-+ [/Extension/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Extension)  
++ [/Extension/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Extension)  
 拡張クラス関連のプログラムが纏められている。  
 uGUIとnGUIの装飾文字、ゲームオブジェクト、コンポーネント、数学、レイヤー、タグ、音、スプライト、テクスチャ、ネットワーク、  
 ジェネリック、オブジェクト、タイプ、真偽値、色、文字、等の便利処理を記述している。  
 キャッシュ機能付きMonoBehaviour、入力の管理、スプラッシュ画面の終了待機、シリアライズでのToDeepString()やToDeepCopy()を実装している。  
 
-+ [/FSM/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/FSM)  
++ [/FSM/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/FSM)  
 有限状態機械関連のプログラムが纏められている。  
 コルーチン駆動による、汎用的で、使い易いFSMである。  
 OnEnter()、OnUpdate()、OnExit()がコルーチンの為、非同期処理が可能である。  
 また、毎フレーム呼ばれるOnUpdateDelta()を使う事で、通常の更新処理も行える。  
 
-+ [/Process/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process)  
++ [/Process/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process)  
 MonoBehaviourを介さずゲームループを行う、プログラムが纏められている。  
 ゲームオブジェクト化すること無く、Initialize()、Update()、Finalize()等を非同期で実行し、システムの内部処理をMonoBehaviourから分離できる。  
 
-  + [/BaseProcess.cs](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/BaseProcess.cs)  
+  + [/BaseProcess.cs](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/BaseProcess.cs)  
   ゲームオブジェクト化する意味は無いが、初期化、更新、終了処理等が必要な場合に、使用する基盤クラスである。  
-  [MonoBehaviourProcess](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)
+  [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)
   と同じように使用できる。  
 
-  + [/MonoBehaviourProcess.cs](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)  
+  + [/MonoBehaviourProcess.cs](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)  
   フレームワーク内のコンポーネントは、全て、MonoBehaviourではなくこのクラスを継承する。  
   このクラスは、既存のMonoBehaviourと比べ、より厳密なゲームループと非同期実行を提供する。  
   例として、async Load()、async Initialize()が生成直後に呼ばれ、その実行中は、Update()等が呼ばれない。  
 
-  + [/CoroutineProcess.cs](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Coroutine/CoroutineProcess.cs)  
+  + [/CoroutineProcess.cs](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Coroutine/CoroutineProcess.cs)  
   UniRxのMonoBehaviour不要のコルーチンの、簡易記述を実装している。  
   遅延再生、一時停止、自動解放の処理が簡単に行える。  
-  [CoroutineUtility](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Utility/CoroutineUtility.cs)
+  [CoroutineUtility](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Utility/CoroutineUtility.cs)
   にて、更に簡単に使用できる。  
 
-+ [/Singleton/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
-[Process](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process)
++ [/Singleton/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
+[Process](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process)
 処理を用いた、シングルトンのプログラムが纏められている。  
 ゲームオブジェクト用と、ゲームオブジェクト化しないシステム内部用の、シングルトンが存在する。  
 シングルトンは、各種管理処理に継承される。  
 
-+ [/Utility/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Utility)  
++ [/Utility/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Utility)  
 各種処理を便利にしたプログラムが纏められている。  
 ゲームオブジェクト、フォルダ階層、シリアライズ、等の便利処理を記述している。  
 ビルボード、
-[CoroutineProcess](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Coroutine/CoroutineProcess.cs)
+[CoroutineProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Coroutine/CoroutineProcess.cs)
 の簡易呼出、#DEVELOPのみ存在のゲームオブジェクト、
-[MonoBehaviourProcess](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)
+[MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)
 のテンプレートを実装している。  
 
 
 
 ## 外部ライブラリ
 #### 外部ライブラリの配置フォルダ
-[Assets/Plugins/ExternalAssets/](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/tree/master/Assets/Plugins/ExternalAssets)に、導入した外部ライブラリを配置している。  
+[Assets/Plugins/ExternalAssets/](/Assets/Plugins/ExternalAssets)
+に、導入した外部ライブラリを配置している。  
 （Plugins/以下に配置する理由は、.csprojを別アセンブリ化し、ゲーム本体プログラム変更の度に、外部プログラム全体を再ビルドしない為である。）  
 主に、前職のゲーム開発企業で使用した、ライブラリを導入している。  
 
@@ -307,8 +309,11 @@ uGUI装飾による色文字等は反映せず、余計な画像によりアプ�
 
 
 ## 不具合、実装予定
-不具合の解決、新機能の実装予定等は、逐次[Issues](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/issues)に記載する。  
-[夢想海の水底より](https://seabed-of-reverie.wixsite.com/front)開発中の為、スタジオがゲーム公開の度に、次回作開発前に、毎回追加分をマージする予定である。  
+不具合の解決、新機能の実装予定等は、逐次
+[Issues](/../../issues)
+に記載する。  
+[夢想海の水底より](https://seabed-of-reverie.wixsite.com/front)
+開発中の為、スタジオがゲーム公開の度に、次回作開発前に、毎回追加分をマージする予定である。  
 
 
 
@@ -318,7 +323,8 @@ Unity用の、海底の蜃気楼フレームワーク。
 
 + Submarine  
   + 海底  
-  [夢想海の水底より](https://seabed-of-reverie.wixsite.com/front)ゲーム開発に使用する為、海底とした。  
+  [夢想海の水底より](https://seabed-of-reverie.wixsite.com/front)
+  ゲーム開発に使用する為、海底とした。  
 
   + 潜水艦  
   スタジオの組員皆で乗って行く船として、潜水艦の意味も含む。  
@@ -341,7 +347,7 @@ Unity用の、海底の蜃気楼フレームワーク。
 
 + 共同開発者を募集中  
 万人が便利に使う為のフレームワークは、作家性等とは無関係に、作業分担可能と思われる。  
-[Issues](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/issues)、
+[Issues](/../../issues)、
 [掲示板](https://seabed-of-reverie.wixsite.com/front/notice-board)、
 [お問い合わせ](https://seabed-of-reverie.wixsite.com/front/contact)等から連絡頂けると幸いである。  
 
@@ -349,8 +355,8 @@ Unity用の、海底の蜃気楼フレームワーク。
 
 ## ライセンス
 + Submarine Mirage Framework for Unity  
-[MIT License](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE)  
+[MIT License](/LICENSE)  
 
 + 外部ライブラリ  
 他人が開発した外部ライブラリを多数使用している為、それぞれ別々のライセンスが存在する。  
-詳しくは、[LICENSE](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE)書類を確認頂きたい。  
+詳しくは、[LICENSE](/LICENSE)書類を確認頂きたい。  
