@@ -78,28 +78,15 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
   PackageManager、Service等から、UnityAds、UnityIAPを導入する。  
 
 
-+ 使用例  
-[Sample.unity](/Assets/SubmarineMirageFrameworkForUnity/Test/Sample/Sample.unity)
-に、サンプルシーンが存在する。  
-1対1の3Dシューティングゲームで、戦闘時に音楽を切り替え、キャラクターの死亡時に（ゲーム成功、失敗別の）ジングル音を再生する。  
-[Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)、
-[MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)、
-[FSM/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/FSM)、
-[Audio/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Audio)
-等の使用例を示している。  
-実行中にWASDキーでプレイヤーの移動、マウス移動でプレイヤーの方向転換、マウス左押下で銃撃、1キーでデバッグ表示を切り替える。  
-
-
 + 使い方  
   + [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)  
     ```csharp
     using UniRx;
     using UniRx.Async;
     using SubmarineMirageFramework.Process;
-
     // MonoBehaviourProcessは、処理順序に規則を持たせたMonoBehaviour
     // UniRxで無理矢理組むような、リアクティブスパゲッティを防止できる
-    public class Test : MonoBehaviourProcess {
+    public class TestMonoBehaviourProcess : MonoBehaviourProcess {
         // 疑似的コンストラクタ
         // 生成時に呼ばれるが、実際のコンストラクタは実行時以外にも呼ばれる為、これを使用
         protected override void Constructor() {
@@ -131,14 +118,79 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
     ```
 
   + [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
-  ```csharp
-  ```
+    ```csharp
+    using System.Linq;
+    using System.Collections.Generic;
+    using UniRx;
+    using UniRx.Async;
+    using SubmarineMirageFramework.Singleton;
+    using SubmarineMirageFramework.Process;
+    // MonoBehaviourProcessと同じようにProcessサイクルを持つ、シンプルなシングルトン
+    public class TestSingleton : Singleton<TestSingleton> {
+        // 試験データの一覧
+        public readonly List<string> _data = new List<string>();
+        // コンストラクタで、読込時にデータ読込を設定
+        public TestSingleton() {
+            _loadEvent += async () => {
+                _data.Add( "TestData" );
+                await UniTask.Delay( 0 );
+            };
+        }
+    }
+    // シングルトンを呼ぶ為の、コンポーネントクラス
+    public class UseSingleton : MonoBehaviourProcess {
+        // このコンポーネントが使用する試験データ
+        string _data;
+        // コンストラクタで、初期化時に管理クラスからデータ取得、を設定
+        protected override void Constructor() {
+            // 予めシングルトンを使用し生成しないと、内部登録されず、読込処理が行われない
+            var i = TestSingleton.s_instance;
+            _initializeEvent += async () => {
+                _data = TestSingleton.s_instance._data.FirstOrDefault();
+                await UniTask.Delay( 0 );
+            };
+        }
+    }
+    ```
 
   + [MainProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)  
-  ```csharp
-  ```
-
-
+    ```csharp
+    using System.Linq;
+    using UniRx.Async;
+    using SubmarineMirageFramework.Process;
+    // 実行時に、一番最初に処理されるクラス
+    // Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.csを、簡易的に記述している
+    // 実際は、そこを編集する
+    public class MainProcess {
+        // 外部プラグインを初期化する
+        static async UniTask InitializePlugin() {
+            // ここで、様々な外部プラグインの初期化を記述する
+            // ...省略...
+            await UniTask.Delay( 0 );
+        }
+        // 処理を登録する
+        static async UniTask RegisterProcesses() {
+            // ここで、シングルトン等のProcess系クラスを初期化し、呼び出し順を確定させる
+            // ...省略...
+            await TestSingleton.WaitForCreation();    // シングルトン試験の生成と登録を行い、完了まで待機
+            await UniTask.DelayFrame( 1 );
+        }
+    }
+    // 登録済シングルトンを呼ぶ為の、コンポーネントクラス
+    public class UseSingletonByRegister : MonoBehaviourProcess {
+        // このコンポーネントが使用する試験データ
+        string _data;
+        // コンストラクタで、初期化時に管理クラスからデータ取得、を設定
+        protected override void Constructor() {
+            // ここでシングルトン未使用でも、生成済で内部登録済の為、読込処理が行われる
+    //      var i = TestSingleton.s_instance;
+            _initializeEvent += async () => {
+                _data = TestSingleton.s_instance._data.FirstOrDefault();
+                await UniTask.Delay( 0 );
+            };
+        }
+    }
+    ```
 
 
 + 狙い  
@@ -184,10 +236,22 @@ Load、Initialize（非同期の為、サーバー受信やロードに使用で
 + [/Test/](/Assets/SubmarineMirageFrameworkForUnity/Test)  
 機能試験用の書類が存在する。  
 当項目では、このフォルダ直下の説明を行う。  
+
+  + [/ReadMe/](/Assets/SubmarineMirageFrameworkForUnity/Test/ReadMe)  
+  当書類
+  [README](/README.md)
+  に記載のサンプルプログラムを纏めている。  
+
   + [/Sample/](/Assets/SubmarineMirageFrameworkForUnity/Test/Sample)  
   使用例の書類が纏められている。  
   [Sample.unity](/Assets/SubmarineMirageFrameworkForUnity/Test/Sample/Sample.unity)
   シーンにて、使用例を確認できる。  
+  [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)、
+  [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)、
+  [FSM/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/FSM)、
+  [Audio/](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Audio)
+  等の使用例を示している。  
+  1対1の3Dシューティングゲームで、戦闘時に音楽を切り替え、キャラクターの死亡時に（ゲーム成功、失敗別の）ジングル音を再生する。  
   実行中にWASDキーでプレイヤーの移動、マウス移動でプレイヤーの方向転換、マウス左押下で銃撃、1キーでデバッグ表示を切り替える。  
 
   + [/Test/](/Assets/SubmarineMirageFrameworkForUnity/Test/Test)  
