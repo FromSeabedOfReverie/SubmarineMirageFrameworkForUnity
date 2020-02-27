@@ -29,6 +29,7 @@ namespace SubmarineMirageFramework.Test.FSM {
 				new TitleScene( this ),
 			};
 			_fsm = new GeneralFiniteStateMachine<TestSceneManager>( this, states );
+			_fsm.Initialize();
 		}
 
 		public void ChangeScene() {

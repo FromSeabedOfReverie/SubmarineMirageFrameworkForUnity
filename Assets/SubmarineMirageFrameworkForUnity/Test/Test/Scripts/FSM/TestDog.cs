@@ -5,13 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Test.FSM {
-	using UniRx;
 	using SubmarineMirageFramework.FSM;
 	using SubmarineMirageFramework.Process;
-	using Extension;
-	using Owner = TestCat;
-	using FSM = TestAIManager<TestCat>;
-	using State = SubmarineMirageFramework.FSM.State< TestCat, TestAIManager<TestCat> >;
+	using Owner = TestDog;
+	using FSM = TestAIManager<TestDog>;
+	using State = SubmarineMirageFramework.FSM.State< TestDog, TestAIManager<TestDog> >;
 
 
 
@@ -19,7 +17,7 @@ namespace SubmarineMirageFramework.Test.FSM {
 
 
 
-	public class TestCat : MonoBehaviourProcess, IFiniteStateMachineOwner<FSM> {
+	public class TestDog : MonoBehaviourProcess, IFiniteStateMachineOwner<FSM> {
 
 
 		public FSM _fsm { get; private set; }
@@ -32,20 +30,9 @@ namespace SubmarineMirageFramework.Test.FSM {
 				new WaitState<Owner>( this ),
 				new WalkState<Owner>( this ),
 				new RunState<Owner>( this ),
-//				new UIFade<Owner>( this ),
 			};
 			_fsm = new FSM( this, states );
-
-
-			InputManager.s_instance.GetPressedEvent( InputManager.Event.Decide ).Subscribe( _ => {
-				_fsm.ChangeState< WalkState<Owner> >();
-			} )
-			.AddTo( gameObject );
-
-			InputManager.s_instance.GetPressedEvent( InputManager.Event.Quit ).Subscribe( _ => {
-				_fsm.ChangeState< RunState<Owner> >();
-			} )
-			.AddTo( gameObject );
+			_fsm.Initialize();
 		}
 	}
 }
