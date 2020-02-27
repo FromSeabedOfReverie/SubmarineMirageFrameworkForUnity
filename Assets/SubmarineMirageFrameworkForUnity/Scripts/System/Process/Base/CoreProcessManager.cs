@@ -270,7 +270,7 @@ namespace SubmarineMirageFramework.Process {
 		/// <summary>
 		/// ● 登録解除
 		/// </summary>
-		void UnRegister( IProcess process ) {
+		public void UnRegister( IProcess process ) {
 			_deleteProcesses.Add( process );
 		}
 		///------------------------------------------------------------------------------------------------

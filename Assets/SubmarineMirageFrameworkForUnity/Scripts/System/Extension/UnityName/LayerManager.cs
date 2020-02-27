@@ -61,5 +61,13 @@ namespace SubmarineMirageFramework.Extension {
 		public int ToInt( Name name ) {
 			return LayerMask.NameToLayer( Get( name ) );
 		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● レイヤーが等しいか？
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public bool IsEqual( int layer, Name name ) {
+			return layer == ToInt( name );
+		}
 	}
 }
