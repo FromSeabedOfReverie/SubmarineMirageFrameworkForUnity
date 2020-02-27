@@ -1,13 +1,18 @@
 # Submarine Mirage Framework for Unity
 ##### Version 0.1
-![Logo.png](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png?raw=true)  
 ![Logo.png](/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png?raw=true)  
-![Logo.png](/blob/master/Assets/SubmarineMirageFrameworkForUnity/Textures/Logo.png?raw=true)  
+
+
 
 ## 概要
 Submarine Mirage Framework for Unityとは、Unityでのゲーム開発時に、不便さを補い、安定、迅速、堅牢な実装を行う為の、フレームワークである。  
 市販レベルのゲームで、一般的、汎用的、必須な機能を、全体的に実装している。  
-しかし、現在開発中の為、[未実装機能](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/issues)が沢山あり、不安定である。  
+しかし、現在開発中の為、
+[未実装機能](https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/issues)
+[未実装機能](/../../issues)
+[未実装機能](/issues)
+が沢山あり、不安定である。  
+
 
 
 #### 対象
