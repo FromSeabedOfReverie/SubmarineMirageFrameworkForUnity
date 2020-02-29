@@ -12,7 +12,6 @@ Submarine Mirage Framework for Unityとは、Unityでのゲーム開発時に、
 が沢山あり、不安定である。  
 
 
-
 #### 対象
 + 中規模インディーゲーム向け  
 数名規模のインディーゲーム開発スタジオで、それなりの中規模ゲーム開発での使用を想定している。  
@@ -65,22 +64,22 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
 
 
 ## 使用方法
-+ 導入  
-  1. フレームワークを導入  
-  [Assets/](/Assets)
-  内の書類を全て複製、移植する。  
+#### 導入  
+1. フレームワークを導入  
+[Assets/](/Assets)
+内の書類を全て複製、移植する。  
 
-  1. Unity内のPlayerSettingsを変更  
-  ScriptingRuntimeVersionを.NET4.xEquivalentに設定する。  
-  ApiCompatibilityLevelを.NET4.xに設定する。  
+1. Unity内のPlayerSettingsを変更  
+ScriptingRuntimeVersionを.NET4.xEquivalentに設定する。  
+ApiCompatibilityLevelを.NET4.xに設定する。  
 
-  1. Unity内でパッケージを導入  
-  PackageManager、Service等から、UnityAds、UnityIAPを導入する。  
+1. Unity内でパッケージを導入  
+PackageManager、Service等から、UnityAds、UnityIAPを導入する。  
 
 
-+ 使い方  
-  + [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)  
-    ```csharp
+#### 使い方  
++ [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)  
+  ```csharp
     using UniRx;
     using UniRx.Async;
     using SubmarineMirageFramework.Process;
@@ -115,10 +114,10 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
             };
         }
     }
-    ```
+  ```
 
-  + [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
-    ```csharp
++ [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
+  ```csharp
     using System.Linq;
     using System.Collections.Generic;
     using UniRx;
@@ -151,10 +150,10 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
             };
         }
     }
-    ```
+  ```
 
-  + [MainProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)  
-    ```csharp
++ [MainProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)  
+  ```csharp
     using System.Linq;
     using UniRx.Async;
     using SubmarineMirageFramework.Process;
@@ -190,40 +189,13 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
             };
         }
     }
-    ```
+  ```
 
 
-+ 狙い  
+#### 設計思想  
+![Flowchart.png](/Flowchart.png)  
 UniRx使用のリアクティブスパゲッティと、Processプログラムの比較を、画像等で表示
 要は、UniRxだとゴチャゴチャなのは、コンポーネント設計が、全て等価だから
-マネージャー系は、最初にまとめて順番通り処理、その後シーンコンポーネントを順不同で処理し、処理完了まで待ってから、フェードイン
-Constractorが、生成直後に呼ばれ、
-Load→Initializeを非同期実行し、
-FixedUpdate→Update→LateUpdateを初期化完了後に毎回、それぞれのタイミングで呼び出し、
-Finalizeを非同期実行を待機後、
-オブジェクトが破棄されて、シーン遷移
-
-Constractorで、マネージャーの参照を取得（この時すでにマネージャーは初期化済）
-Loadで、自身のオブジェクトに必要なリソースのサーバー、ローカル読込
-Initializeで、他オブジェクトの参照を入手（既に読込済なのでnullにならない）
-全ての初期化が完了後、各種Update処理
-Finalizeで、破棄に時間が掛かる処理を想定し、非同期破棄
-全て破棄してから、シーン切り替え
-
-
-  ゲーム起動　→　初期シーン読込　→　全ての中心管理処理のLoad()　→　全ての中心管理処理のInitialize()　→  
-  シーン読込　→　シーン内の全ての管理処理のLoad()　→　シーン内の全ての管理処理のInitialize()　→  
-  全てのゲームオブジェクト処理のLoad()　→　全てのゲームオブジェクト処理のInitialize()　→  
-  中心管理処理、シーン内の全ての管理処理、ゲームオブジェクト処理のFixedUpdate()、Update()、LateUpdate()　→　繰り返し　→  
-  シーン切り替え　→  
-  全てのゲームオブジェクト処理のFinalize()　→  
-  シーン内の全ての管理処理のFinalize()　→  
-  全ての中心管理処理のFinalize()　→  
-  ゲーム終了  
-
-Load、Initialize（非同期の為、サーバー受信やロードに使用できる）が順番に呼ばれ、
-初期化が完了してから、FixedUpdate、Update、LateUpdateを繰り返し呼び出し、
-シーンが破棄される前に、Finalizeが、非同期で呼ばれる
 
 
 
