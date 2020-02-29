@@ -192,10 +192,93 @@ PackageManager、Service等から、UnityAds、UnityIAPを導入する。
   ```
 
 
-#### 設計思想  
+
+## 設計思想
+UniRxは優れたライブラリだが、いい加減に使用すると直ぐに複雑化し、リアクティブスパゲッティと呼ばれる難読プログラムになる。  
+下記プログラムは、管理クラスのシングルトン初期化後に、ゲームオブジェクトがデータを取得して初期化する、難読プログラムの例である。  
+```csharp
+    using System.Linq;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using UniRx;
+    using UniRx.Triggers;
+    // シーン配置済の管理処理のシングルトン
+    public class TestUniRxManager : MonoBehaviour {
+        // 自身のインスタンス
+        public static TestUniRxManager s_instance { get; private set; }
+        // 試験データの一覧
+        public List<string> _data { get; private set; } = new List<string>();
+        // 初期化
+        void Start() {
+            // 自身を保持し、自身のデータを設定し、他者のデータ登録を待機後、データを加工
+            s_instance = this;
+            _data.Add( "ManagerData" );
+            var isInitialized = false;
+            Observable.TimerFrame( 2 ).Subscribe( _ => {    // ※待機時間がいい加減
+                _data = _data.Select( d => d + "Processed" ).ToList();
+                isInitialized = true;
+            } )
+            .AddTo( gameObject );
+            // 更新処理を登録し、初期化済の場合のみ、何らかの処理
+            this.UpdateAsObservable().Where( _ => isInitialized ).Subscribe( _ => {
+            } );
+        }
+    }
+    // シーン配置済のゲームオブジェクト1
+    public class UseUniRx1 : MonoBehaviour {
+        // 管理クラスのデータ
+        string _managerData;
+        // 他者のデータ
+        string _data;
+        // 初期化
+        void Start() {
+            // シングルトン作成を待機後、自身のデータを登録し、他者のデータ登録と加工を待機後、データを設定
+            var isInitialized = false;
+            Observable.NextFrame().Subscribe( _ => {    // ※待機がいい加減で、複雑な入れ子になっている
+                TestUniRxManager.s_instance._data.Add( "Data1" );
+                Observable.TimerFrame( 2 ).Subscribe( __ => {
+                    _managerData = TestUniRxManager.s_instance._data[0];
+                    _data = TestUniRxManager.s_instance._data[2];
+                    isInitialized = true;
+                } )
+                .AddTo( gameObject );
+            } )
+            .AddTo( gameObject );
+            // 更新処理を登録し、初期化済の場合のみ、何らかの処理
+            this.UpdateAsObservable().Where( _ => isInitialized ).Subscribe( _ => {
+            } );
+        }
+    }
+    // シーン配置済のゲームオブジェクト2
+    public class UseUniRx2 : MonoBehaviour {
+        // 管理クラスのデータ
+        string _managerData;
+        // 他者のデータ
+        string _data;
+        // 初期化
+        void Start() {
+            // シングルトン作成を待機後、自身のデータを登録し、他者のデータ登録と加工を待機後、データを設定
+            var isInitialized = false;
+            Observable.NextFrame().Subscribe( _ => {    // ※待機がいい加減で、複雑な入れ子になっている
+                TestUniRxManager.s_instance._data.Add( "Data2" );
+                Observable.TimerFrame( 2 ).Subscribe( __ => {
+                    _managerData = TestUniRxManager.s_instance._data[0];
+                    _data = TestUniRxManager.s_instance._data[1];
+                    isInitialized = true;
+                } )
+                .AddTo( gameObject );
+            } )
+            .AddTo( gameObject );
+            // 更新処理を登録し、初期化済の場合のみ、何らかの処理
+            this.UpdateAsObservable().Where( _ => isInitialized ).Subscribe( _ => {
+            } );
+        }
+    }
+```
+このような難読プログラムは、サーバー通信でAssetBundleを取得する等の、非同期処理が含まれる場合に、多く遭遇する。  
+原因は、Unityのコンポーネント設計が全て等価である事、Unityは非同期処理を考慮しない設計である事に、起因していると考えられる。  
+その為、当フレームワークでは、下記の遷移図に示す、非同期ゲームループを中心に据えた設計を、全ての要としている。  
 ![Flowchart.png](/Flowchart.png)  
-UniRx使用のリアクティブスパゲッティと、Processプログラムの比較を、画像等で表示
-要は、UniRxだとゴチャゴチャなのは、コンポーネント設計が、全て等価だから
 
 
 
