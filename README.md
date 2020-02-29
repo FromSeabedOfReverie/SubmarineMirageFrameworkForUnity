@@ -522,9 +522,9 @@ Unity用の、海底の蜃気楼フレームワーク。
 
 
 ## 開発者
-+ [夢想海の水底より（From Seabed of Reverie）](https://seabed-of-reverie.wixsite.com/front)  
-
-+ [神呪歌人魚](https://twitter.com/SirenSingsCurse)  
++ 夢想海の水底より（From Seabed of Reverie）  
+[Web](https://seabed-of-reverie.wixsite.com/front)  
+[Twitter](https://twitter.com/SeabedOfReverie)  
 
 + 共同開発者を募集中  
 万人が便利に使う為のフレームワークは、作家性等とは無関係に、作業分担可能と思われる。  
