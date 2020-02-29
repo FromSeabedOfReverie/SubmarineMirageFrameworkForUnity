@@ -6,7 +6,7 @@
 
 ## 概要
 Submarine Mirage Framework for Unityとは、Unityでのゲーム開発時に、不便さを補い、安定、迅速、堅牢な実装を行う為の、フレームワークである。  
-市販レベルのゲームで、一般的、汎用的、必須な機能を、全体的に実装している。  
+販売品質のゲームで、一般的、汎用的、必須な機能の、全体実装を目標とする。  
 しかし、現在開発中の為、
 [未実装機能](/../../issues)
 が沢山あり、不安定である。  
@@ -36,7 +36,7 @@ Unity用の総合機能フレームワークは、オープンソースで多々
 
 #### 特徴
 + Unityのいい加減な機能を、補強  
-Unityは、いい加減なゲーム開発をサポートし、市販ゲーム程度のきちんと動作するゲーム開発を、ほぼ全くサポートしない。  
+Unityは、いい加減なゲーム開発をサポートしているが、販売品質程度のきちんと動作するゲーム開発を、ほぼ全くサポートしていない。  
 Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われるであろう機能を、堅牢に、使い易く実装している。  
 
 + フレームワークとして、全面実装  
@@ -79,6 +79,7 @@ PackageManager、Service等から、UnityAds、UnityIAPを導入する。
 
 #### 使い方  
 + [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)  
+  順序立てた非同期処理を追加したMonoBehaviourである。  
   ```csharp
     using UniRx;
     using UniRx.Async;
@@ -117,6 +118,8 @@ PackageManager、Service等から、UnityAds、UnityIAPを導入する。
   ```
 
 + [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
+  [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)
+  と同様に動作する、使い易いシングルトンである。  
   ```csharp
     using System.Linq;
     using System.Collections.Generic;
@@ -153,6 +156,9 @@ PackageManager、Service等から、UnityAds、UnityIAPを導入する。
   ```
 
 + [MainProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)  
+  ゲーム起動直後に、
+  [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)
+  の生成順序を指定できる。  
   ```csharp
     using System.Linq;
     using UniRx.Async;
@@ -194,8 +200,8 @@ PackageManager、Service等から、UnityAds、UnityIAPを導入する。
 
 
 ## 設計思想
-UniRxは優れたライブラリだが、いい加減な使用で直ぐに複雑化し、リアクティブスパゲッティと呼ばれる難読プログラムになる。  
-下記プログラムは、管理クラスのシングルトン初期化後に、ゲームオブジェクトがデータ取得後に初期化する、難読プログラムの例である。  
+UniRxは優れたライブラリだが、いい加減な使用で直ぐに複雑化し、リアクティブスパゲッティと呼ばれる難読プログラムとなる。  
+下記プログラムは、管理クラスのシングルトン初期化後に、ゲームオブジェクトがデータ取得後に初期化する、難読プログラムの悪しき例である。  
 ```csharp
     using System.Linq;
     using System.Collections.Generic;
@@ -277,8 +283,9 @@ UniRxは優れたライブラリだが、いい加減な使用で直ぐに複雑
 ```
 このような難読プログラムは、サーバー通信でAssetBundleを取得する等の、非同期処理が含まれる場合に、多く遭遇する。  
 原因は、Unityのコンポーネント設計が全て等価である事、Unityは非同期処理を考慮しない設計である事に、起因していると考えられる。  
-その為、当フレームワークでは、下記の遷移図に示す、非同期ゲームループを中心に据えた設計とし、管理クラス等の処理に順序を持たせている。  
+その為、当フレームワークでは、下記の遷移図に示す、非同期ゲームループを中心に据えた設計とし、管理クラス等の処理順序を規定している。  
 ![Flowchart.png](/Flowchart.png)  
+※完成予定図の為、現在未対応な機能も含まれる。  
 
 
 
