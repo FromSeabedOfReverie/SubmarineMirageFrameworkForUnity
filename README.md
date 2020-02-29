@@ -49,7 +49,7 @@ Unityの問題ばかりの機能の内、ゲーム開発で頻繁に使われる
 
 + 見易いプログラム  
 可読性を意識し、（日本語であるが）見易いコメント、分かり易い設計を重視している。  
-プログラムが見易いので、使い易いフレームワークである。  
+プログラムが見易い事は、使い易いフレームワークの必須条件と考えられる。  
 
 
 #### 対応
@@ -117,9 +117,9 @@ PackageManager、Service等から、UnityAds、UnityIAPを導入する。
     }
   ```
 
-+ [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)  
++ [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton/Singleton.cs)  
   [MonoBehaviourProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Process/Base/MonoBehaviourProcess.cs)
-  と同様に動作する、使い易いシングルトンである。  
+  と同様に動作する、ゲームオブジェクト化する必要の無い、基本的なシングルトンである。  
   ```csharp
     using System.Linq;
     using System.Collections.Generic;
@@ -157,8 +157,8 @@ PackageManager、Service等から、UnityAds、UnityIAPを導入する。
 
 + [MainProcess](/Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.cs)  
   ゲーム起動直後に、
-  [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton)
-  の生成順序を指定できる。  
+  [Singleton](/Assets/SubmarineMirageFrameworkForUnity/Scripts/System/Singleton/Singleton.cs)
+  の生成と処理順序を指定できる。  
   ```csharp
     using System.Linq;
     using UniRx.Async;
