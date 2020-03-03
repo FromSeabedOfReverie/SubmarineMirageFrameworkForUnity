@@ -95,6 +95,7 @@ namespace SubmarineMirageFramework.Main {
 #if DEVELOP
 			await DebugDisplay.WaitForCreation();
 #endif
+			new TestHogeProcess2();
 
 			// 登録は、継承先コンストラクタ実行後になるよう、1ミリ秒遅延させた為、全遅延登録完了まで待機が必要
 			// 指定時間間隔が短過ぎる為か、Delay( 10 )でもDelay( 1 )より早く実行される為、
