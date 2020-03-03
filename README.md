@@ -491,7 +491,8 @@ uGUI装飾による色文字等は反映せず、余計な画像によりアプ�
 
 ## 不具合、実装予定
 不具合の解決、新機能の実装予定等は、逐次
-[Issues](/../../issues)
+[Issues](/../../issues)、
+[Projects](/../../projects/1)
 に記載する。  
 [夢想海の水底より](https://seabed-of-reverie.wixsite.com/front)
 開発中の為、スタジオがゲーム公開の度に、次回作開発前に、毎回追加分をマージする予定である。  
