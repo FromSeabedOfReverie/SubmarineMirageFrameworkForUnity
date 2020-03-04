@@ -12,7 +12,7 @@ namespace SubmarineMirageFramework.Process {
 	using Extension;
 
 	public abstract class BaseMultiEvent<T> : IDisposable {
-		public enum AddType {
+		enum AddType {
 			First,
 			Last,
 		}

@@ -5,7 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process {
+	using System;
 	using System.Linq;
+	using System.Threading;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
@@ -14,22 +16,39 @@ namespace SubmarineMirageFramework.Process {
 	using KoganeUnityLib;
 	using Singleton;
 	using Extension;
+	using Utility;
 	using Debug;
 
-	public abstract class TestNewProcess {
+	public abstract class TestNewProcess : IDisposable {
 		public virtual TestNewProcessManager.Type _type => TestNewProcessManager.Type.Process;
 		public virtual TestNewProcessManager.LifeSpan _lifeSpan => TestNewProcessManager.LifeSpan.InScene;
 		public bool _isInitialized	{ get; private set; }
-
-		public MultiAsyncEvent _loadEvent		{ get; protected set; } = new MultiAsyncEvent();
-		public MultiAsyncEvent _initializeEvent	{ get; protected set; } = new MultiAsyncEvent();
-		public MultiEvent _updateEvent			{ get; protected set; } = new MultiEvent();
-		public MultiAsyncEvent _finalizeEvent	{ get; protected set; } = new MultiAsyncEvent();
+		CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
+		public CancellationToken _asyncCancelerToken => _asyncCanceler.Token;
+		CancellationTokenSource _finalizeCanceler = new CancellationTokenSource();
+		public CancellationToken _finalizeCancelerToken => _finalizeCanceler.Token;
+		public MultiAsyncEvent _loadEvent		{ get; protected set; }
+		public MultiAsyncEvent _initializeEvent	{ get; protected set; }
+		public MultiEvent _updateEvent			{ get; protected set; }
+		public MultiAsyncEvent _finalizeEvent	{ get; protected set; }
 
 		protected TestNewProcess() {
+			_loadEvent = new MultiAsyncEvent();
+			_initializeEvent = new MultiAsyncEvent();
+			_updateEvent = new MultiEvent();
+			_finalizeEvent = new MultiAsyncEvent();
 			TestNewProcessManager.s_instance.Register( this );
 		}
 		public abstract void Create();
+		public void Cancel() {
+			_asyncCanceler.Cancel();
+		}
+		public void Dispose() {
+			_asyncCanceler.Cancel();
+			_finalizeCanceler.Cancel();
+			_asyncCanceler.Dispose();
+			_finalizeCanceler.Dispose();
+		}
 		public override string ToString() {
 			return this.ToDeepString();
 		}
@@ -37,54 +56,100 @@ namespace SubmarineMirageFramework.Process {
 
 	public class TestHogeProcess : TestNewProcess {
 		public override void Create() {
-			_loadEvent.AddLast( "load 2", async () => {
-				Log.Debug( "load 2" );
-				await UniTask.Delay( 500 );
+			_loadEvent.AddLast( async ( cancel ) => {
+				TimeManager.s_instance.StartMeasure();
+				Log.Debug( "load 1 start" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 1 1" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 1 2" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 1 3" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 1 4" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( $"load 1 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
-			_loadEvent.InsertFirst( "load 2", "load 1", async () => {
-				Log.Debug( "load 1" );
-				await UniTask.Delay( 500 );
+			_initializeEvent.AddLast( async ( cancel ) => {
+				TimeManager.s_instance.StartMeasure();
+				Log.Debug( "initialize 1 start" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 1 1" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 1 2" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 1 3" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 1 4" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( $"initialize 1 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
-			_loadEvent.InsertLast( "load 2", "load 3", async () => {
-				Log.Debug( "load 3" );
-				await UniTask.Delay( 500 );
-			} );
-
-			_updateEvent.AddLast( "update 2", () => {
-				Log.Debug( "update 2" );
-			} );
-			_updateEvent.InsertFirst( "update 2", "update 1", () => {
+			_updateEvent.AddLast( () => {
 				Log.Debug( "update 1" );
 			} );
-			_updateEvent.InsertLast( "update 2", "update 3", () => {
-				Log.Debug( "update 3" );
+			_finalizeEvent.AddLast( async ( cancel ) => {
+				TimeManager.s_instance.StartMeasure();
+				Log.Debug( "finalize 1 start" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 1 1" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 1 2" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 1 3" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 1 4" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( $"finalize 1 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
-		}
-		~TestHogeProcess() {
-			Log.Debug( "Delete TestHogeProcess" );
 		}
 	}
 	public class TestHogeProcess2 : TestHogeProcess {
 		public override void Create() {
 			base.Create();
-
-			_loadEvent.InsertFirst( "load 1", "load 0", async () => {
-				Log.Debug( "load 0 override" );
-				await UniTask.Delay( 500 );
+			_loadEvent.AddLast( async ( cancel ) => {
+				TimeManager.s_instance.StartMeasure();
+				Log.Debug( "load 2 start" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 2 1" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 2 2" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 2 3" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "load 2 4" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( $"load 2 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
-			_loadEvent.InsertLast( "load 3", "load 4", async () => {
-				Log.Debug( "load 4 override" );
-				await UniTask.Delay( 500 );
+			_initializeEvent.AddLast( async ( cancel ) => {
+				TimeManager.s_instance.StartMeasure();
+				Log.Debug( "initialize 2 start" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 2 1" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 2 2" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 2 3" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "initialize 2 4" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( $"initialize 2 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
-
-			_updateEvent.InsertFirst( "update 1", "update 0", () => {
-				Log.Debug( "update 0 override" );
+			_updateEvent.AddLast( () => {
+				Log.Debug( "update 2" );
 			} );
-			_updateEvent.InsertLast( "update 3", "update 4", () => {
-				Log.Debug( "update 4 override" );
-			} );
-			_updateEvent.InsertLast( "update 5", "update 6", () => {
-				Log.Debug( "update 6 override" );
+			_finalizeEvent.AddLast( async ( cancel ) => {
+				TimeManager.s_instance.StartMeasure();
+				Log.Debug( "finalize 2 start" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 2 1" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 2 2" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 2 3" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( "finalize 2 4" );
+				await UniTaskUtility.Delay( cancel, 100 );
+				Log.Debug( $"finalize 2 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
 		}
 		~TestHogeProcess2() {
@@ -105,19 +170,27 @@ namespace SubmarineMirageFramework.Process {
 		}
 		readonly Dictionary< string, List<TestNewProcess> > _processes
 			= new Dictionary< string, List<TestNewProcess> >();
+		IDisposable processUpdateDispose;
+
+		protected override void Constructor() {
+			Observable.EveryUpdate()
+				.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
+				.Take( 1 )
+				.Subscribe( _ => Clear().Forget() );
+		}
 
 		public void Register( TestNewProcess process ) {
 			RegisterSub( process ).Forget();
 		}
 
-		async UniTaskVoid RegisterSub( TestNewProcess process ) {
+		async UniTask RegisterSub( TestNewProcess process ) {
 			process.Create();
 			switch ( process._type ) {
 				case Type.DontProcess:
 					return;
 
 				case Type.Process:
-					await UniTask.WaitUntil( () => _isInitialized );
+					await UniTaskUtility.WaitUntil( process._asyncCancelerToken, () => _isInitialized );
 					break;
 
 				case Type.FirstProcess:
@@ -131,20 +204,31 @@ namespace SubmarineMirageFramework.Process {
 
 			await _processes
 				.SelectMany( pair => pair.Value )
-				.Select( async p => await p._loadEvent.Invoke() );
+				.Select( async p => await p._loadEvent.Invoke( p._asyncCancelerToken ) );
+			await _processes
+				.SelectMany( pair => pair.Value )
+				.Select( async p => await p._initializeEvent.Invoke( p._asyncCancelerToken ) );
 
-			Observable.EveryUpdate().Subscribe( _ => {
+			processUpdateDispose = Observable.EveryUpdate().Subscribe( _ => {
 				_processes
 					.SelectMany( pair => pair.Value )
 					.ForEach( p => p._updateEvent.Invoke() );
 			} );
-			Observable.EveryUpdate()
-				.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
-				.Take( 1 )
-				.Subscribe( _ => {
-					_processes.Clear();
-					Log.Debug( "clear process" );
+		}
+
+		async UniTask Clear() {
+			Log.Debug( "clear process" );
+			processUpdateDispose.DisposeIfNotNull();
+			_processes
+				.SelectMany( pair => pair.Value )
+				.ForEach( p => p.Cancel() );
+			await _processes
+				.SelectMany( pair => pair.Value )
+				.Select( async p => {
+					await p._finalizeEvent.Invoke( p._finalizeCancelerToken );
+					p.Dispose();
 				} );
+			_processes.Clear();
 		}
 	}
 }

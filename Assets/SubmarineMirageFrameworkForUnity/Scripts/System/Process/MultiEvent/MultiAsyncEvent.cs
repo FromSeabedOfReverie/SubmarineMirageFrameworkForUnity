@@ -6,13 +6,14 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process {
 	using System;
+	using System.Threading;
 	using UniRx.Async;
 
-	public class MultiAsyncEvent : BaseMultiEvent< Func<UniTask> > {
-		public async UniTask Invoke() {
+	public class MultiAsyncEvent : BaseMultiEvent< Func<CancellationToken, UniTask> > {
+		public async UniTask Invoke( CancellationToken cancel ) {
 			foreach ( var pair in _events ) {
 				if ( pair.Value != null ) {
-					await pair.Value.Invoke();
+					await pair.Value.Invoke( cancel );
 				}
 			}
 		}
