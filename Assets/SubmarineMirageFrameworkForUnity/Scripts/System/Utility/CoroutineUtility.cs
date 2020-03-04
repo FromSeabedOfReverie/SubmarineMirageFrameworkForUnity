@@ -14,14 +14,14 @@ namespace SubmarineMirageFramework.Utility {
 	///----------------------------------------------------------------------------------------------------
 	/// </summary>
 	///====================================================================================================
-	static public class CoroutineUtility {
+	public static class CoroutineUtility {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 開始
 		///		CoroutineProcessクラスを簡単に呼べる。
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		static public CoroutineProcess Start( IEnumerator coroutine, Action onCompleted = null ) {
+		public static CoroutineProcess Start( IEnumerator coroutine, Action onCompleted = null ) {
 			return new CoroutineProcess( coroutine, onCompleted, true, true );
 		}
 	}

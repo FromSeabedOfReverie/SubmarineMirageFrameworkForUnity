@@ -307,7 +307,7 @@ namespace SubmarineMirageFramework.Data {
 		/// ● 全解放
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		static public void DisposeAll() {
+		public static void DisposeAll() {
 			AudioManager.s_instance.voice.clear();	// 声音を消去
 			s_allSynchronizer.Clear();
 		}

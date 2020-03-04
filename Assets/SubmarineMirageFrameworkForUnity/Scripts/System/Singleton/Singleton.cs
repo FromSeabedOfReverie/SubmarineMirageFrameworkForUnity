@@ -33,7 +33,7 @@ namespace SubmarineMirageFramework.Singleton {
 		/// ● アクセサ
 		///------------------------------------------------------------------------------------------------
 		/// <summaryシングルトン取得</summary>
-		static public T s_instance {
+		public static T s_instance {
 			get {
 				if ( !s_isCreated )	{ Create(); }
 				return s_instanceObject;
@@ -44,7 +44,7 @@ namespace SubmarineMirageFramework.Singleton {
 		/// ● 作成
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		static protected void Create() {
+		protected static void Create() {
 			if ( s_isCreated )	{ return; }
 
 			s_instanceObject = new T();
@@ -55,7 +55,7 @@ namespace SubmarineMirageFramework.Singleton {
 		/// ● 作成登録を待機
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		static public async UniTask WaitForCreation() {
+		public static async UniTask WaitForCreation() {
 			// 既に作成済の場合を考慮
 			// そもそも作成済の場合は、この関数を呼ばなくても良い
 			var i = s_instance;
