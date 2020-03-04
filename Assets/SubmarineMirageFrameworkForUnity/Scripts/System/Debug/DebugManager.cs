@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Debug {
 	using System.Linq;
-	using System.Diagnostics;
 	using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 	using UnityEditor;
@@ -28,8 +27,6 @@ namespace SubmarineMirageFramework.Debug {
 		/// <summary>デバッグ肝心情報</summary>
 		DebugMainInfo _debugMainInfo;
 #endif
-		/// <summary>処理時間計測</summary>
-		Stopwatch _stopwatch;
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
@@ -37,27 +34,9 @@ namespace SubmarineMirageFramework.Debug {
 		///------------------------------------------------------------------------------------------------
 		public DebugManager() {
 			_log = new Log();
-			_stopwatch = new Stopwatch();
 #if DEVELOP
 			_debugMainInfo = new DebugMainInfo();
 #endif
-		}
-		///------------------------------------------------------------------------------------------------
-		/// ● 処理時間を計測
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 処理計測開始
-		/// </summary>
-		public void StartMeasure() {
-			_stopwatch.Start();
-		}
-		/// <summary>
-		/// ● 処理計測終了
-		///	 計測秒数が戻り値
-		/// </summary>
-		public float StopMeasure() {
-			_stopwatch.Stop();
-			return _stopwatch.ElapsedMilliseconds / 1000f;
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

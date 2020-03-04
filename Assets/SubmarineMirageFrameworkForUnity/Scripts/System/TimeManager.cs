@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework {
+	using System.Diagnostics;
 	using UnityEngine;
 	using UniRx;
 	using Singleton;
@@ -25,6 +26,8 @@ namespace SubmarineMirageFramework {
 		public float _unscaledDeltaTime	{ get; private set; }	// Time.unscaledDeltaTimeは値が大きく飛ぶので代用
 		/// <summary>時間加減速の影響を受けない、アプリケーション起動時からの秒数</summary>
 		public float _unscaledTime		{ get; private set; }	// Time.unscaledTimeは値が大きく飛ぶので代用
+		/// <summary>処理時間計測</summary>
+		Stopwatch _stopwatch;
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
@@ -39,6 +42,25 @@ namespace SubmarineMirageFramework {
 				_unscaledTime += Mathf.Min( MAX_DELTA_TIME, Time.unscaledTime - _lastUnscaledTime );
 				_lastUnscaledTime = Time.unscaledTime;
 			} );
+
+			_stopwatch = new Stopwatch();
+		}
+		///------------------------------------------------------------------------------------------------
+		/// ● 処理時間を計測
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 処理計測開始
+		/// </summary>
+		public void StartMeasure() {
+			_stopwatch.Restart();
+		}
+		/// <summary>
+		/// ● 処理計測終了
+		///	 計測秒数が戻り値
+		/// </summary>
+		public float StopMeasure() {
+			_stopwatch.Stop();
+			return _stopwatch.ElapsedMilliseconds / 1000f;
 		}
 	}
 }
