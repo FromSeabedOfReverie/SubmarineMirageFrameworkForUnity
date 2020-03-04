@@ -50,7 +50,7 @@ namespace SubmarineMirageFramework.Test.File {
 
 			// ● 読込
 			_loadEvent += async () => {
-				await LoadSaveData();
+//				await LoadSaveData();
 //				await LoadCache();
 //				await LoadPlay();
 //				await LoadCrypt();
