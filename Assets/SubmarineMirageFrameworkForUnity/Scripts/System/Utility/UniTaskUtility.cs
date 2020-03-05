@@ -13,6 +13,10 @@ namespace SubmarineMirageFramework.Utility {
 	using UnityEngine.Networking;
 	using System.Collections;
 
+
+	// TODO : コメント追加、整頓
+
+
 	///====================================================================================================
 	/// <summary>
 	/// ■ UniTaskの便利クラス
@@ -20,6 +24,10 @@ namespace SubmarineMirageFramework.Utility {
 	/// </summary>
 	///====================================================================================================
 	public static class UniTaskUtility {
+
+		public static UniTask DontWait( CancellationToken cancellationToken ) {
+			return Delay( cancellationToken, 0 );
+		}
 
 		public static UniTask Yield( CancellationToken cancellationToken,
 										PlayerLoopTiming timing = PlayerLoopTiming.Update
