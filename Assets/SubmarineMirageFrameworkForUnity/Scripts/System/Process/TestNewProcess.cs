@@ -6,48 +6,92 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process {
 	using System;
-	using System.Linq;
 	using System.Threading;
-	using System.Collections.Generic;
-	using UnityEngine;
-	using UnityEngine.SceneManagement;
 	using UniRx;
-	using UniRx.Async;
-	using KoganeUnityLib;
-	using Singleton;
+	using MultiEvent;
 	using Extension;
 	using Utility;
 	using Debug;
 
+
+	// TODO : コメント追加、整頓
+
+
 	public abstract class TestNewProcess : IDisposable {
-		public virtual TestNewProcessManager.Type _type => TestNewProcessManager.Type.Process;
-		public virtual TestNewProcessManager.LifeSpan _lifeSpan => TestNewProcessManager.LifeSpan.InScene;
+		public virtual TestNewProcessManager.ProcessType _type => TestNewProcessManager.ProcessType.Work;
+		public virtual TestNewProcessManager.ProcessLifeSpan _lifeSpan
+			=> TestNewProcessManager.ProcessLifeSpan.InScene;
+
 		public bool _isInitialized	{ get; private set; }
-		CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
-		public CancellationToken _asyncCancelerToken => _asyncCanceler.Token;
-		CancellationTokenSource _finalizeCanceler = new CancellationTokenSource();
-		public CancellationToken _finalizeCancelerToken => _finalizeCanceler.Token;
+		public bool _isActive		{ get; private set; }
+		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
+		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
+		CancellationTokenSource _finalizeAsyncCanceler = new CancellationTokenSource();
+		public CancellationToken _finalizeAsyncCancel => _finalizeAsyncCanceler.Token;
+
 		public MultiAsyncEvent _loadEvent		{ get; protected set; }
 		public MultiAsyncEvent _initializeEvent	{ get; protected set; }
-		public MultiEvent _updateEvent			{ get; protected set; }
+		public MultiAsyncEvent _enableEvent		{ get; protected set; }
+		public MultiSubject _updateEvent		{ get; protected set; }
+		public MultiAsyncEvent _disableEvent	{ get; protected set; }
 		public MultiAsyncEvent _finalizeEvent	{ get; protected set; }
 
 		protected TestNewProcess() {
 			_loadEvent = new MultiAsyncEvent();
+
 			_initializeEvent = new MultiAsyncEvent();
-			_updateEvent = new MultiEvent();
+			_initializeEvent.AddLast( async ( cancel ) => {
+				await UniTaskUtility.DontWait( cancel );
+				_isInitialized = true;
+			} );
+
+			_enableEvent = new MultiAsyncEvent();
+			_enableEvent.AddLast( async ( cancel ) => {
+				if ( !_isInitialized ) {
+					await _loadEvent.Invoke( _activeAsyncCancel );
+					await _initializeEvent.Invoke( _activeAsyncCancel );
+					if ( !_isInitialized )	{ StopActiveAsync(); }
+				}
+				// TODO : 実際は、ここで利用者呼戻しを使用したい為、上記初期化ミス処理は、管理クラスから呼ぶ
+				//			と言うか、ほぼ全て管理クラスから呼び、ステート変更等で、上手くカプセル化する
+				_isActive = true;
+			} );
+
+			_updateEvent = new MultiSubject();
+
+			_disableEvent = new MultiAsyncEvent();
+			_disableEvent.AddFirst( async ( cancel ) => {
+				_isActive = false;
+				StopActiveAsync();
+				await UniTaskUtility.DontWait( cancel );
+			} );
+
 			_finalizeEvent = new MultiAsyncEvent();
+			_finalizeEvent.AddLast( async ( cancel ) => {
+				await UniTaskUtility.DontWait( cancel );
+				Dispose();
+			} );
+
 			TestNewProcessManager.s_instance.Register( this );
 		}
 		public abstract void Create();
-		public void Cancel() {
-			_asyncCanceler.Cancel();
+		public void StopActiveAsync() {
+			_activeAsyncCanceler.Cancel();
+			_activeAsyncCanceler.Dispose();
+			_activeAsyncCanceler = new CancellationTokenSource();
 		}
-		public void Dispose() {
-			_asyncCanceler.Cancel();
-			_finalizeCanceler.Cancel();
-			_asyncCanceler.Dispose();
-			_finalizeCanceler.Dispose();
+		public virtual void Dispose() {
+			_activeAsyncCanceler.Cancel();
+			_finalizeAsyncCanceler.Cancel();
+			_activeAsyncCanceler.Dispose();
+			_finalizeAsyncCanceler.Dispose();
+
+			_loadEvent.Dispose();
+			_initializeEvent.Dispose();
+			_enableEvent.Dispose();
+			_updateEvent.Dispose();
+			_disableEvent.Dispose();
+			_finalizeEvent.Dispose();
 		}
 		public override string ToString() {
 			return this.ToDeepString();
@@ -84,7 +128,7 @@ namespace SubmarineMirageFramework.Process {
 				await UniTaskUtility.Delay( cancel, 100 );
 				Log.Debug( $"initialize 1 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
-			_updateEvent.AddLast( () => {
+			_updateEvent.AddLast( "1" ).Subscribe( _ => {
 				Log.Debug( "update 1" );
 			} );
 			_finalizeEvent.AddLast( async ( cancel ) => {
@@ -134,8 +178,17 @@ namespace SubmarineMirageFramework.Process {
 				await UniTaskUtility.Delay( cancel, 100 );
 				Log.Debug( $"initialize 2 end {TimeManager.s_instance.StopMeasure()}" );
 			} );
-			_updateEvent.AddLast( () => {
+			_updateEvent.AddLast( "2" ).Subscribe( _ => {
 				Log.Debug( "update 2" );
+			} );
+			_updateEvent.AddFirst( "0" ).Subscribe( _ => {
+				Log.Debug( "update 0" );
+			} );
+			_updateEvent.InsertFirst( "1", "0.5" ).Subscribe( _ => {
+				Log.Debug( "update 0.5" );
+			} );
+			_updateEvent.InsertLast( "1", "1.5" ).Subscribe( _ => {
+				Log.Debug( "update 1.5" );
 			} );
 			_finalizeEvent.AddLast( async ( cancel ) => {
 				TimeManager.s_instance.StartMeasure();
@@ -154,81 +207,6 @@ namespace SubmarineMirageFramework.Process {
 		}
 		~TestHogeProcess2() {
 			Log.Debug( "Delete TestHogeProcess2" );
-		}
-	}
-
-
-	public class TestNewProcessManager : MonoBehaviourSingleton<TestNewProcessManager> {
-		public enum Type {
-			DontProcess,
-			Process,
-			FirstProcess,
-		}
-		public enum LifeSpan {
-			InScene,
-			Forever,
-		}
-		readonly Dictionary< string, List<TestNewProcess> > _processes
-			= new Dictionary< string, List<TestNewProcess> >();
-		IDisposable processUpdateDispose;
-
-		protected override void Constructor() {
-			Observable.EveryUpdate()
-				.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
-				.Take( 1 )
-				.Subscribe( _ => Clear().Forget() );
-		}
-
-		public void Register( TestNewProcess process ) {
-			RegisterSub( process ).Forget();
-		}
-
-		async UniTask RegisterSub( TestNewProcess process ) {
-			process.Create();
-			switch ( process._type ) {
-				case Type.DontProcess:
-					return;
-
-				case Type.Process:
-					await UniTaskUtility.WaitUntil( process._asyncCancelerToken, () => _isInitialized );
-					break;
-
-				case Type.FirstProcess:
-					break;
-			}
-			var name = process._lifeSpan == LifeSpan.Forever ? LifeSpan.Forever.ToString()
-				: SceneManager.GetActiveScene().name;
-			var list = _processes.GetOrDefault( name );
-			if ( list == null )	{ _processes[name] = new List<TestNewProcess>(); }
-			_processes[name].Add( process );
-
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => await p._loadEvent.Invoke( p._asyncCancelerToken ) );
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => await p._initializeEvent.Invoke( p._asyncCancelerToken ) );
-
-			processUpdateDispose = Observable.EveryUpdate().Subscribe( _ => {
-				_processes
-					.SelectMany( pair => pair.Value )
-					.ForEach( p => p._updateEvent.Invoke() );
-			} );
-		}
-
-		async UniTask Clear() {
-			Log.Debug( "clear process" );
-			processUpdateDispose.DisposeIfNotNull();
-			_processes
-				.SelectMany( pair => pair.Value )
-				.ForEach( p => p.Cancel() );
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => {
-					await p._finalizeEvent.Invoke( p._finalizeCancelerToken );
-					p.Dispose();
-				} );
-			_processes.Clear();
 		}
 	}
 }
