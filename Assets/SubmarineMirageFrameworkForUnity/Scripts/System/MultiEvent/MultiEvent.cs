@@ -4,8 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Process {
+namespace SubmarineMirageFramework.MultiEvent {
 	using System;
+
+
+	// TODO : コメント追加、整頓
+
 
 	public class MultiEvent : BaseMultiEvent<Action> {
 		public void Invoke() {

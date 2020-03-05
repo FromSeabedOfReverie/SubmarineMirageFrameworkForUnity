@@ -4,26 +4,31 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Process {
+namespace SubmarineMirageFramework.MultiEvent {
 	using System;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
 	using Extension;
+	using Debug;
+
+
+	// TODO : コメント追加、整頓
+
 
 	public abstract class BaseMultiEvent<T> : IDisposable {
-		enum AddType {
+		protected enum AddType {
 			First,
 			Last,
 		}
 		protected readonly List< KeyValuePair<string, T> > _events
 			= new List< KeyValuePair<string, T> >();
 
-		void Insert( string findKey, AddType type, string key, T function ) {
+		protected void Insert( string findKey, AddType type, string key, T function ) {
 			var pair = new KeyValuePair<string, T>( key, function );
 			var i = _events.FindIndex( p => p.Key == findKey );
 			if ( i == -1 ) {
-				Debug.LogError( $"{findKey} : 処理が無い為、末尾に追加" );
+				Log.Warning( $"{findKey} : 処理が無い為、末尾に追加" );
 				i = _events.Count;
 			}
 			switch ( type ) {
@@ -46,7 +51,7 @@ namespace SubmarineMirageFramework.Process {
 			Insert( findKey, AddType.Last, string.Empty, function );
 		}
 
-		void Add( AddType type, string key, T function ) {
+		protected void Add( AddType type, string key, T function ) {
 			var pair = new KeyValuePair<string, T>( key, function );
 			switch ( type ) {
 				case AddType.First:	_events.InsertFirst( pair );	break;
@@ -70,13 +75,13 @@ namespace SubmarineMirageFramework.Process {
 			return this.ToDeepString();
 		}
 
-		public void Dispose() {
+		public virtual void Dispose() {
 			_events.Clear();
+			Log.Debug( $"dispose {this.GetAboutName()}" );
 		}
 
 		~BaseMultiEvent() {
 			Dispose();
-			Debug.Log( "Delete BaseMultiEvent" );
 		}
 	}
 }
