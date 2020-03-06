@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Process {
+namespace SubmarineMirageFramework.Process.New {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace SubmarineMirageFramework.Process {
 	// TODO : コメント追加、整頓
 
 
-	public class TestNewProcessManager : MonoBehaviourSingleton<TestNewProcessManager> {
+	public class CoreProcessManager : MonoBehaviourSingleton<CoreProcessManager> {
 		public enum ProcessType {
 			DontWork,
 			Work,
@@ -31,9 +31,9 @@ namespace SubmarineMirageFramework.Process {
 			InScene,
 			Forever,
 		}
-		readonly Dictionary< string, List<TestNewProcess> > _processes
-			= new Dictionary< string, List<TestNewProcess> >();
-		IDisposable processUpdateDispose;
+		readonly Dictionary< string, List<BaseProcess> > _processes
+			= new Dictionary< string, List<BaseProcess> >();
+		CompositeDisposable _updateDisposer = new CompositeDisposable();
 
 		protected override void Constructor() {
 			Observable.EveryUpdate()
@@ -42,11 +42,11 @@ namespace SubmarineMirageFramework.Process {
 				.Subscribe( _ => Clear().Forget() );
 		}
 
-		public void Register( TestNewProcess process ) {
+		public void Register( BaseProcess process ) {
 			RegisterSub( process ).Forget();
 		}
 
-		async UniTask RegisterSub( TestNewProcess process ) {
+		async UniTask RegisterSub( BaseProcess process ) {
 			process.Create();
 			switch ( process._type ) {
 				case ProcessType.DontWork:
@@ -62,7 +62,7 @@ namespace SubmarineMirageFramework.Process {
 			var name = process._lifeSpan == ProcessLifeSpan.Forever ? "Forever"
 				: SceneManager.GetActiveScene().name;
 			var list = _processes.GetOrDefault( name );
-			if ( list == null )	{ _processes[name] = new List<TestNewProcess>(); }
+			if ( list == null )	{ _processes[name] = new List<BaseProcess>(); }
 			_processes[name].Add( process );
 
 			await _processes
@@ -74,23 +74,27 @@ namespace SubmarineMirageFramework.Process {
 			await _processes
 				.SelectMany( pair => pair.Value )
 				.Select( async p => await p._enableEvent.Invoke( p._activeAsyncCancel ) );
-			processUpdateDispose = Observable.EveryUpdate().Subscribe( _ => {
+			Observable.EveryUpdate().Subscribe( _ => {
 				_processes
 					.SelectMany( pair => pair.Value )
 					.Where( p => p._isActive )
 					.ForEach( p => p._updateEvent.Invoke() );
-			} );
+			} )
+			.AddTo( _updateDisposer );
 		}
 
 		async UniTask Clear() {
 			Log.Debug( "clear process" );
-			processUpdateDispose.DisposeIfNotNull();
+			_updateDisposer.Dispose();
 			await _processes
 				.SelectMany( pair => pair.Value )
 				.Select( async p => await p._disableEvent.Invoke( p._finalizeAsyncCancel ) );
 			await _processes
 				.SelectMany( pair => pair.Value )
 				.Select( async p => await p._finalizeEvent.Invoke( p._finalizeAsyncCancel ) );
+			_processes
+				.SelectMany( pair => pair.Value )
+				.ForEach( p => p.Dispose() );
 			_processes.Clear();
 		}
 	}
