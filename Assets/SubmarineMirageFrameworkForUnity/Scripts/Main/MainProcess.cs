@@ -79,7 +79,9 @@ namespace SubmarineMirageFramework.Main {
 		static async UniTask RegisterProcesses() {
 //			new TestProcess();
 //			new WriteLicense();
-			new TestHogeProcess2();
+
+//			new Process.New.TestProcess2();
+			new FSM.New.TestOwner();
 			return;
 
 			await DebugManager.WaitForCreation();
