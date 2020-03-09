@@ -20,11 +20,13 @@ namespace SubmarineMirageFramework.FSM.New {
 		protected TOwner _owner	{ get; private set; }
 		protected TFSM _fsm	{ get; private set; }
 
-		public MultiAsyncEvent _initializeEvent	{ get; protected set; }
-		public MultiAsyncEvent _enterEvent		{ get; protected set; }
-		public MultiAsyncEvent _updateEvent		{ get; protected set; }
-		public MultiSubject _updateDeltaEvent	{ get; protected set; }
-		public MultiAsyncEvent _exitEvent		{ get; protected set; }
+		public MultiAsyncEvent _initializeEvent		{ get; protected set; }
+		public MultiAsyncEvent _enterEvent			{ get; protected set; }
+		public MultiAsyncEvent _updateEvent			{ get; protected set; }
+		public MultiSubject _updateDeltaEvent		{ get; protected set; }
+		public MultiSubject _fixedUpdateDeltaEvent	{ get; protected set; }
+		public MultiSubject _lateUpdateDeltaEvent	{ get; protected set; }
+		public MultiAsyncEvent _exitEvent			{ get; protected set; }
 
 		public State( TOwner owner ) {
 			_owner = owner;
@@ -36,6 +38,8 @@ namespace SubmarineMirageFramework.FSM.New {
 			_enterEvent = new MultiAsyncEvent();
 			_updateEvent = new MultiAsyncEvent();
 			_updateDeltaEvent = new MultiSubject();
+			_fixedUpdateDeltaEvent = new MultiSubject();
+			_lateUpdateDeltaEvent = new MultiSubject();
 			_exitEvent = new MultiAsyncEvent();
 		}
 
@@ -44,6 +48,8 @@ namespace SubmarineMirageFramework.FSM.New {
 			_enterEvent.Dispose();
 			_updateEvent.Dispose();
 			_updateDeltaEvent.Dispose();
+			_fixedUpdateDeltaEvent.Dispose();
+			_lateUpdateDeltaEvent.Dispose();
 			_exitEvent.Dispose();
 		}
 

@@ -24,10 +24,13 @@ namespace SubmarineMirageFramework.FSM.New {
 		public TestFSMManager _fsm	{ get; private set; }
 
 		public override void Create() {
-			_initializeEvent.AddFirst( async cancel => {
-				_fsm = new TestFSMManager( this );
-				await _fsm._initializeEvent.Invoke( cancel );
+			_fsm = new TestFSMManager( this );
+			Observable.EveryUpdate().Subscribe( _ => {
+				if ( Input.GetKeyDown( KeyCode.A ) ) {
+					_updateEvent.Remove( "test" );
+				}
 			} );
+			
 ///*
 			var i = 0;
 			_updateEvent.AddLast()

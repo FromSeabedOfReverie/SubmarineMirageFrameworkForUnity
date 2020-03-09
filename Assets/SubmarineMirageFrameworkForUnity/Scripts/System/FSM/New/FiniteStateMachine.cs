@@ -36,9 +36,9 @@ namespace SubmarineMirageFramework.FSM.New {
 		public State<TOwner, TFSM> _state	{ get; private set; }
 		protected State<TOwner, TFSM> _nextState;
 		public RunState _runState	{ get; private set; }
-		public MultiAsyncEvent _initializeEvent	{ get; protected set; }
-		CompositeDisposable _fsmUpdateDisposers = new CompositeDisposable();
-		CancellationTokenSource _fsmAsyncCanceler = new CancellationTokenSource();
+		CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
+		string _name;
+		public bool _isActive	{ get; private set; }
 
 		public FiniteStateMachine( TOwner owner, State<TOwner, TFSM>[] states ) {
 			_owner = owner;
@@ -46,28 +46,50 @@ namespace SubmarineMirageFramework.FSM.New {
 				var type = state.GetType();
 				_states[type] = state;
 			}
+			_name = this.GetAboutName();
 
-			_initializeEvent = new MultiAsyncEvent();
-			_initializeEvent.AddFirst( async cancel => {
+			_owner._initializeEvent.AddLast( _name, async cancel => {
 				await UniTask.WhenAll(
-					_states.Select( async pair => await pair.Value._initializeEvent.Invoke( cancel ) )
+					_states
+						.Select( pair => pair.Value )
+						.Select( async state => await state._initializeEvent.Invoke( cancel ) )
 				);
+				_isActive = true;
 				await ChangeState( cancel, _states.First().Key );
-
-				CoreProcessManager.s_instance._updateEvent
-					.Where( _ => _runState == RunState.Update )
-					.Subscribe( _ => _state._updateDeltaEvent.Invoke() )
-					.AddTo( _fsmUpdateDisposers );
-#if DEVELOP
-				CoreProcessManager.s_instance._updateEvent
-					.Subscribe( _ => {
-						DebugDisplay.s_instance.Add( $"{_owner.GetAboutName()}.{this.GetAboutName()}" );
-						DebugDisplay.s_instance.Add( $"_state : {_state.GetAboutName()}.{_runState}" );
-						DebugDisplay.s_instance.Add( $"_nextState : {(_nextState == null ? "null" : _nextState.GetAboutName())}" );
-					} )
-					.AddTo( _fsmUpdateDisposers );
-#endif
 			} );
+
+			_owner._enableEvent.AddLast( _name, async cancel => {
+				if ( _isActive )	{ return; }
+				_state._updateEvent.Invoke( _asyncCanceler.Token ).Forget();
+				_isActive = true;
+				await UniTaskUtility.DontWait( cancel );
+			} );
+			_owner._disableEvent.AddLast( _name, async cancel => {
+				await UniTaskUtility.WaitWhile( cancel, () => _runState != RunState.Update );
+				StopAsync();
+				_isActive = false;
+			} );
+
+			_owner._updateEvent.AddLast( _name )
+				.Where( _ => _runState == RunState.Update )
+				.Subscribe( _ => _state._updateDeltaEvent.Invoke() );
+			_owner._fixedUpdateEvent.AddLast( _name )
+				.Where( _ => _runState == RunState.Update )
+				.Subscribe( _ => _state._fixedUpdateDeltaEvent.Invoke() );
+			_owner._lateUpdateEvent.AddLast( _name )
+				.Where( _ => _runState == RunState.Update )
+				.Subscribe( _ => _state._lateUpdateDeltaEvent.Invoke() );
+#if DEVELOP
+			Observable.EveryUpdate()
+				.TakeWhile( _ => !_states.IsEmpty() )
+				.Subscribe( _ => {
+					DebugDisplay.s_instance.Add( $"{_owner.GetAboutName()}.{_name}" );
+					DebugDisplay.s_instance.Add( $"_state : {_state.GetAboutName()}.{_runState}" );
+					DebugDisplay.s_instance.Add(
+						$"_nextState : {( _nextState == null ? "null" : _nextState.GetAboutName() )}"
+					);
+				} );
+#endif
 		}
 
 		public async UniTask ChangeState<TState>( CancellationToken cancel ) {
@@ -75,19 +97,23 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 
 		public async UniTask ChangeState( CancellationToken cancel, Type stateType ) {
+			if ( !_isActive ) {
+				Log.Error( $"非活動中は状態遷移が不可能 : {stateType}", Log.Tag.FSM );
+				return;
+			}
 			if ( !_states.ContainsKey( stateType ) ) {
 				Log.Error( $"未定義状態へ遷移 : {stateType}", Log.Tag.FSM );
 				return;
 			}
 			var next = _states[stateType];
 			if ( !IsPossibleChangeState( next ) ) {
-				Log.Warning( $"状態遷移が不可能 : {stateType}", Log.Tag.FSM );
+				Log.Error( $"状態遷移が不可能 : {stateType}", Log.Tag.FSM );
 				return;
 			}
 			_nextState = next;
 
 			if ( _state == null || _runState == RunState.Update ) {
-				Log.Debug( $"{this.GetAboutName()} ChangeStateSub" );
+				Log.Debug( $"{_name} ChangeStateSub" );
 				ChangeStateSub().Forget();
 			}
 			Log.Debug( $"待機開始 {_state.GetAboutName()}.{_runState}" );
@@ -100,17 +126,17 @@ namespace SubmarineMirageFramework.FSM.New {
 
 			_runState = RunState.Exit;
 			if ( _state != null ) {
-				await _state._exitEvent.Invoke( _fsmAsyncCanceler.Token );
+				await _state._exitEvent.Invoke( _asyncCanceler.Token );
 			}
 			_state = _nextState;
 			_nextState = null;
 
 			_runState = RunState.Enter;
-			await _state._enterEvent.Invoke( _fsmAsyncCanceler.Token );
+			await _state._enterEvent.Invoke( _asyncCanceler.Token );
 
 			if ( _nextState == null ) {
 				_runState = RunState.Update;
-				_state._updateEvent.Invoke( _fsmAsyncCanceler.Token ).Forget();
+				_state._updateEvent.Invoke( _asyncCanceler.Token ).Forget();
 			} else {
 				await ChangeStateSub();
 			}
@@ -121,15 +147,9 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 
 		void StopAsync() {
-			_fsmAsyncCanceler.Cancel();
-			_fsmAsyncCanceler.Dispose();
-			_fsmAsyncCanceler = new CancellationTokenSource();
-		}
-
-		// TODO : gameObjectが、非活動化したら処理を停止し、活動化したら再開させる
-		public void Enable() {
-		}
-		public void Disable() {
+			_asyncCanceler.Cancel();
+			_asyncCanceler.Dispose();
+			_asyncCanceler = new CancellationTokenSource();
 		}
 
 		public override string ToString() {
@@ -138,10 +158,9 @@ namespace SubmarineMirageFramework.FSM.New {
 
 		public virtual void Dispose() {
 			_states.ForEach( pair => pair.Value.Dispose() );
-			_initializeEvent.Dispose();
-			_fsmUpdateDisposers.Dispose();
-			_fsmAsyncCanceler.Cancel();
-			_fsmAsyncCanceler.Dispose();
+			_states.Clear();
+			_asyncCanceler.Cancel();
+			_asyncCanceler.Dispose();
 		}
 
 		~FiniteStateMachine() {

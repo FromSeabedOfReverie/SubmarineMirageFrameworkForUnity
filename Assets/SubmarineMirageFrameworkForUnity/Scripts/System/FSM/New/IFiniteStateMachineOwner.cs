@@ -5,12 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.FSM.New {
+	using Process.New;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface IFiniteStateMachineOwner<TFSM> where TFSM : IFiniteStateMachine {
+	public interface IFiniteStateMachineOwner<TFSM> : IProcess where TFSM : IFiniteStateMachine {
 		TFSM _fsm { get; }
 	}
 }
