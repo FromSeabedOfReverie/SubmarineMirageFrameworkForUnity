@@ -13,9 +13,11 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 	public class MultiEvent : BaseMultiEvent<Action> {
 		public void Invoke() {
+			_isInvoking.Value = true;
 			foreach ( var pair in _events ) {
 				pair.Value?.Invoke();
 			}
+			_isInvoking.Value = false;
 		}
 	}
 }

@@ -9,14 +9,21 @@ namespace SubmarineMirageFramework.MultiEvent {
 	using System.Threading;
 	using UniRx.Async;
 
+
 	// TODO : コメント追加、整頓
+
 
 	public class MultiAsyncEvent : BaseMultiEvent< Func<CancellationToken, UniTask> > {
 		public async UniTask Invoke( CancellationToken cancel ) {
-			foreach ( var pair in _events ) {
-				if ( pair.Value != null ) {
-					await pair.Value.Invoke( cancel );
+			try {
+				_isInvoking.Value = true;
+				foreach ( var pair in _events ) {
+					if ( pair.Value != null ) {
+						await pair.Value.Invoke( cancel );
+					}
 				}
+			} finally {
+				_isInvoking.Value = false;
 			}
 		}
 	}

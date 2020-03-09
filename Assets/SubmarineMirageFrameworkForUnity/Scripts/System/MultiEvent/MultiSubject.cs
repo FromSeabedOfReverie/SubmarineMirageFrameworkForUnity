@@ -12,6 +12,13 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 
 	public class MultiSubject : BaseMultiEvent< Subject<Unit> > {
+		public MultiSubject() {
+			_onRemoveEvent.Subscribe( e => {
+				e?.OnCompleted();
+				e?.Dispose();
+			} );
+		}
+
 		Subject<Unit> Insert( string findKey, AddType type, string key ) {
 			var subject = new Subject<Unit>();
 			Insert( findKey, type, key, subject );
@@ -49,16 +56,11 @@ namespace SubmarineMirageFramework.MultiEvent {
 		}
 
 		public void Invoke() {
+			_isInvoking.Value = true;
 			foreach ( var pair in _events ) {
 				pair.Value?.OnNext( Unit.Default );
 			}
-		}
-
-		public override void Dispose() {
-			foreach ( var pair in _events ) {
-				pair.Value?.OnCompleted();
-			}
-			base.Dispose();
+			_isInvoking.Value = false;
 		}
 	}
 }

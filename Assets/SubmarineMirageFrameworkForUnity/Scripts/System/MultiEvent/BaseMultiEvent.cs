@@ -6,8 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.MultiEvent {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
+	using UniRx;
 	using KoganeUnityLib;
 	using Extension;
 	using Debug;
@@ -23,13 +25,24 @@ namespace SubmarineMirageFramework.MultiEvent {
 		}
 		protected readonly List< KeyValuePair<string, T> > _events
 			= new List< KeyValuePair<string, T> >();
+		protected readonly List<string> _removeKeys = new List<string>();
+		protected readonly Subject<T> _onRemoveEvent = new Subject<T>();
+		protected readonly ReactiveProperty<bool> _isInvoking = new ReactiveProperty<bool>();
+		bool _isDispose;
+
+		public BaseMultiEvent() {
+			_isInvoking
+				.SkipLatestValueOnSubscribe()
+				.Where( is_ => !is_ )
+				.Subscribe( is_ => CheckRemove() );
+		}
 
 		protected void Insert( string findKey, AddType type, string key, T function ) {
 			var pair = new KeyValuePair<string, T>( key, function );
 			var i = _events.FindIndex( p => p.Key == findKey );
 			if ( i == -1 ) {
-				Log.Warning( $"{findKey} : 処理が無い為、末尾に追加" );
-				i = _events.Count;
+				Log.Error( $"イベント関数が未登録 : {findKey}" );
+				throw new ArgumentOutOfRangeException( findKey, "イベント関数が未登録" );
 			}
 			switch ( type ) {
 				case AddType.First:	i -= 0;	break;
@@ -71,13 +84,42 @@ namespace SubmarineMirageFramework.MultiEvent {
 			Add( AddType.Last, string.Empty, function );
 		}
 
-		public override string ToString() {
-			return this.ToDeepString();
+		public void Remove( string key ) {
+			_removeKeys.Add( key );
+			if ( !_isInvoking.Value )	{ CheckRemove(); }
+		}
+		void CheckRemove() {
+			if ( _removeKeys.IsEmpty() )	{ return; }
+			_removeKeys.ForEach( key => {
+				_events.RemoveAll( pair => {
+					var isRemove = pair.Key == key;
+					if ( isRemove )	{ _onRemoveEvent.OnNext( pair.Value ); }
+					return isRemove;
+				} );
+			} );
+			_removeKeys.Clear();
 		}
 
-		public virtual void Dispose() {
+		public override string ToString() {
+			return (
+				$"{this.GetAboutName()} (\n"
+				+ string.Join( "\n", _events.Select( pair => pair.Key ) )
+				+ "\n )"
+			);
+//			return this.ToDeepString();
+		}
+
+		public void Dispose() {
+			if ( _isDispose )	{ return; }
+			_isDispose = true;
+			foreach ( var pair in _events ) {
+				_onRemoveEvent.OnNext( pair.Value );
+			}
+			_onRemoveEvent.OnCompleted();
+			_onRemoveEvent.Dispose();
+			_isInvoking.Dispose();
 			_events.Clear();
-			Log.Debug( $"dispose {this.GetAboutName()}" );
+			Log.Debug( $"Dispose {this.GetAboutName()}" );
 		}
 
 		~BaseMultiEvent() {
