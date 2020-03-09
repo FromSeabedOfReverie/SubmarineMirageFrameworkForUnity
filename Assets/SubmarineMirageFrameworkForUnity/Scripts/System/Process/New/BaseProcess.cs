@@ -15,7 +15,8 @@ namespace SubmarineMirageFramework.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseProcess : IDisposable {
+	public abstract class BaseProcess : IProcess {
+		public CoreProcessManager.ExecutedState _executedState	{ get; set; }
 		public virtual CoreProcessManager.ProcessType _type => CoreProcessManager.ProcessType.Work;
 		public virtual CoreProcessManager.ProcessLifeSpan _lifeSpan
 			=> CoreProcessManager.ProcessLifeSpan.InScene;
@@ -30,7 +31,9 @@ namespace SubmarineMirageFramework.Process.New {
 		public MultiAsyncEvent _loadEvent		{ get; protected set; }
 		public MultiAsyncEvent _initializeEvent	{ get; protected set; }
 		public MultiAsyncEvent _enableEvent		{ get; protected set; }
+		public MultiSubject _fixedUpdateEvent	{ get; protected set; }
 		public MultiSubject _updateEvent		{ get; protected set; }
+		public MultiSubject _lateUpdateEvent	{ get; protected set; }
 		public MultiAsyncEvent _disableEvent	{ get; protected set; }
 		public MultiAsyncEvent _finalizeEvent	{ get; protected set; }
 
@@ -55,7 +58,9 @@ namespace SubmarineMirageFramework.Process.New {
 				_isActive = true;
 			} );
 
+			_fixedUpdateEvent = new MultiSubject();
 			_updateEvent = new MultiSubject();
+			_lateUpdateEvent = new MultiSubject();
 
 			_disableEvent = new MultiAsyncEvent();
 			_disableEvent.AddFirst( async cancel => {
@@ -72,12 +77,15 @@ namespace SubmarineMirageFramework.Process.New {
 
 			CoreProcessManager.s_instance.Register( this );
 		}
+
 		public abstract void Create();
+
 		public void StopActiveAsync() {
 			_activeAsyncCanceler.Cancel();
 			_activeAsyncCanceler.Dispose();
 			_activeAsyncCanceler = new CancellationTokenSource();
 		}
+
 		public virtual void Dispose() {
 			_activeAsyncCanceler.Cancel();
 			_finalizeAsyncCanceler.Cancel();
@@ -91,6 +99,7 @@ namespace SubmarineMirageFramework.Process.New {
 			_disableEvent.Dispose();
 			_finalizeEvent.Dispose();
 		}
+
 		public override string ToString() {
 			return this.ToDeepString();
 		}

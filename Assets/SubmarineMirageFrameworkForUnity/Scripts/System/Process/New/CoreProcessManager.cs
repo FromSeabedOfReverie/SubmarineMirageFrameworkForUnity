@@ -22,6 +22,15 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 	public class CoreProcessManager : MonoBehaviourSingleton<CoreProcessManager> {
+		public enum ExecutedState {
+			Create,
+			Load,
+			Initialize,
+			FixedUpdate,
+			Update,
+			LateUpdate,
+			Finalize,
+		}
 		public enum ProcessType {
 			DontWork,
 			Work,
@@ -31,8 +40,8 @@ namespace SubmarineMirageFramework.Process.New {
 			InScene,
 			Forever,
 		}
-		readonly Dictionary< string, List<BaseProcess> > _processes
-			= new Dictionary< string, List<BaseProcess> >();
+		readonly Dictionary< string, List<IProcess> > _processes
+			= new Dictionary< string, List<IProcess> >();
 		CompositeDisposable _updateDisposer = new CompositeDisposable();
 
 		protected override void Constructor() {
@@ -42,11 +51,11 @@ namespace SubmarineMirageFramework.Process.New {
 				.Subscribe( _ => Clear().Forget() );
 		}
 
-		public void Register( BaseProcess process ) {
+		public void Register( IProcess process ) {
 			RegisterSub( process ).Forget();
 		}
 
-		async UniTask RegisterSub( BaseProcess process ) {
+		async UniTask RegisterSub( IProcess process ) {
 			process.Create();
 			switch ( process._type ) {
 				case ProcessType.DontWork:
@@ -62,7 +71,7 @@ namespace SubmarineMirageFramework.Process.New {
 			var name = process._lifeSpan == ProcessLifeSpan.Forever ? "Forever"
 				: SceneManager.GetActiveScene().name;
 			var list = _processes.GetOrDefault( name );
-			if ( list == null )	{ _processes[name] = new List<BaseProcess>(); }
+			if ( list == null )	{ _processes[name] = new List<IProcess>(); }
 			_processes[name].Add( process );
 
 			await _processes
@@ -74,11 +83,25 @@ namespace SubmarineMirageFramework.Process.New {
 			await _processes
 				.SelectMany( pair => pair.Value )
 				.Select( async p => await p._enableEvent.Invoke( p._activeAsyncCancel ) );
+			Observable.EveryFixedUpdate().Subscribe( _ => {
+				_processes
+					.SelectMany( pair => pair.Value )
+					.Where( p => p._isActive )
+					.ForEach( p => p._fixedUpdateEvent.Invoke() );
+			} )
+			.AddTo( _updateDisposer );
 			Observable.EveryUpdate().Subscribe( _ => {
 				_processes
 					.SelectMany( pair => pair.Value )
 					.Where( p => p._isActive )
 					.ForEach( p => p._updateEvent.Invoke() );
+			} )
+			.AddTo( _updateDisposer );
+			Observable.EveryLateUpdate().Subscribe( _ => {
+				_processes
+					.SelectMany( pair => pair.Value )
+					.Where( p => p._isActive )
+					.ForEach( p => p._lateUpdateEvent.Invoke() );
 			} )
 			.AddTo( _updateDisposer );
 		}
