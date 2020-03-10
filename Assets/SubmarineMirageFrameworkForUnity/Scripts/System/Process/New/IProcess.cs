@@ -17,8 +17,8 @@ namespace SubmarineMirageFramework.Process.New {
 		CoreProcessManager.ExecutedState _executedState	{ get; set; }
 		CoreProcessManager.ProcessType _type			{ get; }
 		CoreProcessManager.ProcessLifeSpan _lifeSpan	{ get; }
-		bool _isInitialized	{ get; }
-		bool _isActive		{ get; }
+		bool _isInitialized	{ get; set; }
+		bool _isActive		{ get; set; }
 		CancellationToken _activeAsyncCancel	{ get; }
 		CancellationToken _finalizeAsyncCancel	{ get; }
 		

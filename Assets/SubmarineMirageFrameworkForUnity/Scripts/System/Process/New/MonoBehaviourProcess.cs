@@ -13,7 +13,7 @@ namespace SubmarineMirageFramework.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseProcess : IProcess {
+	public abstract class MonoBehaviourProcess : MonoBehaviourExtension, IProcess {
 		public CoreProcessManager.ExecutedState _executedState	{ get; set; }
 		public virtual CoreProcessManager.ProcessType _type => CoreProcessManager.ProcessType.Work;
 		public virtual CoreProcessManager.ProcessLifeSpan _lifeSpan
@@ -21,6 +21,11 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public bool _isInitialized	{ get; set; }
 		public bool _isActive		{ get; set; }
+		
+		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
+		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
+		CancellationTokenSource _finalizeAsyncCanceler = new CancellationTokenSource();
+		public CancellationToken _finalizeAsyncCancel => _finalizeAsyncCanceler.Token;
 
 		public MultiAsyncEvent _loadEvent		{ get; protected set; }
 		public MultiAsyncEvent _initializeEvent	{ get; protected set; }
@@ -31,13 +36,14 @@ namespace SubmarineMirageFramework.Process.New {
 		public MultiAsyncEvent _disableEvent	{ get; protected set; }
 		public MultiAsyncEvent _finalizeEvent	{ get; protected set; }
 
-		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
-		CancellationTokenSource _finalizeAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _finalizeAsyncCancel => _finalizeAsyncCanceler.Token;
 
+		protected void Awake() {
 
-		protected BaseProcess() {
+// TODO : 非活動中は、どうする？
+//			disable中は、登録後、呼戻さない？
+//			_isActive判定、enable、disableイベント呼び出し等、含む
+			if ( !isActiveAndEnabled )	{ return; }
+
 			_loadEvent = new MultiAsyncEvent();
 			_initializeEvent = new MultiAsyncEvent();
 			_enableEvent = new MultiAsyncEvent();
@@ -83,8 +89,18 @@ namespace SubmarineMirageFramework.Process.New {
 		}
 
 
-		~BaseProcess() {
+		protected void OnDestroy() {
 			Dispose();
 		}
+
+
+#if DEVELOP
+		protected void Start() {}
+		protected void OnEnable() {}
+		protected void FixedUpdate() {}
+		protected void Update() {}
+		protected void LateUpdate() {}
+		protected void OnDisable() {}
+#endif
 	}
 }
