@@ -20,27 +20,20 @@ namespace SubmarineMirageFramework.FSM.New {
 		protected TOwner _owner	{ get; private set; }
 		protected TFSM _fsm	{ get; private set; }
 
-		public MultiAsyncEvent _initializeEvent		{ get; protected set; }
-		public MultiAsyncEvent _enterEvent			{ get; protected set; }
-		public MultiAsyncEvent _updateEvent			{ get; protected set; }
-		public MultiSubject _updateDeltaEvent		{ get; protected set; }
-		public MultiSubject _fixedUpdateDeltaEvent	{ get; protected set; }
-		public MultiSubject _lateUpdateDeltaEvent	{ get; protected set; }
-		public MultiAsyncEvent _exitEvent			{ get; protected set; }
+		public readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
+		public readonly MultiAsyncEvent _enterEvent = new MultiAsyncEvent();
+		public readonly MultiAsyncEvent _updateEvent = new MultiAsyncEvent();
+		public readonly MultiSubject _updateDeltaEvent = new MultiSubject();
+		public readonly MultiSubject _fixedUpdateDeltaEvent = new MultiSubject();
+		public readonly MultiSubject _lateUpdateDeltaEvent = new MultiSubject();
+		public readonly MultiAsyncEvent _exitEvent = new MultiAsyncEvent();
 
 		public State( TOwner owner ) {
 			_owner = owner;
-			_initializeEvent = new MultiAsyncEvent();
 			_initializeEvent.AddFirst( async cancel => {
 				_fsm = _owner._fsm;
 				await UniTaskUtility.DontWait( cancel );
 			} );
-			_enterEvent = new MultiAsyncEvent();
-			_updateEvent = new MultiAsyncEvent();
-			_updateDeltaEvent = new MultiSubject();
-			_fixedUpdateDeltaEvent = new MultiSubject();
-			_lateUpdateDeltaEvent = new MultiSubject();
-			_exitEvent = new MultiAsyncEvent();
 		}
 
 		public virtual void Dispose() {
@@ -53,8 +46,6 @@ namespace SubmarineMirageFramework.FSM.New {
 			_exitEvent.Dispose();
 		}
 
-		~State() {
-			Dispose();
-		}
+		~State() => Dispose();
 	}
 }

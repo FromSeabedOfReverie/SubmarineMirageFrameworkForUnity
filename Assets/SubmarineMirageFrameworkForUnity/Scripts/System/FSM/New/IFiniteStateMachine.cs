@@ -5,11 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.FSM.New {
+	using System;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface IFiniteStateMachine {
+	public interface IFiniteStateMachine : IDisposable {
 	}
 }

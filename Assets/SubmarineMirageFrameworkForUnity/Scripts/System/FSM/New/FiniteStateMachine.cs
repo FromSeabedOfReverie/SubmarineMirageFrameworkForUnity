@@ -20,15 +20,15 @@ namespace SubmarineMirageFramework.FSM.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class FiniteStateMachine<TOwner, TFSM> : IFiniteStateMachine, IDisposable
+	public abstract class FiniteStateMachine<TOwner, TFSM> : IFiniteStateMachine
 		where TOwner : IFiniteStateMachineOwner<TFSM>
 		where TFSM : IFiniteStateMachine
 	{
 		enum ActiveState {
-			Enabling,
-			Enabled,
-			Disabling,
 			Disabled,
+			Disabling,
+			Enabled,
+			Enabling,
 		}
 		enum RunState {
 			Enter,
@@ -175,9 +175,7 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 
 
-		public override string ToString() {
-			return this.ToDeepString();
-		}
+		public override string ToString() => this.ToDeepString();
 
 
 		public virtual void Dispose() {
@@ -189,8 +187,6 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 
 
-		~FiniteStateMachine() {
-			Dispose();
-		}
+		~FiniteStateMachine() => Dispose();
 	}
 }
