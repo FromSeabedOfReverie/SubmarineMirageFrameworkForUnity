@@ -15,7 +15,7 @@ namespace SubmarineMirageFramework.Singleton.New {
 
 
 	public class MonoBehaviourSingletonManager : Singleton<MonoBehaviourSingletonManager> {
-		public override CoreProcessManager.ProcessType _type => CoreProcessManager.ProcessType.DontWork;
+		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
 		static GameObject s_parent;
 
 
@@ -46,7 +46,6 @@ namespace SubmarineMirageFramework.Singleton.New {
 		}
 
 
-		public override void Create() {
-		}
+		public override void Create() {}
 	}
 }

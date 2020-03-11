@@ -19,9 +19,8 @@ namespace SubmarineMirageFramework.Singleton.New {
 	{
 		static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
-		public override CoreProcessManager.ProcessType _type => CoreProcessManager.ProcessType.FirstWork;
-		public override CoreProcessManager.ProcessLifeSpan _lifeSpan
-			=> CoreProcessManager.ProcessLifeSpan.Forever;
+		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
+		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
 
 
 		public static T s_instance {
