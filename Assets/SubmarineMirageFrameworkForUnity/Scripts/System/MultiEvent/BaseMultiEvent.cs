@@ -30,12 +30,14 @@ namespace SubmarineMirageFramework.MultiEvent {
 		protected readonly ReactiveProperty<bool> _isInvoking = new ReactiveProperty<bool>();
 		bool _isDispose;
 
+
 		public BaseMultiEvent() {
 			_isInvoking
 				.SkipLatestValueOnSubscribe()
 				.Where( is_ => !is_ )
 				.Subscribe( is_ => CheckRemove() );
 		}
+
 
 		protected void Insert( string findKey, AddType type, string key, T function ) {
 			var pair = new KeyValuePair<string, T>( key, function );
@@ -51,18 +53,23 @@ namespace SubmarineMirageFramework.MultiEvent {
 			i = Mathf.Clamp( i, 0, _events.Count );
 			_events.Insert( i, pair );
 		}
+
 		public void InsertFirst( string findKey, string key, T function ) {
 			Insert( findKey, AddType.First, key, function );
 		}
+
 		public void InsertFirst( string findKey, T function ) {
 			Insert( findKey, AddType.First, string.Empty, function );
 		}
+
 		public void InsertLast( string findKey, string key, T function ) {
 			Insert( findKey, AddType.Last, key, function );
 		}
+
 		public void InsertLast( string findKey, T function ) {
 			Insert( findKey, AddType.Last, string.Empty, function );
 		}
+
 
 		protected void Add( AddType type, string key, T function ) {
 			var pair = new KeyValuePair<string, T>( key, function );
@@ -71,23 +78,29 @@ namespace SubmarineMirageFramework.MultiEvent {
 				case AddType.Last:	_events.Add( pair );			break;
 			}
 		}
+
 		public void AddFirst( string key, T function ) {
 			Add( AddType.First, key, function );
 		}
+
 		public void AddFirst( T function ) {
 			Add( AddType.First, string.Empty, function );
 		}
+
 		public void AddLast( string key, T function ) {
 			Add( AddType.Last, key, function );
 		}
+
 		public void AddLast( T function ) {
 			Add( AddType.Last, string.Empty, function );
 		}
+
 
 		public void Remove( string key ) {
 			_removeKeys.Add( key );
 			if ( !_isInvoking.Value )	{ CheckRemove(); }
 		}
+
 		void CheckRemove() {
 			if ( _removeKeys.IsEmpty() )	{ return; }
 			_removeKeys.ForEach( key => {
@@ -100,6 +113,7 @@ namespace SubmarineMirageFramework.MultiEvent {
 			_removeKeys.Clear();
 		}
 
+
 		public override string ToString() {
 			return (
 				$"{this.GetAboutName()} (\n"
@@ -108,6 +122,7 @@ namespace SubmarineMirageFramework.MultiEvent {
 			);
 //			return this.ToDeepString();
 		}
+
 
 		public void Dispose() {
 			if ( _isDispose )	{ return; }
@@ -122,8 +137,7 @@ namespace SubmarineMirageFramework.MultiEvent {
 			Log.Debug( $"Dispose {this.GetAboutName()}" );
 		}
 
-		~BaseMultiEvent() {
-			Dispose();
-		}
+
+		~BaseMultiEvent() => Dispose();
 	}
 }

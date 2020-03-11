@@ -19,41 +19,52 @@ namespace SubmarineMirageFramework.MultiEvent {
 			} );
 		}
 
+
 		Subject<Unit> Insert( string findKey, AddType type, string key ) {
 			var subject = new Subject<Unit>();
 			Insert( findKey, type, key, subject );
 			return subject;
 		}
+
 		public Subject<Unit> InsertFirst( string findKey, string key ) {
 			return Insert( findKey, AddType.First, key );
 		}
+
 		public Subject<Unit> InsertFirst( string findKey ) {
 			return Insert( findKey, AddType.First, string.Empty );
 		}
+
 		public Subject<Unit> InsertLast( string findKey, string key ) {
 			return Insert( findKey, AddType.Last, key );
 		}
+
 		public Subject<Unit> InsertLast( string findKey ) {
 			return Insert( findKey, AddType.Last, string.Empty );
 		}
+
 
 		Subject<Unit> Add( AddType type, string key ) {
 			var subject = new Subject<Unit>();
 			Add( type, key, subject );
 			return subject;
 		}
+
 		public Subject<Unit> AddFirst( string key ) {
 			return Add( AddType.First, key );
 		}
+
 		public Subject<Unit> AddFirst() {
 			return Add( AddType.First, string.Empty );
 		}
+
 		public Subject<Unit> AddLast( string key ) {
 			return Add( AddType.Last, key );
 		}
+
 		public Subject<Unit> AddLast() {
 			return Add( AddType.Last, string.Empty );
 		}
+
 
 		public void Invoke() {
 			_isInvoking.Value = true;
