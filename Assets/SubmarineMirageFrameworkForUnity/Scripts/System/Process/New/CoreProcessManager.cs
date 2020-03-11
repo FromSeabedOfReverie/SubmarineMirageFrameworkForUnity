@@ -24,215 +24,201 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 	public class CoreProcessManager : MonoBehaviourSingleton<CoreProcessManager> {
-		public enum ExecutedState {
-			Create,
-			Load,
-			Initialize,
-			Enable,
-			FixedUpdate,
-			Update,
-			LateUpdate,
-			Disable,
-			Finalize,
-		}
-		public enum ProcessType {
-			DontWork,
-			Work,
-			FirstWork,
-		}
-		public enum ProcessLifeSpan {
-			InScene,
-			Forever,
-		}
-		readonly Dictionary< string, List<IProcess> > _processes
-			= new Dictionary< string, List<IProcess> >();
+		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+
+		readonly Dictionary< string, Dictionary< ProcessBody.Type, List<IProcess> > > _processes
+			= new Dictionary< string, Dictionary< ProcessBody.Type, List<IProcess> > >();
 		readonly List<IProcess> _deleteProcesses = new List<IProcess>();
 		bool _isProcessDeleting;
+
 #if DEVELOP
-		public MultiSubject _onGUIEvent = new MultiSubject();
+		public readonly MultiSubject _onGUIEvent = new MultiSubject();
 #endif
 		CompositeDisposable _updateDisposer = new CompositeDisposable();
+		string _foreverSceneName = ProcessBody.LifeSpan.Forever.ToString();
 
 
 		public async UniTask Create( Func<UniTask> initializePlugin, Func<UniTask> registerProcesses ) {
 			await initializePlugin();
-			RegisterEvents( registerProcesses );
+			await registerProcesses();
+			RegisterEvents();
+
 			Create();
-			await _loadEvent.Invoke( _activeAsyncCancel );
-			await _initializeEvent.Invoke( _activeAsyncCancel );
+			await RunStateEvent( ProcessBody.RanState.Loading );
+			await RunStateEvent( ProcessBody.RanState.Initializing );
 
 			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );
-
+/*
 			Observable.EveryUpdate()
 				.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
 				.Take( 1 )
 				.Subscribe( _ => Clear().Forget() )
 				.AddTo( _updateDisposer );
+*/
 		}
 
 
-		void RegisterEvents( Func<UniTask> registerProcesses ) {
-		}
+		public override void Create() {}
 
 
-		public override void Create() {
-		}
-
-
-		public void Register( IProcess process ) {
-			RegisterSub( process ).Forget();
-		}
-
-
-		async UniTask RegisterSub( IProcess process ) {
-			process.Create();
-			switch ( process._type ) {
-				case ProcessType.DontWork:
-					return;
-
-				case ProcessType.Work:
-					await UniTaskUtility.WaitUntil( process._activeAsyncCancel, () => _isInitialized );
-					break;
-
-				case ProcessType.FirstWork:
-					break;
-			}
-			var name = process._lifeSpan == ProcessLifeSpan.Forever ? "Forever"
-				: SceneManager.GetActiveScene().name;
-			var list = _processes.GetOrDefault( name );
-			if ( list == null )	{ _processes[name] = new List<IProcess>(); }
-			_processes[name].Add( process );
-
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => await p._loadEvent.Invoke( p._activeAsyncCancel ) );
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => {
-					await p._initializeEvent.Invoke( p._activeAsyncCancel );
-					p._isInitialized = true;
-				} );
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => {
-					if ( !p._isInitialized ) {
-						await p._loadEvent.Invoke( p._activeAsyncCancel );
-						await p._initializeEvent.Invoke( p._activeAsyncCancel );
-						p._isInitialized = true;
-					}
-					await p._enableEvent.Invoke( p._activeAsyncCancel );
-					p._isActive = true;
-				} );
-			Observable.EveryFixedUpdate().Subscribe( _ => {
-				_processes
-					.SelectMany( pair => pair.Value )
-					.Where( p => p._isActive )
-					.ForEach( p => p._fixedUpdateEvent.Invoke() );
-			} )
-			.AddTo( _updateDisposer );
-			Observable.EveryUpdate().Subscribe( _ => {
-				_processes
-					.SelectMany( pair => pair.Value )
-					.Where( p => p._isActive )
-					.ForEach( p => p._updateEvent.Invoke() );
-			} )
-			.AddTo( _updateDisposer );
-			Observable.EveryLateUpdate().Subscribe( _ => {
-				_processes
-					.SelectMany( pair => pair.Value )
-					.Where( p => p._isActive )
-					.ForEach( p => p._lateUpdateEvent.Invoke() );
-			} )
-			.AddTo( _updateDisposer );
-		}
-
-
-		async UniTask Clear() {
-			Log.Debug( "clear process" );
-			_updateDisposer.Dispose();
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => {
-					p._isActive = false;
-					p.StopActiveAsync();
-					await p._disableEvent.Invoke( p._finalizeAsyncCancel );
-				} );
-			await _processes
-				.SelectMany( pair => pair.Value )
-				.Select( async p => await p._finalizeEvent.Invoke( p._finalizeAsyncCancel ) );
-			_processes
-				.SelectMany( pair => pair.Value )
-				.ForEach( p => p.Dispose() );
-			_processes.Clear();
-		}
-
-
-		public bool ChangeExecutedState( IProcess process, ExecutedState newState,
-											bool isCheckMonoBehaviour = false
+		async UniTask RunEventWithFirstProcesses( string sceneName, ProcessBody.RanState state,
+												bool isReverse = false
 		) {
-			var isChange = false;		// 状態遷移可能か？
-			var isProcessable = false;	// 関数実行可能か？
+			var ps = _processes
+				.GetOrDefault( sceneName )
+				?.GetOrDefault( ProcessBody.Type.FirstWork, new List<IProcess>() );
+			if ( isReverse ) {
+// TODO : 本当に元のリストが、入れ替わってないか、要検証
+				ps = ps.AsEnumerable().Reverse().ToList();
+			}
+			foreach ( var p in ps ) {
+				await p.RunStateEvent( state );
+			}
+		}
 
-			// 読込処理か？
-			var isLoader = process is IProcessLoader;
-			// 更新処理か？
-			var isUpdater =
-				process is IProcessUpdater ||
-				( isCheckMonoBehaviour && process is MonoBehaviour );
+		async UniTask RunEventWithProcesses( string sceneName, ProcessBody.RanState state ) {
+			var ps = _processes
+				.GetOrDefault( sceneName )
+				?.GetOrDefault( ProcessBody.Type.Work, new List<IProcess>() );
+			await UniTask.WhenAll(
+				ps.Select( async p => await p.RunStateEvent( state ) )
+			);
+		}
 
-			var currentState = process._executedState;	// 現在の状態
-			var delta = currentState - newState;		// 新規状態から見た、状態の遷移差
+		async UniTask ChangeActiveWithFirstProcesses( string sceneName, bool isActive, bool isReverse = false
+		) {
+			var ps = _processes
+				.GetOrDefault( sceneName )
+				?.GetOrDefault( ProcessBody.Type.FirstWork, new List<IProcess>() );
+			if ( isReverse ) {
+// TODO : 本当に元のリストが、入れ替わってないか、要検証
+				ps = ps.AsEnumerable().Reverse().ToList();
+			}
+			foreach ( var p in ps ) {
+				await p.ChangeActive( isActive );
+			}
+		}
+
+		async UniTask ChangeActiveWithProcesses( string sceneName, bool isActive ) {
+			var ps = _processes
+				.GetOrDefault( sceneName )
+				?.GetOrDefault( ProcessBody.Type.Work, new List<IProcess>() );
+			await UniTask.WhenAll(
+				ps.Select( async p => await p.ChangeActive( isActive ) )
+			);
+		}
 
 
-			// 繊維先状態で分岐
-			switch ( newState ) {
-				// 生成は、如何なる状態からも遷移不可能
-				case ExecutedState.Create:
-					isChange = false;
-					isProcessable = isChange;
-					break;
+		void RegisterEvents() {
+			_loadEvent.AddLast( async cancel => {
+				await RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Loading );
+				await RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Initializing );
+			} );
 
-				// 読込は、前から順番に遷移可能
-				case ExecutedState.Load:
-					isChange =
-						isLoader &&
-						delta == -1;
-					isProcessable = isChange;
-					break;
+			_initializeEvent.AddLast( async cancel => {
+				await RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Loading );
+				await RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Initializing );
+			} );
 
-				// 初期化は、前から順番か、読込を飛ばして遷移可能
-				case ExecutedState.Initialize:
-					isChange = delta == ( isLoader ? -1 : -2 );
-					isProcessable = isChange;
-					break;
+			_enableEvent.AddLast( async cancel => {
+				await ChangeActiveWithFirstProcesses( _foreverSceneName, true );
+				await ChangeActiveWithProcesses( _foreverSceneName, true );
+			} );
 
-				// 更新は、前から順番に遷移可能で、前の更新状態は好きに実行できる
-				case ExecutedState.FixedUpdate:
-				case ExecutedState.Update:
-				case ExecutedState.LateUpdate:
-					isChange =
-						isUpdater &&
-						process._isInitialized &&
-						delta == -1;
-					isProcessable =
-						isUpdater &&
-						process._isInitialized &&
-						-1 <= delta &&
-						currentState <= ExecutedState.LateUpdate;
-					break;
+			_fixedUpdateEvent.AddLast().Subscribe( _ => {
+				RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.FixedUpdate ).Forget();
+				RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.FixedUpdate ).Forget();
+			} );
 
-				// 破棄は、同状態以外なら、何処からでも遷移可能
-				case ExecutedState.Finalize:
-					isChange = delta != 0;
-					isProcessable = isChange;
-					break;
+			_updateEvent.AddLast().Subscribe( _ => {
+				RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Update ).Forget();
+				RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Update ).Forget();
+			} );
+
+			_lateUpdateEvent.AddLast().Subscribe( _ => {
+				RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.LateUpdate ).Forget();
+				RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.LateUpdate ).Forget();
+				CheckDeleteProcesses().Forget();
+#if DEVELOP
+				DebugDisplay.s_instance.Add( Color.cyan );
+				DebugDisplay.s_instance.Add( $"● {this.GetAboutName()}" );
+				DebugDisplay.s_instance.Add( Color.white );
+				_processes
+					.SelectMany( pair => pair.Value )
+					.SelectMany( pair => pair.Value )
+					.ForEach( p => DebugDisplay.s_instance.Add( $"\t{p.GetAboutName()}" ) );
+#endif
+			} );
+
+			_disableEvent.AddLast( async cancel => {
+				await ChangeActiveWithFirstProcesses( _foreverSceneName, false, true );
+				await ChangeActiveWithProcesses( _foreverSceneName, false );
+			} );
+
+			_finalizeEvent.AddLast( async cancel => {
+				await RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Finalizing, true );
+				await RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Finalizing );
+				_processes
+					.GetOrDefault( _foreverSceneName )
+					?.Where( pair => pair.Key != ProcessBody.Type.DontWork )
+					.SelectMany( pair => pair.Value )
+					.ForEach( p => UnRegister( p ) );
+				await CheckDeleteProcesses();
+			} );
+
+			Observable.OnceApplicationQuit().Subscribe(
+				async _ => await RunStateEvent( ProcessBody.RanState.Finalizing )
+			)
+			.AddTo( _updateDisposer );
+
+			Observable.EveryFixedUpdate().Subscribe( _ =>
+				RunStateEvent( ProcessBody.RanState.FixedUpdate ).Forget()
+			)
+			.AddTo( _updateDisposer );
+
+			Observable.EveryUpdate().Subscribe( _ =>
+				RunStateEvent( ProcessBody.RanState.Update ).Forget()
+			)
+			.AddTo( _updateDisposer );
+			Observable.EveryLateUpdate().Subscribe( _ =>
+				RunStateEvent( ProcessBody.RanState.LateUpdate ).Forget()
+			)
+			.AddTo( _updateDisposer );
+		}
+
+
+#if DEVELOP
+		void OnGUI() {
+//			if ( _process._ranState == ProcessBody.RanState.LateUpdate ) {
+				_onGUIEvent.Invoke();
+//			}
+		}
+#endif
+
+
+		public async UniTask Register( IProcess process ) {
+			await process.RunStateEvent( ProcessBody.RanState.Create );
+			if ( process._type == ProcessBody.Type.DontWork ) {
+				return;
 			}
 
+			var name = process._lifeSpan == ProcessBody.LifeSpan.Forever ? _foreverSceneName
+				: SceneManager.GetActiveScene().name;
+			var dictionary = _processes.GetOrDefault( name );
+			if ( dictionary == null ) {
+				_processes[name] = dictionary = new Dictionary< ProcessBody.Type, List<IProcess> >();
+			}
+			var list = dictionary.GetOrDefault( process._type );
+			if ( list == null ) {
+				dictionary[process._type] = list = new List<IProcess>();
+			}
+			_processes[name][process._type].Add( process );
+		}
 
-			// 遷移可能な場合、状態遷移
-			if ( isChange )	{ process._executedState = newState; }
-			// 関数実行可能か？を返す
-			return isProcessable;
+		public override void Dispose() {
+			_updateDisposer.Dispose();
+			_processes.Clear();
+			base.Dispose();
 		}
 	}
 }

@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process.New {
 	using System.Threading;
+	using UniRx.Async;
 	using MultiEvent;
 	using Extension;
 
@@ -14,84 +15,65 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 	public abstract class MonoBehaviourProcess : MonoBehaviourExtension, IProcess {
-		public CoreProcessManager.ExecutedState _executedState	{ get; set; }
-		public virtual CoreProcessManager.ProcessType _type => CoreProcessManager.ProcessType.Work;
-		public virtual CoreProcessManager.ProcessLifeSpan _lifeSpan
-			=> CoreProcessManager.ProcessLifeSpan.InScene;
+		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
+		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 
-		public bool _isInitialized	{ get; set; }
-		public bool _isActive		{ get; set; }
+		public ProcessBody _process	{ get; private set; }
+
+		public bool _isInitialized => _process._isInitialized;
+		public bool _isActive => _process._isActive;
 		
-		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
-		CancellationTokenSource _finalizeAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _finalizeAsyncCancel => _finalizeAsyncCanceler.Token;
+		public MultiAsyncEvent _loadEvent => _process._loadEvent;
+		public MultiAsyncEvent _initializeEvent => _process._initializeEvent;
+		public MultiAsyncEvent _enableEvent => _process._enableEvent;
+		public MultiSubject _fixedUpdateEvent => _process._fixedUpdateEvent;
+		public MultiSubject _updateEvent => _process._updateEvent;
+		public MultiSubject _lateUpdateEvent => _process._lateUpdateEvent;
+		public MultiAsyncEvent _disableEvent => _process._disableEvent;
+		public MultiAsyncEvent _finalizeEvent => _process._finalizeEvent;
 
-		public MultiAsyncEvent _loadEvent		{ get; protected set; }
-		public MultiAsyncEvent _initializeEvent	{ get; protected set; }
-		public MultiAsyncEvent _enableEvent		{ get; protected set; }
-		public MultiSubject _fixedUpdateEvent	{ get; protected set; }
-		public MultiSubject _updateEvent		{ get; protected set; }
-		public MultiSubject _lateUpdateEvent	{ get; protected set; }
-		public MultiAsyncEvent _disableEvent	{ get; protected set; }
-		public MultiAsyncEvent _finalizeEvent	{ get; protected set; }
+		public CancellationToken _activeAsyncCancel => _process._activeAsyncCancel;
+		public CancellationToken _finalizeAsyncCancel => _process._finalizeAsyncCancel;
 
 
 		protected void Awake() {
-
 // TODO : 非活動中は、どうする？
 //			disable中は、登録後、呼戻さない？
 //			_isActive判定、enable、disableイベント呼び出し等、含む
 			if ( !isActiveAndEnabled )	{ return; }
 
-			_loadEvent = new MultiAsyncEvent();
-			_initializeEvent = new MultiAsyncEvent();
-			_enableEvent = new MultiAsyncEvent();
-			_fixedUpdateEvent = new MultiSubject();
-			_updateEvent = new MultiSubject();
-			_lateUpdateEvent = new MultiSubject();
-			_disableEvent = new MultiAsyncEvent();
-			_finalizeEvent = new MultiAsyncEvent();
-
-			CoreProcessManager.s_instance.Register( this );
+			if ( _lifeSpan == ProcessBody.LifeSpan.Forever ) {
+				DontDestroyOnLoad( gameObject );
+			}
+			_process = new ProcessBody( this );
 		}
 
 
 		public abstract void Create();
 
 
-		public void StopActiveAsync() {
-			_activeAsyncCanceler.Cancel();
-			_activeAsyncCanceler.Dispose();
-			_activeAsyncCanceler = new CancellationTokenSource();
+		public async UniTask RunStateEvent( ProcessBody.RanState state ) {
+			await _process.RunStateEvent( state );
 		}
 
 
-		public virtual void Dispose() {
-			_activeAsyncCanceler.Cancel();
-			_finalizeAsyncCanceler.Cancel();
-			_activeAsyncCanceler.Dispose();
-			_finalizeAsyncCanceler.Dispose();
-
-			_loadEvent.Dispose();
-			_initializeEvent.Dispose();
-			_enableEvent.Dispose();
-			_fixedUpdateEvent.Dispose();
-			_updateEvent.Dispose();
-			_lateUpdateEvent.Dispose();
-			_disableEvent.Dispose();
-			_finalizeEvent.Dispose();
+		public async UniTask ChangeActive( bool isActive ) {
+			await _process.RunActiveEvent(
+				isActive ? ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling
+			);
 		}
 
 
-		public override string ToString() {
-			return this.ToDeepString();
-		}
+		public void StopActiveAsync() => _process.StopActiveAsync();
 
 
-		protected void OnDestroy() {
-			Dispose();
-		}
+		public virtual void Dispose() => _process.Dispose();
+
+
+		public override string ToString() => this.ToDeepString();
+
+
+		protected void OnDestroy() => Dispose();
 
 
 #if DEVELOP

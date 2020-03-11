@@ -7,6 +7,7 @@
 namespace SubmarineMirageFramework.Process.New {
 	using System;
 	using System.Threading;
+	using UniRx.Async;
 	using MultiEvent;
 
 
@@ -14,14 +15,14 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 	public interface IProcess : IDisposable {
-		CoreProcessManager.ExecutedState _executedState	{ get; set; }
-		CoreProcessManager.ProcessType _type			{ get; }
-		CoreProcessManager.ProcessLifeSpan _lifeSpan	{ get; }
-		bool _isInitialized	{ get; set; }
-		bool _isActive		{ get; set; }
-		CancellationToken _activeAsyncCancel	{ get; }
-		CancellationToken _finalizeAsyncCancel	{ get; }
-		
+		ProcessBody.Type _type			{ get; }
+		ProcessBody.LifeSpan _lifeSpan	{ get; }
+
+		ProcessBody _process	{ get; }
+
+		bool _isInitialized	{ get; }
+		bool _isActive		{ get; }
+
 		MultiAsyncEvent _loadEvent			{ get; }
 		MultiAsyncEvent _initializeEvent	{ get; }
 		MultiAsyncEvent _enableEvent		{ get; }
@@ -31,7 +32,12 @@ namespace SubmarineMirageFramework.Process.New {
 		MultiAsyncEvent _disableEvent		{ get; }
 		MultiAsyncEvent _finalizeEvent		{ get; }
 
+		CancellationToken _activeAsyncCancel	{ get; }
+		CancellationToken _finalizeAsyncCancel	{ get; }
+
 		void Create();
+		UniTask RunStateEvent( ProcessBody.RanState state );
+		UniTask ChangeActive( bool isActive );
 		void StopActiveAsync();
 		string ToString();
 	}
