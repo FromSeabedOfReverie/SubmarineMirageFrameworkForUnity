@@ -20,6 +20,8 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public ProcessBody _process	{ get; private set; }
 
+		public string _belongSceneName => _process._belongSceneName;
+
 		public bool _isInitialized => _process._isInitialized;
 		public bool _isActive => _process._isActive;
 

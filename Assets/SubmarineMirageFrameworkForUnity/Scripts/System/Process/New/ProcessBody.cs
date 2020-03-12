@@ -7,6 +7,7 @@
 namespace SubmarineMirageFramework.Process.New {
 	using System;
 	using System.Threading;
+	using UnityEngine.SceneManagement;
 	using UniRx.Async;
 	using MultiEvent;
 	using Extension;
@@ -44,12 +45,16 @@ namespace SubmarineMirageFramework.Process.New {
 			InScene,
 			Forever,
 		}
+		public static readonly string FOREVER_SCENE_NAME = LifeSpan.Forever.ToString();
+
 		public RanState _ranState	{ get; private set; }
 		ActiveState _activeState;
 		public bool _isInitialized => _ranState >= RanState.Initialized;
 		public bool _isActive => _activeState == ActiveState.Enabled;
 
 		IProcess _owner;
+
+		public string _belongSceneName	{ get; private set; }
 
 		public readonly MultiAsyncEvent _loadEvent = new MultiAsyncEvent();
 		public readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
@@ -68,17 +73,16 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public ProcessBody( IProcess owner ) {
 			_owner = owner;
+			_belongSceneName = owner._lifeSpan == LifeSpan.Forever ?
+				FOREVER_SCENE_NAME : SceneManager.GetActiveScene().name;
 			CoreProcessManager.s_instance.Register( owner ).Forget();
 		}
 
 
 		public async UniTask RunStateEvent( RanState state ) {
-			if ( !_isActive ) {
-// TODO : 非活動中の状態遷移どうする？
-			}
-
 			switch ( state ) {
 				case RanState.Create:
+					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.None:
 							_ranState = RanState.Create;
@@ -88,6 +92,7 @@ namespace SubmarineMirageFramework.Process.New {
 					break;
 
 				case RanState.Loading:
+					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Create:
 						case RanState.Loading:
@@ -99,6 +104,7 @@ namespace SubmarineMirageFramework.Process.New {
 					break;
 
 				case RanState.Initializing:
+					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Loaded:
 						case RanState.Initializing:
@@ -110,6 +116,7 @@ namespace SubmarineMirageFramework.Process.New {
 					break;
 
 				case RanState.FixedUpdate:
+					if ( !_isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Initialized:
 							_ranState = RanState.FixedUpdate;
@@ -125,6 +132,7 @@ namespace SubmarineMirageFramework.Process.New {
 					break;
 
 				case RanState.Update:
+					if ( !_isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.FixedUpdate:
 							_ranState = RanState.Update;
@@ -139,6 +147,7 @@ namespace SubmarineMirageFramework.Process.New {
 					break;
 
 				case RanState.LateUpdate:
+					if ( !_isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Update:
 							_ranState = RanState.LateUpdate;
@@ -152,6 +161,7 @@ namespace SubmarineMirageFramework.Process.New {
 					break;
 
 				case RanState.Finalizing:
+					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Loading:
 						case RanState.Loaded:
@@ -167,6 +177,7 @@ namespace SubmarineMirageFramework.Process.New {
 					}
 					_ranState = RanState.Finalized;
 					Dispose();
+					CoreProcessManager.s_instance.Unregister( _owner );
 					break;
 			}
 		}

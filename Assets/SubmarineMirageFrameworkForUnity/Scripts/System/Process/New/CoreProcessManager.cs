@@ -9,115 +9,50 @@ namespace SubmarineMirageFramework.Process.New {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using UnityEngine.SceneManagement;
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
 	using Singleton.New;
 	using MultiEvent;
+	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
+	using Type = ProcessBody.Type;
+	using RanState = ProcessBody.RanState;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public class CoreProcessManager : MonoBehaviourSingleton<CoreProcessManager> {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+		public override Type _type => Type.DontWork;
 
-		readonly Dictionary< string, Dictionary< ProcessBody.Type, List<IProcess> > > _processes
-			= new Dictionary< string, Dictionary< ProcessBody.Type, List<IProcess> > >();
-		readonly List<IProcess> _deleteProcesses = new List<IProcess>();
-		bool _isProcessDeleting;
+		public string _foreverSceneName => ProcessBody.FOREVER_SCENE_NAME;
+		public string _currentSceneName => SceneManager.s_instance._currentSceneName;
+
+		readonly Dictionary< string, Dictionary< Type, List<IProcess> > > _processes
+			= new Dictionary< string, Dictionary< Type, List<IProcess> > >();
+		readonly List<IProcess> _requestUnregisterProcesses = new List<IProcess>();
 
 #if DEVELOP
 		public readonly MultiSubject _onGUIEvent = new MultiSubject();
 #endif
 		CompositeDisposable _updateDisposer = new CompositeDisposable();
-		string _foreverSceneName = ProcessBody.LifeSpan.Forever.ToString();
+		bool _isInitializedInSceneProcesses;
 
 
 		public async UniTask Create( Func<UniTask> initializePlugin, Func<UniTask> registerProcesses ) {
-			await initializePlugin();
-			await registerProcesses();
-			RegisterEvents();
-
-			Create();
-			await RunStateEvent( ProcessBody.RanState.Loading );
-			await RunStateEvent( ProcessBody.RanState.Initializing );
-
-			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );
-/*
-			Observable.EveryUpdate()
-				.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
-				.Take( 1 )
-				.Subscribe( _ => Clear().Forget() )
-				.AddTo( _updateDisposer );
-*/
-		}
-
-
-		public override void Create() {}
-
-
-		async UniTask RunEventWithFirstProcesses( string sceneName, ProcessBody.RanState state,
-												bool isReverse = false
-		) {
-			var ps = _processes
-				.GetOrDefault( sceneName )
-				?.GetOrDefault( ProcessBody.Type.FirstWork, new List<IProcess>() );
-			if ( isReverse ) {
-// TODO : 本当に元のリストが、入れ替わってないか、要検証
-				ps = ps.AsEnumerable().Reverse().ToList();
-			}
-			foreach ( var p in ps ) {
-				await p.RunStateEvent( state );
-			}
-		}
-
-		async UniTask RunEventWithProcesses( string sceneName, ProcessBody.RanState state ) {
-			var ps = _processes
-				.GetOrDefault( sceneName )
-				?.GetOrDefault( ProcessBody.Type.Work, new List<IProcess>() );
-			await UniTask.WhenAll(
-				ps.Select( async p => await p.RunStateEvent( state ) )
-			);
-		}
-
-		async UniTask ChangeActiveWithFirstProcesses( string sceneName, bool isActive, bool isReverse = false
-		) {
-			var ps = _processes
-				.GetOrDefault( sceneName )
-				?.GetOrDefault( ProcessBody.Type.FirstWork, new List<IProcess>() );
-			if ( isReverse ) {
-// TODO : 本当に元のリストが、入れ替わってないか、要検証
-				ps = ps.AsEnumerable().Reverse().ToList();
-			}
-			foreach ( var p in ps ) {
-				await p.ChangeActive( isActive );
-			}
-		}
-
-		async UniTask ChangeActiveWithProcesses( string sceneName, bool isActive ) {
-			var ps = _processes
-				.GetOrDefault( sceneName )
-				?.GetOrDefault( ProcessBody.Type.Work, new List<IProcess>() );
-			await UniTask.WhenAll(
-				ps.Select( async p => await p.ChangeActive( isActive ) )
-			);
-		}
-
-
-		void RegisterEvents() {
 			_loadEvent.AddLast( async cancel => {
-				await RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Loading );
-				await RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Initializing );
+				await initializePlugin();
+				await registerProcesses();
 			} );
 
 			_initializeEvent.AddLast( async cancel => {
-				await RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Loading );
-				await RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Initializing );
+				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Loading );
+				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Initializing );
+				await RunEventWithProcesses( _foreverSceneName, RanState.Loading );
+				await RunEventWithProcesses( _foreverSceneName, RanState.Initializing );
 			} );
 
 			_enableEvent.AddLast( async cancel => {
@@ -126,28 +61,25 @@ namespace SubmarineMirageFramework.Process.New {
 			} );
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.FixedUpdate ).Forget();
-				RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.FixedUpdate ).Forget();
+				RunEventWithFirstProcesses( _foreverSceneName, RanState.FixedUpdate ).Forget();
+				RunEventWithProcesses( _foreverSceneName, RanState.FixedUpdate ).Forget();
+				RunEventWithFirstProcesses( _currentSceneName, RanState.FixedUpdate ).Forget();
+				RunEventWithProcesses( _currentSceneName, RanState.FixedUpdate ).Forget();
 			} );
 
 			_updateEvent.AddLast().Subscribe( _ => {
-				RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Update ).Forget();
-				RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Update ).Forget();
+				RunEventWithFirstProcesses( _foreverSceneName, RanState.Update ).Forget();
+				RunEventWithProcesses( _foreverSceneName, RanState.Update ).Forget();
+				RunEventWithFirstProcesses( _currentSceneName, RanState.Update ).Forget();
+				RunEventWithProcesses( _currentSceneName, RanState.Update ).Forget();
 			} );
 
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.LateUpdate ).Forget();
-				RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.LateUpdate ).Forget();
-				CheckDeleteProcesses().Forget();
-#if DEVELOP
-				DebugDisplay.s_instance.Add( Color.cyan );
-				DebugDisplay.s_instance.Add( $"● {this.GetAboutName()}" );
-				DebugDisplay.s_instance.Add( Color.white );
-				_processes
-					.SelectMany( pair => pair.Value )
-					.SelectMany( pair => pair.Value )
-					.ForEach( p => DebugDisplay.s_instance.Add( $"\t{p.GetAboutName()}" ) );
-#endif
+				RunEventWithFirstProcesses( _foreverSceneName, RanState.LateUpdate ).Forget();
+				RunEventWithProcesses( _foreverSceneName, RanState.LateUpdate ).Forget();
+				RunEventWithFirstProcesses( _currentSceneName, RanState.LateUpdate ).Forget();
+				RunEventWithProcesses( _currentSceneName, RanState.LateUpdate ).Forget();
+				CheckUnregisterProcesses();
 			} );
 
 			_disableEvent.AddLast( async cancel => {
@@ -156,68 +88,203 @@ namespace SubmarineMirageFramework.Process.New {
 			} );
 
 			_finalizeEvent.AddLast( async cancel => {
-				await RunEventWithFirstProcesses( _foreverSceneName, ProcessBody.RanState.Finalizing, true );
-				await RunEventWithProcesses( _foreverSceneName, ProcessBody.RanState.Finalizing );
-				_processes
-					.GetOrDefault( _foreverSceneName )
-					?.Where( pair => pair.Key != ProcessBody.Type.DontWork )
-					.SelectMany( pair => pair.Value )
-					.ForEach( p => UnRegister( p ) );
-				await CheckDeleteProcesses();
+				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Finalizing, true );
+				await RunEventWithProcesses( _foreverSceneName, RanState.Finalizing );
+				CheckUnregisterProcesses();
+				Dispose();
 			} );
 
-			Observable.OnceApplicationQuit().Subscribe(
-				async _ => await RunStateEvent( ProcessBody.RanState.Finalizing )
-			)
-			.AddTo( _updateDisposer );
 
 			Observable.EveryFixedUpdate().Subscribe( _ =>
-				RunStateEvent( ProcessBody.RanState.FixedUpdate ).Forget()
+				RunStateEvent( RanState.FixedUpdate ).Forget()
 			)
 			.AddTo( _updateDisposer );
 
 			Observable.EveryUpdate().Subscribe( _ =>
-				RunStateEvent( ProcessBody.RanState.Update ).Forget()
+				RunStateEvent( RanState.Update ).Forget()
 			)
 			.AddTo( _updateDisposer );
 			Observable.EveryLateUpdate().Subscribe( _ =>
-				RunStateEvent( ProcessBody.RanState.LateUpdate ).Forget()
+				RunStateEvent( RanState.LateUpdate ).Forget()
 			)
 			.AddTo( _updateDisposer );
+
+
+#if DEVELOP
+			_lateUpdateEvent.AddLast().Subscribe( _ => {
+				DebugDisplay.s_instance.Add( Color.cyan );
+				DebugDisplay.s_instance.Add( $"● {this.GetAboutName()}" );
+				DebugDisplay.s_instance.Add( Color.white );
+				GetAllProcesses().ForEach( p => DebugDisplay.s_instance.Add( $"\t{p.GetAboutName()}" ) );
+			} );
+#endif
+/*
+			Observable.EveryUpdate()
+				.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
+				.Take( 1 )
+				.Subscribe( _ => Clear().Forget() )
+				.AddTo( _updateDisposer );
+*/
+
+			await RunForeverProcesses();
 		}
+
+		public override void Create() {}
 
 
 #if DEVELOP
 		void OnGUI() {
-//			if ( _process._ranState == ProcessBody.RanState.LateUpdate ) {
+// TODO : これで問題あるか？
+//			if ( _process._ranState == RanState.LateUpdate ) {
 				_onGUIEvent.Invoke();
 //			}
 		}
 #endif
 
 
-		public async UniTask Register( IProcess process ) {
-			await process.RunStateEvent( ProcessBody.RanState.Create );
-			if ( process._type == ProcessBody.Type.DontWork ) {
-				return;
+		void CreateProcesses( string sceneName ) {
+			if ( !_processes.ContainsKey( sceneName ) ) {
+				_processes[sceneName] = new Dictionary< Type, List<IProcess> >();
 			}
-
-			var name = process._lifeSpan == ProcessBody.LifeSpan.Forever ? _foreverSceneName
-				: SceneManager.GetActiveScene().name;
-			var dictionary = _processes.GetOrDefault( name );
-			if ( dictionary == null ) {
-				_processes[name] = dictionary = new Dictionary< ProcessBody.Type, List<IProcess> >();
+			var scenePS = _processes[sceneName];
+			if ( !scenePS.ContainsKey( Type.FirstWork ) ) {
+// TODO : 元の辞書も、ちゃんと変わっているか？
+				scenePS[Type.FirstWork] = new List<IProcess>();
 			}
-			var list = dictionary.GetOrDefault( process._type );
-			if ( list == null ) {
-				dictionary[process._type] = list = new List<IProcess>();
+			if ( !scenePS.ContainsKey( Type.Work ) ) {
+// TODO : 元の辞書も、ちゃんと変わっているか？
+				scenePS[Type.Work] = new List<IProcess>();
 			}
-			_processes[name][process._type].Add( process );
 		}
 
+		List<IProcess> GetProcesses( string sceneName, Type type, bool isReverse = false ) {
+			CreateProcesses( sceneName );
+			var ps = _processes[sceneName][type];
+			if ( isReverse ) {
+// TODO : 元のリストは、元のまま、入れ替わってないか？
+				ps = ps.AsEnumerable().Reverse().ToList();
+			}
+// TODO : 使用先で、Add、Removeされた場合、元もちゃんと変更されるか？
+			return ps;
+		}
+
+		IEnumerable<IProcess> GetAllProcesses() {
+			return _processes
+				.SelectMany( pair => pair.Value )
+				.SelectMany( pair => pair.Value );
+		}
+
+
+		async UniTask RunEventWithFirstProcesses( string sceneName, RanState state, bool isReverse = false ) {
+			var ps = GetProcesses( sceneName, Type.FirstWork, isReverse );
+			foreach ( var p in ps ) {
+				await p.RunStateEvent( state );
+			}
+		}
+
+		async UniTask RunEventWithProcesses( string sceneName, RanState state ) {
+			var ps = GetProcesses( sceneName, Type.Work );
+			await UniTask.WhenAll(
+				ps.Select( async p => await p.RunStateEvent( state ) )
+			);
+		}
+
+		async UniTask ChangeActiveWithFirstProcesses( string sceneName, bool isActive, bool isReverse = false ) {
+			var ps = GetProcesses( sceneName, Type.FirstWork, isReverse );
+			foreach ( var p in ps ) {
+				await p.ChangeActive( isActive );
+			}
+		}
+
+		async UniTask ChangeActiveWithProcesses( string sceneName, bool isActive ) {
+			var ps = GetProcesses( sceneName, Type.Work );
+			await UniTask.WhenAll(
+				ps.Select( async p => await p.ChangeActive( isActive ) )
+			);
+		}
+
+
+		public async UniTask Register( IProcess process ) {
+			await process.RunStateEvent( RanState.Create );
+			if ( process._type == Type.DontWork )	{ return; }
+
+			GetProcesses( process._belongSceneName, process._type ).Add( process );
+
+			if ( _isInitializedInSceneProcesses ) {
+				await process.RunStateEvent( RanState.Loading );
+				await process.RunStateEvent( RanState.Initializing );
+				await process.ChangeActive( true );
+			}
+		}
+
+		public void Unregister( IProcess process ) {
+			_requestUnregisterProcesses.Add( process );
+		}
+
+		void CheckUnregisterProcesses() {
+			if ( _requestUnregisterProcesses.IsEmpty() )	{ return; }
+			_requestUnregisterProcesses
+				.ForEach( p => GetProcesses(　p._belongSceneName, p._type　).Remove( p ) );
+			_requestUnregisterProcesses.Clear();
+		}
+
+
+		public async UniTask Delete( IProcess process ) {
+			await process.ChangeActive( false );
+			await process.RunStateEvent( RanState.Finalizing );
+		}
+
+		public async UniTask ChangeActive( IProcess process, bool isActive ) {
+			await process.ChangeActive( isActive );
+		}
+
+
+		async UniTask RunForeverProcesses() {
+			await RunStateEvent( RanState.Loading );
+			await RunStateEvent( RanState.Initializing );
+			await ChangeActive( true );
+			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );
+		}
+
+		async UniTask DeleteForeverProcesses() {
+			await DeleteSceneProcesses();
+			await ChangeActive( false );
+			await RunStateEvent( RanState.Finalizing );
+			Log.Debug( $"{this.GetAboutName()} : 破棄完了", Log.Tag.Process );
+		}
+
+
+		public async UniTask RunSceneProcesses() {
+			await RunEventWithFirstProcesses( _currentSceneName, RanState.Loading );
+			await RunEventWithFirstProcesses( _currentSceneName, RanState.Initializing );
+			await RunEventWithProcesses( _currentSceneName, RanState.Loading );
+			await RunEventWithProcesses( _currentSceneName, RanState.Initializing );
+
+			await ChangeActiveWithFirstProcesses( _currentSceneName, true );
+			await ChangeActiveWithProcesses( _currentSceneName, true );
+
+			_isInitializedInSceneProcesses = true;
+		}
+
+		public async UniTask DeleteSceneProcesses() {
+			await ChangeActiveWithProcesses( _currentSceneName, false );
+			await ChangeActiveWithFirstProcesses( _currentSceneName, false, true );
+
+			await RunEventWithProcesses( _currentSceneName, RanState.Finalizing );
+			await RunEventWithFirstProcesses( _currentSceneName, RanState.Finalizing, true );
+
+			_isInitializedInSceneProcesses = false;
+		}
+
+
 		public override void Dispose() {
+#if DEVELOP
+			_onGUIEvent.Dispose();
+#endif
 			_updateDisposer.Dispose();
+			GetAllProcesses().ForEach( p => p.Dispose() );
 			_processes.Clear();
+			_requestUnregisterProcesses.Clear();
 			base.Dispose();
 		}
 	}
