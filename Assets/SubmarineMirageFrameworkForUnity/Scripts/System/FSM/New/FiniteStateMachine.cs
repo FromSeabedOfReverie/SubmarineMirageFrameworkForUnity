@@ -41,7 +41,8 @@ namespace SubmarineMirageFramework.FSM.New {
 		ActiveState _activeState;
 		RunState _runState;
 
-		readonly Dictionary< Type, State<TOwner, TFSM> > _states = new Dictionary< Type, State<TOwner, TFSM> >();
+		protected readonly Dictionary< Type, State<TOwner, TFSM> > _states
+			= new Dictionary< Type, State<TOwner, TFSM> >();
 		public State<TOwner, TFSM> _state	{ get; private set; }
 		protected State<TOwner, TFSM> _nextState;
 
