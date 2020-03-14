@@ -7,6 +7,7 @@
 namespace SubmarineMirageFramework.MultiEvent {
 	using System;
 	using System.Linq;
+	using System.Diagnostics;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx;
@@ -29,13 +30,20 @@ namespace SubmarineMirageFramework.MultiEvent {
 		protected readonly Subject<T> _onRemoveEvent = new Subject<T>();
 		protected readonly ReactiveProperty<bool> _isInvoking = new ReactiveProperty<bool>();
 		bool _isDispose;
+		string _ownerName;
 
 
 		public BaseMultiEvent() {
+			var frame = new StackFrame( 4 );
+			_ownerName = frame.GetMethod().ReflectedType.Name;
+
 			_isInvoking
 				.SkipLatestValueOnSubscribe()
 				.Where( is_ => !is_ )
-				.Subscribe( is_ => CheckRemove() );
+				.Subscribe( is_ => {
+//					Log.Debug( $"SkipLatestValueOnSubscribe {is_}" );
+					CheckRemove();
+				} );
 		}
 
 
@@ -103,6 +111,7 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 		void CheckRemove() {
 			if ( _removeKeys.IsEmpty() )	{ return; }
+			Log.Debug( "removeKey" );
 			_removeKeys.ForEach( key => {
 				_events.RemoveAll( pair => {
 					var isRemove = pair.Key == key;
@@ -134,7 +143,7 @@ namespace SubmarineMirageFramework.MultiEvent {
 			_onRemoveEvent.Dispose();
 			_isInvoking.Dispose();
 			_events.Clear();
-			Log.Debug( $"Dispose {this.GetAboutName()}" );
+			Log.Debug( $"Dispose {this.GetAboutName()} {_ownerName}" );
 		}
 
 
