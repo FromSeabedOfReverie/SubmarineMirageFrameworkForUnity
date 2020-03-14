@@ -11,6 +11,7 @@ namespace SubmarineMirageFramework.Process.New {
 	using UniRx.Async;
 	using MultiEvent;
 	using Extension;
+	using Utility;
 
 
 	// TODO : コメント追加、整頓
@@ -19,7 +20,8 @@ namespace SubmarineMirageFramework.Process.New {
 	public class ProcessBody : IDisposable {
 		public enum RanState {
 			None,
-			Create,
+			Creating,
+			Created,
 			Loading,
 			Loaded,
 			Initializing,
@@ -73,20 +75,33 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public ProcessBody( IProcess owner ) {
 			_owner = owner;
-			_belongSceneName = owner._lifeSpan == LifeSpan.Forever ?
-				FOREVER_SCENE_NAME : SceneManager.GetActiveScene().name;
-			CoreProcessManager.s_instance.Register( owner ).Forget();
+
+			if ( owner._lifeSpan == LifeSpan.Forever ) {
+				_belongSceneName = FOREVER_SCENE_NAME;
+			} else if ( _owner is MonoBehaviourProcess ) {
+				_belongSceneName = ( (MonoBehaviourProcess)_owner ).gameObject.scene.name;
+			} else {
+				_belongSceneName = SceneManager.GetActiveScene().name;
+			}
+
+			if ( _owner._type == Type.DontWork ) {
+				RunStateEvent( RanState.Creating ).Forget();
+			} else {
+				CoreProcessManager.s_instance.Register( owner ).Forget();
+			}
 		}
 
 
 		public async UniTask RunStateEvent( RanState state ) {
 			switch ( state ) {
-				case RanState.Create:
+				case RanState.Creating:
 					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.None:
-							_ranState = RanState.Create;
+							_ranState = RanState.Creating;
+							await UniTaskUtility.Delay( _activeAsyncCancel, 1 );
 							_owner.Create();
+							_ranState = RanState.Created;
 							break;
 					}
 					break;
@@ -94,7 +109,7 @@ namespace SubmarineMirageFramework.Process.New {
 				case RanState.Loading:
 					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
-						case RanState.Create:
+						case RanState.Created:
 						case RanState.Loading:
 							_ranState = RanState.Loading;
 							await _loadEvent.Invoke( _activeAsyncCancel );
@@ -177,7 +192,9 @@ namespace SubmarineMirageFramework.Process.New {
 					}
 					_ranState = RanState.Finalized;
 					Dispose();
-					CoreProcessManager.s_instance.Unregister( _owner );
+					if ( _owner._type != Type.DontWork ) {
+						CoreProcessManager.s_instance.Unregister( _owner );
+					}
 					break;
 			}
 		}

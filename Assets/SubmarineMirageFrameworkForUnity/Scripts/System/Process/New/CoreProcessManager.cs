@@ -49,8 +49,10 @@ namespace SubmarineMirageFramework.Process.New {
 			} );
 
 			_initializeEvent.AddLast( async cancel => {
+				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Creating );
 				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Loading );
 				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Initializing );
+				await RunEventWithProcesses( _foreverSceneName, RanState.Creating );
 				await RunEventWithProcesses( _foreverSceneName, RanState.Loading );
 				await RunEventWithProcesses( _foreverSceneName, RanState.Initializing );
 			} );
@@ -68,6 +70,7 @@ namespace SubmarineMirageFramework.Process.New {
 			} );
 
 			_updateEvent.AddLast().Subscribe( _ => {
+				Log.Debug( "CoreProcessManager._updateEvent" );
 				RunEventWithFirstProcesses( _foreverSceneName, RanState.Update ).Forget();
 				RunEventWithProcesses( _foreverSceneName, RanState.Update ).Forget();
 				RunEventWithFirstProcesses( _currentSceneName, RanState.Update ).Forget();
@@ -126,6 +129,7 @@ namespace SubmarineMirageFramework.Process.New {
 				.AddTo( _updateDisposer );
 */
 
+//			await UniTaskUtility.DelayFrame( _activeAsyncCancel, 1 );
 			await RunForeverProcesses();
 		}
 
@@ -134,10 +138,7 @@ namespace SubmarineMirageFramework.Process.New {
 
 #if DEVELOP
 		void OnGUI() {
-// TODO : これで問題あるか？
-//			if ( _process._ranState == RanState.LateUpdate ) {
-				_onGUIEvent.Invoke();
-//			}
+			_onGUIEvent.Invoke();
 		}
 #endif
 
@@ -205,12 +206,10 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		public async UniTask Register( IProcess process ) {
-			await process.RunStateEvent( RanState.Create );
-			if ( process._type == Type.DontWork )	{ return; }
-
 			GetProcesses( process._belongSceneName, process._type ).Add( process );
 
 			if ( _isInitializedInSceneProcesses ) {
+				await process.RunStateEvent( RanState.Creating );
 				await process.RunStateEvent( RanState.Loading );
 				await process.RunStateEvent( RanState.Initializing );
 				await process.ChangeActive( true );
@@ -240,6 +239,7 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		async UniTask RunForeverProcesses() {
+			await RunStateEvent( RanState.Creating );
 			await RunStateEvent( RanState.Loading );
 			await RunStateEvent( RanState.Initializing );
 			await ChangeActive( true );
@@ -255,8 +255,10 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		public async UniTask RunSceneProcesses() {
+			await RunEventWithFirstProcesses( _currentSceneName, RanState.Creating );
 			await RunEventWithFirstProcesses( _currentSceneName, RanState.Loading );
 			await RunEventWithFirstProcesses( _currentSceneName, RanState.Initializing );
+			await RunEventWithProcesses( _currentSceneName, RanState.Creating );
 			await RunEventWithProcesses( _currentSceneName, RanState.Loading );
 			await RunEventWithProcesses( _currentSceneName, RanState.Initializing );
 

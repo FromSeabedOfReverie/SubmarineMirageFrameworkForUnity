@@ -23,6 +23,7 @@ namespace SubmarineMirageFramework.Process.New {
 		public string _belongSceneName => _process._belongSceneName;
 
 		public bool _isInitialized => _process._isInitialized;
+// TODO : GameObjectの活動状態と合わせる
 		public bool _isActive => _process._isActive;
 		
 		public MultiAsyncEvent _loadEvent => _process._loadEvent;
