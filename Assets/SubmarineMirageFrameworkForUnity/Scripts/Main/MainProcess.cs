@@ -34,7 +34,7 @@ namespace SubmarineMirageFramework.Main {
 		///		しかし、UniRxと競合しており、無理矢理awaitさせている。
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
+//		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static async void Main() {
 			// UniRxも同名指定子で、最初期実行関数を指定している為、UniRx初期化まで待機
 			await Task.Delay( 1 );
@@ -79,10 +79,6 @@ namespace SubmarineMirageFramework.Main {
 		static async UniTask RegisterProcesses() {
 //			new TestProcess();
 //			new WriteLicense();
-
-//			new Process.New.TestProcess2();
-			new FSM.New.TestOwner();
-			return;
 
 			await DebugManager.WaitForCreation();
 
