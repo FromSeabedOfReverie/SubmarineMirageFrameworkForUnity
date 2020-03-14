@@ -18,6 +18,7 @@ namespace SubmarineMirageFramework.Scene {
 	using Extension;
 	using Utility;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
+	using LoadSceneMode = UnityEngine.SceneManagement.LoadSceneMode;
 
 
 	// TODO : コメント追加、整頓
@@ -38,48 +39,52 @@ namespace SubmarineMirageFramework.Scene {
 	}
 
 
-	public class SceneStateMachine : FiniteStateMachine<SceneManager, SceneStateMachine> {
-		public BaseScene _scene => (BaseScene)_state;
+	public class SceneStateMachine : FiniteStateMachine<SceneStateMachine, SceneManager, BaseScene> {
+		public BaseScene _scene => _state;
 		public string _currentSceneName => _scene?._name;
 		public bool _isSkipLoadForFirstScene = true;
 
 		public SceneStateMachine( SceneManager owner ) : base(
 			owner,
 			new BaseScene[] {
-				new TestChangeScene1Scene( owner ),
-				new TestChangeScene2Scene( owner ),
+				new TestChangeScene1Scene(),
+				new TestChangeScene2Scene(),
 			}
 		) {
 			var firstScene = _states
 				.Select( pair => pair.Value )
-				.Select( s => (BaseScene)s )
 				.FirstOrDefault( s => s._name == UnitySceneManager.GetActiveScene().name );
 			if ( firstScene != null ) {
 				ChangeScene( _owner._activeAsyncCancel, firstScene.GetType() ).Forget();
 			}
 		}
 
-		public async UniTask ChangeScene<TState>( CancellationToken cancel )
-			=> await ChangeState<TState>( cancel );
+// TODO : MultiFSM実装後、複数シーン読込に対応する
+		public async UniTask ChangeScene<T>( CancellationToken cancel ) where T : BaseScene
+			=> await ChangeState<T>( cancel );
 
 		public async UniTask ChangeScene( CancellationToken cancel, Type stateType )
 			=> await ChangeState( cancel, stateType );
 	}
 
 
-	public abstract class BaseScene : State<SceneManager, SceneStateMachine> {
+	public abstract class BaseScene : State<SceneStateMachine, SceneManager> {
 		public string _name	{ get; private set; }
 
-		public BaseScene( SceneManager owner ) : base( owner ) {
+		public BaseScene() {
 			_name = this.GetAboutName().RemoveAtLast( "Scene" );
+
 			_enterEvent.AddFirst( async cancel => {
+				return;
 				if ( _fsm._isSkipLoadForFirstScene ) {
 					_fsm._isSkipLoadForFirstScene = false;
 				} else {
-					await UnitySceneManager.LoadSceneAsync( _name ).ConfigureAwait( cancel );
+					await UnitySceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive )
+						.ConfigureAwait( cancel );
 				}
 				await CoreProcessManager.s_instance.RunSceneProcesses();
 			} );
+
 			_exitEvent.AddFirst( async cancel => {
 				await CoreProcessManager.s_instance.DeleteSceneProcesses();
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
@@ -92,13 +97,9 @@ namespace SubmarineMirageFramework.Scene {
 
 
 	public class TestChangeScene1Scene : BaseScene {
-		public TestChangeScene1Scene( SceneManager owner ) : base( owner ) {
-		}
 	}
 
 
 	public class TestChangeScene2Scene : BaseScene {
-		public TestChangeScene2Scene( SceneManager owner ) : base( owner ) {
-		}
 	}
 }
