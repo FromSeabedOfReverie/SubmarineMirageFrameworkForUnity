@@ -17,18 +17,18 @@ namespace SubmarineMirageFramework.Test.FSM {
 
 
 	public class TestSceneManager : MonoBehaviourSingleton<TestSceneManager>,
-								IFiniteStateMachineOwner< GeneralFiniteStateMachine<TestSceneManager> >
+								IFiniteStateMachineOwner< GeneralStateMachine<TestSceneManager> >
 	{
 
-		public GeneralFiniteStateMachine<TestSceneManager> _fsm { get; private set; }
+		public GeneralStateMachine<TestSceneManager> _fsm { get; private set; }
 
 		protected override void Constructor() {
 			base.Constructor();
 
-			var states = new State< TestSceneManager, GeneralFiniteStateMachine<TestSceneManager> >[] {
+			var states = new State< TestSceneManager, GeneralStateMachine<TestSceneManager> >[] {
 				new TitleScene( this ),
 			};
-			_fsm = new GeneralFiniteStateMachine<TestSceneManager>( this, states );
+			_fsm = new GeneralStateMachine<TestSceneManager>( this, states );
 			_fsm.Initialize();
 		}
 
@@ -37,7 +37,7 @@ namespace SubmarineMirageFramework.Test.FSM {
 	}
 
 
-	public class TitleScene : State< TestSceneManager, GeneralFiniteStateMachine<TestSceneManager> > {
+	public class TitleScene : State< TestSceneManager, GeneralStateMachine<TestSceneManager> > {
 
 		TestCat _cat;
 		TestDog _dog;

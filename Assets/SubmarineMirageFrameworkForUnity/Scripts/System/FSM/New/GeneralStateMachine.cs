@@ -5,14 +5,17 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.FSM.New {
-	public class GeneralFiniteStateMachine<TOwner> :
-		FiniteStateMachine< TOwner, GeneralFiniteStateMachine<TOwner> >
-		where TOwner : IFiniteStateMachineOwner< GeneralFiniteStateMachine<TOwner> >
+
+
+// TODO : コメント追加、整頓
+
+
+	public class GeneralStateMachine<TOwner, TState> :
+		FiniteStateMachine<GeneralStateMachine<TOwner, TState>, TOwner, TState>
+		where TOwner : IFiniteStateMachineOwner< GeneralStateMachine<TOwner, TState> >
+		where TState : class, IState<GeneralStateMachine<TOwner, TState>, TOwner>
 	{
-		public GeneralFiniteStateMachine( TOwner owner,
-											State< TOwner, GeneralFiniteStateMachine<TOwner> >[] states )
-			: base( owner, states )
-		{
+		public GeneralStateMachine( TOwner owner, TState[] states ) : base( owner, states ) {
 		}
 	}
 }

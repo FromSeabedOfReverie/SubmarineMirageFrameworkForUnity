@@ -13,17 +13,17 @@ namespace SubmarineMirageFramework.FSM {
 	///		TFSMを定める為に、仲介している。
 	/// </summary>
 	///====================================================================================================
-	public class GeneralFiniteStateMachine<TOwner> :
-		FiniteStateMachine< TOwner, GeneralFiniteStateMachine<TOwner> >
-		where TOwner : IFiniteStateMachineOwner< GeneralFiniteStateMachine<TOwner> >
+	public class GeneralStateMachine<TOwner> :
+		FiniteStateMachine< TOwner, GeneralStateMachine<TOwner> >
+		where TOwner : IFiniteStateMachineOwner< GeneralStateMachine<TOwner> >
 	{
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public GeneralFiniteStateMachine( TOwner owner,
-											State< TOwner, GeneralFiniteStateMachine<TOwner> >[] states )
+		public GeneralStateMachine( TOwner owner,
+											State< TOwner, GeneralStateMachine<TOwner> >[] states )
 			: base( owner, states )
 		{
 		}

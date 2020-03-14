@@ -20,9 +20,10 @@ namespace SubmarineMirageFramework.FSM.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class FiniteStateMachine<TOwner, TFSM> : IFiniteStateMachine
-		where TOwner : IFiniteStateMachineOwner<TFSM>
+	public abstract class FiniteStateMachine<TFSM, TOwner, TState> : IFiniteStateMachine
 		where TFSM : IFiniteStateMachine
+		where TOwner : IFiniteStateMachineOwner<TFSM>
+		where TState : class, IState<TFSM, TOwner>
 	{
 		enum ActiveState {
 			Disabled,
@@ -41,16 +42,15 @@ namespace SubmarineMirageFramework.FSM.New {
 		ActiveState _activeState;
 		RunState _runState;
 
-		protected readonly Dictionary< Type, State<TOwner, TFSM> > _states
-			= new Dictionary< Type, State<TOwner, TFSM> >();
-		public State<TOwner, TFSM> _state	{ get; private set; }
-		protected State<TOwner, TFSM> _nextState;
+		protected readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
+		public TState _state	{ get; private set; }
+		protected TState _nextState;
 
 		CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
 		CompositeDisposable _updateDisposer = new CompositeDisposable();
 
 
-		public FiniteStateMachine( TOwner owner, State<TOwner, TFSM>[] states ) {
+		public FiniteStateMachine( TOwner owner, TState[] states ) {
 			_owner = owner;
 			foreach ( var state in states ) {
 				var type = state.GetType();
@@ -62,7 +62,10 @@ namespace SubmarineMirageFramework.FSM.New {
 				await UniTask.WhenAll(
 					_states
 						.Select( pair => pair.Value )
-						.Select( async state => await state._initializeEvent.Invoke( cancel ) )
+						.Select( async state => {
+							state.Set( _owner );
+							await state._initializeEvent.Invoke( cancel );
+						} )
 				);
 				_nextState = _states.First().Value;
 			} );
@@ -107,8 +110,8 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 
 
-		public async UniTask ChangeState<TState>( CancellationToken cancel ) {
-			await ChangeState( cancel, typeof( TState ) );
+		public async UniTask ChangeState<T>( CancellationToken cancel ) where T : TState {
+			await ChangeState( cancel, typeof( T ) );
 		}
 
 
@@ -164,7 +167,7 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 
 
-		protected virtual bool IsPossibleChangeState( State<TOwner, TFSM> changeState ) {
+		protected virtual bool IsPossibleChangeState( TState changeState ) {
 			return true;
 		}
 

@@ -25,11 +25,6 @@ namespace SubmarineMirageFramework.FSM.New {
 
 		public override void Create() {
 			_fsm = new TestFSMManager( this );
-			Observable.EveryUpdate().Subscribe( _ => {
-				if ( Input.GetKeyDown( KeyCode.A ) ) {
-					_updateEvent.Remove( "test" );
-				}
-			} );
 			
 ///*
 			var i = 0;
@@ -60,20 +55,20 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 	}
 
-	public class TestFSMManager : FiniteStateMachine<TestOwner, TestFSMManager> {
+	public class TestFSMManager : FiniteStateMachine<TestFSMManager, TestOwner, BaseTestState> {
 		public TestFSMManager( TestOwner owner ) : base(
 			owner,
 			new BaseTestState[] {
-				new TestStateA( owner ),
-				new TestStateB( owner ),
-				new TestStateC( owner ),
+				new TestStateA(),
+				new TestStateB(),
+				new TestStateC(),
 			}
 		) {
 		}
 	}
 
-	public abstract class BaseTestState : State<TestOwner, TestFSMManager> {
-		public BaseTestState( TestOwner owner ) : base( owner ) {
+	public abstract class BaseTestState : State<TestFSMManager, TestOwner> {
+		public BaseTestState() {
 			_initializeEvent.AddLast( async cancel => await TestProcess( cancel, "initialize" ) );
 			_enterEvent.AddLast( async cancel => await TestProcess( cancel, "enter" ) );
 			_updateEvent.AddLast( async cancel => await TestProcess( cancel, "update" ) );
@@ -89,39 +84,39 @@ namespace SubmarineMirageFramework.FSM.New {
 	}
 
 	public class TestStateA : BaseTestState {
-		public TestStateA( TestOwner owner ) : base( owner ) {
+		public TestStateA() {
 /*
 			_updateDeltaEvent.AddLast()
 				.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
 				.Subscribe( _ => {
 					Log.Debug( $"{this.GetAboutName()} change TestStateB" );
-					_fsm.ChangeState<TestStateB>( owner._activeAsyncCancel ).Forget();
+					_fsm.ChangeState<TestStateB>( _owner._activeAsyncCancel ).Forget();
 				} );
 */
 		}
 	}
 
 	public class TestStateB : BaseTestState {
-		public TestStateB( TestOwner owner ) : base( owner ) {
+		public TestStateB() {
 /*
 			_updateDeltaEvent.AddLast()
 				.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
 				.Subscribe( _ => {
 					Log.Debug( $"{this.GetAboutName()} change TestStateC" );
-					_fsm.ChangeState<TestStateC>( owner._activeAsyncCancel ).Forget();
+					_fsm.ChangeState<TestStateC>( _owner._activeAsyncCancel ).Forget();
 				} );
 */
 		}
 	}
 
 	public class TestStateC : BaseTestState {
-		public TestStateC( TestOwner owner ) : base( owner ) {
+		public TestStateC() {
 /*
 			_updateDeltaEvent.AddLast()
 				.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
 				.Subscribe( _ => {
 					Log.Debug( $"{this.GetAboutName()} change TestStateA" );
-					_fsm.ChangeState<TestStateA>( owner._activeAsyncCancel ).Forget();
+					_fsm.ChangeState<TestStateA>( _owner._activeAsyncCancel ).Forget();
 				} );
 */
 		}

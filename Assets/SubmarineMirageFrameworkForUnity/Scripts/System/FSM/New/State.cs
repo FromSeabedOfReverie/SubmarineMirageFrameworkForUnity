@@ -5,35 +5,30 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.FSM.New {
-	using System;
 	using MultiEvent;
-	using Utility;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class State<TOwner, TFSM> : IDisposable
-		where TOwner : IFiniteStateMachineOwner<TFSM>
+	public abstract class State<TFSM, TOwner> : IState<TFSM, TOwner>
 		where TFSM : IFiniteStateMachine
+		where TOwner : IFiniteStateMachineOwner<TFSM>
 	{
-		protected TOwner _owner	{ get; private set; }
-		protected TFSM _fsm	{ get; private set; }
+		public TFSM _fsm		{ get; private set; }
+		public TOwner _owner	{ get; private set; }
 
-		public readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
-		public readonly MultiAsyncEvent _enterEvent = new MultiAsyncEvent();
-		public readonly MultiAsyncEvent _updateEvent = new MultiAsyncEvent();
-		public readonly MultiSubject _updateDeltaEvent = new MultiSubject();
-		public readonly MultiSubject _fixedUpdateDeltaEvent = new MultiSubject();
-		public readonly MultiSubject _lateUpdateDeltaEvent = new MultiSubject();
-		public readonly MultiAsyncEvent _exitEvent = new MultiAsyncEvent();
+		public MultiAsyncEvent _initializeEvent		{ get; private set; } = new MultiAsyncEvent();
+		public MultiAsyncEvent _enterEvent			{ get; private set; } = new MultiAsyncEvent();
+		public MultiAsyncEvent _updateEvent			{ get; private set; } = new MultiAsyncEvent();
+		public MultiSubject _updateDeltaEvent		{ get; private set; } = new MultiSubject();
+		public MultiSubject _fixedUpdateDeltaEvent	{ get; private set; } = new MultiSubject();
+		public MultiSubject _lateUpdateDeltaEvent	{ get; private set; } = new MultiSubject();
+		public MultiAsyncEvent _exitEvent			{ get; private set; } = new MultiAsyncEvent();
 
-		public State( TOwner owner ) {
+		public void Set( TOwner owner ) {
+			_fsm = owner._fsm;
 			_owner = owner;
-			_initializeEvent.AddFirst( async cancel => {
-				_fsm = _owner._fsm;
-				await UniTaskUtility.DontWait( cancel );
-			} );
 		}
 
 		public virtual void Dispose() {
