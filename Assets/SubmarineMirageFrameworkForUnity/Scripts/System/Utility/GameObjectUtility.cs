@@ -53,23 +53,5 @@ namespace SubmarineMirageFramework.Utility {
 			var go = GameObject.FindWithTag( s );
 			return go != null ? go.GetComponent<T>() : null;
 		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● ゲーム物の場面名を取得
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static string GetSceneNameOfGameObject( GameObject gameObject ) {
-			string sceneName = null;
-			var root = gameObject.transform.root.gameObject;
-			
-			Observable
-				.Range( 0, SceneManager.sceneCount )
-				.Select( i => SceneManager.GetSceneAt( i ) )
-				.Where( scene => scene.GetRootGameObjects().Any( go => go == root ) )
-				.Take( 1 )
-				.Subscribe( scene => sceneName = scene.name );
-
-			return sceneName;
-		}
 	}
 }

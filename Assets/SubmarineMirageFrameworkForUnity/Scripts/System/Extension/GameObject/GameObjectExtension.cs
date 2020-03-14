@@ -41,13 +41,5 @@ namespace SubmarineMirageFramework.Extension {
 		{
 			return GameObjectUtility.FindComponentWithTag<T>( tag );
 		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● ゲーム物の場面名を取得
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static string GetSceneNameOfGameObject( this GameObject gameObject ) {
-			return GameObjectUtility.GetSceneNameOfGameObject( gameObject );
-		}
 	}
 }
