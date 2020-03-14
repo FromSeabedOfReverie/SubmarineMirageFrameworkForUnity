@@ -41,7 +41,7 @@ namespace SubmarineMirageFramework.Singleton.New {
 			if ( component != null )	{ return component; }
 
 			component = s_parent.AddComponent<T>();
-			Log.Debug( $"作成（MonoBehaviour） : { component.GetAboutName() }", Log.Tag.Singleton );
+			Log.Debug( $"作成（Component） : { component.GetAboutName() }", Log.Tag.Singleton );
 			return component;
 		}
 
