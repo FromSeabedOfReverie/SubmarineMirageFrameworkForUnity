@@ -7,7 +7,6 @@
 namespace SubmarineMirageFramework.Utility {
 	using System.Linq;
 	using UnityEngine;
-	using UnityEngine.SceneManagement;
 	using UniRx;
 	using KoganeUnityLib;
 	using Extension;

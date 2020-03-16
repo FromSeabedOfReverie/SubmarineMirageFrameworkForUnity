@@ -29,6 +29,8 @@ namespace SubmarineMirageFramework.Extension {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public static string GetAboutName( this object self ) {
+			if ( self == null )	{ return "null"; }
+
 			var type = self.GetType();
 			if ( !type.IsGenericType ) { return type.Name; }
 
@@ -41,6 +43,8 @@ namespace SubmarineMirageFramework.Extension {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public static string GetName( this object self ) {
+			if ( self == null )	{ return "null"; }
+
 			var type = self.GetType();
 			if ( !type.IsGenericType ) { return type.Name; }
 
