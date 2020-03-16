@@ -126,4 +126,10 @@ namespace SubmarineMirageFramework.Process.New {
 			Log.Debug( $"Delete {this.GetAboutName()}" );
 		}
 	}
+
+	public class TestProcess3 : BaseProcess {
+		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
+		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override void Create() {}
+	}
 }

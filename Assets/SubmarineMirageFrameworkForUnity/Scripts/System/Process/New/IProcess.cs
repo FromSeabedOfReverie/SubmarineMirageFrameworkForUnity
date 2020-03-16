@@ -5,16 +5,16 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process.New {
-	using System;
 	using System.Threading;
 	using UniRx.Async;
 	using MultiEvent;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface IProcess : IDisposable {
+	public interface IProcess : IDisposableExtension {
 		ProcessBody.Type _type			{ get; }
 		ProcessBody.LifeSpan _lifeSpan	{ get; }
 
@@ -35,7 +35,7 @@ namespace SubmarineMirageFramework.Process.New {
 		MultiAsyncEvent _finalizeEvent		{ get; }
 
 		CancellationToken _activeAsyncCancel	{ get; }
-		CancellationToken _finalizeAsyncCancel	{ get; }
+		CancellationToken _inActiveAsyncCancel	{ get; }
 
 		void Create();
 		UniTask RunStateEvent( ProcessBody.RanState state );

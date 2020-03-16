@@ -5,19 +5,19 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process.New {
-	using System;
 	using System.Threading;
-	using UnityEngine.SceneManagement;
 	using UniRx.Async;
 	using MultiEvent;
+	using Scene;
 	using Extension;
 	using Utility;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ProcessBody : IDisposable {
+	public class ProcessBody : IDisposableExtension {
 		public enum RanState {
 			None,
 			Creating,
@@ -69,8 +69,10 @@ namespace SubmarineMirageFramework.Process.New {
 
 		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
 		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
-		CancellationTokenSource _finalizeAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _finalizeAsyncCancel => _finalizeAsyncCanceler.Token;
+		CancellationTokenSource _inActiveAsyncCanceler = new CancellationTokenSource();
+		public CancellationToken _inActiveAsyncCancel => _inActiveAsyncCanceler.Token;
+
+		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public ProcessBody( IProcess owner ) {
@@ -79,9 +81,10 @@ namespace SubmarineMirageFramework.Process.New {
 			if ( owner._lifeSpan == LifeSpan.Forever ) {
 				_belongSceneName = FOREVER_SCENE_NAME;
 			} else if ( _owner is MonoBehaviourProcess ) {
-				_belongSceneName = ( (MonoBehaviourProcess)_owner ).gameObject.scene.name;
+				var mono = (MonoBehaviourProcess)_owner;
+				_belongSceneName = mono.gameObject.scene.name;
 			} else {
-				_belongSceneName = SceneManager.GetActiveScene().name;
+				_belongSceneName = SceneManager.s_instance._currentSceneName;
 			}
 
 			if ( _owner._type == Type.DontWork ) {
@@ -89,10 +92,42 @@ namespace SubmarineMirageFramework.Process.New {
 			} else {
 				CoreProcessManager.s_instance.Register( owner ).Forget();
 			}
+
+			SetActiveAsyncCancelerDisposable();
+			_disposables.AddLast( () => _inActiveAsyncCanceler.Cancel() );
+			_disposables.AddLast( _inActiveAsyncCanceler );
+			_disposables.AddLast( _loadEvent );
+			_disposables.AddLast( _initializeEvent );
+			_disposables.AddLast( _enableEvent );
+			_disposables.AddLast( _fixedUpdateEvent );
+			_disposables.AddLast( _updateEvent );
+			_disposables.AddLast( _lateUpdateEvent );
+			_disposables.AddLast( _disableEvent );
+			_disposables.AddLast( _finalizeEvent );
+		}
+
+		void SetActiveAsyncCancelerDisposable() {
+			_disposables.AddFirst( "_activeAsyncCanceler", () => {
+				_activeAsyncCanceler.Cancel();
+				_activeAsyncCanceler.Dispose();
+			} );
+		}
+
+		public void Dispose() => _disposables.Dispose();
+
+		~ProcessBody() => Dispose();
+
+
+		public void StopActiveAsync() {
+			_disposables.Remove( "_activeAsyncCanceler" );
+			_activeAsyncCanceler = new CancellationTokenSource();
+			SetActiveAsyncCancelerDisposable();
 		}
 
 
 		public async UniTask RunStateEvent( RanState state ) {
+//			Log.Debug( $"{_owner.GetAboutName()} {state} want" );
+
 			switch ( state ) {
 				case RanState.Creating:
 					if ( _isActive )	{ break; }
@@ -187,7 +222,7 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.LateUpdate:
 						case RanState.Finalizing:
 							_ranState = RanState.Finalizing;
-							await _finalizeEvent.Invoke( _finalizeAsyncCancel );
+							await _finalizeEvent.Invoke( _inActiveAsyncCancel );
 							break;
 					}
 					_ranState = RanState.Finalized;
@@ -219,7 +254,7 @@ namespace SubmarineMirageFramework.Process.New {
 						case ActiveState.Enabled:
 							_activeState = ActiveState.Disabling;
 							StopActiveAsync();
-							await _disableEvent.Invoke( _finalizeAsyncCancel );
+							await _disableEvent.Invoke( _inActiveAsyncCancel );
 							_activeState = ActiveState.Disabled;
 							break;
 					}
@@ -228,33 +263,6 @@ namespace SubmarineMirageFramework.Process.New {
 		}
 
 
-		public void StopActiveAsync() {
-			_activeAsyncCanceler.Cancel();
-			_activeAsyncCanceler.Dispose();
-			_activeAsyncCanceler = new CancellationTokenSource();
-		}
-
-
-		public void Dispose() {
-			_activeAsyncCanceler.Cancel();
-			_finalizeAsyncCanceler.Cancel();
-			_activeAsyncCanceler.Dispose();
-			_finalizeAsyncCanceler.Dispose();
-
-			_loadEvent.Dispose();
-			_initializeEvent.Dispose();
-			_enableEvent.Dispose();
-			_fixedUpdateEvent.Dispose();
-			_updateEvent.Dispose();
-			_lateUpdateEvent.Dispose();
-			_disableEvent.Dispose();
-			_finalizeEvent.Dispose();
-		}
-
-
 		public override string ToString() => this.ToDeepString();
-
-
-		~ProcessBody() => Dispose();
 	}
 }

@@ -36,7 +36,9 @@ namespace SubmarineMirageFramework.Process.New {
 		public MultiAsyncEvent _finalizeEvent => _process._finalizeEvent;
 
 		public CancellationToken _activeAsyncCancel => _process._activeAsyncCancel;
-		public CancellationToken _finalizeAsyncCancel => _process._finalizeAsyncCancel;
+		public CancellationToken _inActiveAsyncCancel => _process._inActiveAsyncCancel;
+
+		public MultiDisposable _disposables => _process._disposables;
 
 
 		protected void Awake() {
@@ -50,6 +52,13 @@ namespace SubmarineMirageFramework.Process.New {
 			}
 			_process = new ProcessBody( this );
 		}
+
+		public void Dispose() => _process.Dispose();
+
+		protected void OnDestroy() => Dispose();
+
+
+		public void StopActiveAsync() => _process.StopActiveAsync();
 
 
 		public abstract void Create();
@@ -67,16 +76,7 @@ namespace SubmarineMirageFramework.Process.New {
 		}
 
 
-		public void StopActiveAsync() => _process.StopActiveAsync();
-
-
-		public virtual void Dispose() => _process.Dispose();
-
-
 		public override string ToString() => this.ToDeepString();
-
-
-		protected void OnDestroy() => Dispose();
 
 
 #if DEVELOP
