@@ -5,11 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Debug {
-	using System.Linq;
-	using UnityEngine.SceneManagement;
-#if UNITY_EDITOR
-	using UnityEditor;
-#endif
 	using Singleton;
 	///====================================================================================================
 	/// <summary>
@@ -36,20 +31,6 @@ namespace SubmarineMirageFramework.Debug {
 			_log = new Log();
 #if DEVELOP
 			_debugMainInfo = new DebugMainInfo();
-#endif
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 現在場面が、ビルド場面に含まれているか？
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public bool isInBuildScene() {
-#if UNITY_EDITOR
-			var path = SceneManager.GetActiveScene().path;
-			return EditorBuildSettings.scenes
-				.Any( scene => scene.path == path );
-#else
-			return true;
 #endif
 		}
 	}

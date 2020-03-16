@@ -17,8 +17,8 @@ namespace SubmarineMirageFramework.Scene {
 	using Test.Audio;
 	using Extension;
 	using Utility;
+	using UnityEngine.SceneManagement;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
-	using LoadSceneMode = UnityEngine.SceneManagement.LoadSceneMode;
 
 
 	// TODO : コメント追加、整頓
@@ -27,21 +27,29 @@ namespace SubmarineMirageFramework.Scene {
 	public class SceneManager : Singleton<SceneManager>, IFiniteStateMachineOwner<SceneStateMachine> {
 		public SceneStateMachine _fsm	{ get; private set; }
 		public string _currentSceneName => _fsm._currentSceneName;
+		public Scene _currentScene => _fsm._currentScene;
 
 		public override void Create() {
 			_fsm = new SceneStateMachine( this );
+			_disposables.AddFirst( _fsm );
 		}
 
-		public override void Dispose() {
-			_fsm.Dispose();
-			base.Dispose();
+		public bool IsInBuildScene() {
+#if UNITY_EDITOR
+			var path = _currentScene.path;
+			return UnityEditor.EditorBuildSettings.scenes
+				.Any( scene => scene.path == path );
+#else
+			return true;
+#endif
 		}
 	}
 
 
 	public class SceneStateMachine : FiniteStateMachine<SceneStateMachine, SceneManager, BaseScene> {
 		public BaseScene _scene => _state;
-		public string _currentSceneName => _scene?._name;
+		public string _currentSceneName => _scene._name;
+		public Scene _currentScene => _scene._scene;
 		public bool _isSkipLoadForFirstScene = true;
 
 		public SceneStateMachine( SceneManager owner ) : base(
@@ -70,9 +78,11 @@ namespace SubmarineMirageFramework.Scene {
 
 	public abstract class BaseScene : State<SceneStateMachine, SceneManager> {
 		public string _name	{ get; private set; }
+		public Scene _scene	{ get; protected set; }
 
 		public BaseScene() {
 			_name = this.GetAboutName().RemoveAtLast( "Scene" );
+			_scene = UnitySceneManager.GetSceneByName( _name );
 
 			_enterEvent.AddFirst( async cancel => {
 				return;
@@ -86,6 +96,7 @@ namespace SubmarineMirageFramework.Scene {
 			} );
 
 			_exitEvent.AddFirst( async cancel => {
+				return;
 				await CoreProcessManager.s_instance.DeleteSceneProcesses();
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
 				DOTween.KillAll();
