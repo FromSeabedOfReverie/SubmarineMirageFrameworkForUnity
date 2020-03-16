@@ -12,7 +12,11 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 
 	public class MultiEvent : BaseMultiEvent<Action> {
+		protected override void OnRemove( Action function ) {}
+
+
 		public void Invoke() {
+			CheckDisposeError();
 			_isInvoking.Value = true;
 			foreach ( var pair in _events ) {
 				pair.Value?.Invoke();

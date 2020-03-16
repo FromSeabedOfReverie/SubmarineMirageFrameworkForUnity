@@ -12,11 +12,9 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 
 	public class MultiSubject : BaseMultiEvent< Subject<Unit> > {
-		public MultiSubject() {
-			_onRemoveEvent.Subscribe( e => {
-				e?.OnCompleted();
-				e?.Dispose();
-			} );
+		protected override void OnRemove( Subject<Unit> function ) {
+			function.OnCompleted();
+			function.Dispose();
 		}
 
 
@@ -67,6 +65,7 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 
 		public void Invoke() {
+			CheckDisposeError();
 			_isInvoking.Value = true;
 			foreach ( var pair in _events ) {
 				pair.Value?.OnNext( Unit.Default );

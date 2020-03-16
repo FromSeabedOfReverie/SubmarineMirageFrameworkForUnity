@@ -19,18 +19,19 @@ namespace SubmarineMirageFramework.MultiEvent {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseMultiEvent<T> : IDisposable {
+	public abstract class BaseMultiEvent<T> : IDisposableExtension {
 		protected enum AddType {
 			First,
 			Last,
 		}
 		protected readonly List< KeyValuePair<string, T> > _events
 			= new List< KeyValuePair<string, T> >();
+//		readonly List< KeyValuePair<string, T> > _nextEvents = new List< KeyValuePair<string, T> >();
 		protected readonly List<string> _removeKeys = new List<string>();
-		protected readonly Subject<T> _onRemoveEvent = new Subject<T>();
 		protected readonly ReactiveProperty<bool> _isInvoking = new ReactiveProperty<bool>();
-		bool _isDispose;
-		string _ownerName;
+		public MultiDisposable _disposables	{ get; private set; }
+		protected virtual bool _isDispose => _disposables._isDispose;
+		protected string _ownerName;
 
 
 		public BaseMultiEvent() {
@@ -40,20 +41,34 @@ namespace SubmarineMirageFramework.MultiEvent {
 			_isInvoking
 				.SkipLatestValueOnSubscribe()
 				.Where( is_ => !is_ )
-				.Subscribe( is_ => {
-//					Log.Debug( $"SkipLatestValueOnSubscribe {is_}" );
-					CheckRemove();
-				} );
+				.Subscribe( is_ => CheckRemove() );
+
+			SetDisposables();
 		}
+
+		protected virtual void SetDisposables() {
+			_disposables = new MultiDisposable();
+			_disposables.AddLast( _isInvoking );
+			_disposables.AddLast( () => {
+				foreach ( var pair in _events ) {
+					OnRemove( pair.Value );
+				}
+				_events.Clear();
+				_removeKeys.Clear();
+				Log.Debug( $"Dispose {this.GetAboutName()} {_ownerName}" );
+			} );
+		}
+
+		public virtual void Dispose() => _disposables.Dispose();
+
+		~BaseMultiEvent() => Dispose();
 
 
 		protected void Insert( string findKey, AddType type, string key, T function ) {
+			CheckDisposeError( function );
 			var pair = new KeyValuePair<string, T>( key, function );
 			var i = _events.FindIndex( p => p.Key == findKey );
-			if ( i == -1 ) {
-				Log.Error( $"イベント関数が未登録 : {findKey}" );
-				throw new ArgumentOutOfRangeException( findKey, "イベント関数が未登録" );
-			}
+			if ( i == -1 )	{ NoEventError( findKey ); }
 			switch ( type ) {
 				case AddType.First:	i -= 0;	break;
 				case AddType.Last:	i += 1;	break;
@@ -80,6 +95,7 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 
 		protected void Add( AddType type, string key, T function ) {
+			CheckDisposeError( function );
 			var pair = new KeyValuePair<string, T>( key, function );
 			switch ( type ) {
 				case AddType.First:	_events.InsertFirst( pair );	break;
@@ -105,48 +121,47 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 
 		public void Remove( string key ) {
+			CheckDisposeError();
 			_removeKeys.Add( key );
 			if ( !_isInvoking.Value )	{ CheckRemove(); }
 		}
 
 		void CheckRemove() {
 			if ( _removeKeys.IsEmpty() )	{ return; }
-			Log.Debug( "removeKey" );
 			_removeKeys.ForEach( key => {
-				_events.RemoveAll( pair => {
+				var i = _events.RemoveAll( pair => {
 					var isRemove = pair.Key == key;
-					if ( isRemove )	{ _onRemoveEvent.OnNext( pair.Value ); }
+					if ( isRemove )	{ OnRemove( pair.Value ); }
 					return isRemove;
 				} );
+				if ( i == 0 )	{ NoEventError( key ); }
+				else { Log.Debug( $"remove {key}" ); }
 			} );
 			_removeKeys.Clear();
+		}
+
+		protected abstract void OnRemove( T function );
+
+
+		protected void CheckDisposeError( T addFunction = default( T ) ) {
+			if ( !_isDispose )	{ return; }
+			if ( addFunction != null ) {
+				OnRemove( addFunction );
+			}
+			throw new ObjectDisposedException( "_disposables", "既に解放済" );
+		}
+
+		void NoEventError( string key ) {
+			throw new KeyNotFoundException( $"イベント関数が未登録 : {key}" );
 		}
 
 
 		public override string ToString() {
 			return (
 				$"{this.GetAboutName()} (\n"
-				+ string.Join( "\n", _events.Select( pair => pair.Key ) )
-				+ "\n )"
+				+ string.Join( "\n", _events.Select( pair => $"    {pair.Key} : {pair.Value.GetAboutName()}" ) )
+				+ "\n)"
 			);
-//			return this.ToDeepString();
 		}
-
-
-		public void Dispose() {
-			if ( _isDispose )	{ return; }
-			_isDispose = true;
-			foreach ( var pair in _events ) {
-				_onRemoveEvent.OnNext( pair.Value );
-			}
-			_onRemoveEvent.OnCompleted();
-			_onRemoveEvent.Dispose();
-			_isInvoking.Dispose();
-			_events.Clear();
-			Log.Debug( $"Dispose {this.GetAboutName()} {_ownerName}" );
-		}
-
-
-		~BaseMultiEvent() => Dispose();
 	}
 }

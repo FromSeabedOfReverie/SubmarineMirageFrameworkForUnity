@@ -7,23 +7,46 @@
 namespace SubmarineMirageFramework.MultiEvent {
 	using System;
 	using System.Threading;
+	using System.Collections.Generic;
 	using UniRx.Async;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public class MultiAsyncEvent : BaseMultiEvent< Func<CancellationToken, UniTask> > {
+		readonly CancellationTokenSource _canceler = new CancellationTokenSource();
+
+
+		public MultiAsyncEvent() {
+			_disposables.AddFirst( () => {
+				_canceler.Cancel();
+				_canceler.Dispose();
+			} );
+		}
+
+
+		protected override void OnRemove( Func<CancellationToken, UniTask> function ) {}
+
+
 		public async UniTask Invoke( CancellationToken cancel ) {
-			try {
-				_isInvoking.Value = true;
-				foreach ( var pair in _events ) {
-					if ( pair.Value != null ) {
-						await pair.Value.Invoke( cancel );
+			CheckDisposeError();
+
+			using ( var linkedCanceler = _canceler.Token.Add( cancel ) ) {
+				var i = 0;
+				KeyValuePair< string, Func<CancellationToken, UniTask> > pair;
+// TODO : Remove、Add、Insert等で、配列数変わるので、対応する
+				while ( i < _events.Count ) {
+					pair = _events[i];
+					try {
+						_isInvoking.Value = true;
+						await pair.Value.Invoke( linkedCanceler.Token );
+					} finally {
+						_isInvoking.Value = false;
 					}
+					i++;
 				}
-			} finally {
-				_isInvoking.Value = false;
 			}
 		}
 	}
