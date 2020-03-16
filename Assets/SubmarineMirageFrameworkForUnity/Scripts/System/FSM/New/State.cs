@@ -26,21 +26,27 @@ namespace SubmarineMirageFramework.FSM.New {
 		public MultiSubject _lateUpdateDeltaEvent	{ get; private set; } = new MultiSubject();
 		public MultiAsyncEvent _exitEvent			{ get; private set; } = new MultiAsyncEvent();
 
+		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
+
+
+		public State() {
+			_disposables.AddLast( _initializeEvent );
+			_disposables.AddLast( _enterEvent );
+			_disposables.AddLast( _updateEvent );
+			_disposables.AddLast( _updateDeltaEvent );
+			_disposables.AddLast( _fixedUpdateDeltaEvent );
+			_disposables.AddLast( _lateUpdateDeltaEvent );
+			_disposables.AddLast( _exitEvent );
+		}
+
+		public void Dispose() => _disposables.Dispose();
+
+		~State() => Dispose();
+
+
 		public void Set( TOwner owner ) {
 			_fsm = owner._fsm;
 			_owner = owner;
 		}
-
-		public virtual void Dispose() {
-			_initializeEvent.Dispose();
-			_enterEvent.Dispose();
-			_updateEvent.Dispose();
-			_updateDeltaEvent.Dispose();
-			_fixedUpdateDeltaEvent.Dispose();
-			_lateUpdateDeltaEvent.Dispose();
-			_exitEvent.Dispose();
-		}
-
-		~State() => Dispose();
 	}
 }

@@ -5,14 +5,14 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.FSM.New {
-	using System;
 	using MultiEvent;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface IState<TFSM, TOwner> : IDisposable
+	public interface IState<TFSM, TOwner> : IDisposableExtension
 		where TFSM : IFiniteStateMachine
 		where TOwner : IFiniteStateMachineOwner<TFSM>
 	{

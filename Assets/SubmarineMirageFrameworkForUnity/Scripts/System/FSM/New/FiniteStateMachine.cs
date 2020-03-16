@@ -12,6 +12,7 @@ namespace SubmarineMirageFramework.FSM.New {
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
+	using MultiEvent;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -47,7 +48,8 @@ namespace SubmarineMirageFramework.FSM.New {
 		protected TState _nextState;
 
 		CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
-		CompositeDisposable _updateDisposer = new CompositeDisposable();
+
+		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public FiniteStateMachine( TOwner owner, TState[] states ) {
@@ -96,17 +98,43 @@ namespace SubmarineMirageFramework.FSM.New {
 			_owner._lateUpdateEvent.AddLast( _name )
 				.Where( _ => _runState == RunState.Update )
 				.Subscribe( _ => _state._lateUpdateDeltaEvent.Invoke() );
-#if DEVELOP
-			Observable.EveryUpdate()
-				.Subscribe( _ => {
+#if DEVELOP && false
+			_disposables.AddLast(
+				Observable.EveryUpdate().Subscribe( _ => {
 					DebugDisplay.s_instance.Add( $"{_owner.GetAboutName()}.{_name}" );
 					DebugDisplay.s_instance.Add( $"_state : {_state.GetAboutName()}.{_runState}" );
 					DebugDisplay.s_instance.Add(
 						$"_nextState : {( _nextState == null ? "null" : _nextState.GetAboutName() )}"
 					);
 				} )
-				.AddTo( _updateDisposer );
+			);
 #endif
+
+			SetAsyncCancelerDisposable();
+			_disposables.AddLast( () => {
+				_states.ForEach( pair => pair.Value.Dispose() );
+				_states.Clear();
+				_state = null;
+				_nextState = null;
+			} );
+		}
+
+		void SetAsyncCancelerDisposable() {
+			_disposables.AddFirst( "_asyncCanceler", () => {
+				_asyncCanceler.Cancel();
+				_asyncCanceler.Dispose();
+			} );
+		}
+
+		public void Dispose() => _disposables.Dispose();
+
+		~FiniteStateMachine() => Dispose();
+
+
+		void StopAsync() {
+			_disposables.Remove( "_asyncCanceler" );
+			_asyncCanceler = new CancellationTokenSource();
+			SetAsyncCancelerDisposable();
 		}
 
 
@@ -172,25 +200,6 @@ namespace SubmarineMirageFramework.FSM.New {
 		}
 
 
-		void StopAsync() {
-			_asyncCanceler.Cancel();
-			_asyncCanceler.Dispose();
-			_asyncCanceler = new CancellationTokenSource();
-		}
-
-
 		public override string ToString() => this.ToDeepString();
-
-
-		public virtual void Dispose() {
-			_states.ForEach( pair => pair.Value.Dispose() );
-			_states.Clear();
-			_asyncCanceler.Cancel();
-			_asyncCanceler.Dispose();
-			_updateDisposer.Dispose();
-		}
-
-
-		~FiniteStateMachine() => Dispose();
 	}
 }

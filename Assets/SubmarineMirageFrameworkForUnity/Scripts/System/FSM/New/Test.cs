@@ -25,6 +25,7 @@ namespace SubmarineMirageFramework.FSM.New {
 
 		public override void Create() {
 			_fsm = new TestFSMManager( this );
+			_disposables.AddFirst( _fsm );
 			
 ///*
 			var i = 0;
@@ -48,10 +49,6 @@ namespace SubmarineMirageFramework.FSM.New {
 					}
 				} );
 //*/
-		}
-		public override void Dispose() {
-			_fsm.Dispose();
-			base.Dispose();
 		}
 	}
 
