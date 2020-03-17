@@ -66,7 +66,7 @@ namespace SubmarineMirageFramework.FSM.New {
 						.Select( pair => pair.Value )
 						.Select( async state => {
 							state.Set( _owner );
-							await state._initializeEvent.Invoke( cancel );
+							await state._initializeEvent.Run( cancel );
 						} )
 				);
 				_nextState = _states.First().Value;
@@ -89,15 +89,15 @@ namespace SubmarineMirageFramework.FSM.New {
 
 			_owner._updateEvent.AddLast( _name )
 				.Where( _ => _runState == RunState.Update )
-				.Subscribe( _ => _state._updateDeltaEvent.Invoke() );
+				.Subscribe( _ => _state._updateDeltaEvent.Run() );
 
 			_owner._fixedUpdateEvent.AddLast( _name )
 				.Where( _ => _runState == RunState.Update )
-				.Subscribe( _ => _state._fixedUpdateDeltaEvent.Invoke() );
+				.Subscribe( _ => _state._fixedUpdateDeltaEvent.Run() );
 
 			_owner._lateUpdateEvent.AddLast( _name )
 				.Where( _ => _runState == RunState.Update )
-				.Subscribe( _ => _state._lateUpdateDeltaEvent.Invoke() );
+				.Subscribe( _ => _state._lateUpdateDeltaEvent.Run() );
 #if DEVELOP && false
 			_disposables.AddLast(
 				Observable.EveryUpdate().Subscribe( _ => {
@@ -170,7 +170,7 @@ namespace SubmarineMirageFramework.FSM.New {
 
 			_runState = RunState.Exit;
 			if ( _activeState != ActiveState.Enabling && _state != null ) {
-				await _state._exitEvent.Invoke( _asyncCanceler.Token );
+				await _state._exitEvent.Run( _asyncCanceler.Token );
 			}
 			if ( _activeState == ActiveState.Disabling ) {
 				_activeState = ActiveState.Disabled;
@@ -184,13 +184,13 @@ namespace SubmarineMirageFramework.FSM.New {
 				_activeState = ActiveState.Enabled;
 			}
 			_runState = RunState.Enter;
-			await _state._enterEvent.Invoke( _asyncCanceler.Token );
+			await _state._enterEvent.Run( _asyncCanceler.Token );
 
 			if ( _activeState == ActiveState.Disabling || _nextState != null ) {
 				await ChangeStateSub();
 			} else {
 				_runState = RunState.Update;
-				_state._updateEvent.Invoke( _asyncCanceler.Token ).Forget();
+				_state._updateEvent.Run( _asyncCanceler.Token ).Forget();
 			}
 		}
 

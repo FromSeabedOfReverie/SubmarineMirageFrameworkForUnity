@@ -30,13 +30,15 @@ namespace SubmarineMirageFramework.FSM.New {
 
 
 		public State() {
-			_disposables.AddLast( _initializeEvent );
-			_disposables.AddLast( _enterEvent );
-			_disposables.AddLast( _updateEvent );
-			_disposables.AddLast( _updateDeltaEvent );
-			_disposables.AddLast( _fixedUpdateDeltaEvent );
-			_disposables.AddLast( _lateUpdateDeltaEvent );
-			_disposables.AddLast( _exitEvent );
+			_disposables.AddLast(
+				_initializeEvent,
+				_enterEvent,
+				_updateEvent,
+				_updateDeltaEvent,
+				_fixedUpdateDeltaEvent,
+				_lateUpdateDeltaEvent,
+				_exitEvent
+			);
 		}
 
 		public void Dispose() => _disposables.Dispose();
