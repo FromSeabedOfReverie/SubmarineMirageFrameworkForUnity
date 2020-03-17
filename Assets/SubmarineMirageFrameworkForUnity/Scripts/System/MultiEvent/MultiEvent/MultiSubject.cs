@@ -12,64 +12,66 @@ namespace SubmarineMirageFramework.MultiEvent {
 
 
 	public class MultiSubject : BaseMultiEvent< Subject<Unit> > {
-		protected override void OnRemove( Subject<Unit> function ) {
+		public override void OnRemove( Subject<Unit> function ) {
 			function.OnCompleted();
 			function.Dispose();
 		}
 
 
-		Subject<Unit> Insert( string findKey, AddType type, string key ) {
+		Subject<Unit> Insert( string findKey, EventAddType type, string key ) {
 			var subject = new Subject<Unit>();
-			Insert( findKey, type, key, subject );
+			RegisterEventModifyler( new InsertEventModifyData< Subject<Unit> >(
+				findKey, type, key, subject
+			) );
 			return subject;
 		}
 
 		public Subject<Unit> InsertFirst( string findKey, string key ) {
-			return Insert( findKey, AddType.First, key );
+			return Insert( findKey, EventAddType.First, key );
 		}
 
 		public Subject<Unit> InsertFirst( string findKey ) {
-			return Insert( findKey, AddType.First, string.Empty );
+			return Insert( findKey, EventAddType.First, string.Empty );
 		}
 
 		public Subject<Unit> InsertLast( string findKey, string key ) {
-			return Insert( findKey, AddType.Last, key );
+			return Insert( findKey, EventAddType.Last, key );
 		}
 
 		public Subject<Unit> InsertLast( string findKey ) {
-			return Insert( findKey, AddType.Last, string.Empty );
+			return Insert( findKey, EventAddType.Last, string.Empty );
 		}
 
 
-		Subject<Unit> Add( AddType type, string key ) {
+		Subject<Unit> Add( EventAddType type, string key ) {
 			var subject = new Subject<Unit>();
-			Add( type, key, subject );
+			RegisterEventModifyler( new AddEventModifyData< Subject<Unit> >(
+				type, key, subject
+			) );
 			return subject;
 		}
 
 		public Subject<Unit> AddFirst( string key ) {
-			return Add( AddType.First, key );
+			return Add( EventAddType.First, key );
 		}
 
 		public Subject<Unit> AddFirst() {
-			return Add( AddType.First, string.Empty );
+			return Add( EventAddType.First, string.Empty );
 		}
 
 		public Subject<Unit> AddLast( string key ) {
-			return Add( AddType.Last, key );
+			return Add( EventAddType.Last, key );
 		}
 
 		public Subject<Unit> AddLast() {
-			return Add( AddType.Last, string.Empty );
+			return Add( EventAddType.Last, string.Empty );
 		}
 
 
-		public void Invoke() {
+		public void Run() {
 			CheckDisposeError();
 			_isInvoking.Value = true;
-			foreach ( var pair in _events ) {
-				pair.Value?.OnNext( Unit.Default );
-			}
+			_events.ForEach( pair => pair.Value.OnNext( Unit.Default ) );
 			_isInvoking.Value = false;
 		}
 	}

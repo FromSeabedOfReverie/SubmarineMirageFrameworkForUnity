@@ -5,23 +5,28 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.MultiEvent {
-	using System;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class MultiEvent : BaseMultiEvent<Action> {
-		protected override void OnRemove( Action function ) {}
+	public class RemoveEventModifyData<T> : EventModifyData<T> {
+		string _removeKey;
 
-
-		public void Invoke() {
-			CheckDisposeError();
-			_isInvoking.Value = true;
-			foreach ( var pair in _events ) {
-				pair.Value?.Invoke();
-			}
-			_isInvoking.Value = false;
+		public RemoveEventModifyData( string removeKey ) {
+			_removeKey = removeKey;
 		}
+
+		public override void Run() {
+			var i = _owner._events.RemoveAll( pair => {
+				var isRemove = pair.Key == _removeKey;
+				if ( isRemove )	{ _owner.OnRemove( pair.Value ); }
+				return isRemove;
+			} );
+			if ( i == 0 )	{ NoEventError( _removeKey ); }
+		}
+
+		public override string ToString() => $"{this.GetAboutName()}( {_removeKey} )";
 	}
 }
