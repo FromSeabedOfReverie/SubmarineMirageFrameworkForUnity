@@ -24,12 +24,15 @@ namespace SubmarineMirageFramework.Main.New {
 
 
 	public static class MainProcess {
-		static CancellationToken s_asyncCancel => CoreProcessManager.s_instance._activeAsyncCancel;
+		static CancellationToken s_asyncCancel = new CancellationToken();
+//		static CancellationToken s_asyncCancel => CoreProcessManager.s_instance._activeAsyncCancel;
 
-//		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
+		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static async void Main() {
 			await Task.Delay( 1 );
-			await CoreProcessManager.s_instance.Create( InitializePlugin, RegisterProcesses );
+			await InitializePlugin();
+			await RegisterProcesses();
+//			await CoreProcessManager.s_instance.Create( InitializePlugin, RegisterProcesses );
 		}
 
 		static async UniTask InitializePlugin() {
@@ -51,34 +54,14 @@ namespace SubmarineMirageFramework.Main.New {
 		}
 
 		static async UniTask RegisterProcesses() {
-			await SceneManager.WaitForCreation();
-//			new TestProcess2();
-//			new TestProcess3();
+//			await SceneManager.WaitForCreation();
+//			new TestBaseProcess2();
+//			new TestBaseProcess3();
 //			new TestOwner();
+
+			new Hoge();
+
 			await UniTaskUtility.DontWait( s_asyncCancel );
-		}
-	}
-
-
-	public static class Hoge {
-		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
-		static async void Main() {
-			DOTween.Init(
-				false,
-#if DEVELOP
-				false,
-#else
-				true,
-#endif
-				LogBehaviour.ErrorsOnly );
-			DOTween.defaultAutoPlay = AutoPlay.None;
-
-#if DEVELOP
-			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "LunarConsole" ) );
-			UnityObject.DontDestroyOnLoad( go );
-#endif
-			await Task.Delay( 1 );
-			new TestMultiEvent();
 		}
 	}
 }
