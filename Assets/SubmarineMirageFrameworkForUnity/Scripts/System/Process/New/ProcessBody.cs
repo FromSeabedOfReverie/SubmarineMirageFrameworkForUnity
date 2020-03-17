@@ -50,7 +50,7 @@ namespace SubmarineMirageFramework.Process.New {
 		public static readonly string FOREVER_SCENE_NAME = LifeSpan.Forever.ToString();
 
 		public RanState _ranState	{ get; private set; }
-		ActiveState _activeState;
+		public ActiveState _activeState	{ get; private set; }
 		public bool _isInitialized => _ranState >= RanState.Initialized;
 		public bool _isActive => _activeState == ActiveState.Enabled;
 
@@ -90,20 +90,24 @@ namespace SubmarineMirageFramework.Process.New {
 			if ( _owner._type == Type.DontWork ) {
 				RunStateEvent( RanState.Creating ).Forget();
 			} else {
-				CoreProcessManager.s_instance.Register( owner ).Forget();
+//				CoreProcessManager.s_instance.Register( owner ).Forget();
 			}
 
 			SetActiveAsyncCancelerDisposable();
-			_disposables.AddLast( () => _inActiveAsyncCanceler.Cancel() );
-			_disposables.AddLast( _inActiveAsyncCanceler );
-			_disposables.AddLast( _loadEvent );
-			_disposables.AddLast( _initializeEvent );
-			_disposables.AddLast( _enableEvent );
-			_disposables.AddLast( _fixedUpdateEvent );
-			_disposables.AddLast( _updateEvent );
-			_disposables.AddLast( _lateUpdateEvent );
-			_disposables.AddLast( _disableEvent );
-			_disposables.AddLast( _finalizeEvent );
+			_disposables.AddLast( () => {
+				_inActiveAsyncCanceler.Cancel();
+				_inActiveAsyncCanceler.Dispose();
+			} );
+			_disposables.AddLast(
+				_loadEvent,
+				_initializeEvent,
+				_enableEvent,
+				_fixedUpdateEvent,
+				_updateEvent,
+				_lateUpdateEvent,
+				_disableEvent,
+				_finalizeEvent
+			);
 		}
 
 		void SetActiveAsyncCancelerDisposable() {
@@ -134,7 +138,11 @@ namespace SubmarineMirageFramework.Process.New {
 					switch ( _ranState ) {
 						case RanState.None:
 							_ranState = RanState.Creating;
-							await UniTaskUtility.Delay( _activeAsyncCancel, 1 );
+							try {
+								await UniTaskUtility.Delay( _activeAsyncCancel, 1 );
+							} catch {
+								_ranState = RanState.None;
+							}
 							_owner.Create();
 							_ranState = RanState.Created;
 							break;
@@ -145,9 +153,12 @@ namespace SubmarineMirageFramework.Process.New {
 					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Created:
-						case RanState.Loading:
 							_ranState = RanState.Loading;
-							await _loadEvent.Invoke( _activeAsyncCancel );
+							try {
+								await _loadEvent.Run( _activeAsyncCancel );
+							} catch {
+								_ranState = RanState.Created;
+							}
 							_ranState = RanState.Loaded;
 							break;
 					}
@@ -157,9 +168,12 @@ namespace SubmarineMirageFramework.Process.New {
 					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Loaded:
-						case RanState.Initializing:
 							_ranState = RanState.Initializing;
-							await _initializeEvent.Invoke( _activeAsyncCancel );
+							try {
+								await _initializeEvent.Run( _activeAsyncCancel );
+							} catch {
+								_ranState = RanState.Loaded;
+							}
 							_ranState = RanState.Initialized;
 							break;
 					}
@@ -176,7 +190,7 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.FixedUpdate:
 						case RanState.Update:
 						case RanState.LateUpdate:
-							_fixedUpdateEvent.Invoke();
+							_fixedUpdateEvent.Run();
 							break;
 					}
 					break;
@@ -191,7 +205,7 @@ namespace SubmarineMirageFramework.Process.New {
 					switch ( _ranState ) {
 						case RanState.Update:
 						case RanState.LateUpdate:
-							_updateEvent.Invoke();
+							_updateEvent.Run();
 							break;
 					}
 					break;
@@ -205,7 +219,7 @@ namespace SubmarineMirageFramework.Process.New {
 					}
 					switch ( _ranState ) {
 						case RanState.LateUpdate:
-							_lateUpdateEvent.Invoke();
+							_lateUpdateEvent.Run();
 							break;
 					}
 					break;
@@ -220,15 +234,19 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.FixedUpdate:
 						case RanState.Update:
 						case RanState.LateUpdate:
-						case RanState.Finalizing:
+							var lastRanState = _ranState;
 							_ranState = RanState.Finalizing;
-							await _finalizeEvent.Invoke( _inActiveAsyncCancel );
+							try {
+								await _finalizeEvent.Run( _inActiveAsyncCancel );
+							} catch {
+								_ranState = lastRanState;
+							}
 							break;
 					}
 					_ranState = RanState.Finalized;
 					Dispose();
 					if ( _owner._type != Type.DontWork ) {
-						CoreProcessManager.s_instance.Unregister( _owner );
+//						CoreProcessManager.s_instance.Unregister( _owner );
 					}
 					break;
 			}
@@ -241,9 +259,13 @@ namespace SubmarineMirageFramework.Process.New {
 					switch ( _activeState ) {
 						case ActiveState.Disabled:
 							_activeState = ActiveState.Enabling;
-							await RunStateEvent( RanState.Loading );
-							await RunStateEvent( RanState.Initializing );
-							await _enableEvent.Invoke( _activeAsyncCancel );
+							try {
+								await RunStateEvent( RanState.Loading );
+								await RunStateEvent( RanState.Initializing );
+								await _enableEvent.Run( _activeAsyncCancel );
+							} catch {
+								_activeState = ActiveState.Disabled;
+							}
 							_activeState = ActiveState.Enabled;
 							break;
 					}
@@ -254,7 +276,11 @@ namespace SubmarineMirageFramework.Process.New {
 						case ActiveState.Enabled:
 							_activeState = ActiveState.Disabling;
 							StopActiveAsync();
-							await _disableEvent.Invoke( _inActiveAsyncCancel );
+							try {
+								await _disableEvent.Run( _inActiveAsyncCancel );
+							} catch {
+								_activeState = ActiveState.Enabled;
+							}
 							_activeState = ActiveState.Disabled;
 							break;
 					}

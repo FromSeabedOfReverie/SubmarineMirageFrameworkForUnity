@@ -96,15 +96,11 @@ namespace SubmarineMirageFramework.Process.New {
 			} );
 
 
-			_disposables.AddFirst( Observable.EveryFixedUpdate().Subscribe( _ =>
-				RunStateEvent( RanState.FixedUpdate ).Forget()
-			) );
-			_disposables.AddFirst( Observable.EveryUpdate().Subscribe( _ =>
-				RunStateEvent( RanState.Update ).Forget()
-			) );
-			_disposables.AddFirst( Observable.EveryLateUpdate().Subscribe( _ =>
-				RunStateEvent( RanState.LateUpdate ).Forget()
-			) );
+			_disposables.AddFirst(
+				Observable.EveryFixedUpdate().Subscribe( _ => RunStateEvent( RanState.FixedUpdate ).Forget() ),
+				Observable.EveryUpdate().Subscribe( _ => RunStateEvent( RanState.Update ).Forget() ),
+				Observable.EveryLateUpdate().Subscribe( _ => RunStateEvent( RanState.LateUpdate ).Forget() )
+			);
 
 
 #if DEVELOP && false
@@ -166,7 +162,7 @@ namespace SubmarineMirageFramework.Process.New {
 		}
 
 #if DEVELOP
-		void OnGUI() => _onGUIEvent.Invoke();
+		void OnGUI() => _onGUIEvent.Run();
 #endif
 
 
