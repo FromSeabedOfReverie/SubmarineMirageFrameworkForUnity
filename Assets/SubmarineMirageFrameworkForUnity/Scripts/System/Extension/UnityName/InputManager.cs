@@ -176,6 +176,15 @@ namespace SubmarineMirageFramework.Extension {
 				.Where( state => state == target )
 				.Select( _ => Unit.Default );
 		}
+		/// <summary>
+		/// ● 取得（押下中のキー一覧）
+		/// </summary>
+		List<KeyCode> GetDownKeys() {
+			if ( !Input.anyKeyDown )	{ return new List<KeyCode>(); }
+			return EnumUtils.GetValues<KeyCode>()
+				.Where( key => Input.GetKeyDown( key ) )
+				.ToList();
+		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ

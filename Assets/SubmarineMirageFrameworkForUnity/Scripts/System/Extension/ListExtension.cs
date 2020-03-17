@@ -17,7 +17,9 @@ namespace SubmarineMirageFramework.Extension {
 		}
 
 		public static List<T> ReverseByClone<T>( this List<T> self ) {
-			return new List<T>( self );
+			var result = new List<T>( self );
+			result.Reverse();
+			return result;
 		}
 	}
 }
