@@ -36,5 +36,12 @@ namespace SubmarineMirageFramework.Singleton.New {
 
 			s_instanceObject = MonoBehaviourSingletonManager.s_instance.CreateComponent<T>();
 		}
+
+
+		public static void DisposeInstance() {
+			if ( !s_isCreated )	{ return; }
+			s_instanceObject.Dispose();
+			s_instanceObject = null;
+		}
 	}
 }

@@ -42,5 +42,12 @@ namespace SubmarineMirageFramework.Singleton.New {
 			var i = s_instance;
 			await UniTask.Delay( 1 );
 		}
+
+
+		public static void DisposeInstance() {
+			if ( !s_isCreated )	{ return; }
+			s_instanceObject.Dispose();
+			s_instanceObject = null;
+		}
 	}
 }
