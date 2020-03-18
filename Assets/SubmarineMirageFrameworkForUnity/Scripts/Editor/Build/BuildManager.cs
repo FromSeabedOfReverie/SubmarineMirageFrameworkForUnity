@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#if UNITY_EDITOR
-namespace SubmarineMirageFramework.Build {
+namespace SubmarineMirageFramework.Editor.Build {
 	using System;
 	using System.IO;
 	using System.Linq;
@@ -255,4 +254,3 @@ namespace SubmarineMirageFramework.Build {
 		}
 	}
 }
-#endif

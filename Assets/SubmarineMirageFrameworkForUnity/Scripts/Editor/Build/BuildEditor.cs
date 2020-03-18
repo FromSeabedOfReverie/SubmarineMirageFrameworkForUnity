@@ -4,51 +4,53 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#if UNITY_EDITOR
-namespace SubmarineMirageFramework.Test.Build {
+namespace SubmarineMirageFramework.Editor.Build {
 	using UnityEditor;
-	using UnityEngine;
-	using SubmarineMirageFramework.Build;
-	using SubmarineMirageFramework.Process;
-	///====================================================================================================
-	/// <summary>
-	/// ■ ビルド管理のテストクラス
-	///----------------------------------------------------------------------------------------------------
-	/// </summary>
-	///====================================================================================================
-	public class TestBuildManager : MonoBehaviourProcess {
-	}
-
-
-
+	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ビルド管理テストの編集クラス
 	///----------------------------------------------------------------------------------------------------
 	/// </summary>
 	///====================================================================================================
-	[CustomEditor( typeof( TestBuildManager ) )]
-	public class TestBuildManagerEditor : Editor {
+	public class BuildEditor : EditorWindow {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		/// <summary>シングルトン</summary>
+		static BuildEditor s_instanceObject;
 		/// <summary>ビルド管理</summary>
-		BuildManager _buildManager;
+		public readonly BuildManager _build = new BuildManager();
+		///------------------------------------------------------------------------------------------------
+		/// ● アクセサ
+		///------------------------------------------------------------------------------------------------
+		/// <summary>シングルトン取得</summary>
+		static BuildEditor s_instance {
+			get {
+// TODO : Application.dataPathが、エディタから呼べない、エラー
+				if ( s_instanceObject == null )	{ s_instanceObject = new BuildEditor(); }
+				Log.Debug( "BuildEditor" );
+				return s_instanceObject;
+			}
+		}
+		///------------------------------------------------------------------------------------------------
+		/// ● ビルド処理
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● エディタ描画
+		/// ● ビルド前処理
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public override void OnInspectorGUI() {
-			base.OnInspectorGUI();
-
-			if ( _buildManager == null ) {
-				_buildManager = new BuildManager();
-			}
-
-			if ( GUILayout.Button( "ビルド前" ) )	{ _buildManager.OnPreprocessBuild( null ); }
-			if ( GUILayout.Button( "ビルド後" ) )	{ _buildManager.OnPostprocessBuild( null ); }
+		[MenuItem( "File/Before Build", priority = 222 )]
+		static void BeforeBuild() {
+			Log.Debug( "Before Build" );
+			s_instance._build.OnPreprocessBuild( null );
+		}
+		/// <summary>
+		/// ● ビルド後処理
+		/// </summary>
+		[MenuItem( "File/After Build", priority = 223 )]
+		static void AfterBuild() {
+			Log.Debug( "After Build" );
+			s_instance._build.OnPostprocessBuild( null );
 		}
 	}
 }
-#endif
