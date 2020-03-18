@@ -156,6 +156,8 @@ namespace SubmarineMirageFramework.Process.New {
 				_requestUnregisterProcesses.Clear();
 			} );
 
+			Observable.OnceApplicationQuit().Subscribe( _ => DisposeInstance() );
+
 
 //			await UniTaskUtility.DelayFrame( _activeAsyncCancel, 1 );
 			await RunForeverProcesses();

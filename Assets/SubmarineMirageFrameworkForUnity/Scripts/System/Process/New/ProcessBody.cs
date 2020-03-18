@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process.New {
+	using System;
 	using System.Threading;
 	using UniRx.Async;
 	using MultiEvent;
@@ -108,10 +109,12 @@ namespace SubmarineMirageFramework.Process.New {
 				_disableEvent,
 				_finalizeEvent
 			);
+			_disposables.AddLast( () => Log.Debug( $"ProcessBody.Dispose()" ) );
 		}
 
 		void SetActiveAsyncCancelerDisposable() {
 			_disposables.AddFirst( "_activeAsyncCanceler", () => {
+				Log.Debug( $"ProcessBody._activeAsyncCanceler dispose" );
 				_activeAsyncCanceler.Cancel();
 				_activeAsyncCanceler.Dispose();
 			} );
@@ -130,13 +133,12 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		public async UniTask RunStateEvent( RanState state ) {
-//			Log.Debug( $"{_owner.GetAboutName()} {state} want" );
-
 			switch ( state ) {
 				case RanState.Creating:
 					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.None:
+							Log.Debug( $"Run {state}" );
 							_ranState = RanState.Creating;
 							try {
 								await UniTaskUtility.Delay( _activeAsyncCancel, 1 );
@@ -153,6 +155,7 @@ namespace SubmarineMirageFramework.Process.New {
 					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Created:
+							Log.Debug( $"Run {state}" );
 							_ranState = RanState.Loading;
 							try {
 								await _loadEvent.Run( _activeAsyncCancel );
@@ -168,6 +171,7 @@ namespace SubmarineMirageFramework.Process.New {
 					if ( _isActive )	{ break; }
 					switch ( _ranState ) {
 						case RanState.Loaded:
+							Log.Debug( $"Run {state}" );
 							_ranState = RanState.Initializing;
 							try {
 								await _initializeEvent.Run( _activeAsyncCancel );
@@ -190,6 +194,7 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.FixedUpdate:
 						case RanState.Update:
 						case RanState.LateUpdate:
+							Log.Debug( $"Run {state}" );
 							_fixedUpdateEvent.Run();
 							break;
 					}
@@ -205,6 +210,7 @@ namespace SubmarineMirageFramework.Process.New {
 					switch ( _ranState ) {
 						case RanState.Update:
 						case RanState.LateUpdate:
+							Log.Debug( $"Run {state}" );
 							_updateEvent.Run();
 							break;
 					}
@@ -219,6 +225,7 @@ namespace SubmarineMirageFramework.Process.New {
 					}
 					switch ( _ranState ) {
 						case RanState.LateUpdate:
+							Log.Debug( $"Run {state}" );
 							_lateUpdateEvent.Run();
 							break;
 					}
@@ -226,6 +233,7 @@ namespace SubmarineMirageFramework.Process.New {
 
 				case RanState.Finalizing:
 					if ( _isActive )	{ break; }
+					Log.Debug( $"Run {state}" );
 					switch ( _ranState ) {
 						case RanState.Loading:
 						case RanState.Loaded:
@@ -249,15 +257,24 @@ namespace SubmarineMirageFramework.Process.New {
 //						CoreProcessManager.s_instance.Unregister( _owner );
 					}
 					break;
+
+				case RanState.None:
+				case RanState.Created:
+				case RanState.Loaded:
+				case RanState.Initialized:
+				case RanState.Finalized:
+					throw new ArgumentOutOfRangeException(
+						$"{state}", $"実行状態に、実行後の型を指定した為、実行不可" );
 			}
 		}
 
 
-		public async UniTask RunActiveEvent( ActiveState newState ) {
-			switch ( newState ) {
+		public async UniTask RunActiveEvent( ActiveState state ) {
+			switch ( state ) {
 				case ActiveState.Enabling:
 					switch ( _activeState ) {
 						case ActiveState.Disabled:
+							Log.Debug( $"Run {state}" );
 							_activeState = ActiveState.Enabling;
 							try {
 								await RunStateEvent( RanState.Loading );
@@ -274,6 +291,7 @@ namespace SubmarineMirageFramework.Process.New {
 				case ActiveState.Disabling:
 					switch ( _activeState ) {
 						case ActiveState.Enabled:
+							Log.Debug( $"Run {state}" );
 							_activeState = ActiveState.Disabling;
 							StopActiveAsync();
 							try {
@@ -285,6 +303,12 @@ namespace SubmarineMirageFramework.Process.New {
 							break;
 					}
 					break;
+
+				case ActiveState.Enabled:
+				case ActiveState.Disabled:
+					throw new ArgumentOutOfRangeException(
+						$"{state}", $"活動状態に、実行後の型を指定した為、実行不可" );
+
 			}
 		}
 
