@@ -17,6 +17,7 @@ namespace SubmarineMirageFramework.Main.New {
 	using FSM.New;
 	using Scene;
 	using Utility;
+	using Debug;
 	using UnityObject = UnityEngine.Object;
 
 
@@ -55,11 +56,9 @@ namespace SubmarineMirageFramework.Main.New {
 
 		static async UniTask RegisterProcesses() {
 //			await SceneManager.WaitForCreation();
-//			new TestBaseProcess2();
-//			new TestBaseProcess3();
 //			new TestOwner();
 
-			new Hoge();
+			await Hoge.WaitForCreation();
 
 			await UniTaskUtility.DontWait( s_asyncCancel );
 		}
