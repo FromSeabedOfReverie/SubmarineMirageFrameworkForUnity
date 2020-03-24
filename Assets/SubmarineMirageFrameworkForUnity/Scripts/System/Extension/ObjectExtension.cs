@@ -93,7 +93,7 @@ namespace SubmarineMirageFramework.Extension {
 						var value = field.GetValue( self );
 						return string.Format( TO_STRING_FORMAT, field.Name, value );
 					} catch {
-						return "";
+						return string.Empty;
 					}
 				} )
 				.Where( s => !s.IsNullOrEmpty() );
@@ -112,7 +112,7 @@ namespace SubmarineMirageFramework.Extension {
 						var value = property.GetValue( self, null );
 						return string.Format( TO_STRING_FORMAT, property.Name, value );
 					} catch {
-						return "";
+						return string.Empty;
 					}
 				} )
 				.Where( s => !s.IsNullOrEmpty() );

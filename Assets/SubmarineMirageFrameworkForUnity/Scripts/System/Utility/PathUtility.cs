@@ -32,7 +32,7 @@ namespace SubmarineMirageFramework.Utility {
 				var uri = new Uri( path );
 				return true;
 
-			} catch ( Exception ) {
+			} catch {
 				return false;
 			}
 		}

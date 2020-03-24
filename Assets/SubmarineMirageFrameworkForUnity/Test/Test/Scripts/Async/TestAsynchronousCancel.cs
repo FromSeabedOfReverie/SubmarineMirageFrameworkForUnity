@@ -83,7 +83,7 @@ namespace SubmarineMirageFramework.Test.Async {
 				if ( !_cancel.IsCancellationRequested ) {
 					await LoadSub();
 				}
-			} catch ( OperationCanceledException _ ) {
+			} catch ( OperationCanceledException ) {
 				Log.Debug( "例外を捻り潰した" );
 			}
 

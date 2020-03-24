@@ -86,7 +86,7 @@ namespace SubmarineMirageFramework.Audio {
 				if ( !cancelToken.IsCancellationRequested && _audioClip == null ) {
 					await LoadAssetBundle( cancelToken );
 				}
-			} catch ( OperationCanceledException _ ) {}	// 処理停止例外を無視
+			} catch ( OperationCanceledException ) {}	// 処理停止例外を無視
 
 
 			// 読込成功の場合、読込済とする

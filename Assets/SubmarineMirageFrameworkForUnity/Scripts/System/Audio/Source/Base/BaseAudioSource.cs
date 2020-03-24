@@ -198,7 +198,7 @@ namespace SubmarineMirageFramework.Audio {
 			try {
 				// 読込
 				await audio.Load( cancel );
-			} catch ( OperationCanceledException _ ) {}	// 処理停止例外を無視
+			} catch ( OperationCanceledException ) {}	// 処理停止例外を無視
 
 			// 読込失敗の場合、処理停止エラー発生
 			if ( audio._state != AudioFile<T>.State.Loaded ) {
@@ -394,7 +394,7 @@ namespace SubmarineMirageFramework.Audio {
 				try {
 					// フェードを待機
 					await UniTask.WaitUntil( () => isDone, PlayerLoopTiming.Update, cancel );
-				} catch ( OperationCanceledException _ ) {}
+				} catch ( OperationCanceledException ) {}
 
 				volumePercentSequence.Kill();	// killったら、作り直さないと可笑しくなる
 
