@@ -83,12 +83,20 @@ namespace SubmarineMirageFramework.Process.New {
 					+ $"    _isActive {_process._isActive}\n"
 					+ $"    {_process._process._ranState}\n"
 					+ $"    {_process._process._activeState}\n"
+					+ $"    next {_process._process._nextActiveState}\n"
 					+ $")"
 			) );
 
 			_process._disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
+/*
+					new Func<UniTask>( async () => {
+						await _process.RunStateEvent( ProcessBody.RanState.Creating );
+						await _process.RunStateEvent( ProcessBody.RanState.Loading );
+						await _process.RunStateEvent( ProcessBody.RanState.Initializing );
+					} )().Forget();
+*/
 					_process.RunStateEvent( ProcessBody.RanState.Creating ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
@@ -134,6 +142,7 @@ namespace SubmarineMirageFramework.Process.New {
 			);
 
 			new Func<UniTask>( async () => {
+				return;
 				while ( true ) {
 					Log.Debug(
 						$"IsCancellationRequested : {_process._activeAsyncCancel.IsCancellationRequested}" );
@@ -144,10 +153,6 @@ namespace SubmarineMirageFramework.Process.New {
 			_process._disposables.AddLast( () => text.text = string.Empty );
 
 			_disposables.AddLast( _process );
-
-/*
-			p.ChangeActive();
-*/
 		}
 
 		~Hoge() => Log.Debug( "~Hoge" );

@@ -24,7 +24,7 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public bool _isInitialized => _process._isInitialized;
 // TODO : GameObjectの活動状態と合わせる
-		public bool _isActive => _process._isActive;
+		public bool _isActive => _process._isActive && gameObject.activeInHierarchy;
 		
 		public MultiAsyncEvent _loadEvent => _process._loadEvent;
 		public MultiAsyncEvent _initializeEvent => _process._initializeEvent;
@@ -45,6 +45,9 @@ namespace SubmarineMirageFramework.Process.New {
 // TODO : 非活動中は、どうする？
 //			disable中は、登録後、呼戻さない？
 //			_isActive判定、enable、disableイベント呼び出し等、含む
+//			ゲーム物を非活動化した場合、全ての子を、先にDisableする必要がある
+//			親を削除したら、子から先に削除する必要がある
+			if ( !gameObject.activeInHierarchy )	{ return; }
 			if ( !isActiveAndEnabled )	{ return; }
 
 			if ( _lifeSpan == ProcessBody.LifeSpan.Forever ) {
@@ -64,16 +67,12 @@ namespace SubmarineMirageFramework.Process.New {
 		public abstract void Create();
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state ) {
-			await _process.RunStateEvent( state );
-		}
+		public async UniTask RunStateEvent( ProcessBody.RanState state )
+			=> await _process.RunStateEvent( state );
 
 
-		public async UniTask ChangeActive( bool isActive ) {
-			await _process.RunActiveEvent(
-				isActive ? ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling
-			);
-		}
+		public async UniTask ChangeActive( bool isActive )
+			=> await _process.ChangeActive( isActive );
 
 
 		public override string ToString() => this.ToDeepString();

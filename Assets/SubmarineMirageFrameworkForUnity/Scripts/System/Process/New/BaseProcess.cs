@@ -53,16 +53,12 @@ namespace SubmarineMirageFramework.Process.New {
 		public abstract void Create();
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state ) {
-			await _process.RunStateEvent( state );
-		}
+		public async UniTask RunStateEvent( ProcessBody.RanState state )
+			=> await _process.RunStateEvent( state );
 
 
-		public async UniTask ChangeActive( bool isActive ) {
-			await _process.RunActiveEvent(
-				isActive ? ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling
-			);
-		}
+		public async UniTask ChangeActive( bool isActive )
+			=> await _process.ChangeActive( isActive );
 
 
 		public override string ToString() => this.ToDeepString();
