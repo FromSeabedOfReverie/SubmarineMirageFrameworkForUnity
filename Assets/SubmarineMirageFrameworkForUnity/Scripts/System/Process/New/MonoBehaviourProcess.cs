@@ -23,8 +23,7 @@ namespace SubmarineMirageFramework.Process.New {
 		public string _belongSceneName => _process._belongSceneName;
 
 		public bool _isInitialized => _process._isInitialized;
-// TODO : GameObjectの活動状態と合わせる
-		public bool _isActive => _process._isActive && gameObject.activeInHierarchy;
+		public bool _isActive => _process._isActive;
 		
 		public MultiAsyncEvent _loadEvent => _process._loadEvent;
 		public MultiAsyncEvent _initializeEvent => _process._initializeEvent;
@@ -41,30 +40,29 @@ namespace SubmarineMirageFramework.Process.New {
 		public MultiDisposable _disposables => _process._disposables;
 
 
-		protected void Awake() {
-// TODO : 非活動中は、どうする？
-//			disable中は、登録後、呼戻さない？
-//			_isActive判定、enable、disableイベント呼び出し等、含む
-//			ゲーム物を非活動化した場合、全ての子を、先にDisableする必要がある
-//			親を削除したら、子から先に削除する必要がある
-			if ( !gameObject.activeInHierarchy )	{ return; }
-			if ( !isActiveAndEnabled )	{ return; }
+		protected void Awake() => _process = new ProcessBody( this );
 
-			if ( _lifeSpan == ProcessBody.LifeSpan.Forever ) {
-				DontDestroyOnLoad( gameObject );
-			}
-			_process = new ProcessBody( this );
+		protected void OnDestroy() {
+			Dispose();
+			Debug.Log.Debug("OnDestroy");
 		}
 
 		public void Dispose() => _process.Dispose();
 
-		protected void OnDestroy() => Dispose();
+		public abstract void Create();
+
+
+// TODO : ゲーム物の活動状態を変更しない、活動状態変更を指定
+		protected void OnEnable()
+//			=> _process.ChangeActive( true ).Forget();
+			=> Debug.Log.Debug( "OnEnable" );
+
+		protected void OnDisable()
+//			=> _process.ChangeActive( false ).Forget();
+			=> Debug.Log.Debug( "OnDisable" );
 
 
 		public void StopActiveAsync() => _process.StopActiveAsync();
-
-
-		public abstract void Create();
 
 
 		public async UniTask RunStateEvent( ProcessBody.RanState state )
@@ -80,11 +78,9 @@ namespace SubmarineMirageFramework.Process.New {
 
 #if DEVELOP
 		protected void Start() {}
-		protected void OnEnable() {}
 		protected void FixedUpdate() {}
 		protected void Update() {}
 		protected void LateUpdate() {}
-		protected void OnDisable() {}
 #endif
 	}
 }

@@ -42,15 +42,14 @@ namespace SubmarineMirageFramework.Process.New {
 
 		protected BaseProcess() => _process = new ProcessBody( this );
 
+		~BaseProcess() => Dispose();
+
 		public void Dispose() => _process.Dispose();
 
-		~BaseProcess() => Dispose();
+		public abstract void Create();
 
 
 		public void StopActiveAsync() => _process.StopActiveAsync();
-
-
-		public abstract void Create();
 
 
 		public async UniTask RunStateEvent( ProcessBody.RanState state )

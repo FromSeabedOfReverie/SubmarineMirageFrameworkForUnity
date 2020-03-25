@@ -23,7 +23,7 @@ namespace SubmarineMirageFramework.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public class TestBaseProcess : BaseProcess {
+	public class TestMonoBehaviourProcess : MonoBehaviourProcess {
 		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
 		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
 
@@ -69,12 +69,13 @@ namespace SubmarineMirageFramework.Process.New {
 
 	
 
-	public class TestBaseProcessManager : Singleton<TestBaseProcessManager> {
-		new IProcess _process;
+	public class TestMonoBehaviourProcessManager : Singleton<TestMonoBehaviourProcessManager> {
+		new MonoBehaviourProcess _process;
 
-		public TestBaseProcessManager() {
+		public TestMonoBehaviourProcessManager() {
 			var text = GameObject.Find( "Canvas/Text" ).GetComponent<Text>();
-			_process = new TestBaseProcess();
+			var go = new GameObject( "TestMonoBehaviourProcess" );
+			_process = go.AddComponent<TestMonoBehaviourProcess>();
 
 			_process._disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ =>
 				text.text =
@@ -82,6 +83,7 @@ namespace SubmarineMirageFramework.Process.New {
 					+ $"    {_process._belongSceneName}\n"
 					+ $"    _isInitialized {_process._isInitialized}\n"
 					+ $"    _isActive {_process._isActive}\n"
+					+ $"    isActiveAndEnabled {_process.isActiveAndEnabled}\n"
 					+ $"    {_process._process._ranState}\n"
 					+ $"    {_process._process._activeState}\n"
 					+ $"    next {_process._process._nextActiveState}\n"
@@ -156,7 +158,7 @@ namespace SubmarineMirageFramework.Process.New {
 			_disposables.AddLast( _process );
 		}
 
-		~TestBaseProcessManager() => Log.Debug( "~TestBaseProcessManager" );
+		~TestMonoBehaviourProcessManager() => Log.Debug( "~TestMonoBehaviourProcessManager" );
 
 		public override void Create() {}
 	}

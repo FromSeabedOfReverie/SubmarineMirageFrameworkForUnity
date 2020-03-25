@@ -8,11 +8,13 @@ namespace SubmarineMirageFramework.Process.New {
 	using System;
 	using System.Threading;
 	using UniRx.Async;
+	using KoganeUnityLib;
 	using MultiEvent;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
+	using UnityObject = UnityEngine.Object;
 
 
 	// TODO : コメント追加、整頓
@@ -80,16 +82,19 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public ProcessBody( IProcess owner ) {
 			_owner = owner;
-			if ( _owner is MonoBehaviourProcess ) {
-				_monoOwner = (MonoBehaviourProcess)_owner;
-			}
+			if ( _owner is MonoBehaviourProcess )	{ _monoOwner = (MonoBehaviourProcess)_owner; }
 
-			if ( owner._lifeSpan == LifeSpan.Forever ) {
-				_belongSceneName = FOREVER_SCENE_NAME;
-			} else if ( _monoOwner != null ) {
-				_belongSceneName = _monoOwner.gameObject.scene.name;
-			} else {
-				_belongSceneName = SceneManager.s_instance._currentSceneName;
+			_belongSceneName = (
+				owner._lifeSpan == LifeSpan.Forever ?	FOREVER_SCENE_NAME :
+				_monoOwner != null ?					_monoOwner.gameObject.scene.name :
+														SceneManager.s_instance._currentSceneName
+			);
+
+			if ( _monoOwner != null ) {
+				if ( owner._lifeSpan == LifeSpan.Forever ) {
+					UnityObject.DontDestroyOnLoad( _monoOwner.gameObject );
+				}
+				if ( !_monoOwner.isActiveAndEnabled )	{ _nextActiveState = ActiveState.Disabling; }
 			}
 
 			if ( _owner._type == Type.DontWork ) {
@@ -350,10 +355,12 @@ namespace SubmarineMirageFramework.Process.New {
 							return;
 
 						case ActiveState.Disabled:
+							ChangeActiveOfGameObject( true );
 							Log.Debug( $"check initialize Want {_nextActiveState}" );
 							var lastNextActiveState = _nextActiveState;
 							await RunStateEvent( RanState.Loading );
 							await RunStateEvent( RanState.Initializing );
+							await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !_isInitialized );
 							if ( lastNextActiveState != _nextActiveState ) {
 								await RunActiveEvent();
 								return;
@@ -401,6 +408,7 @@ namespace SubmarineMirageFramework.Process.New {
 								_activeState = ActiveState.Enabled;
 								throw;
 							}
+							ChangeActiveOfGameObject( false );
 							_activeState = ActiveState.Disabled;
 							return;
 					}
@@ -411,6 +419,13 @@ namespace SubmarineMirageFramework.Process.New {
 					throw new ArgumentOutOfRangeException(
 						$"{_nextActiveState}", $"活動状態に、実行後の型を指定した為、実行不可" );
 			}
+		}
+
+
+		void ChangeActiveOfGameObject( bool isActive, bool isChange = true ) {
+// TODO : 呼び出し元で、isChangeを指定する
+			if ( _monoOwner == null || !isChange )	{ return; }
+			_monoOwner.gameObject.SetActive( isActive );
 		}
 
 
