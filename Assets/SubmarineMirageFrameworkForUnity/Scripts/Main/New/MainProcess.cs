@@ -58,7 +58,8 @@ namespace SubmarineMirageFramework.Main.New {
 //			await SceneManager.WaitForCreation();
 //			new TestOwner();
 
-			await Hoge.WaitForCreation();
+//			await TestBaseProcessManager.WaitForCreation();
+			await TestMonoBehaviourProcessManager.WaitForCreation();
 
 			await UniTaskUtility.DontWait( s_asyncCancel );
 		}

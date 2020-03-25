@@ -19,8 +19,11 @@ namespace SubmarineMirageFramework.Editor {
 		static void PlayExtension() {
 			if ( EditorApplication.isPlaying ) {
 				new Func<UniTask>( async () => {
+
 					CoreProcessManager.DisposeInstance();
-					Hoge.DisposeInstance();
+					TestBaseProcessManager.DisposeInstance();
+					TestMonoBehaviourProcessManager.DisposeInstance();
+
 					await UniTask.Delay( 1 );
 					EditorApplication.isPlaying = false;
 				} )();
