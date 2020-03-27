@@ -159,7 +159,7 @@ namespace SubmarineMirageFramework.Process.New {
 			Observable.OnceApplicationQuit().Subscribe( _ => DisposeInstance() );
 
 
-//			await UniTaskUtility.DelayFrame( _activeAsyncCancel, 1 );
+//			await UniTaskUtility.Yield( _activeAsyncCancel );
 			await RunForeverProcesses();
 		}
 
@@ -236,7 +236,7 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		public async UniTask Register( IProcess process ) {
-			await UniTaskUtility.Delay( _activeAsyncCancel, 1 );
+			await UniTaskUtility.Yield( _activeAsyncCancel );
 			GetProcesses( process._belongSceneName, process._type ).Add( process );
 
 			if ( _isInitializedInSceneProcesses ) {

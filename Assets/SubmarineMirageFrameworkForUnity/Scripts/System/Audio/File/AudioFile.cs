@@ -10,6 +10,7 @@ namespace SubmarineMirageFramework.Audio {
 	using System.Threading;
 	using UnityEngine;
 	using UniRx.Async;
+	using Utility;
 	using Debug;
 	///====================================================================================================
 	/// <summary>
@@ -106,7 +107,7 @@ namespace SubmarineMirageFramework.Audio {
 		/// </summary>
 		async UniTask LoadResource( CancellationToken cancel ) {
 			var request = Resources.LoadAsync( Path.Combine( RESOURCE_PATH, _path, _fileName ) );
-			await request.ConfigureAwait( null, PlayerLoopTiming.Update, cancel );
+			await request.ConfigureAwait( cancel );
 			_audioClip = (AudioClip)request.asset;
 		}
 		/// <summary>

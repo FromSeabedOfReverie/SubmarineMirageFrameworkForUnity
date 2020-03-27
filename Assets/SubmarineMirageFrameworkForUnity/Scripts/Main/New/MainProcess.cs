@@ -37,6 +37,8 @@ namespace SubmarineMirageFramework.Main.New {
 		}
 
 		static async UniTask InitializePlugin() {
+			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
+
 			DOTween.Init(
 				false,
 #if DEVELOP
@@ -51,7 +53,7 @@ namespace SubmarineMirageFramework.Main.New {
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "LunarConsole" ) );
 			UnityObject.DontDestroyOnLoad( go );
 #endif
-			await UniTaskUtility.DontWait( s_asyncCancel );
+			await UniTaskUtility.DontWait();
 		}
 
 		static async UniTask RegisterProcesses() {
@@ -61,7 +63,7 @@ namespace SubmarineMirageFramework.Main.New {
 //			await TestBaseProcessManager.WaitForCreation();
 			await TestMonoBehaviourProcessManager.WaitForCreation();
 
-			await UniTaskUtility.DontWait( s_asyncCancel );
+			await UniTaskUtility.DontWait();
 		}
 	}
 }

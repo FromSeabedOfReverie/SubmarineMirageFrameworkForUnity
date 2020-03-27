@@ -94,11 +94,11 @@ namespace SubmarineMirageFramework.Process.New {
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
 /*
-					new Func<UniTask>( async () => {
+					UniTask.Void( async () => {
 						await _process.RunStateEvent( ProcessBody.RanState.Creating );
 						await _process.RunStateEvent( ProcessBody.RanState.Loading );
 						await _process.RunStateEvent( ProcessBody.RanState.Initializing );
-					} )().Forget();
+					} );
 */
 					_process.RunStateEvent( ProcessBody.RanState.Creating ).Forget();
 				} ),
@@ -144,14 +144,14 @@ namespace SubmarineMirageFramework.Process.New {
 				} )
 			);
 
-			new Func<UniTask>( async () => {
+			UniTask.Void( async () => {
 				return;
 				while ( true ) {
 					Log.Debug(
 						$"IsCancellationRequested : {_process._activeAsyncCancel.IsCancellationRequested}" );
 					await UniTaskUtility.Delay( _process._activeAsyncCancel, 1000 );
 				}
-			} )();
+			} );
 
 			_process._disposables.AddLast( () => text.text = string.Empty );
 

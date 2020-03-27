@@ -25,9 +25,11 @@ namespace SubmarineMirageFramework.Utility {
 	///====================================================================================================
 	public static class UniTaskUtility {
 
-		public static UniTask DontWait( CancellationToken cancellationToken ) {
-			return Delay( cancellationToken, 0 );
+
+		public static UniTask DontWait() {
+			return new UniTask();
 		}
+
 
 		public static UniTask Yield( CancellationToken cancellationToken,
 										PlayerLoopTiming timing = PlayerLoopTiming.Update
@@ -35,36 +37,47 @@ namespace SubmarineMirageFramework.Utility {
 			return UniTask.Yield( timing, cancellationToken );
 		}
 
+
 		public static UniTask Delay( CancellationToken cancellationToken, int millisecondsDelay,
 										bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
+			if ( millisecondsDelay == 0 )	{ return new UniTask(); }
 			return UniTask.Delay( millisecondsDelay, ignoreTimeScale, delayTiming, cancellationToken );
 		}
+
 		public static UniTask Delay( CancellationToken cancellationToken, TimeSpan delayTimeSpan,
 										bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
+			if ( delayTimeSpan == TimeSpan.Zero )	{ return new UniTask(); }
 			return UniTask.Delay( delayTimeSpan, ignoreTimeScale, delayTiming, cancellationToken );
 		}
+
 
 		public static UniTask<int> DelayFrame( CancellationToken cancellationToken, int delayFrameCount,
 												PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
+			if ( delayFrameCount == 0 )	{ return new UniTask<int>( 0 ); }
 			return UniTask.DelayFrame( delayFrameCount, delayTiming, cancellationToken );
 		}
+
 
 		public static UniTask WaitUntil( CancellationToken cancellationToken, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
+			if ( predicate() )	{ return new UniTask(); }
 			return UniTask.WaitUntil( predicate, timing, cancellationToken );
 		}
+
 
 		public static UniTask WaitWhile( CancellationToken cancellationToken, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
+			if ( !predicate() )	{ return new UniTask(); }
 			return UniTask.WaitWhile( predicate, timing, cancellationToken );
 		}
+
 
 		public static UniTask<U> WaitUntilValueChanged<T, U>( CancellationToken cancellationToken,
 																T target, Func<T, U> monitorFunction,
@@ -76,6 +89,7 @@ namespace SubmarineMirageFramework.Utility {
 			);
 		}
 
+
 		public static UniTask ConfigureAwait( this AsyncOperation asyncOperation,
 												CancellationToken cancellation,
 												IProgress<float> progress = null,
@@ -83,6 +97,7 @@ namespace SubmarineMirageFramework.Utility {
 		) {
 			return asyncOperation.ConfigureAwait( progress, timing, cancellation );
 		}
+
 		public static UniTask<UnityEngine.Object> ConfigureAwait( this ResourceRequest resourceRequest,
 																	CancellationToken cancellation,
 																	IProgress<float> progress = null,
@@ -90,6 +105,7 @@ namespace SubmarineMirageFramework.Utility {
 		) {
 			return resourceRequest.ConfigureAwait( progress, timing, cancellation );
 		}
+
 		public static UniTask<UnityEngine.Object> ConfigureAwait( this AssetBundleRequest resourceRequest,
 																	CancellationToken cancellation,
 																	IProgress<float> progress = null,
@@ -97,12 +113,14 @@ namespace SubmarineMirageFramework.Utility {
         ) {
 			return resourceRequest.ConfigureAwait( progress, timing, cancellation );
 		}
+
 		public static UniTask ConfigureAwait( this WWW www, CancellationToken cancellation,
 												IProgress<float> progress = null,
 												PlayerLoopTiming timing = PlayerLoopTiming.Update
         ) {
 			return www.ConfigureAwait( progress, timing, cancellation );
 		}
+
 		public static UniTask<UnityWebRequest> ConfigureAwait(
 															this UnityWebRequestAsyncOperation asyncOperation,
 															CancellationToken cancellation,
@@ -111,10 +129,26 @@ namespace SubmarineMirageFramework.Utility {
         ) {
 			return asyncOperation.ConfigureAwait( progress, timing, cancellation );
 		}
+
 		public static UniTask ConfigureAwait( this IEnumerator enumerator, CancellationToken cancellationToken,
 												PlayerLoopTiming timing = PlayerLoopTiming.Update
         ) {
 			return enumerator.ConfigureAwait( timing, cancellationToken );
+		}
+
+
+		public static async UniTask< List<T> > WhenAllInSequence<T>( IEnumerable< UniTask<T> > tasks ) {
+			var results = new List<T>();
+			foreach ( var t in tasks ) {
+				results.Add( await t );
+			}
+			return results;
+		}
+
+		public static async UniTask WhenAllInSequence( IEnumerable<UniTask> tasks ) {
+			foreach ( var t in tasks ) {
+				await t;
+			}
 		}
 	}
 }

@@ -70,10 +70,10 @@ namespace SubmarineMirageFramework.MultiEvent {
 				.Subscribe( _ => {
 					Log.Warning( "key down S" );
 					Log.Debug( _events );
-					new Func<UniTask>( async () => {
+					UniTask.Void( async () => {
 						await _events.Run( _canceler.Token );
 						Log.Debug( _events );
-					} )().Forget();
+					} );
 				} );
 			Observable.EveryUpdate()
 				.Where( _ => Input.GetKeyDown( KeyCode.D ) )

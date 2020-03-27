@@ -150,7 +150,7 @@ namespace SubmarineMirageFramework.Process.New {
 							Log.Debug( $"Run {state}" );
 							_ranState = RanState.Creating;
 							try {
-								await UniTaskUtility.Delay( _activeAsyncCancel, 1 );
+								await UniTaskUtility.Yield( _activeAsyncCancel );
 							} catch {
 								_ranState = RanState.None;
 								throw;
