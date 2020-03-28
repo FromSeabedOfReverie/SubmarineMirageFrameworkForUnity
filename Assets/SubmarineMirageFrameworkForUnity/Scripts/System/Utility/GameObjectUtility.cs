@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Utility {
 	using System.Linq;
+	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx;
 	using KoganeUnityLib;
@@ -27,11 +28,27 @@ namespace SubmarineMirageFramework.Utility {
 		/// ● 指定層の子供達のゲーム物を全取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static GameObject[] GetChildrenInLayer( GameObject gameObject, LayerManager.Name layer ) {
+		public static List<GameObject> GetChildrenInLayer( GameObject gameObject, LayerManager.Name layer ) {
 			var id = LayerManager.s_instance.ToInt( layer );
 			return gameObject.GetChildren()
 				.Where( go => go.layer == id )
-				.ToArray();
+				.ToList();
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 1階層下の、部品達を取得
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static List<T> GetComponentsIn1HierarchyChildren<T>(	GameObject gameObject,
+																	bool isIncludeInactive = false
+		) {
+			var results = new List<T>();
+			foreach ( Transform t in gameObject.transform ) {
+				if ( isIncludeInactive || t.gameObject.activeInHierarchy ) {
+					results.Add( t.GetComponents<T>() );
+				}
+			}
+			return results;
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

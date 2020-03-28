@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Extension {
+	using System.Collections.Generic;
 	using UnityEngine;
 	using Utility;
 	///====================================================================================================
@@ -20,8 +21,20 @@ namespace SubmarineMirageFramework.Extension {
 		/// ● 指定層の子供達のゲーム物を全取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static GameObject[] GetChildrenInLayer( this GameObject gameObject, LayerManager.Name layer ) {
+		public static List<GameObject> GetChildrenInLayer(	this GameObject gameObject,
+															LayerManager.Name layer
+		) {
 			return GameObjectUtility.GetChildrenInLayer( gameObject, layer );
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 1階層下の、部品達を取得
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static List<T> GetComponentsIn1HierarchyChildren<T>(	this GameObject gameObject,
+																	bool isIncludeInactive = false
+		) {
+			return GameObjectUtility.GetComponentsIn1HierarchyChildren<T>( gameObject, isIncludeInactive );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
