@@ -206,6 +206,7 @@ namespace SubmarineMirageFramework.Process.New {
 		}
 
 
+// TODO : RunStateEventの、子変更オプションを、finalizeに適用させる
 		async UniTask RunEventWithFirstProcesses( string sceneName, RanState state, bool isReverse = false ) {
 			var ps = GetProcesses( sceneName, Type.FirstWork, isReverse );
 			foreach ( var p in ps ) {

@@ -43,8 +43,8 @@ namespace SubmarineMirageFramework.Process.New {
 		protected void Awake() => _process = new ProcessBody( this );
 
 		protected void OnDestroy() {
-			Dispose();
 			Debug.Log.Debug("OnDestroy");
+			Dispose();
 		}
 
 		public void Dispose() => _process.Dispose();
@@ -52,25 +52,29 @@ namespace SubmarineMirageFramework.Process.New {
 		public abstract void Create();
 
 
-// TODO : ゲーム物の活動状態を変更しない、活動状態変更を指定
-		protected void OnEnable()
-//			=> _process.ChangeActive( true ).Forget();
-			=> Debug.Log.Debug( "OnEnable" );
+/*
+TODO : OnEnable、OnDisableは廃止し、必ずProcess経由で、ChangeActiveさせる
+		protected void OnEnable() {
+			Debug.Log.Debug( "OnEnable" );
+			_process.ChangeActive( true, false ).Forget();
+		}
 
-		protected void OnDisable()
-//			=> _process.ChangeActive( false ).Forget();
-			=> Debug.Log.Debug( "OnDisable" );
+		protected void OnDisable() {
+			Debug.Log.Debug( "OnDisable" );
+			_process.ChangeActive( false, false ).Forget();
+		}
+*/
 
 
 		public void StopActiveAsync() => _process.StopActiveAsync();
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state )
-			=> await _process.RunStateEvent( state );
+		public async UniTask RunStateEvent( ProcessBody.RanState state, bool isRunStateEventOfChildren = false )
+			=> await _process.RunStateEvent( state, isRunStateEventOfChildren );
 
 
 		public async UniTask ChangeActive( bool isActive )
-			=> await _process.ChangeActive( isActive );
+			=> await _process.ChangeActive( isActive, true );
 
 
 		public override string ToString() => this.ToDeepString();
@@ -78,9 +82,11 @@ namespace SubmarineMirageFramework.Process.New {
 
 #if DEVELOP
 		protected void Start() {}
+		protected void OnEnable() {}
 		protected void FixedUpdate() {}
 		protected void Update() {}
 		protected void LateUpdate() {}
+		protected void OnDisable() {}
 #endif
 	}
 }

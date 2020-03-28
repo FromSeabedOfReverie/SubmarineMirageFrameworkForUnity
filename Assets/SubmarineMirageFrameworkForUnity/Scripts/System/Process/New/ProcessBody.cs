@@ -58,6 +58,12 @@ namespace SubmarineMirageFramework.Process.New {
 		public bool _isInitialized => _ranState >= RanState.Initialized;
 		public bool _isActive => _activeState == ActiveState.Enabled;
 
+// TODO : GameObjectUtilityに、自身の以下階層の1階層分の兄弟のみを取得する関数を作成し、
+//			以下の煩わしいフラグを全削除し、常に再帰で子を見るように修正する
+		bool _isChangeActiveOfGameObject;
+		bool _isChangeActiveOfChildren;
+		bool _isRunStateEventOfChildren;
+
 		IProcess _owner;
 		MonoBehaviourProcess _monoOwner;
 
@@ -141,7 +147,11 @@ namespace SubmarineMirageFramework.Process.New {
 		}
 
 
-		public async UniTask RunStateEvent( RanState state ) {
+		public async UniTask RunStateEvent( RanState state, bool isRunStateEventOfChildren = false ) {
+			if ( isRunStateEventOfChildren ) {
+				_isRunStateEventOfChildren = isRunStateEventOfChildren;
+			}
+
 			switch ( state ) {
 				case RanState.Creating:
 					if ( _activeState != ActiveState.Disabled )	{ return; }
@@ -255,7 +265,8 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.Update:
 						case RanState.LateUpdate:
 							Log.Debug( $"check disable Want {state}" );
-							await ChangeActive( false );
+// TODO : 子を変えなくて良いか、調査
+							await ChangeActive( false, false );
 							break;
 					}
 					switch ( _ranState ) {
@@ -265,6 +276,8 @@ namespace SubmarineMirageFramework.Process.New {
 					}
 					StopActiveAsync();
 					Log.Debug( $"Run {state}" );
+// TODO : 子の終了処理は、この場所で良いか、考える
+					await RunStateEventOfChildren( RanState.Finalizing, true );
 					switch ( _ranState ) {
 						case RanState.Loading:
 						case RanState.Loaded:
@@ -300,10 +313,26 @@ namespace SubmarineMirageFramework.Process.New {
 			}
 		}
 
+		async UniTask RunStateEventOfChildren( RanState state, bool isReverse ) {
+			if ( _monoOwner == null || !_isRunStateEventOfChildren )	{ return; }
+			_isRunStateEventOfChildren = false;
 
-		public async UniTask ChangeActive( bool isActive ) {
+			var monos = _monoOwner.GetComponentsInChildrenWithoutSelf<MonoBehaviourProcess>( true );
+			if ( isReverse ) {
+				monos = monos.Reverse();
+			}
+			foreach ( var m in monos ) {
+				await m._process.RunStateEvent( state, false );
+			}
+		}
+
+
+		public async UniTask ChangeActive( bool isActive, bool isChangeActiveOfGameObjectAndChildren ) {
 			var state = isActive ? ActiveState.Enabling : ActiveState.Disabling;
 			_nextActiveState = state;
+			if ( isChangeActiveOfGameObjectAndChildren ) {
+				_isChangeActiveOfGameObject = _isChangeActiveOfChildren = isChangeActiveOfGameObjectAndChildren;
+			}
 			await RunActiveEvent();
 		}
 
@@ -355,9 +384,13 @@ namespace SubmarineMirageFramework.Process.New {
 							return;
 
 						case ActiveState.Disabled:
-							ChangeActiveOfGameObject( true );
 							Log.Debug( $"check initialize Want {_nextActiveState}" );
 							var lastNextActiveState = _nextActiveState;
+// TODO : 多分、ここで子のOnEnableから、子も並行して活動化処理を行ってしまう
+//			親の_enableEvent終了を待たない
+//			しかし、初期化の前に、自身を活動化しておきたい
+//			最初の生成直後等、子が予め活動中なら、呼んでもOnEnableが走らないので、問題ない
+							ChangeActiveOfGameObject( true );
 							await RunStateEvent( RanState.Loading );
 							await RunStateEvent( RanState.Initializing );
 							await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !_isInitialized );
@@ -369,7 +402,10 @@ namespace SubmarineMirageFramework.Process.New {
 							_nextActiveState = null;
 							_activeState = ActiveState.Enabling;
 							try {
+// TODO : 初期化中に状態変更returnを考慮し、再度活動状態を変更するが、内部変数がfalseなので、実行されず無意味
+								ChangeActiveOfGameObject( true );
 								await _enableEvent.Run( _activeAsyncCancel );
+								await ChangeActiveOfChildren( true );
 							} catch {
 								_activeState = ActiveState.Disabled;
 								throw;
@@ -403,6 +439,7 @@ namespace SubmarineMirageFramework.Process.New {
 							_activeState = ActiveState.Disabling;
 							StopActiveAsync();
 							try {
+								await ChangeActiveOfChildren( false );
 								await _disableEvent.Run( _inActiveAsyncCancel );
 							} catch {
 								_activeState = ActiveState.Enabled;
@@ -421,11 +458,20 @@ namespace SubmarineMirageFramework.Process.New {
 			}
 		}
 
-
-		void ChangeActiveOfGameObject( bool isActive, bool isChange = true ) {
-// TODO : 呼び出し元で、isChangeを指定する
-			if ( _monoOwner == null || !isChange )	{ return; }
+		void ChangeActiveOfGameObject( bool isActive ) {
+			if ( _monoOwner == null || !_isChangeActiveOfGameObject )	{ return; }
+			_isChangeActiveOfGameObject = false;
 			_monoOwner.gameObject.SetActive( isActive );
+		}
+
+		async UniTask ChangeActiveOfChildren( bool isActive ) {
+			if ( _monoOwner == null || !_isChangeActiveOfChildren )	{ return; }
+			_isChangeActiveOfChildren = false;
+
+			var monos = _monoOwner.GetComponentsInChildrenWithoutSelf<MonoBehaviourProcess>( true );
+			await UniTask.WhenAll(
+				monos.Select( async m => await m._process.ChangeActive( isActive, false ) )
+			);
 		}
 
 

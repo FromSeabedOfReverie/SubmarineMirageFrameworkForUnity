@@ -153,6 +153,32 @@ namespace SubmarineMirageFramework.Process.New {
 				}
 			} );
 
+			UniTask.Void( async () => {
+				GameObject top = null;
+				Transform t = null;
+				10.Times( () => {
+					var g = new GameObject();
+					var h = g.AddComponent<TestHoge>();
+					g.name = $"TestHoge {h._id}";
+					if ( top == null )	{ top = g; }
+					if ( t != null )	{ g.SetParent( t ); }
+					g.SetActive( false );
+					t = g.transform;
+
+					g = new GameObject();
+					h = g.AddComponent<TestHoge>();
+					g.name = $"TestHoge {h._id}";
+					if ( t != null )	{ g.SetParent( t ); }
+					g.SetActive( false );
+				} );
+
+				var ts = top.GetComponentsIn1HierarchyChildren<TestHoge>( true );
+				ts.ForEach( testHoge => Log.Debug( testHoge._id ) );
+				var tsa = top.transform.GetComponentsInChildrenWithoutSelf<TestHoge>( true );
+				tsa.Reverse().ForEach( testHoge => Log.Debug( testHoge._id ) );
+				await UniTaskUtility.DontWait();
+			} );
+
 			_process._disposables.AddLast( () => text.text = string.Empty );
 
 			_disposables.AddLast( _process );
@@ -161,5 +187,13 @@ namespace SubmarineMirageFramework.Process.New {
 		~TestMonoBehaviourProcessManager() => Log.Debug( "~TestMonoBehaviourProcessManager" );
 
 		public override void Create() {}
+	}
+
+	public class TestHoge : MonoBehaviour {
+		static int s_count;
+		public int _id	{ get; private set; }
+		void Awake() {
+			_id = s_count++;
+		}
 	}
 }
