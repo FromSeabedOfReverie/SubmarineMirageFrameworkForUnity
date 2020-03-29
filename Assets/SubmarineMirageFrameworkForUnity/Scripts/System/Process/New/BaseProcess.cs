@@ -52,8 +52,8 @@ namespace SubmarineMirageFramework.Process.New {
 		public void StopActiveAsync() => _process.StopActiveAsync();
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state, bool isRunStateEventOfChildren = false )
-			=> await _process.RunStateEvent( state, isRunStateEventOfChildren );
+		public async UniTask RunStateEvent( ProcessBody.RanState state )
+			=> await _process.RunStateEvent( state );
 
 
 		public async UniTask ChangeActive( bool isActive )

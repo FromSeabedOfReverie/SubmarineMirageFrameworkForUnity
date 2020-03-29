@@ -5,10 +5,15 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process.New {
+	using System.Linq;
 	using System.Threading;
+	using System.Collections.Generic;
+	using UnityEngine;
 	using UniRx.Async;
+	using KoganeUnityLib;
 	using MultiEvent;
 	using Extension;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -17,6 +22,10 @@ namespace SubmarineMirageFramework.Process.New {
 	public abstract class MonoBehaviourProcess : MonoBehaviourExtension, IProcess {
 		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
 		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+
+		public readonly List<MonoBehaviourProcess> _parents = new List<MonoBehaviourProcess>();
+		public readonly List<MonoBehaviourProcess> _children = new List<MonoBehaviourProcess>();
+		public readonly List<MonoBehaviourProcess> _brothers = new List<MonoBehaviourProcess>();
 
 		public ProcessBody _process	{ get; private set; }
 
@@ -40,10 +49,14 @@ namespace SubmarineMirageFramework.Process.New {
 		public MultiDisposable _disposables => _process._disposables;
 
 
-		protected void Awake() => _process = new ProcessBody( this );
+		protected void Awake() {
+			SetupParents();
+			SetupBrothers();
+			_process = new ProcessBody( this );
+		}
 
 		protected void OnDestroy() {
-			Debug.Log.Debug("OnDestroy");
+			Log.Debug("OnDestroy");
 			Dispose();
 		}
 
@@ -55,12 +68,12 @@ namespace SubmarineMirageFramework.Process.New {
 /*
 TODO : OnEnable、OnDisableは廃止し、必ずProcess経由で、ChangeActiveさせる
 		protected void OnEnable() {
-			Debug.Log.Debug( "OnEnable" );
+			Log.Debug( "OnEnable" );
 			_process.ChangeActive( true, false ).Forget();
 		}
 
 		protected void OnDisable() {
-			Debug.Log.Debug( "OnDisable" );
+			Log.Debug( "OnDisable" );
 			_process.ChangeActive( false, false ).Forget();
 		}
 */
@@ -69,8 +82,8 @@ TODO : OnEnable、OnDisableは廃止し、必ずProcess経由で、ChangeActive�
 		public void StopActiveAsync() => _process.StopActiveAsync();
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state, bool isRunStateEventOfChildren = false )
-			=> await _process.RunStateEvent( state, isRunStateEventOfChildren );
+		public async UniTask RunStateEvent( ProcessBody.RanState state )
+			=> await _process.RunStateEvent( state );
 
 
 		public async UniTask ChangeActive( bool isActive )
@@ -78,6 +91,37 @@ TODO : OnEnable、OnDisableは廃止し、必ずProcess経由で、ChangeActive�
 
 
 		public override string ToString() => this.ToDeepString();
+
+
+		void SetupParents() {
+			var parents = this.GetComponentsInParentUntilOneHierarchy<MonoBehaviourProcess>( true );
+			while ( _parents.IsEmpty() && !parents.IsEmpty() ) {
+				var nextParents = new List<MonoBehaviourProcess>();
+				parents.ForEach( p => {
+					if ( p._type != ProcessBody.Type.DontWork ) {
+						_parents.Add( p );
+						p._children.Add( this );
+					} else {
+						nextParents.Add(
+							p.GetComponentsInParentUntilOneHierarchy<MonoBehaviourProcess>( true ) );
+					}
+				} );
+				parents = nextParents;
+			}
+		}
+
+		public void ChangeParent( Transform parent, bool isWorldPositionStays ) {
+			transform.SetParent( parent, isWorldPositionStays );
+			_parents.ForEach( p => p._children.Remove( this ) );
+			_parents.Clear();
+			SetupParents();
+		}
+
+		public void SetupBrothers() {
+			GetComponents<MonoBehaviourProcess>()
+				.Where( p => p._type != ProcessBody.Type.DontWork )
+				.ForEach( p => _brothers.Add( p ) );
+		}
 
 
 #if DEVELOP

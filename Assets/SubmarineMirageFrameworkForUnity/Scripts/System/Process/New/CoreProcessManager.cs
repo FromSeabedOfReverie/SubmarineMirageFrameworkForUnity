@@ -260,6 +260,8 @@ namespace SubmarineMirageFramework.Process.New {
 		}
 
 
+// TODO : 削除時に、ゲーム物に2つ以上Processがくっついている場合を考慮し、指定するのはゲーム物にして、
+//			一々GetComponentsで取得走査し、全部Finalize後に、ゲーム物を削除させる
 		public async UniTask Delete( IProcess process ) {
 			await process.ChangeActive( false );
 			await process.RunStateEvent( RanState.Finalizing );

@@ -38,7 +38,7 @@ namespace SubmarineMirageFramework.Process.New {
 		CancellationToken _inActiveAsyncCancel	{ get; }
 
 		void Create();
-		UniTask RunStateEvent( ProcessBody.RanState state, bool isRunStateEventOfChildren = false );
+		UniTask RunStateEvent( ProcessBody.RanState state );
 		UniTask ChangeActive( bool isActive );
 		void StopActiveAsync();
 		string ToString();
