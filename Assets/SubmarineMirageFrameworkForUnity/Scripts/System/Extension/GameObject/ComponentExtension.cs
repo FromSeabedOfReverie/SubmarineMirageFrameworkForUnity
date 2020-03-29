@@ -27,13 +27,24 @@ namespace SubmarineMirageFramework.Extension {
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 1階層下の、部品達を取得
+		/// ● 1階層までの、子供達の、部品達を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static List<T> GetComponentsIn1HierarchyChildren<T>(	this Component component,
-																	bool isIncludeInactive = false
+		public static List<T> GetComponentsInChildrenUntilOneHierarchy<T>( this Component component,
+																			bool isIncludeInactive = false
 		) {
-			return GameObjectUtility.GetComponentsIn1HierarchyChildren<T>(
+			return GameObjectUtility.GetComponentsInChildrenUntilOneHierarchy<T>(
+				component.gameObject, isIncludeInactive );
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 1階層までの、親の、部品達を取得
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static List<T> GetComponentsInParentUntilOneHierarchy<T>( this Component component,
+																			bool isIncludeInactive = false
+		) {
+			return GameObjectUtility.GetComponentsInParentUntilOneHierarchy<T>(
 				component.gameObject, isIncludeInactive );
 		}
 		///------------------------------------------------------------------------------------------------

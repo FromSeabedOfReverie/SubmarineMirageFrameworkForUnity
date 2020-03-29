@@ -36,18 +36,61 @@ namespace SubmarineMirageFramework.Utility {
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 1階層下の、部品達を取得
+		/// ● 1階層までの、子供達の、部品達を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static List<T> GetComponentsIn1HierarchyChildren<T>(	GameObject gameObject,
-																	bool isIncludeInactive = false
+		public static List<T> GetComponentsInChildrenUntilOneHierarchy<T>( GameObject gameObject,
+																			bool isIncludeInactive = false
 		) {
 			var results = new List<T>();
-			foreach ( Transform t in gameObject.transform ) {
-				if ( isIncludeInactive || t.gameObject.activeInHierarchy ) {
-					results.Add( t.GetComponents<T>() );
+			// 自身が非活動中の場合、未処理
+			if ( !isIncludeInactive && !gameObject.activeInHierarchy )	{ return results; }
+
+			var transforms = new List<Transform> { gameObject.transform };
+			// 自身の同一階層達が無くなるまで、再帰処理
+			while ( !transforms.IsEmpty() ) {
+				// 自身の、同一階層達の、全子供達の順で走査
+				var children = new List<Transform>();
+				transforms.ForEach( transform => {
+					foreach ( Transform child in transform ) {
+						// 子が活動中の場合
+						if ( isIncludeInactive || child.gameObject.activeInHierarchy ) {
+							var cs = child.GetComponents<T>();
+							// 部品が無い場合、更に子供を処理
+							if ( !cs.IsEmpty() )	{ results.Add( cs ); }
+							else					{ children.Add( child ); }
+						}
+					}
+				} );
+				transforms = children;	// 子供達を自身の階層とし、再帰処理
+			}
+
+			return results;
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 1階層までの、親の、部品達を取得
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static List<T> GetComponentsInParentUntilOneHierarchy<T>( GameObject gameObject,
+																			bool isIncludeInactive = false
+		) {
+			var results = new List<T>();
+			// 自身が非活動中の場合、未処理
+			if ( !isIncludeInactive && !gameObject.activeInHierarchy )	{ return results; }
+
+			var parent = gameObject.transform.parent;
+			// 親が無いか、部品が存在するまで、再帰処理
+			while ( parent != null && results.IsEmpty() ) {
+				// 親が活動中の場合、部品達を取得
+				if ( isIncludeInactive || parent.gameObject.activeInHierarchy ) {
+					results.Add( parent.GetComponents<T>() );
+					parent = parent.parent;	// 部品達が無い場合に備え、親を再指定し、再帰処理
+				} else {
+					parent = null;	// 親が非活動中の場合、再帰終了
 				}
 			}
+
 			return results;
 		}
 		///------------------------------------------------------------------------------------------------
