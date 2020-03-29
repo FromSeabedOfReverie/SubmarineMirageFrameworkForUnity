@@ -137,17 +137,17 @@ namespace SubmarineMirageFramework.Utility {
 		}
 
 
-		public static async UniTask< List<T> > WhenAllInSequence<T>( IEnumerable< UniTask<T> > tasks ) {
+		public static async UniTask< List<T> > WhenAllInSequence<T>( IEnumerable< Func< UniTask<T> > > tasks ) {
 			var results = new List<T>();
 			foreach ( var t in tasks ) {
-				results.Add( await t );
+				results.Add( await t.Invoke() );
 			}
 			return results;
 		}
 
-		public static async UniTask WhenAllInSequence( IEnumerable<UniTask> tasks ) {
+		public static async UniTask WhenAllInSequence( IEnumerable< Func<UniTask> > tasks ) {
 			foreach ( var t in tasks ) {
-				await t;
+				await t.Invoke();
 			}
 		}
 	}
