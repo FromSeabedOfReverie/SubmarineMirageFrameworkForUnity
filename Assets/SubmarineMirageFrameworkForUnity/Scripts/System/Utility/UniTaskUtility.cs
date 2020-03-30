@@ -26,9 +26,11 @@ namespace SubmarineMirageFramework.Utility {
 	public static class UniTaskUtility {
 
 
-		public static UniTask DontWait() {
-			return new UniTask();
-		}
+		public static readonly UniTask None = new UniTask();
+		public static readonly UniTask<int> NoneInt = new UniTask<int>( 0 );
+
+
+		public static UniTask DontWait() => None;
 
 
 		public static UniTask Yield( CancellationToken cancellationToken,
@@ -42,7 +44,7 @@ namespace SubmarineMirageFramework.Utility {
 										bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
-			if ( millisecondsDelay == 0 )	{ return new UniTask(); }
+			if ( millisecondsDelay == 0 )	{ return None; }
 			return UniTask.Delay( millisecondsDelay, ignoreTimeScale, delayTiming, cancellationToken );
 		}
 
@@ -50,7 +52,7 @@ namespace SubmarineMirageFramework.Utility {
 										bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
-			if ( delayTimeSpan == TimeSpan.Zero )	{ return new UniTask(); }
+			if ( delayTimeSpan == TimeSpan.Zero )	{ return None; }
 			return UniTask.Delay( delayTimeSpan, ignoreTimeScale, delayTiming, cancellationToken );
 		}
 
@@ -58,7 +60,7 @@ namespace SubmarineMirageFramework.Utility {
 		public static UniTask<int> DelayFrame( CancellationToken cancellationToken, int delayFrameCount,
 												PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
-			if ( delayFrameCount == 0 )	{ return new UniTask<int>( 0 ); }
+			if ( delayFrameCount == 0 )	{ return NoneInt; }
 			return UniTask.DelayFrame( delayFrameCount, delayTiming, cancellationToken );
 		}
 
@@ -66,7 +68,7 @@ namespace SubmarineMirageFramework.Utility {
 		public static UniTask WaitUntil( CancellationToken cancellationToken, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
-			if ( predicate() )	{ return new UniTask(); }
+			if ( predicate() )	{ return None; }
 			return UniTask.WaitUntil( predicate, timing, cancellationToken );
 		}
 
@@ -74,7 +76,7 @@ namespace SubmarineMirageFramework.Utility {
 		public static UniTask WaitWhile( CancellationToken cancellationToken, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
-			if ( !predicate() )	{ return new UniTask(); }
+			if ( !predicate() )	{ return None; }
 			return UniTask.WaitWhile( predicate, timing, cancellationToken );
 		}
 
