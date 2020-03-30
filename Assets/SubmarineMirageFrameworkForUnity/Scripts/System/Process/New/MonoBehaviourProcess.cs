@@ -23,17 +23,17 @@ namespace SubmarineMirageFramework.Process.New {
 		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
 		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 
-		public readonly List<MonoBehaviourProcess> _parents = new List<MonoBehaviourProcess>();
-		public readonly List<MonoBehaviourProcess> _children = new List<MonoBehaviourProcess>();
-		public readonly List<MonoBehaviourProcess> _brothers = new List<MonoBehaviourProcess>();
+		readonly List<MonoBehaviourProcess> _parents = new List<MonoBehaviourProcess>();
+		readonly List<MonoBehaviourProcess> _children = new List<MonoBehaviourProcess>();
+		readonly List<MonoBehaviourProcess> _brothers = new List<MonoBehaviourProcess>();
+
+		public string _belongSceneName	{ get; private set; }
 
 		public ProcessBody _process	{ get; private set; }
 
-		public string _belongSceneName => _process._belongSceneName;
-
 		public bool _isInitialized => _process._isInitialized;
 		public bool _isActive => _process._isActive;
-		
+
 		public MultiAsyncEvent _loadEvent => _process._loadEvent;
 		public MultiAsyncEvent _initializeEvent => _process._initializeEvent;
 		public MultiAsyncEvent _enableEvent => _process._enableEvent;
@@ -49,13 +49,43 @@ namespace SubmarineMirageFramework.Process.New {
 		public MultiDisposable _disposables => _process._disposables;
 
 
-		protected void Awake() {
-			SetupParents();
-			SetupBrothers();
-			_process = new ProcessBody( this );
+#if DEVELOP
+		protected
+#endif
+		void Awake() {
+			if ( _type != ProcessBody.Type.DontWork ) {
+				SetupParents();
+				SetupBrothers();
+			}
+
+			_belongSceneName = _lifeSpan == ProcessBody.LifeSpan.Forever ?
+				ProcessBody.FOREVER_SCENE_NAME : gameObject.scene.name;
+			if ( _lifeSpan == ProcessBody.LifeSpan.Forever )	{ DontDestroyOnLoad( gameObject ); }
+			var nextActiveState = isActiveAndEnabled ?
+				ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling;
+
+			_process = new ProcessBody( this, nextActiveState );
+
+			if ( _type != ProcessBody.Type.DontWork ) {
+				_disposables.AddLast( () => {
+					_parents.ForEach( p => p._children.Remove( this ) );
+					_parents.Clear();
+					_brothers.ForEach( p => p._children.Remove( this ) );
+					_brothers.Clear();
+				} );
+			}
+			if ( _type == ProcessBody.Type.DontWork ) {
+				RunStateEvent( ProcessBody.RanState.Creating ).Forget();
+			} else if ( _parents.IsEmpty() ) {
+//				CoreProcessManager.s_instance.Register( this ).Forget();
+//				_disposables.AddLast( () => CoreProcessManager.s_instance.Unregister( this ) );
+			}
 		}
 
-		protected void OnDestroy() {
+#if DEVELOP
+		protected
+#endif
+		void OnDestroy() {
 			Log.Debug("OnDestroy");
 			Dispose();
 		}
@@ -82,17 +112,6 @@ TODO : OnEnable、OnDisableは廃止し、必ずProcess経由で、ChangeActive�
 		public void StopActiveAsync() => _process.StopActiveAsync();
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state )
-			=> await _process.RunStateEvent( state );
-
-
-		public async UniTask ChangeActive( bool isActive )
-			=> await _process.ChangeActive( isActive, true );
-
-
-		public override string ToString() => this.ToDeepString();
-
-
 		void SetupParents() {
 			var parents = this.GetComponentsInParentUntilOneHierarchy<MonoBehaviourProcess>( true );
 			while ( _parents.IsEmpty() && !parents.IsEmpty() ) {
@@ -110,6 +129,13 @@ TODO : OnEnable、OnDisableは廃止し、必ずProcess経由で、ChangeActive�
 			}
 		}
 
+		void SetupBrothers() {
+			GetComponents<MonoBehaviourProcess>()
+				.Where( p => p != this )
+				.Where( p => p._type != ProcessBody.Type.DontWork )
+				.ForEach( p => _brothers.Add( p ) );
+		}
+
 		public void ChangeParent( Transform parent, bool isWorldPositionStays ) {
 			transform.SetParent( parent, isWorldPositionStays );
 			_parents.ForEach( p => p._children.Remove( this ) );
@@ -117,11 +143,39 @@ TODO : OnEnable、OnDisableは廃止し、必ずProcess経由で、ChangeActive�
 			SetupParents();
 		}
 
-		public void SetupBrothers() {
-			GetComponents<MonoBehaviourProcess>()
-				.Where( p => p._type != ProcessBody.Type.DontWork )
-				.ForEach( p => _brothers.Add( p ) );
+
+		public async UniTask RunStateEvent( ProcessBody.RanState state )
+			=> await _process.RunStateEvent( state );
+
+		public async UniTask RunStateEventOfBrothersAndChildren( ProcessBody.RanState state ) {
+			foreach ( var p in _brothers ) {
+				await p.RunStateEvent( state );
+			}
+			foreach ( var p in _children ) {
+				await p.RunStateEvent( state );
+			}
 		}
+
+
+		public async UniTask ChangeActive( bool isActive ) {
+			_process._changeActiveOfOwner = isActiveOwner => {
+				_process._changeActiveOfOwner = null;
+				gameObject.SetActive( isActiveOwner );
+			};
+			await _process.ChangeActive( isActive );
+		}
+
+		public async UniTask ChangeActiveOfBrothersAndChildren( bool isActive ) {
+			foreach ( var p in _brothers ) {
+				await p._process.ChangeActive( isActive );
+			}
+			foreach ( var p in _children ) {
+				await p._process.ChangeActive( isActive );
+			}
+		}
+
+
+		public override string ToString() => this.ToDeepString();
 
 
 #if DEVELOP
