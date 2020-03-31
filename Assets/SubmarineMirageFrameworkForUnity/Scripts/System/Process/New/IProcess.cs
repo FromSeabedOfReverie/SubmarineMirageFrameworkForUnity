@@ -18,9 +18,8 @@ namespace SubmarineMirageFramework.Process.New {
 		ProcessBody.Type _type			{ get; }
 		ProcessBody.LifeSpan _lifeSpan	{ get; }
 
+		ProcessHierarchy _processHierarchy	{ get; set; }
 		ProcessBody _process	{ get; }
-
-		string _belongSceneName	{ get; }
 
 		bool _isInitialized	{ get; }
 		bool _isActive		{ get; }
@@ -38,11 +37,9 @@ namespace SubmarineMirageFramework.Process.New {
 		CancellationToken _inActiveAsyncCancel	{ get; }
 
 		void Create();
-		UniTask RunStateEvent( ProcessBody.RanState state );
-		UniTask RunStateEventOfBrothersAndChildren( ProcessBody.RanState state );
-		UniTask ChangeActive( bool isActive );
-		UniTask ChangeActiveOfBrothersAndChildren( bool isActive );
 		void StopActiveAsync();
+		UniTask RunStateEvent( ProcessBody.RanState state );
+		UniTask ChangeActive( bool isActive );
 		string ToString();
 	}
 }

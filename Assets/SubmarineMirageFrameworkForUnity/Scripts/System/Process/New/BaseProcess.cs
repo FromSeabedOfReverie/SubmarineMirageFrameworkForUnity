@@ -8,9 +8,7 @@ namespace SubmarineMirageFramework.Process.New {
 	using System.Threading;
 	using UniRx.Async;
 	using MultiEvent;
-	using Scene;
 	using Extension;
-	using Utility;
 
 
 	// TODO : コメント追加、整頓
@@ -20,9 +18,8 @@ namespace SubmarineMirageFramework.Process.New {
 		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
 		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 
+		public ProcessHierarchy _processHierarchy	{ get; set; }
 		public ProcessBody _process	{ get; private set; }
-
-		public string _belongSceneName	{ get; private set; }
 
 		public bool _isInitialized => _process._isInitialized;
 		public bool _isActive => _process._isActive;
@@ -43,17 +40,8 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		protected BaseProcess() {
-			_belongSceneName = _lifeSpan == ProcessBody.LifeSpan.Forever ?
-				ProcessBody.FOREVER_SCENE_NAME : SceneManager.s_instance._currentSceneName;
-
+			_processHierarchy = new ProcessHierarchy( null );
 			_process = new ProcessBody( this, ProcessBody.ActiveState.Enabling );
-
-			if ( _type == ProcessBody.Type.DontWork ) {
-				RunStateEvent( ProcessBody.RanState.Creating ).Forget();
-			} else {
-//				CoreProcessManager.s_instance.Register( this ).Forget();
-//				_disposables.AddLast( () => CoreProcessManager.s_instance.Unregister( this ) );
-			}
 		}
 
 		~BaseProcess() => Dispose();
@@ -69,15 +57,9 @@ namespace SubmarineMirageFramework.Process.New {
 		public async UniTask RunStateEvent( ProcessBody.RanState state )
 			=> await _process.RunStateEvent( state );
 
-		public async UniTask RunStateEventOfBrothersAndChildren( ProcessBody.RanState state )
-			=> await UniTaskUtility.DontWait();
-
 
 		public async UniTask ChangeActive( bool isActive )
 			=> await _process.ChangeActive( isActive );
-
-		public async UniTask ChangeActiveOfBrothersAndChildren( bool isActive )
-			=> await UniTaskUtility.DontWait();
 
 
 		public override string ToString() => this.ToDeepString();

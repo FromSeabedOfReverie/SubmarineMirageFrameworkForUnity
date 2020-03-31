@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process.New {
 	using System;
-	using System.Linq;
 	using System.Threading;
 	using UniRx.Async;
 	using KoganeUnityLib;
@@ -56,7 +55,6 @@ namespace SubmarineMirageFramework.Process.New {
 		public ActiveState? _nextActiveState	{ get; private set; }
 		public bool _isInitialized => _ranState >= RanState.Initialized;
 		public bool _isActive => _activeState == ActiveState.Enabled;
-		public Action<bool> _changeActiveOfOwner;
 
 		IProcess _owner;
 
@@ -86,7 +84,6 @@ namespace SubmarineMirageFramework.Process.New {
 				_inActiveAsyncCanceler.Cancel();
 				_inActiveAsyncCanceler.Dispose();
 			} );
-			_disposables.AddLast( () => _changeActiveOfOwner = null );
 			_disposables.AddLast(
 				_loadEvent,
 				_initializeEvent,
@@ -127,21 +124,22 @@ namespace SubmarineMirageFramework.Process.New {
 					switch ( _ranState ) {
 						case RanState.None:
 							Log.Debug( $"Run {state}" );
+// TODO : awaitが不要な事を確認後、状態をCreateのみに、修正
 							_ranState = RanState.Creating;
 							try {
-								await UniTaskUtility.Yield( _activeAsyncCancel );
+//								await UniTaskUtility.Yield( _activeAsyncCancel );
 								_owner.Create();
 							} catch {
 								_ranState = RanState.None;
 								throw;
 							}
 							_ranState = RanState.Created;
-							break;
+							return;
 					}
-					await _owner.RunStateEventOfBrothersAndChildren( RanState.Creating );
 					return;
 
 				case RanState.Loading:
+					if ( _owner._type == Type.DontWork )			{ return; }
 					if ( _activeState != ActiveState.Disabled )		{ return; }
 					if ( _nextActiveState != ActiveState.Enabling )	{ return; }
 					switch ( _ranState ) {
@@ -155,12 +153,12 @@ namespace SubmarineMirageFramework.Process.New {
 								throw;
 							}
 							_ranState = RanState.Loaded;
-							break;
+							return;
 					}
-					await _owner.RunStateEventOfBrothersAndChildren( RanState.Loading );
 					return;
 
 				case RanState.Initializing:
+					if ( _owner._type == Type.DontWork )			{ return; }
 					if ( _activeState != ActiveState.Disabled )		{ return; }
 					if ( _nextActiveState != ActiveState.Enabling )	{ return; }
 					switch ( _ranState ) {
@@ -174,12 +172,12 @@ namespace SubmarineMirageFramework.Process.New {
 								throw;
 							}
 							_ranState = RanState.Initialized;
-							break;
+							return;
 					}
-					await _owner.RunStateEventOfBrothersAndChildren( RanState.Initializing );
 					return;
 
 				case RanState.FixedUpdate:
+					if ( _owner._type == Type.DontWork )		{ return; }
 					if ( _activeState != ActiveState.Enabled )	{ return; }
 					if ( _nextActiveState.HasValue )			{ return; }
 					switch ( _ranState ) {
@@ -193,12 +191,12 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.LateUpdate:
 							Log.Debug( $"Run {state}" );
 							_fixedUpdateEvent.Run();
-							break;
+							return;
 					}
-					_owner.RunStateEventOfBrothersAndChildren( RanState.FixedUpdate ).Forget();
 					return;
 
 				case RanState.Update:
+					if ( _owner._type == Type.DontWork )		{ return; }
 					if ( _activeState != ActiveState.Enabled )	{ return; }
 					if ( _nextActiveState.HasValue )			{ return; }
 					switch ( _ranState ) {
@@ -211,12 +209,12 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.LateUpdate:
 							Log.Debug( $"Run {state}" );
 							_updateEvent.Run();
-							break;
+							return;
 					}
-					_owner.RunStateEventOfBrothersAndChildren( RanState.Update ).Forget();
 					return;
 
 				case RanState.LateUpdate:
+					if ( _owner._type == Type.DontWork )		{ return; }
 					if ( _activeState != ActiveState.Enabled )	{ return; }
 					if ( _nextActiveState.HasValue )			{ return; }
 					switch ( _ranState ) {
@@ -228,12 +226,12 @@ namespace SubmarineMirageFramework.Process.New {
 						case RanState.LateUpdate:
 							Log.Debug( $"Run {state}" );
 							_lateUpdateEvent.Run();
-							break;
+							return;
 					}
-					_owner.RunStateEventOfBrothersAndChildren( RanState.LateUpdate ).Forget();
 					return;
 
 				case RanState.Finalizing:
+					if ( _owner._type == Type.DontWork )	{ return; }
 					switch ( _ranState ) {
 						case RanState.Initialized:
 						case RanState.FixedUpdate:
@@ -243,7 +241,6 @@ namespace SubmarineMirageFramework.Process.New {
 							await ChangeActive( false );
 							break;
 					}
-					await _owner.RunStateEventOfBrothersAndChildren( RanState.Finalizing );
 					switch ( _ranState ) {
 						case RanState.Finalizing:
 						case RanState.Finalized:
@@ -285,19 +282,21 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		public async UniTask ChangeActive( bool isActive ) {
+			if ( _owner._type == Type.DontWork )	{ return; }
 			_nextActiveState = isActive ? ActiveState.Enabling : ActiveState.Disabling;
 			await RunActiveEvent();
 		}
 
 		async UniTask RunActiveEvent() {
-			if ( !_nextActiveState.HasValue )	{ return; }
+			if ( _owner._type == Type.DontWork )	{ return; }
+			if ( !_nextActiveState.HasValue )		{ return; }
 
-			var lastRanState = _ranState;
 			switch ( _ranState ) {
 				case RanState.None:
 				case RanState.Creating:
 				case RanState.Loading:
 				case RanState.Initializing:
+					var lastRanState = _ranState;
 					await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => _ranState == lastRanState );
 					await RunActiveEvent();
 					return;
@@ -305,7 +304,6 @@ namespace SubmarineMirageFramework.Process.New {
 				case RanState.Created:
 				case RanState.Loaded:
 				case RanState.Initialized:
-					break;
 				case RanState.FixedUpdate:
 				case RanState.Update:
 				case RanState.LateUpdate:
@@ -338,11 +336,6 @@ namespace SubmarineMirageFramework.Process.New {
 						case ActiveState.Disabled:
 							Log.Debug( $"check initialize Want {_nextActiveState}" );
 							var lastNextActiveState = _nextActiveState;
-// TODO : 多分、ここで子のOnEnableから、子も並行して活動化処理を行ってしまう
-//			親の_enableEvent終了を待たない
-//			しかし、初期化の前に、自身を活動化しておきたい
-//			最初の生成直後等、子が予め活動中なら、呼んでもOnEnableが走らないので、問題ない
-							_changeActiveOfOwner?.Invoke( true );
 							await RunStateEvent( RanState.Loading );
 							await RunStateEvent( RanState.Initializing );
 							await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !_isInitialized );
@@ -354,11 +347,7 @@ namespace SubmarineMirageFramework.Process.New {
 							_nextActiveState = null;
 							_activeState = ActiveState.Enabling;
 							try {
-// TODO : 初期化中に状態変更returnを考慮し、再度活動状態を変更するが、
-//			既に実行された場合、1度しか実行しない為、実行されず無意味
-								_changeActiveOfOwner?.Invoke( true );
 								await _enableEvent.Run( _activeAsyncCancel );
-								await _owner.ChangeActiveOfBrothersAndChildren( true );
 							} catch {
 								_activeState = ActiveState.Disabled;
 								throw;
@@ -392,13 +381,11 @@ namespace SubmarineMirageFramework.Process.New {
 							_activeState = ActiveState.Disabling;
 							StopActiveAsync();
 							try {
-								await _owner.ChangeActiveOfBrothersAndChildren( false );
 								await _disableEvent.Run( _inActiveAsyncCancel );
 							} catch {
 								_activeState = ActiveState.Enabled;
 								throw;
 							}
-							_changeActiveOfOwner?.Invoke( false );
 							_activeState = ActiveState.Disabled;
 							return;
 					}

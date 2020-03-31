@@ -81,7 +81,6 @@ namespace SubmarineMirageFramework.Process.New {
 			_process._disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ =>
 				text.text =
 					$"{_process.GetAboutName()}(\n"
-					+ $"    {_process._belongSceneName}\n"
 					+ $"    _isInitialized {_process._isInitialized}\n"
 					+ $"    _isActive {_process._isActive}\n"
 					+ $"    isActiveAndEnabled {_process.isActiveAndEnabled}\n"

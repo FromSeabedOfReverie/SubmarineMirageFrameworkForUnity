@@ -31,9 +31,9 @@ namespace SubmarineMirageFramework.Process.New {
 		public string _foreverSceneName => ProcessBody.FOREVER_SCENE_NAME;
 		public string _currentSceneName => SceneManager.s_instance._currentSceneName;
 
-		readonly Dictionary< string, Dictionary< Type, List<IProcess> > > _processes
-			= new Dictionary< string, Dictionary< Type, List<IProcess> > >();
-		readonly List<IProcess> _requestUnregisterProcesses = new List<IProcess>();
+		readonly Dictionary< string, Dictionary< Type, List<ProcessHierarchy> > > _processes
+			= new Dictionary< string, Dictionary< Type, List<ProcessHierarchy> > >();
+		readonly List<ProcessHierarchy> _requestUnregisterProcesses = new List<ProcessHierarchy>();
 
 #if DEVELOP
 		public readonly MultiSubject _onGUIEvent = new MultiSubject();
@@ -150,8 +150,8 @@ namespace SubmarineMirageFramework.Process.New {
 #if DEVELOP
 			_disposables.AddFirst( _onGUIEvent );
 #endif
+			_disposables.AddFirst( GetAllProcesses() );
 			_disposables.AddFirst( () => {
-				GetAllProcesses().ForEach( p => p.Dispose() );
 				_processes.Clear();
 				_requestUnregisterProcesses.Clear();
 			} );
@@ -175,18 +175,18 @@ namespace SubmarineMirageFramework.Process.New {
 
 		void CreateProcesses( string sceneName ) {
 			if ( !_processes.ContainsKey( sceneName ) ) {
-				_processes[sceneName] = new Dictionary< Type, List<IProcess> >();
+				_processes[sceneName] = new Dictionary< Type, List<ProcessHierarchy> >();
 			}
 			var scenePS = _processes[sceneName];
 			if ( !scenePS.ContainsKey( Type.FirstWork ) ) {
-				scenePS[Type.FirstWork] = new List<IProcess>();
+				scenePS[Type.FirstWork] = new List<ProcessHierarchy>();
 			}
 			if ( !scenePS.ContainsKey( Type.Work ) ) {
-				scenePS[Type.Work] = new List<IProcess>();
+				scenePS[Type.Work] = new List<ProcessHierarchy>();
 			}
 		}
 
-		List<IProcess> GetProcesses( string sceneName, Type type, bool isReverse = false ) {
+		List<ProcessHierarchy> GetProcesses( string sceneName, Type type, bool isReverse = false ) {
 			CreateProcesses( sceneName );
 			var ps = _processes[sceneName][type];
 			if ( isReverse ) {
@@ -199,7 +199,7 @@ namespace SubmarineMirageFramework.Process.New {
 			return ps;
 		}
 
-		IEnumerable<IProcess> GetAllProcesses() {
+		IEnumerable<ProcessHierarchy> GetAllProcesses() {
 			return _processes
 				.SelectMany( pair => pair.Value )
 				.SelectMany( pair => pair.Value );
@@ -224,19 +224,19 @@ namespace SubmarineMirageFramework.Process.New {
 		async UniTask ChangeActiveWithFirstProcesses( string sceneName, bool isActive, bool isReverse = false ) {
 			var ps = GetProcesses( sceneName, Type.FirstWork, isReverse );
 			foreach ( var p in ps ) {
-				await p.ChangeActive( isActive );
+				await p.ChangeActive( isActive, true );
 			}
 		}
 
 		async UniTask ChangeActiveWithProcesses( string sceneName, bool isActive ) {
 			var ps = GetProcesses( sceneName, Type.Work );
 			await UniTask.WhenAll(
-				ps.Select( async p => await p.ChangeActive( isActive ) )
+				ps.Select( async p => await p.ChangeActive( isActive, true ) )
 			);
 		}
 
 
-		public async UniTask Register( IProcess process ) {
+		public async UniTask Register( ProcessHierarchy process ) {
 			await UniTaskUtility.Yield( _activeAsyncCancel );
 			GetProcesses( process._belongSceneName, process._type ).Add( process );
 
@@ -248,7 +248,7 @@ namespace SubmarineMirageFramework.Process.New {
 			}
 		}
 
-		public void Unregister( IProcess process ) {
+		public void Unregister( ProcessHierarchy process ) {
 			_requestUnregisterProcesses.Add( process );
 		}
 
@@ -262,13 +262,13 @@ namespace SubmarineMirageFramework.Process.New {
 
 // TODO : 削除時に、ゲーム物に2つ以上Processがくっついている場合を考慮し、指定するのはゲーム物にして、
 //			一々GetComponentsで取得走査し、全部Finalize後に、ゲーム物を削除させる
-		public async UniTask Delete( IProcess process ) {
-			await process.ChangeActive( false );
+		public async UniTask Delete( ProcessHierarchy process ) {
+			await process.ChangeActive( false, true );
 			await process.RunStateEvent( RanState.Finalizing );
 		}
 
-		public async UniTask ChangeActive( IProcess process, bool isActive ) {
-			await process.ChangeActive( isActive );
+		public async UniTask ChangeActive( ProcessHierarchy process, bool isActive ) {
+			await process.ChangeActive( isActive, true );
 		}
 
 
