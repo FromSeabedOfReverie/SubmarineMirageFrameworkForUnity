@@ -50,6 +50,17 @@ namespace SubmarineMirageFramework.Extension {
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
+		/// ● 1階層までの、親の、部品を取得
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static T GetComponentInParentUntilOneHierarchy<T>( this GameObject gameObject,
+																	bool isIncludeInactive = false
+		) {
+			return GameObjectUtility.GetComponentInParentUntilOneHierarchy<T>(
+				gameObject, isIncludeInactive );
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
 		/// ● 指定名ゲーム物から、部品を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------

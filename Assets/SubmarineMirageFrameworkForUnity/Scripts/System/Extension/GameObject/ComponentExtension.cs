@@ -27,6 +27,15 @@ namespace SubmarineMirageFramework.Extension {
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
+		/// ● 親を含まない、全子階層の部品達を取得
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static T[] GetComponentsInChildrenWithoutSelf<T>( this Component component, bool isIncludeInactive
+		) where T : Component {
+			return component.gameObject.GetComponentsInChildrenWithoutSelf<T>( isIncludeInactive );
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
 		/// ● 1階層までの、子供達の、部品達を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
@@ -49,12 +58,14 @@ namespace SubmarineMirageFramework.Extension {
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 親を含まない、全子階層の部品達を取得
+		/// ● 1階層までの、親の、部品を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static T[] GetComponentsInChildrenWithoutSelf<T>( this Component component, bool isIncludeInactive
-		) where T : Component {
-			return component.gameObject.GetComponentsInChildrenWithoutSelf<T>( isIncludeInactive );
+		public static T GetComponentInParentUntilOneHierarchy<T>( this Component component,
+																	bool isIncludeInactive = false
+		) {
+			return GameObjectUtility.GetComponentInParentUntilOneHierarchy<T>(
+				component.gameObject, isIncludeInactive );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

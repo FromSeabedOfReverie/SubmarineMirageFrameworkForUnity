@@ -73,7 +73,8 @@ namespace SubmarineMirageFramework.Utility {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public static List<T> GetComponentsInParentUntilOneHierarchy<T>( GameObject gameObject,
-																			bool isIncludeInactive = false
+																			bool isIncludeInactive = false,
+																			bool isGetOnlyOne = false
 		) {
 			var results = new List<T>();
 			// 自身が非活動中の場合、未処理
@@ -84,7 +85,8 @@ namespace SubmarineMirageFramework.Utility {
 			while ( parent != null && results.IsEmpty() ) {
 				// 親が活動中の場合、部品達を取得
 				if ( isIncludeInactive || parent.gameObject.activeInHierarchy ) {
-					results.Add( parent.GetComponents<T>() );
+					if ( isGetOnlyOne )	{ results.Add( parent.GetComponent<T>() ); }
+					else				{ results.Add( parent.GetComponents<T>() ); }
 					parent = parent.parent;	// 部品達が無い場合に備え、親を再指定し、再帰処理
 				} else {
 					parent = null;	// 親が非活動中の場合、再帰終了
@@ -92,6 +94,17 @@ namespace SubmarineMirageFramework.Utility {
 			}
 
 			return results;
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 1階層までの、親の、部品を取得
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static T GetComponentInParentUntilOneHierarchy<T>( GameObject gameObject,
+																	bool isIncludeInactive = false
+		) {
+			return GetComponentsInParentUntilOneHierarchy<T>( gameObject, isIncludeInactive, true )
+				.FirstOrDefault();
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
