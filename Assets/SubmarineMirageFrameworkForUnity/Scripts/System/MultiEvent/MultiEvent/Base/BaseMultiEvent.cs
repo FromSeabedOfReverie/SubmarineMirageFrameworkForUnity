@@ -105,6 +105,11 @@ namespace SubmarineMirageFramework.MultiEvent {
 		}
 
 
+		public void Reverse() {
+			RegisterEventModifyler( new ReverseEventModifyData<T>() );
+		}
+
+
 		public void Remove( string key ) {
 			RegisterEventModifyler( new RemoveEventModifyData<T>( key ) );
 		}
