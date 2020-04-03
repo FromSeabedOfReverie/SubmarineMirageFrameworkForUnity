@@ -244,7 +244,8 @@ namespace SubmarineMirageFramework.Process.New {
 				await process.RunStateEvent( RanState.Creating );
 				await process.RunStateEvent( RanState.Loading );
 				await process.RunStateEvent( RanState.Initializing );
-				await process.ChangeActive( true );
+// TODO : 初期化時のChangeActiveは、RunActiveEventを呼ぶよう、変更（活動状態が分からない為）
+				await process.RunActiveEvent();
 			}
 		}
 

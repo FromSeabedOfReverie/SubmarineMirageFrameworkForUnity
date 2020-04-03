@@ -23,43 +23,24 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 	public class ProcessHierarchy : IDisposable {
+		public ProcessBody.Type _type			{ get; private set; }
+		public ProcessBody.LifeSpan _lifeSpan	{ get; private set; }
+		public string _belongSceneName			{ get; private set; }
+
 		GameObject _owner;
 		readonly List<IProcess> _processes = new List<IProcess>();
 		ProcessHierarchy _parent;
 		ProcessHierarchy _child;
-
-		public ProcessBody.Type _type	{ get; private set; }
-		public string _belongSceneName	{ get; private set; }
+		ProcessHierarchy _top;
 
 		readonly MultiDisposable _disposables = new MultiDisposable();
 
 
-		public ProcessHierarchy( GameObject owner ) {
+		public ProcessHierarchy( GameObject owner, IEnumerable<IProcess> processes ) {
 			_owner = owner;
 
 			SetParent();
-			SetBrothers();
-
-// TODO : 始祖の親から、末端の子まで全判定し、_type、_belongSceneNameを決定する
-			var parent = _parent;
-			while ( parent._parent != null ) {
-				parent = parent._parent;
-			}
-			if ( parent != null ) {
-
-			}
-			_type = _processes.Any( p => p._type == ProcessBody.Type.FirstWork ) ?
-				ProcessBody.Type.FirstWork : ProcessBody.Type.Work;
-			var lifeSpan = _processes.Any( p => p._lifeSpan == ProcessBody.LifeSpan.Forever ) ?
-				ProcessBody.LifeSpan.Forever : ProcessBody.LifeSpan.InScene;
-			_belongSceneName = (
-				lifeSpan == ProcessBody.LifeSpan.Forever	? ProcessBody.FOREVER_SCENE_NAME :
-				_owner != null								? _owner.scene.name
-															: SceneManager.s_instance._currentSceneName
-			);
-			if ( _owner != null && lifeSpan == ProcessBody.LifeSpan.Forever ) {
-				UnityObject.DontDestroyOnLoad( _owner );
-			}
+			SetBrothers( processes );
 
 			_disposables.AddLast( () => {
 				if ( _parent != null )	{ _parent._child = null; }
@@ -67,10 +48,7 @@ namespace SubmarineMirageFramework.Process.New {
 			_disposables.AddLast( _processes );
 			_disposables.AddLast( _child );
 
-			if ( _parent == null ) {
-//				CoreProcessManager.s_instance.Register( this ).Forget();
-//				_disposables.AddLast( () => CoreProcessManager.s_instance.Unregister( this ) );
-			}
+			SetTopData();
 		}
 
 		~ProcessHierarchy() => Dispose();
@@ -85,44 +63,113 @@ namespace SubmarineMirageFramework.Process.New {
 				_parent._child = null;
 				_parent = null;
 			}
-			var parent = _owner.GetComponentInParentUntilOneHierarchy<MonoBehaviourProcess>( true );
-			if ( parent == null )	{ return; }
-
-			if ( parent._processHierarchy == null ) {
-				parent._processHierarchy = new ProcessHierarchy( parent.gameObject );
+			var parents = _owner.GetComponentsInParentUntilOneHierarchy<MonoBehaviourProcess>( true );
+			if ( parents.IsEmpty() )	{ return; }
+			var parent = parents.FirstOrDefault( p => p._processHierarchy != null );
+			if ( parent == null ) {
+				parent = parents.FirstOrDefault();
+				parent._processHierarchy = new ProcessHierarchy( parent.gameObject, parents );
 			}
 			_parent = parent._processHierarchy;
 			_parent._child = this;
 		}
 
-		void SetBrothers() {
-			if ( _owner == null )	{ return; }
-
+		public void SetBrothers( IEnumerable<IProcess> processes ) {
 			_processes.Clear();
-			_owner.GetComponents<MonoBehaviourProcess>().ForEach( p => {
-				if ( p._processHierarchy == null )	{ p._processHierarchy = this; }
-				_processes.Add( p );
+			_processes.Add( processes );
+			_processes.ForEach( p => p._processHierarchy = this );
+		}
+
+		void SetTopData() {
+			if ( _top != null )	{ return; }
+
+			for ( _top = this; _top._parent != null; _top = _top._parent ) {
+			}
+			if ( _top == this ) {
+//				CoreProcessManager.s_instance.Register( this ).Forget();
+//				_disposables.AddLast( "Unregister", () => CoreProcessManager.s_instance.Unregister( this ) );
+			}
+
+			var allHierarchy = new List<ProcessHierarchy>();
+			var allProcesses = new List<IProcess>();
+			for ( var h = _top; h != null; h = h._child ) {
+				allHierarchy.Add( h );
+				allProcesses.Add( h._processes );
+			}
+
+			_type = (
+				allProcesses.Any( p => p._type == ProcessBody.Type.FirstWork )	? ProcessBody.Type.FirstWork :
+				allProcesses.Any( p => p._type == ProcessBody.Type.Work )		? ProcessBody.Type.Work
+																				: ProcessBody.Type.DontWork
+			);
+			_lifeSpan = allProcesses.Any( p => p._lifeSpan == ProcessBody.LifeSpan.Forever ) ?
+				ProcessBody.LifeSpan.Forever : ProcessBody.LifeSpan.InScene;
+			_belongSceneName = (
+				_lifeSpan == ProcessBody.LifeSpan.Forever	? ProcessBody.FOREVER_SCENE_NAME :
+				_owner != null								? _owner.scene.name
+															: SceneManager.s_instance._currentSceneName
+			);
+			if ( _owner != null && _lifeSpan == ProcessBody.LifeSpan.Forever ) {
+				UnityObject.DontDestroyOnLoad( _owner );
+			}
+
+			allHierarchy.ForEach( h => {
+				h._top = _top;
+				h._type = _type;
+				h._lifeSpan = _lifeSpan;
+				h._belongSceneName = _belongSceneName;
 			} );
 		}
 
+
 		public void ChangeParent( Transform parent, bool isWorldPositionStays ) {
+			if ( _owner == null )	{ return; }
+
 			_owner.transform.SetParent( parent, isWorldPositionStays );
+//			if ( _top == this )	{ _disposables.Remove( "Unregister" ); }
 			SetParent();
+
+			if ( _parent == null ) {
+				_top = null;
+				SetTopData();
+			} else {
+				for ( var h = this; h != null; h = h._child ) {
+					h._top = h._parent._top;
+					h._type = h._parent._type;
+					h._lifeSpan = h._parent._lifeSpan;
+					h._belongSceneName = h._parent._belongSceneName;
+				}
+			}
 		}
 
 
 		public async UniTask RunStateEvent( ProcessBody.RanState state ) {
 			using ( var events = new MultiAsyncEvent() ) {
-				events.AddLast( async _ => {
-					foreach ( var p in _processes ) {
-						await p.RunStateEvent( state );
-					}
-				} );
-				events.AddLast( async _ => {
-					if ( _child != null )	{ await _child.RunStateEvent( state ); }
-				} );
-				if ( state == ProcessBody.RanState.Finalizing )	{ events.Reverse(); }
+				switch( _type ) {
+					case ProcessBody.Type.FirstWork:
+						events.AddLast( async _ => {
+							foreach ( var p in _processes ) {
+								try										{ await p.RunStateEvent( state ); }
+								catch ( OperationCanceledException )	{}
+							}
+						} );
+						if ( _child != null ) {
+							events.AddLast( async _ => await _child.RunStateEvent( state ) );
+						}
+						break;
 
+					case ProcessBody.Type.Work:
+						events.AddLast( async _ => {
+							var tasks = _processes.Select( p => {
+								try										{ return p.RunStateEvent( state ); }
+								catch ( OperationCanceledException )	{ return UniTaskUtility.DontWait(); }
+							} ).ToList();
+							if ( _child != null )	{ tasks.Add( _child.RunStateEvent( state ) ); }
+							await UniTask.WhenAll( tasks );
+						} );
+						break;
+				}
+				if ( state == ProcessBody.RanState.Finalizing )	{ events.Reverse(); }
 				using ( var canceler = new CancellationTokenSource() ) {
 					await events.Run( canceler.Token );
 				}
@@ -132,21 +179,69 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public async UniTask ChangeActive( bool isActive, bool isChangeOwner ) {
 			using ( var events = new MultiAsyncEvent() ) {
-				events.AddLast( async _ => {
-					if ( _owner != null && isChangeOwner )	{ _owner.SetActive( isActive ); }
-					await UniTaskUtility.DontWait();
-				} );
-				events.AddLast( async _ => {
-					foreach ( var p in _processes ) {
-						await p.ChangeActive( isActive );
-					}
-				} );
-				events.AddLast( async _ => {
-					if ( _child != null )	{ await _child.ChangeActive( isActive, false ); }
-					await UniTaskUtility.DontWait();
-				} );
-				if ( !isActive )	{ events.Reverse(); }
+				if ( _owner != null && isChangeOwner ) {
+					events.AddLast( async _ => {
+						_owner.SetActive( isActive );
+						await UniTaskUtility.DontWait();
+					} );
+				}
+				switch( _type ) {
+					case ProcessBody.Type.FirstWork:
+						events.AddLast( async _ => {
+							foreach ( var p in _processes ) {
+								try										{ await p.ChangeActive( isActive ); }
+								catch ( OperationCanceledException )	{}
+							}
+						} );
+						if ( _child != null ) {
+							events.AddLast( async _ => await _child.ChangeActive( isActive, false ) );
+						}
+						break;
 
+					case ProcessBody.Type.Work:
+						events.AddLast( async _ => {
+							var tasks = _processes.Select( p => {
+								try										{ return p.ChangeActive( isActive ); }
+								catch ( OperationCanceledException )	{ return UniTaskUtility.DontWait(); }
+							} ).ToList();
+							if ( _child != null )	{ tasks.Add( _child.ChangeActive( isActive, false ) ); }
+							await UniTask.WhenAll( tasks );
+						} );
+						break;
+				}
+				if ( !isActive )	{ events.Reverse(); }
+				using ( var canceler = new CancellationTokenSource() ) {
+					await events.Run( canceler.Token );
+				}
+			}
+		}
+
+		public async UniTask RunActiveEvent() {
+			using ( var events = new MultiAsyncEvent() ) {
+				switch( _type ) {
+					case ProcessBody.Type.FirstWork:
+						events.AddLast( async _ => {
+							foreach ( var p in _processes ) {
+								try										{ await p.RunActiveEvent(); }
+								catch ( OperationCanceledException )	{}
+							}
+						} );
+						if ( _child != null ) {
+							events.AddLast( async _ => await _child.RunActiveEvent() );
+						}
+						break;
+
+					case ProcessBody.Type.Work:
+						events.AddLast( async _ => {
+							var tasks = _processes.Select( p => {
+								try										{ return p.RunActiveEvent(); }
+								catch ( OperationCanceledException )	{ return UniTaskUtility.DontWait(); }
+							} ).ToList();
+							if ( _child != null )	{ tasks.Add( _child.RunActiveEvent() ); }
+							await UniTask.WhenAll( tasks );
+						} );
+						break;
+				}
 				using ( var canceler = new CancellationTokenSource() ) {
 					await events.Run( canceler.Token );
 				}

@@ -40,7 +40,7 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		protected BaseProcess() {
-			_processHierarchy = new ProcessHierarchy( null );
+			_processHierarchy = new ProcessHierarchy( null, new IProcess[] { this } );
 			_process = new ProcessBody( this, ProcessBody.ActiveState.Enabling );
 		}
 
@@ -60,6 +60,9 @@ namespace SubmarineMirageFramework.Process.New {
 
 		public async UniTask ChangeActive( bool isActive )
 			=> await _process.ChangeActive( isActive );
+
+		public async UniTask RunActiveEvent()
+			=> await _process.RunActiveEvent();
 
 
 		public override string ToString() => this.ToDeepString();

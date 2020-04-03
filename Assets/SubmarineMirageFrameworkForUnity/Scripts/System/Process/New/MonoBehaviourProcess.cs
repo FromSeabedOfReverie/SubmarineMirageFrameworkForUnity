@@ -5,8 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirageFramework.Process.New {
+	using System.Linq;
 	using System.Threading;
 	using UniRx.Async;
+	using KoganeUnityLib;
 	using MultiEvent;
 	using Extension;
 	using Debug;
@@ -44,7 +46,12 @@ namespace SubmarineMirageFramework.Process.New {
 		protected
 #endif
 		void Awake() {
-			if ( _processHierarchy == null )	{ _processHierarchy = new ProcessHierarchy( gameObject ); }
+			if ( _processHierarchy == null ) {
+				var ps = GetComponents<MonoBehaviourProcess>();
+				var process = ps.FirstOrDefault( p => p._processHierarchy != null );
+				if ( process != null )	{ process._processHierarchy.SetBrothers( ps ); }
+				else					{ _processHierarchy = new ProcessHierarchy( gameObject, ps ); }
+			}
 			_process = new ProcessBody(
 				this,
 				isActiveAndEnabled ? ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling
@@ -74,6 +81,9 @@ namespace SubmarineMirageFramework.Process.New {
 		public async UniTask ChangeActive( bool isActive )
 			=> await _process.ChangeActive( isActive );
 
+		public async UniTask RunActiveEvent()
+			=> await _process.RunActiveEvent();
+
 
 		public override string ToString() => this.ToDeepString();
 
@@ -81,10 +91,10 @@ namespace SubmarineMirageFramework.Process.New {
 #if DEVELOP
 		protected void Start() {}
 		protected void OnEnable() {}
+		protected void OnDisable() {}
 		protected void FixedUpdate() {}
 		protected void Update() {}
 		protected void LateUpdate() {}
-		protected void OnDisable() {}
 #endif
 	}
 }

@@ -287,7 +287,7 @@ namespace SubmarineMirageFramework.Process.New {
 			await RunActiveEvent();
 		}
 
-		async UniTask RunActiveEvent() {
+		public async UniTask RunActiveEvent() {
 			if ( _owner._type == Type.DontWork )	{ return; }
 			if ( !_nextActiveState.HasValue )		{ return; }
 

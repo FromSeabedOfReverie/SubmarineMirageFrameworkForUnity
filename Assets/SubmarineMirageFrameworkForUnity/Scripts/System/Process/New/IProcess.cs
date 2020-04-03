@@ -40,6 +40,7 @@ namespace SubmarineMirageFramework.Process.New {
 		void StopActiveAsync();
 		UniTask RunStateEvent( ProcessBody.RanState state );
 		UniTask ChangeActive( bool isActive );
+		UniTask RunActiveEvent();
 		string ToString();
 	}
 }
