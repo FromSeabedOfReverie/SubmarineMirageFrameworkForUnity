@@ -7,7 +7,7 @@
 
 // まだ、リファクタリング中
 #if false
-namespace SubmarineMirageFramework.Scene {
+namespace SubmarineMirage.Scene {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx.Async;

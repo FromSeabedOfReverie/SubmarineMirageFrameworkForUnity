@@ -4,11 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.ReadMe {
+namespace SubmarineMirage.ReadMe {
 
     using System.Linq;
     using UniRx.Async;
-    using SubmarineMirageFramework.Process;
+    using SubmarineMirage.Process;
     // 実行時に、一番最初に処理されるクラス
     // Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.csを、簡易的に記述している
     // 実際は、そこを編集する

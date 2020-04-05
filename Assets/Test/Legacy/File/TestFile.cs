@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Test {
+namespace SubmarineMirage.Test {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;

@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #if DEVELOP
-namespace SubmarineMirageFramework.Debug {
+namespace SubmarineMirage.Debug {
 	using System;
 	using UnityEngine;
 	using UniRx;

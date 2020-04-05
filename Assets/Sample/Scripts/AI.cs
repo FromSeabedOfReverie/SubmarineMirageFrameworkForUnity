@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UniRx.Async;
-using SubmarineMirageFramework.Process;
-using SubmarineMirageFramework.FSM;
-using SubmarineMirageFramework.Audio;
+using SubmarineMirage.Process;
+using SubmarineMirage.FSM;
+using SubmarineMirage.Audio;
 using System.Collections;
 
 

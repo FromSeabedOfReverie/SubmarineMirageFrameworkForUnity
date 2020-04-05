@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Data {
+namespace SubmarineMirage.Data {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx.Async;

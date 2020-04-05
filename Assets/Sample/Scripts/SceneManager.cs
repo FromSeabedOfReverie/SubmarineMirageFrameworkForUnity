@@ -8,9 +8,9 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
-using SubmarineMirageFramework.Singleton;
-using SubmarineMirageFramework.Audio;
-using SubmarineMirageFramework.FSM;
+using SubmarineMirage.Singleton;
+using SubmarineMirage.Audio;
+using SubmarineMirage.FSM;
 
 
 

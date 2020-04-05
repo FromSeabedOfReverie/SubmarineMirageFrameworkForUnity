@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Singleton.New {
+namespace SubmarineMirage.Singleton.New {
 	using UniRx.Async;
 	using Extension;
 	using Debug;

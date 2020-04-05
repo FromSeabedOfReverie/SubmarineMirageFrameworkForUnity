@@ -9,10 +9,10 @@ using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
 using UniRx.Async;
-using SubmarineMirageFramework.Process;
-using SubmarineMirageFramework.FSM;
-using SubmarineMirageFramework.Extension;
-using SubmarineMirageFramework.Audio;
+using SubmarineMirage.Process;
+using SubmarineMirage.FSM;
+using SubmarineMirage.Extension;
+using SubmarineMirage.Audio;
 
 
 

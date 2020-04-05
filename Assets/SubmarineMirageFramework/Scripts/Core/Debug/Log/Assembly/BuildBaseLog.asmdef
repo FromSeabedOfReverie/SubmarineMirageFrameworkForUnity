@@ -1,0 +1,14 @@
+{
+    "name": "BuildBaseLog",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "XboxOne"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

@@ -7,7 +7,7 @@
 
 // まだ、リファクタリング中
 #if false
-namespace SubmarineMirageFramework.Data {
+namespace SubmarineMirage.Data {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;

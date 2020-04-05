@@ -8,7 +8,7 @@ using System.Collections;
 using UnityEngine;
 using UniRx;
 using UniRx.Async;
-using SubmarineMirageFramework.Extension;
+using SubmarineMirage.Extension;
 
 
 

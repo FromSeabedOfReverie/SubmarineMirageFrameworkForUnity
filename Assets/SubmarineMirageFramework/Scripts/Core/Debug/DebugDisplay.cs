@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Debug {
+namespace SubmarineMirage.Debug {
 	using System.Collections;
 	using UnityEngine;
 	using UniRx;

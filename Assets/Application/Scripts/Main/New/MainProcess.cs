@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Main.New {
+namespace SubmarineMirage.Main.New {
 	using System.Threading;
 	using System.Threading.Tasks;
 	using UnityEngine;

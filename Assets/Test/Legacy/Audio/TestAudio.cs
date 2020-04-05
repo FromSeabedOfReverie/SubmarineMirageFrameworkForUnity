@@ -10,7 +10,7 @@
 //#define VOICE
 //#define LOOP_SE
 //#define SE
-namespace SubmarineMirageFramework.Test {
+namespace SubmarineMirage.Test {
 	using UniRx;
 	using Process;
 	using Audio;

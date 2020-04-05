@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Main {
+namespace SubmarineMirage.Main {
 	using System.Threading.Tasks;
 	using UnityEngine;
 	using DG.Tweening;

@@ -4,11 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.ReadMe {
+namespace SubmarineMirage.ReadMe {
 
     using UniRx;
     using UniRx.Async;
-    using SubmarineMirageFramework.Process;
+    using SubmarineMirage.Process;
     // MonoBehaviourProcessは、処理順序に規則を持たせたMonoBehaviour
     // UniRxで無理矢理組むような、リアクティブスパゲッティを防止できる
     public class TestMonoBehaviourProcess : MonoBehaviourProcess {

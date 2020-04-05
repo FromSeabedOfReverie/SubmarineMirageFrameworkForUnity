@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Audio {
+namespace SubmarineMirage.Audio {
 	using System.Collections.Generic;
 	///====================================================================================================
 	/// <summary>

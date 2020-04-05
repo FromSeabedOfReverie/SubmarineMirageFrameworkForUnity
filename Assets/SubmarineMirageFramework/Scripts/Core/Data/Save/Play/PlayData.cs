@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Data.Save {
+namespace SubmarineMirage.Data.Save {
 	using System;
 	using System.IO;
 	using System.Linq;

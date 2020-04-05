@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.Process.New {
+namespace SubmarineMirage.Process.New {
 	using System.Threading;
 	using UniRx.Async;
 	using MultiEvent;

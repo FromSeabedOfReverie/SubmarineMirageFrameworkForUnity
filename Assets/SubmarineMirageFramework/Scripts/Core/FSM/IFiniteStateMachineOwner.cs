@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirageFramework.FSM {
+namespace SubmarineMirage.FSM {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 有限状態機械の運用者のインタフェース
