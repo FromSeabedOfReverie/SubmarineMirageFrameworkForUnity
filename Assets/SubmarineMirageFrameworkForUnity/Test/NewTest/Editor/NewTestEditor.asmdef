@@ -1,0 +1,22 @@
+{
+    "name": "NewTestEditor",
+    "references": [
+        "KoganeUnityLib",
+        "UniRx",
+        "UniRx.Async",
+        "UniRx.Async.Editor",
+        "UniRx.Examples"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
