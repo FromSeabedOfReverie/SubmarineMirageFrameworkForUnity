@@ -21,8 +21,8 @@ namespace SubmarineMirageFramework.Process.New {
 		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
 		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 
-		public ProcessHierarchy _processHierarchy	{ get; set; }
-		public ProcessBody _process	{ get; private set; }
+		public ProcessHierarchy _hierarchy	{ get; set; }
+		public ProcessBody _process			{ get; private set; }
 
 		public bool _isInitialized => _process._isInitialized;
 		public bool _isActive => _process._isActive;
@@ -46,11 +46,11 @@ namespace SubmarineMirageFramework.Process.New {
 		protected
 #endif
 		void Awake() {
-			if ( _processHierarchy == null ) {
+			if ( _hierarchy == null ) {
 				var ps = GetComponents<MonoBehaviourProcess>();
-				var process = ps.FirstOrDefault( p => p._processHierarchy != null );
-				if ( process != null )	{ process._processHierarchy.SetBrothers( ps ); }
-				else					{ _processHierarchy = new ProcessHierarchy( gameObject, ps ); }
+				var process = ps.FirstOrDefault( p => p._hierarchy != null );
+				if ( process != null )	{ process._hierarchy.SetBrothers( ps ); }
+				else					{ _hierarchy = new ProcessHierarchy( gameObject, ps ); }
 			}
 			_process = new ProcessBody(
 				this,

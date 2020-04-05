@@ -124,9 +124,9 @@ namespace SubmarineMirageFramework.Process.New {
 					switch ( _ranState ) {
 						case RanState.None:
 							Log.Debug( $"Run {state}" );
-// TODO : awaitが不要な事を確認後、状態をCreateのみに、修正
 							_ranState = RanState.Creating;
 							try {
+// TODO : awaitが不要な事を、FSM等実装後に確認後、状態をCreateのみに、修正
 //								await UniTaskUtility.Yield( _activeAsyncCancel );
 								_owner.Create();
 							} catch {
@@ -337,6 +337,7 @@ namespace SubmarineMirageFramework.Process.New {
 							Log.Debug( $"check initialize Want {_nextActiveState}" );
 							var lastNextActiveState = _nextActiveState;
 							await RunStateEvent( RanState.Loading );
+// TODO : Create前にEnable、Loading中にDisableすると、ここでタスクが詰まる
 							await RunStateEvent( RanState.Initializing );
 							await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !_isInitialized );
 							if ( lastNextActiveState != _nextActiveState ) {

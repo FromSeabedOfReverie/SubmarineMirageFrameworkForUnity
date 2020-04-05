@@ -61,7 +61,7 @@ namespace SubmarineMirageFramework.Main.New {
 //			new TestOwner();
 
 //			await TestBaseProcessManager.WaitForCreation();
-			await TestMonoBehaviourProcessManager.WaitForCreation();
+//			await TestMonoBehaviourProcessManager.WaitForCreation();
 
 			await UniTaskUtility.DontWait();
 		}

@@ -237,10 +237,10 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		public async UniTask Register( ProcessHierarchy process ) {
-			await UniTaskUtility.Yield( _activeAsyncCancel );
 			GetProcesses( process._belongSceneName, process._type ).Add( process );
 
 			if ( _isInitializedInSceneProcesses ) {
+				await UniTaskUtility.Yield( _activeAsyncCancel );
 				await process.RunStateEvent( RanState.Creating );
 				await process.RunStateEvent( RanState.Loading );
 				await process.RunStateEvent( RanState.Initializing );

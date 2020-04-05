@@ -18,8 +18,8 @@ namespace SubmarineMirageFramework.Process.New {
 		ProcessBody.Type _type			{ get; }
 		ProcessBody.LifeSpan _lifeSpan	{ get; }
 
-		ProcessHierarchy _processHierarchy	{ get; set; }
-		ProcessBody _process	{ get; }
+		ProcessHierarchy _hierarchy	{ get; set; }
+		ProcessBody _process		{ get; }
 
 		bool _isInitialized	{ get; }
 		bool _isActive		{ get; }

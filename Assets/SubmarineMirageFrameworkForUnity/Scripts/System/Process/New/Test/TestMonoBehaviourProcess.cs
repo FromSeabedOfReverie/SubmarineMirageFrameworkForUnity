@@ -93,13 +93,6 @@ namespace SubmarineMirageFramework.Process.New {
 			_process._disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
-/*
-					UniTask.Void( async () => {
-						await _process.RunStateEvent( ProcessBody.RanState.Creating );
-						await _process.RunStateEvent( ProcessBody.RanState.Loading );
-						await _process.RunStateEvent( ProcessBody.RanState.Initializing );
-					} );
-*/
 					_process.RunStateEvent( ProcessBody.RanState.Creating ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
@@ -158,7 +151,7 @@ namespace SubmarineMirageFramework.Process.New {
 			_disposables.AddLast( _process );
 		}
 
-		~TestMonoBehaviourProcessManager() => Log.Debug( "~TestMonoBehaviourProcessManager" );
+		~TestMonoBehaviourProcessManager() => Log.Debug( $"~{this.GetAboutName()}" );
 
 		public override void Create() {}
 	}

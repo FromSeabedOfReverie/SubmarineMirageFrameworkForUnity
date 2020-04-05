@@ -16,6 +16,7 @@ namespace SubmarineMirageFramework.Process.New {
 	using Scene;
 	using Extension;
 	using Utility;
+	using Debug;
 	using UnityObject = UnityEngine.Object;
 
 
@@ -49,6 +50,8 @@ namespace SubmarineMirageFramework.Process.New {
 			_disposables.AddLast( _child );
 
 			SetTopData();
+
+			Log.Debug( $"作成 : {this}" );
 		}
 
 		~ProcessHierarchy() => Dispose();
@@ -65,29 +68,24 @@ namespace SubmarineMirageFramework.Process.New {
 			}
 			var parents = _owner.GetComponentsInParentUntilOneHierarchy<MonoBehaviourProcess>( true );
 			if ( parents.IsEmpty() )	{ return; }
-			var parent = parents.FirstOrDefault( p => p._processHierarchy != null );
+			var parent = parents.FirstOrDefault( p => p._hierarchy != null );
 			if ( parent == null ) {
 				parent = parents.FirstOrDefault();
-				parent._processHierarchy = new ProcessHierarchy( parent.gameObject, parents );
+				parent._hierarchy = new ProcessHierarchy( parent.gameObject, parents );
 			}
-			_parent = parent._processHierarchy;
+			_parent = parent._hierarchy;
 			_parent._child = this;
 		}
 
 		public void SetBrothers( IEnumerable<IProcess> processes ) {
 			_processes.Clear();
 			_processes.Add( processes );
-			_processes.ForEach( p => p._processHierarchy = this );
+			_processes.ForEach( p => p._hierarchy = this );
 		}
 
 		void SetTopData() {
 			if ( _top != null )	{ return; }
-
 			for ( _top = this; _top._parent != null; _top = _top._parent ) {
-			}
-			if ( _top == this ) {
-//				CoreProcessManager.s_instance.Register( this ).Forget();
-//				_disposables.AddLast( "Unregister", () => CoreProcessManager.s_instance.Unregister( this ) );
 			}
 
 			var allHierarchy = new List<ProcessHierarchy>();
@@ -119,6 +117,11 @@ namespace SubmarineMirageFramework.Process.New {
 				h._lifeSpan = _lifeSpan;
 				h._belongSceneName = _belongSceneName;
 			} );
+
+			if ( _top == this ) {
+//				CoreProcessManager.s_instance.Register( this ).Forget();
+//				_disposables.AddLast( "Unregister", () => CoreProcessManager.s_instance.Unregister( this ) );
+			}
 		}
 
 
@@ -246,6 +249,38 @@ namespace SubmarineMirageFramework.Process.New {
 					await events.Run( canceler.Token );
 				}
 			}
+		}
+
+
+		public override string ToString() {
+//			return this.ToDeepString();
+
+			var result = $"{this.GetAboutName()}(\n"
+				+ $"    _type : {_type}\n"
+				+ $"    _lifeSpan : {_lifeSpan}\n"
+				+ $"    _belongSceneName : {_belongSceneName}\n"
+				+ $"    _owner : {_owner}\n";
+
+			result += $"    _processes : \n";
+			_processes.ForEach( (p, i) => result += $"        {i} : {p.GetAboutName()}\n" );
+
+			new KeyValuePair<string, ProcessHierarchy>[] {
+				new KeyValuePair<string, ProcessHierarchy>( "_parent", _parent ),
+				new KeyValuePair<string, ProcessHierarchy>( "_child", _child ),
+				new KeyValuePair<string, ProcessHierarchy>( "_top", _top ),
+			}
+			.ForEach( pair => {
+				var s = (
+					pair.Value == null			? string.Empty :
+					pair.Value == this			? "this" :
+					pair.Value._owner != null	? pair.Value._owner.ToString()
+												: pair.Value._processes.FirstOrDefault().ToString()
+				);
+				result += $"    {pair.Key} : {s}\n";
+			} );
+
+			result += ")";
+			return result;
 		}
 	}
 }

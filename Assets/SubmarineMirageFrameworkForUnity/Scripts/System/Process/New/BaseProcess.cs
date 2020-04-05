@@ -18,8 +18,8 @@ namespace SubmarineMirageFramework.Process.New {
 		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
 		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 
-		public ProcessHierarchy _processHierarchy	{ get; set; }
-		public ProcessBody _process	{ get; private set; }
+		public ProcessHierarchy _hierarchy	{ get; set; }
+		public ProcessBody _process			{ get; private set; }
 
 		public bool _isInitialized => _process._isInitialized;
 		public bool _isActive => _process._isActive;
@@ -40,7 +40,7 @@ namespace SubmarineMirageFramework.Process.New {
 
 
 		protected BaseProcess() {
-			_processHierarchy = new ProcessHierarchy( null, new IProcess[] { this } );
+			_hierarchy = new ProcessHierarchy( null, new IProcess[] { this } );
 			_process = new ProcessBody( this, ProcessBody.ActiveState.Enabling );
 		}
 

@@ -70,9 +70,20 @@ namespace SubmarineMirageFramework.Process.New {
 	
 
 	public class TestBaseProcessManager : Singleton<TestBaseProcessManager> {
-		new IProcess _process;
+		new BaseProcess _process;
+
 
 		public TestBaseProcessManager() {
+			Log.Debug( $"{this.GetAboutName()}()" );
+			UniTask.Void( async () => {
+				await UniTaskUtility.Yield( _activeAsyncCancel );
+				await RunStateEvent( ProcessBody.RanState.Creating );
+			} );
+		}
+
+		public override void Create() {
+			Application.targetFrameRate = 30;
+
 			var text = GameObject.Find( "Canvas/Text" ).GetComponent<Text>();
 			_process = new TestBaseProcess();
 
@@ -90,13 +101,6 @@ namespace SubmarineMirageFramework.Process.New {
 			_process._disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
-/*
-					UniTask.Void( async () => {
-						await _process.RunStateEvent( ProcessBody.RanState.Creating );
-						await _process.RunStateEvent( ProcessBody.RanState.Loading );
-						await _process.RunStateEvent( ProcessBody.RanState.Initializing );
-					} );
-*/
 					_process.RunStateEvent( ProcessBody.RanState.Creating ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
@@ -155,8 +159,6 @@ namespace SubmarineMirageFramework.Process.New {
 			_disposables.AddLast( _process );
 		}
 
-		~TestBaseProcessManager() => Log.Debug( "~TestBaseProcessManager" );
-
-		public override void Create() {}
+		~TestBaseProcessManager() => Log.Debug( $"~{this.GetAboutName()}" );
 	}
 }
