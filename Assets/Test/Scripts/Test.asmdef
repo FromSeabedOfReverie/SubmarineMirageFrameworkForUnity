@@ -1,0 +1,20 @@
+{
+    "name": "Test",
+    "references": [
+        "GameDevWare.Serialization",
+        "KoganeUnityLib",
+        "SubmarineMirageFramework",
+        "UniRx",
+        "UniRx.Async"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
