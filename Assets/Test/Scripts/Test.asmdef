@@ -1,9 +1,12 @@
 {
     "name": "Test",
     "references": [
+        "Application",
+        "Application.Editor",
         "GameDevWare.Serialization",
         "KoganeUnityLib",
         "SubmarineMirageFramework",
+        "SubmarineMirageFramework.Editor",
         "UniRx",
         "UniRx.Async"
     ],

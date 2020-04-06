@@ -15,20 +15,24 @@ namespace SubmarineMirage.Editor {
 
 
 	public class PlayerExtensionEditor : EditorWindow {
+		public static Action _playStopEvent;
+		static bool _isStartEditorPlay;
+
 		[MenuItem( "Edit/PlayExtension _F5", priority = 100000 )]
 		static void PlayExtension() {
 			if ( EditorApplication.isPlaying ) {
-				new Func<UniTask>( async () => {
-
+				UniTask.Void( async () => {
 					CoreProcessManager.DisposeInstance();
-					TestBaseProcessManager.DisposeInstance();
-					TestMonoBehaviourProcessManager.DisposeInstance();
-
-					await UniTask.Delay( 1 );
+					_playStopEvent?.Invoke();
+					_playStopEvent = null;
+					if ( _isStartEditorPlay ) {
+						await UniTask.Yield();
+					}
+					_isStartEditorPlay = false;
 					EditorApplication.isPlaying = false;
-				} )();
-
+				} );
 			} else {
+				_isStartEditorPlay = true;
 				EditorApplication.isPlaying = true;
 			}
 		}

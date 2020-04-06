@@ -1,21 +1,14 @@
 {
-    "name": "Test.Editor",
+    "name": "Application",
     "references": [
-        "Application",
-        "Application.Editor",
         "GameDevWare.Serialization",
         "KoganeUnityLib",
         "SubmarineMirageFramework",
-        "SubmarineMirageFramework.Editor",
         "UniRx",
         "UniRx.Async"
     ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
