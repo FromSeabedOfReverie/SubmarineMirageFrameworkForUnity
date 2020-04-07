@@ -247,8 +247,10 @@ namespace SubmarineMirage.Process.New {
 							return;
 					}
 					StopActiveAsync();
+					var lastRanState = _ranState;
+					await UniTaskUtility.Yield( _inActiveAsyncCancel );
 					Log.Debug( $"Run {state}" );
-					switch ( _ranState ) {
+					switch ( lastRanState ) {
 						case RanState.Loading:
 						case RanState.Loaded:
 						case RanState.Initializing:
@@ -256,7 +258,6 @@ namespace SubmarineMirage.Process.New {
 						case RanState.FixedUpdate:
 						case RanState.Update:
 						case RanState.LateUpdate:
-							var lastRanState = _ranState;
 							_ranState = RanState.Finalizing;
 							try {
 								await _finalizeEvent.Run( _inActiveAsyncCancel );
@@ -288,16 +289,20 @@ namespace SubmarineMirage.Process.New {
 		}
 
 		public async UniTask RunActiveEvent() {
+			Log.Debug( $"call RunActiveEvent()" );
 			if ( _owner._type == Type.DontWork )	{ return; }
 			if ( !_nextActiveState.HasValue )		{ return; }
+			Log.Debug( $"run RunActiveEvent()" );
 
 			switch ( _ranState ) {
 				case RanState.None:
 				case RanState.Creating:
 				case RanState.Loading:
 				case RanState.Initializing:
+					Log.Debug( $"wait start {_ranState}" );
 					var lastRanState = _ranState;
 					await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => _ranState == lastRanState );
+					Log.Debug( $"wait end {_ranState}" );
 					await RunActiveEvent();
 					return;
 
@@ -311,40 +316,53 @@ namespace SubmarineMirage.Process.New {
 
 				case RanState.Finalizing:
 				case RanState.Finalized:
+					Log.Debug( $"return {_ranState}" );
 					return;
 			}
 
 			switch ( _nextActiveState ) {
 				case ActiveState.Enabling:
+					Log.Debug( $"start {ActiveState.Enabling}" );
 					switch ( _activeState ) {
 						case ActiveState.Enabling:
+							Log.Debug( $"start last {ActiveState.Enabling}" );
 							_nextActiveState = null;
 							await UniTaskUtility.WaitWhile(
 								_activeAsyncCancel, () => _activeState == ActiveState.Enabling );
+							Log.Debug( $"end last {ActiveState.Enabling}" );
 							return;
 
 						case ActiveState.Enabled:
+							Log.Debug( $"start last {ActiveState.Enabled}" );
 							_nextActiveState = null;
+							Log.Debug( $"end last {ActiveState.Enabled}" );
 							return;
 
 						case ActiveState.Disabling:
+							Log.Debug( $"start last {ActiveState.Disabling}" );
 							await UniTaskUtility.WaitWhile(
 								_activeAsyncCancel, () => _activeState == ActiveState.Disabling );
+							Log.Debug( $"end last {ActiveState.Disabling}" );
 							await RunActiveEvent();
 							return;
 
 						case ActiveState.Disabled:
-							Log.Debug( $"check initialize Want {_nextActiveState}" );
+							Log.Debug( $"start last {ActiveState.Disabled}" );
 							var lastNextActiveState = _nextActiveState;
+							Log.Debug( $"RunStateEvent(Loading)" );
 							await RunStateEvent( RanState.Loading );
-// TODO : Create前にEnable、Loading中にDisableすると、ここでタスクが詰まる
+							Log.Debug( $"RunStateEvent(Initializing)" );
 							await RunStateEvent( RanState.Initializing );
-							await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !_isInitialized );
 							if ( lastNextActiveState != _nextActiveState ) {
+								Log.Debug( $"return lastNextActiveState != _nextActiveState" );
 								await RunActiveEvent();
 								return;
 							}
-							Log.Debug( $"Run {_nextActiveState}" );
+							if ( !_isInitialized ) {
+								Log.Debug( $"return !_isInitialized" );
+								return;
+							}
+							Log.Debug( $"Run {ActiveState.Enabling}" );
 							_nextActiveState = null;
 							_activeState = ActiveState.Enabling;
 							try {
@@ -354,33 +372,42 @@ namespace SubmarineMirage.Process.New {
 								throw;
 							}
 							_activeState = ActiveState.Enabled;
+							Log.Debug( $"Run end {ActiveState.Enabling}" );
 							return;
 					}
 					return;
 
 				case ActiveState.Disabling:
+					Log.Debug( $"start {ActiveState.Disabling}" );
 					switch ( _activeState ) {
 						case ActiveState.Disabling:
+							Log.Debug( $"start last {ActiveState.Disabling}" );
 							_nextActiveState = null;
 							await UniTaskUtility.WaitWhile(
-								_activeAsyncCancel, () => _activeState == ActiveState.Disabling );
+								_inActiveAsyncCancel, () => _activeState == ActiveState.Disabling );
+							Log.Debug( $"end last {ActiveState.Disabling}" );
 							return;
 
 						case ActiveState.Disabled:
+							Log.Debug( $"start last {ActiveState.Disabled}" );
 							_nextActiveState = null;
+							Log.Debug( $"end last {ActiveState.Disabled}" );
 							return;
 
 						case ActiveState.Enabling:
+							Log.Debug( $"start last {ActiveState.Enabling}" );
 							await UniTaskUtility.WaitWhile(
-								_activeAsyncCancel, () => _activeState == ActiveState.Enabling );
+								_inActiveAsyncCancel, () => _activeState == ActiveState.Enabling );
+							Log.Debug( $"end last {ActiveState.Enabling}" );
 							await RunActiveEvent();
 							return;
 
 						case ActiveState.Enabled:
-							Log.Debug( $"Run {_nextActiveState}" );
+							Log.Debug( $"start last {ActiveState.Enabled}" );
+							StopActiveAsync();
 							_nextActiveState = null;
 							_activeState = ActiveState.Disabling;
-							StopActiveAsync();
+							Log.Debug( $"Run {ActiveState.Disabling}" );
 							try {
 								await _disableEvent.Run( _inActiveAsyncCancel );
 							} catch {
@@ -388,6 +415,7 @@ namespace SubmarineMirage.Process.New {
 								throw;
 							}
 							_activeState = ActiveState.Disabled;
+							Log.Debug( $"Run end {ActiveState.Disabling}" );
 							return;
 					}
 					return;

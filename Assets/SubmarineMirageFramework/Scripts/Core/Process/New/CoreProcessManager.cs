@@ -191,9 +191,9 @@ namespace SubmarineMirage.Process.New {
 			var ps = _processes[sceneName][type];
 			if ( isReverse ) {
 // TODO : 元のリストは、元のまま、入れ替わってないか？
-				Log.Debug( $"Work 逆転前\n{_process.ToDeepString()}" );
+				Log.Debug( $"Work 逆転前\n{_body.ToDeepString()}" );
 				ps = ps.ReverseByClone();
-				Log.Debug( $"Work 逆転前\n{_process.ToDeepString()}" );
+				Log.Debug( $"Work 逆転前\n{_body.ToDeepString()}" );
 			}
 // TODO : 使用先で、Add、Removeされた場合、元もちゃんと変更されるか？
 			return ps;
@@ -274,7 +274,7 @@ namespace SubmarineMirage.Process.New {
 
 
 		async UniTask RunForeverProcesses() {
-			await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => _process._ranState != RanState.Created );
+			await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => _body._ranState != RanState.Created );
 			await RunStateEvent( RanState.Loading );
 			await RunStateEvent( RanState.Initializing );
 			await ChangeActive( true );

@@ -8,10 +8,8 @@ namespace SubmarineMirage.Process.New {
 	using System.Linq;
 	using System.Threading;
 	using UniRx.Async;
-	using KoganeUnityLib;
 	using MultiEvent;
 	using Extension;
-	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -22,37 +20,39 @@ namespace SubmarineMirage.Process.New {
 		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 
 		public ProcessHierarchy _hierarchy	{ get; set; }
-		public ProcessBody _process			{ get; private set; }
+		public ProcessBody _body			{ get; private set; }
 
-		public bool _isInitialized => _process._isInitialized;
-		public bool _isActive => _process._isActive;
+		public bool _isInitialized	=> _body._isInitialized;
+		public bool _isActive		=> _body._isActive;
 
-		public MultiAsyncEvent _loadEvent => _process._loadEvent;
-		public MultiAsyncEvent _initializeEvent => _process._initializeEvent;
-		public MultiAsyncEvent _enableEvent => _process._enableEvent;
-		public MultiSubject _fixedUpdateEvent => _process._fixedUpdateEvent;
-		public MultiSubject _updateEvent => _process._updateEvent;
-		public MultiSubject _lateUpdateEvent => _process._lateUpdateEvent;
-		public MultiAsyncEvent _disableEvent => _process._disableEvent;
-		public MultiAsyncEvent _finalizeEvent => _process._finalizeEvent;
+		public MultiAsyncEvent _loadEvent		=> _body._loadEvent;
+		public MultiAsyncEvent _initializeEvent	=> _body._initializeEvent;
+		public MultiAsyncEvent _enableEvent		=> _body._enableEvent;
+		public MultiSubject _fixedUpdateEvent	=> _body._fixedUpdateEvent;
+		public MultiSubject _updateEvent		=> _body._updateEvent;
+		public MultiSubject _lateUpdateEvent	=> _body._lateUpdateEvent;
+		public MultiAsyncEvent _disableEvent	=> _body._disableEvent;
+		public MultiAsyncEvent _finalizeEvent	=> _body._finalizeEvent;
 
-		public CancellationToken _activeAsyncCancel => _process._activeAsyncCancel;
-		public CancellationToken _inActiveAsyncCancel => _process._inActiveAsyncCancel;
+		public CancellationToken _activeAsyncCancel		=> _body._activeAsyncCancel;
+		public CancellationToken _inActiveAsyncCancel	=> _body._inActiveAsyncCancel;
 
-		public MultiDisposable _disposables => _process._disposables;
+		public MultiDisposable _disposables	=> _body._disposables;
 
 
 #if DEVELOP
 		protected
 #endif
 		void Awake() {
+// TODO : ゲーム物が非活動化中の場合、呼ばれない
+//			シーンから、全ルートオブジェクトを参照し、1つ1つスクリプトを見て、初期化関数を呼ぶしかない
 			if ( _hierarchy == null ) {
 				var ps = GetComponents<MonoBehaviourProcess>();
 				var process = ps.FirstOrDefault( p => p._hierarchy != null );
 				if ( process != null )	{ process._hierarchy.SetBrothers( ps ); }
 				else					{ _hierarchy = new ProcessHierarchy( gameObject, ps ); }
 			}
-			_process = new ProcessBody(
+			_body = new ProcessBody(
 				this,
 				isActiveAndEnabled ? ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling
 			);
@@ -61,28 +61,25 @@ namespace SubmarineMirage.Process.New {
 #if DEVELOP
 		protected
 #endif
-		void OnDestroy() {
-			Log.Debug("OnDestroy");
-			Dispose();
-		}
+		void OnDestroy() => Dispose();
 
-		public void Dispose() => _process.Dispose();
+		public void Dispose() => _body.Dispose();
 
 		public abstract void Create();
 
 
-		public void StopActiveAsync() => _process.StopActiveAsync();
+		public void StopActiveAsync() => _body.StopActiveAsync();
 
 
 		public async UniTask RunStateEvent( ProcessBody.RanState state )
-			=> await _process.RunStateEvent( state );
+			=> await _body.RunStateEvent( state );
 
 
 		public async UniTask ChangeActive( bool isActive )
-			=> await _process.ChangeActive( isActive );
+			=> await _body.ChangeActive( isActive );
 
 		public async UniTask RunActiveEvent()
-			=> await _process.RunActiveEvent();
+			=> await _body.RunActiveEvent();
 
 
 		public override string ToString() => this.ToDeepString();
