@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Test {
+namespace SubmarineMirage.TestUtility {
 	using System.Collections;
 	using System.Threading;
 	using NUnit.Framework;
@@ -16,6 +16,7 @@ namespace SubmarineMirage.Test {
 	using Extension;
 	using Utility;
 	using Debug;
+	using Test;
 
 
 	// TODO : コメント追加、整頓

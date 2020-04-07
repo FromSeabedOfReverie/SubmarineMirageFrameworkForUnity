@@ -4,30 +4,30 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Test {
+namespace SubmarineMirage.TestProcess {
 	using System;
 	using System.Linq;
 	using System.Threading;
 	using System.Collections;
-	using System.Collections.Generic;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
 	using UniRx.Async;
-	using KoganeUnityLib;
 	using Process.New;
-	using Singleton.New;
 	using Extension;
 	using Utility;
 	using Debug;
+	using Test;
 	using UnityObject = UnityEngine.Object;
 	using RanState = Process.New.ProcessBody.RanState;
 	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class TestBaseProcessManager : Test {
@@ -42,17 +42,20 @@ namespace SubmarineMirage.Test {
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			_text = go.GetComponentInChildren<Text>();
-			_disposables.AddLast( Observable.EveryLateUpdate()
-				.Where( _ => _process != null )
-				.Subscribe( _ => _text.text =
+			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
+				if ( _process == null ) {
+					_text.text = string.Empty;
+					return;
+				}
+				_text.text =
 					$"{_process.GetAboutName()}(\n"
 					+ $"    _isInitialized {_process._isInitialized}\n"
 					+ $"    _isActive {_process._isActive}\n"
-					+ $"    {_process._process._ranState}\n"
-					+ $"    {_process._process._activeState}\n"
-					+ $"    next {_process._process._nextActiveState}\n"
-					+ $")"
-				) );
+					+ $"    {_process._body._ranState}\n"
+					+ $"    {_process._body._activeState}\n"
+					+ $"    next {_process._body._nextActiveState}\n"
+					+ $")";
+			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
 			_disposables.AddLast( _process );
@@ -91,10 +94,14 @@ namespace SubmarineMirage.Test {
 				Log.Debug( "StopActiveAsync" );
 				_process.StopActiveAsync();
 			} );
-			while ( true ) {
-				Log.Debug( " Runnning " );
-				await UniTaskUtility.Delay( _process._activeAsyncCancel, 1000 );
+			try {
+				while ( true ) {
+					Log.Debug( " Runnning " );
+					await UniTaskUtility.Delay( _process._activeAsyncCancel, 1000 );
+				}
+			} catch ( OperationCanceledException ) {
 			}
+			Log.Debug( "end TestStopActiveAsync()" );
 		} );
 
 
@@ -105,16 +112,20 @@ namespace SubmarineMirage.Test {
 				Log.Debug( "Dispose" );
 				_process.Dispose();
 			} );
-			while ( true ) {
-				Log.Debug( " Runnning " );
-				await UniTaskUtility.Delay( _process._activeAsyncCancel, 1000 );
+			try {
+				while ( true ) {
+					Log.Debug( " Runnning " );
+					await UniTaskUtility.Delay( _process._activeAsyncCancel, 1000 );
+				}
+			} catch ( OperationCanceledException ) {
 			}
+			Log.Debug( "end TestDispose()" );
 		} );
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( async () => {
+		public IEnumerator TestManual() {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
@@ -153,17 +164,22 @@ namespace SubmarineMirage.Test {
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
 					Log.Warning( "key down Disabling" );
 					_process.ChangeActive( false ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.C ) ).Subscribe( _ => {
+					Log.Warning( "key down RunActiveEvent" );
+					_process.RunActiveEvent().Forget();
 				} )
 			);
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
 					Log.Warning( "key down Dispose" );
 					_process.Dispose();
+					_process = null;
 				} )
 			);
 
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
-		} );
+			while ( true )	{ yield return null; }
+		}
 	}
 
 
