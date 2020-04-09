@@ -20,7 +20,7 @@ namespace SubmarineMirage.MultiEvent {
 		protected EventModifyler<T> _eventModifyler;
 		protected readonly ReactiveProperty<bool> _isInvoking = new ReactiveProperty<bool>();
 		public MultiDisposable _disposables	{ get; private set; }
-		protected virtual bool _isDispose => _disposables._isDispose;
+		public virtual bool _isDispose => _disposables._isDispose;
 
 
 		public BaseMultiEvent() {

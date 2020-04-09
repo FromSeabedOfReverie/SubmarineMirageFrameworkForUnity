@@ -16,7 +16,7 @@ namespace SubmarineMirage.MultiEvent {
 
 	public class MultiDisposable : BaseMultiEvent<IDisposable>, IDisposable {
 		public new CompositeDisposable _disposables	{ get; private set; }
-		protected override bool _isDispose => _disposables.IsDisposed;
+		public override bool _isDispose => _disposables.IsDisposed;
 
 
 		protected override void SetDisposables() {
