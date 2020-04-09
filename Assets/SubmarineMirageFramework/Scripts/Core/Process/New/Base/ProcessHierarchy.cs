@@ -108,6 +108,8 @@ namespace SubmarineMirage.Process.New {
 															: SceneManager.s_instance._currentSceneName
 			);
 			if ( _owner != null && _lifeSpan == ProcessBody.LifeSpan.Forever ) {
+// TODO : DontDestroyOnLoad後に、シーンのルートオブジェクトを取得する方法は無い為、
+//			フラグ付与前にシーンから取得し、初期化関数を呼び、関数内でフラグを設定する
 				UnityObject.DontDestroyOnLoad( _owner );
 			}
 
@@ -143,6 +145,17 @@ namespace SubmarineMirage.Process.New {
 					h._belongSceneName = h._parent._belongSceneName;
 				}
 			}
+		}
+
+
+// TODO : これらの関数を作成
+		public void AddComponent() {
+		}
+
+		public void Instantiate() {
+		}
+
+		public void Destroy() {
 		}
 
 

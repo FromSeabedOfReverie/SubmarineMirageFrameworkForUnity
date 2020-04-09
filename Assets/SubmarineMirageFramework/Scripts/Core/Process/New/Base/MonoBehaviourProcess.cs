@@ -40,12 +40,7 @@ namespace SubmarineMirage.Process.New {
 		public MultiDisposable _disposables	=> _body._disposables;
 
 
-#if DEVELOP
-		protected
-#endif
-		void Awake() {
-// TODO : ゲーム物が非活動化中の場合、呼ばれない
-//			シーンから、全ルートオブジェクトを参照し、1つ1つスクリプトを見て、初期化関数を呼ぶしかない
+		public void Constructor() {
 			if ( _hierarchy == null ) {
 				var ps = GetComponents<MonoBehaviourProcess>();
 				var process = ps.FirstOrDefault( p => p._hierarchy != null );
@@ -86,6 +81,7 @@ namespace SubmarineMirage.Process.New {
 
 
 #if DEVELOP
+		protected void Awake() {}
 		protected void Start() {}
 		protected void OnEnable() {}
 		protected void OnDisable() {}

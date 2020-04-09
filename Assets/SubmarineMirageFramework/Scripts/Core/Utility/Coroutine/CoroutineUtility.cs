@@ -7,7 +7,6 @@
 namespace SubmarineMirage.Utility {
 	using System;
 	using System.Collections;
-	using Process;
 	///====================================================================================================
 	/// <summary>
 	/// ■ コルーチンの便利クラス

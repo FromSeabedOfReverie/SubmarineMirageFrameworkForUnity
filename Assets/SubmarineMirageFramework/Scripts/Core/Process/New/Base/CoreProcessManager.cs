@@ -217,7 +217,7 @@ namespace SubmarineMirage.Process.New {
 		async UniTask RunEventWithProcesses( string sceneName, RanState state ) {
 			var ps = GetProcesses( sceneName, Type.Work );
 			await UniTask.WhenAll(
-				ps.Select( async p => await p.RunStateEvent( state ) )
+				ps.Select( p => p.RunStateEvent( state ) )
 			);
 		}
 
@@ -231,7 +231,7 @@ namespace SubmarineMirage.Process.New {
 		async UniTask ChangeActiveWithProcesses( string sceneName, bool isActive ) {
 			var ps = GetProcesses( sceneName, Type.Work );
 			await UniTask.WhenAll(
-				ps.Select( async p => await p.ChangeActive( isActive, true ) )
+				ps.Select( p => p.ChangeActive( isActive, true ) )
 			);
 		}
 
@@ -312,5 +312,10 @@ namespace SubmarineMirage.Process.New {
 
 			_isInitializedInSceneProcesses = false;
 		}
+
+
+
+// TODO : Awakeは、ゲーム物が非活動化中の場合、呼ばれない
+//			シーンから、全ルートオブジェクトを参照し、1つ1つスクリプトを見て、初期化関数を呼ぶしかない
 	}
 }
