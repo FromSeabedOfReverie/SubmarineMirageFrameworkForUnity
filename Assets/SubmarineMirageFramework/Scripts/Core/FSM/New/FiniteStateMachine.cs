@@ -12,10 +12,12 @@ namespace SubmarineMirage.FSM.New {
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
+	using Process.New;
 	using MultiEvent;
 	using Extension;
 	using Utility;
 	using Debug;
+	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 	// TODO : コメント追加、整頓
@@ -26,12 +28,6 @@ namespace SubmarineMirage.FSM.New {
 		where TOwner : IFiniteStateMachineOwner<TFSM>
 		where TState : class, IState<TFSM, TOwner>
 	{
-		enum ActiveState {
-			Disabled,
-			Disabling,
-			Enabled,
-			Enabling,
-		}
 		enum RunState {
 			Enter,
 			Update,
@@ -39,8 +35,8 @@ namespace SubmarineMirage.FSM.New {
 		}
 		protected TOwner _owner	{ get; private set; }
 		string _name;
-		public bool _isActive => _activeState == ActiveState.Enabled;
-		ActiveState _activeState;
+		public bool _isActive => _owner._isActive;
+		ActiveState _activeState => _owner._body._activeState;
 		RunState _runState;
 
 		protected readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
@@ -48,66 +44,63 @@ namespace SubmarineMirage.FSM.New {
 		protected TState _nextState;
 
 		CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
-
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public FiniteStateMachine( TOwner owner, TState[] states ) {
 			_owner = owner;
-			foreach ( var state in states ) {
-				var type = state.GetType();
-				_states[type] = state;
-			}
 			_name = this.GetAboutName();
+			states.ForEach( s => _states[s.GetType()] = s );
 
+			_owner._loadEvent.AddLast( _name, async cancel => await UniTask.WhenAll(
+				_states
+					.Select( pair => pair.Value )
+					.Select( state => {
+						state.Set( _owner );
+						return state._loadEvent.Run( cancel );
+					} )
+			) );
 			_owner._initializeEvent.AddLast( _name, async cancel => {
 				await UniTask.WhenAll(
 					_states
 						.Select( pair => pair.Value )
-						.Select( async state => {
-							state.Set( _owner );
-							await state._initializeEvent.Run( cancel );
-						} )
+						.Select( state => state._initializeEvent.Run( cancel ) )
 				);
-				_nextState = _states.First().Value;
+				await ChangeState( cancel, _states.First().Value.GetType() );
+			} );
+			_owner._finalizeEvent.AddLast( _name, async cancel => {
+				StopAsync();
+				await _state._exitEvent.Run( cancel );
+				await _state._finalizeEvent.Run( cancel );
 			} );
 
 			_owner._enableEvent.AddLast( _name, async cancel => {
-				_activeState = ActiveState.Enabling;
-				ChangeStateSub().Forget();
-				await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Enabling );
+				await _state._enableEvent.Run( cancel );
 			} );
 
 			_owner._disableEvent.AddLast( _name, async cancel => {
-				_activeState = ActiveState.Disabling;
-				if ( _runState == RunState.Update ) {
-					ChangeStateSub().Forget();
-				}
-				await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Disabling );
 				StopAsync();
+				await _state._disableEvent.Run( cancel );
 			} );
-
-			_owner._updateEvent.AddLast( _name )
-				.Where( _ => _runState == RunState.Update )
-				.Subscribe( _ => _state._updateDeltaEvent.Run() );
 
 			_owner._fixedUpdateEvent.AddLast( _name )
 				.Where( _ => _runState == RunState.Update )
 				.Subscribe( _ => _state._fixedUpdateDeltaEvent.Run() );
-
+			_owner._updateEvent.AddLast( _name )
+				.Where( _ => _runState == RunState.Update )
+				.Subscribe( _ => _state._updateDeltaEvent.Run() );
 			_owner._lateUpdateEvent.AddLast( _name )
 				.Where( _ => _runState == RunState.Update )
 				.Subscribe( _ => _state._lateUpdateDeltaEvent.Run() );
+
 #if DEVELOP && false
-			_disposables.AddLast(
-				Observable.EveryUpdate().Subscribe( _ => {
-					DebugDisplay.s_instance.Add( $"{_owner.GetAboutName()}.{_name}" );
-					DebugDisplay.s_instance.Add( $"_state : {_state.GetAboutName()}.{_runState}" );
-					DebugDisplay.s_instance.Add(
-						$"_nextState : {( _nextState == null ? "null" : _nextState.GetAboutName() )}"
-					);
-				} )
-			);
+			_disposables.AddLast( Observable.EveryUpdate().Subscribe( _ => {
+				DebugDisplay.s_instance.Add( $"{_owner.GetAboutName()}.{_name}" );
+				DebugDisplay.s_instance.Add( $"_state : {_state.GetAboutName()}.{_runState}" );
+				DebugDisplay.s_instance.Add(
+					$"_nextState : {( _nextState == null ? "null" : _nextState.GetAboutName() )}"
+				);
+			} ) );
 #endif
 
 			SetAsyncCancelerDisposable();
@@ -145,13 +138,11 @@ namespace SubmarineMirage.FSM.New {
 
 		public async UniTask ChangeState( CancellationToken cancel, Type stateType ) {
 			if ( !_states.ContainsKey( stateType ) ) {
-				Log.Error( $"未定義状態へ遷移 : {stateType}", Log.Tag.FSM );
-				return;
+				throw new ArgumentOutOfRangeException( $"{stateType}", "未定義状態へ遷移" );
 			}
 			var next = _states[stateType];
 			if ( !IsPossibleChangeState( next ) ) {
-				Log.Error( $"状態遷移が不可能 : {stateType}", Log.Tag.FSM );
-				return;
+				throw new InvalidOperationException( $"状態遷移が不可能 : {stateType}" );
 			}
 			_nextState = next;
 
@@ -159,9 +150,9 @@ namespace SubmarineMirage.FSM.New {
 				Log.Debug( $"{_name} ChangeStateSub" );
 				ChangeStateSub().Forget();
 			}
-			Log.Debug( $"待機開始 {_state.GetAboutName()}.{_runState}" );
+			Log.Debug( $"wait start {_state.GetAboutName()}.{_runState}" );
 			await UniTaskUtility.WaitWhile( cancel, () => _nextState != null || _runState != RunState.Enter );
-			Log.Debug( $"待機終了 {_state.GetAboutName()}.{_runState}" );
+			Log.Debug( $"wait end {_state.GetAboutName()}.{_runState}" );
 		}
 
 
@@ -200,6 +191,19 @@ namespace SubmarineMirage.FSM.New {
 		}
 
 
-		public override string ToString() => this.ToDeepString();
+		public override string ToString() {
+			var result = $"{this.GetAboutName()}(\n"
+				+ $"    _owner : {_owner.GetAboutName()}\n"
+				+ $"    _name : {_name}\n"
+				+ $"    _isActive : {_isActive}\n"
+				+ $"    _activeState : {_activeState}\n"
+				+ $"    _runState : {_runState}\n"
+				+ $"    _state : {_state}\n"
+				+ $"    _nextState : {_nextState}\n"
+				+ $"    _states : \n";
+			_states.ForEach( pair => result += $"        {pair.Value}\n" );
+			result += ")";
+			return result;
+		}
 	}
 }

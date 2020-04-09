@@ -19,13 +19,17 @@ namespace SubmarineMirage.FSM.New {
 		TFSM _fsm		{ get; }
 		TOwner _owner	{ get; }
 
+		MultiAsyncEvent _loadEvent			{ get; }
 		MultiAsyncEvent _initializeEvent	{ get; }
+		MultiAsyncEvent _enableEvent		{ get; }
 		MultiAsyncEvent _enterEvent			{ get; }
 		MultiAsyncEvent _updateEvent		{ get; }
-		MultiSubject _updateDeltaEvent		{ get; }
 		MultiSubject _fixedUpdateDeltaEvent	{ get; }
+		MultiSubject _updateDeltaEvent		{ get; }
 		MultiSubject _lateUpdateDeltaEvent	{ get; }
 		MultiAsyncEvent _exitEvent			{ get; }
+		MultiAsyncEvent _disableEvent		{ get; }
+		MultiAsyncEvent _finalizeEvent		{ get; }
 
 		void Set( TOwner owner );
 	}

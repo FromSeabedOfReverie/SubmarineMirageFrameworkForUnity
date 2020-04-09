@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.New {
 	using MultiEvent;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
@@ -18,13 +19,17 @@ namespace SubmarineMirage.FSM.New {
 		public TFSM _fsm		{ get; private set; }
 		public TOwner _owner	{ get; private set; }
 
+		public MultiAsyncEvent _loadEvent			{ get; private set; } = new MultiAsyncEvent();
 		public MultiAsyncEvent _initializeEvent		{ get; private set; } = new MultiAsyncEvent();
+		public MultiAsyncEvent _enableEvent			{ get; private set; } = new MultiAsyncEvent();
 		public MultiAsyncEvent _enterEvent			{ get; private set; } = new MultiAsyncEvent();
 		public MultiAsyncEvent _updateEvent			{ get; private set; } = new MultiAsyncEvent();
-		public MultiSubject _updateDeltaEvent		{ get; private set; } = new MultiSubject();
 		public MultiSubject _fixedUpdateDeltaEvent	{ get; private set; } = new MultiSubject();
+		public MultiSubject _updateDeltaEvent		{ get; private set; } = new MultiSubject();
 		public MultiSubject _lateUpdateDeltaEvent	{ get; private set; } = new MultiSubject();
 		public MultiAsyncEvent _exitEvent			{ get; private set; } = new MultiAsyncEvent();
+		public MultiAsyncEvent _disableEvent		{ get; private set; } = new MultiAsyncEvent();
+		public MultiAsyncEvent _finalizeEvent		{ get; private set; } = new MultiAsyncEvent();
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
@@ -50,5 +55,9 @@ namespace SubmarineMirage.FSM.New {
 			_fsm = owner._fsm;
 			_owner = owner;
 		}
+
+
+		public override string ToString()
+			=> $"{this.GetAboutName()}( _fsm : {_fsm.GetAboutName()}, _owner : {_owner.GetAboutName()} )";
 	}
 }
