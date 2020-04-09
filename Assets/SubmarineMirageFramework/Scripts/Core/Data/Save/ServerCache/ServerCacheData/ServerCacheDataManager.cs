@@ -100,13 +100,13 @@ namespace SubmarineMirage.Data.Save {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public override async UniTask Load() {
-			var tasks = Enumerable.Empty<UniTask>()
-				.Concat( _textureData.Select( pair => pair.Value.Load() ) )
-				.Concat( _audioData.Select( pair => pair.Value.Load() ) )
-				.Concat( _textData.Select( pair => pair.Value.Load() ) )
-				.Concat( _rawData.Select( pair => pair.Value.Load() ) );
-
-			await UniTask.WhenAll( tasks );
+			await UniTask.WhenAll(
+				Enumerable.Empty<UniTask>()
+					.Concat( _textureData.Select( pair => pair.Value.Load() ) )
+					.Concat( _audioData.Select( pair => pair.Value.Load() ) )
+					.Concat( _textData.Select( pair => pair.Value.Load() ) )
+					.Concat( _rawData.Select( pair => pair.Value.Load() ) )
+			);
 			await base.Load();
 		}
 		///------------------------------------------------------------------------------------------------
@@ -115,13 +115,13 @@ namespace SubmarineMirage.Data.Save {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public override async UniTask Save() {
-			var tasks = Enumerable.Empty<UniTask>()
-				.Concat( _textureData.Select( pair => pair.Value.Save() ) )
-				.Concat( _audioData.Select( pair => pair.Value.Save() ) )
-				.Concat( _textData.Select( pair => pair.Value.Save() ) )
-				.Concat( _rawData.Select( pair => pair.Value.Save() ) );
-
-			await UniTask.WhenAll( tasks );
+			await UniTask.WhenAll(
+				Enumerable.Empty<UniTask>()
+					.Concat( _textureData.Select( pair => pair.Value.Save() ) )
+					.Concat( _audioData.Select( pair => pair.Value.Save() ) )
+					.Concat( _textData.Select( pair => pair.Value.Save() ) )
+					.Concat( _rawData.Select( pair => pair.Value.Save() ) )
+			);
 			await base.Save();
 		}
 		///------------------------------------------------------------------------------------------------

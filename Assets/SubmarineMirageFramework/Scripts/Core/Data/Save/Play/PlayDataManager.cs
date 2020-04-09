@@ -71,9 +71,9 @@ namespace SubmarineMirage.Data.Save {
 			// バージョンアップする必要があるか、判定
 			var isUpdate = _setting._data._version != Application.version;
 
-			// 全情報を読込
-			var tasks = _allData.Select( ( data, i ) => {
-				return new Func<UniTask>( async () => {
+			// 全情報を非同期読込
+			await UniTask.WhenAll(
+				_allData.Select( async ( data, i ) => {
 					var name = string.Format( FILE_NAME_FORMAT, i );
 					data = await _loader.Load<PlayData>( name );
 
@@ -95,11 +95,8 @@ namespace SubmarineMirage.Data.Save {
 
 					await data.Load();
 					_allData[i] = data;
-				} )();
-			} );
-
-			// 非同期、読込待機
-			await UniTask.WhenAll( tasks );
+				} )
+			);
 			// 現在情報を読込
 			await LoadCurrentData();
 
