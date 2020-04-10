@@ -5,7 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.New {
+	using System.Threading;
+	using UniRx.Async;
 	using MultiEvent;
+	using Process.New;
 	using Extension;
 
 
@@ -19,18 +22,14 @@ namespace SubmarineMirage.FSM.New {
 		TFSM _fsm		{ get; }
 		TOwner _owner	{ get; }
 
-		MultiAsyncEvent _loadEvent			{ get; }
-		MultiAsyncEvent _initializeEvent	{ get; }
-		MultiAsyncEvent _enableEvent		{ get; }
-		MultiAsyncEvent _enterEvent			{ get; }
-		MultiAsyncEvent _updateEvent		{ get; }
-		MultiSubject _fixedUpdateDeltaEvent	{ get; }
-		MultiSubject _updateDeltaEvent		{ get; }
-		MultiSubject _lateUpdateDeltaEvent	{ get; }
-		MultiAsyncEvent _exitEvent			{ get; }
-		MultiAsyncEvent _disableEvent		{ get; }
-		MultiAsyncEvent _finalizeEvent		{ get; }
+		bool _isActive	{ get; }
+		FiniteStateMachineRunState _runState	{ get; }
+		CancellationToken _activeAsyncCancel	{ get; }
 
 		void Set( TOwner owner );
+		void StopActiveAsync();
+		UniTask RunStateEvent( FiniteStateMachineRunState state );
+		UniTask RunProcessStateEvent( ProcessBody.RanState state, CancellationToken cancel = default );
+		UniTask RunProcessActiveEvent( ProcessBody.ActiveState state, CancellationToken cancel );
 	}
 }

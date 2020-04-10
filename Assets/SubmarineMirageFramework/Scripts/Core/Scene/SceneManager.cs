@@ -69,10 +69,10 @@ namespace SubmarineMirage.Scene {
 
 // TODO : MultiFSM実装後、複数シーン読込に対応する
 		public async UniTask ChangeScene<T>( CancellationToken cancel ) where T : BaseScene
-			=> await ChangeState<T>( cancel );
+			=> await ChangeState<T>();
 
 		public async UniTask ChangeScene( CancellationToken cancel, Type stateType )
-			=> await ChangeState( cancel, stateType );
+			=> await ChangeState( stateType );
 	}
 
 
