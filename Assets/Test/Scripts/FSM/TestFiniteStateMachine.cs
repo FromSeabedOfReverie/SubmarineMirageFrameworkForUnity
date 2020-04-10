@@ -66,7 +66,6 @@ namespace SubmarineMirage.TestFSM {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() {
-
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
@@ -121,20 +120,20 @@ namespace SubmarineMirage.TestFSM {
 			var i = 0;
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
-					Log.Debug( "key down change state" );
+					Log.Warning( "key down change state" );
 					i = (i + 1) % 3;
 					switch ( i ) {
 						case 0:
 							Log.Debug( $"{this.GetAboutName()} change TestStateA" );
-							_process._fsm.ChangeState<TestStateA>( _process._activeAsyncCancel ).Forget();
+							_process._fsm.ChangeState<TestStateA>().Forget();
 							break;
 						case 1:
 							Log.Debug( $"{this.GetAboutName()} change TestStateB" );
-							_process._fsm.ChangeState<TestStateB>( _process._activeAsyncCancel ).Forget();
+							_process._fsm.ChangeState<TestStateB>().Forget();
 							break;
 						case 2:
 							Log.Debug( $"{this.GetAboutName()} change TestStateC" );
-							_process._fsm.ChangeState<TestStateC>( _process._activeAsyncCancel ).Forget();
+							_process._fsm.ChangeState<TestStateC>().Forget();
 							break;
 					}
 				} )
@@ -142,119 +141,130 @@ namespace SubmarineMirage.TestFSM {
 
 			while ( true )	{ yield return null; }
 		}
-	}
 
 
 
-	public class TestOwner : BaseProcess, IFiniteStateMachineOwner<TestFSMManager> {
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
-		public TestFSMManager _fsm	{ get; private set; }
+		public class TestOwner : BaseProcess, IFiniteStateMachineOwner<TestFSMManager> {
+			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+			public TestFSMManager _fsm	{ get; private set; }
 
-		public override void Create() {
-			_loadEvent.AddLast( async cancel => {
-				Log.Debug( "_loadEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_loadEvent end" );
-			} );
-			_initializeEvent.AddLast( async cancel => {
-				Log.Debug( "_initializeEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_initializeEvent end" );
-			} );
-			_enableEvent.AddLast( async cancel => {
-				Log.Debug( "_enableEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_enableEvent end" );
-			} );
-			_disableEvent.AddLast( async cancel => {
-				Log.Debug( "_disableEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_disableEvent end" );
-			} );
-			_finalizeEvent.AddLast( async cancel => {
-				Log.Debug( "_finalizeEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_finalizeEvent end" );
-			} );
+			public override void Create() {
+				_loadEvent.AddLast( async cancel => {
+					Log.Debug( "_loadEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_loadEvent end" );
+				} );
+				_initializeEvent.AddLast( async cancel => {
+					Log.Debug( "_initializeEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_initializeEvent end" );
+				} );
+				_finalizeEvent.AddLast( async cancel => {
+					Log.Debug( "_finalizeEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_finalizeEvent end" );
+				} );
 
-			_fsm = new TestFSMManager( this );
-			_disposables.AddFirst( _fsm );
-		}
-	}
+				_enableEvent.AddLast( async cancel => {
+					Log.Debug( "_enableEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_enableEvent end" );
+				} );
+				_disableEvent.AddLast( async cancel => {
+					Log.Debug( "_disableEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_disableEvent end" );
+				} );
 
+				_fixedUpdateEvent.AddLast().Subscribe( _ => Log.Debug( "_fixedUpdateEvent" ) );
+				_updateEvent.AddLast().Subscribe( _ => Log.Debug( "_updateEvent" ) );
+				_lateUpdateEvent.AddLast().Subscribe( _ => Log.Debug( "_lateUpdateEvent" ) );
 
-
-	public class TestFSMManager : FiniteStateMachine<TestFSMManager, TestOwner, BaseTestState> {
-		public TestFSMManager( TestOwner owner ) : base(
-			owner,
-			new BaseTestState[] {
-				new TestStateA(),
-				new TestStateB(),
-				new TestStateC(),
-			}
-		) {
-		}
-	}
-
-
-
-	public abstract class BaseTestState : State<TestFSMManager, TestOwner> {
-		public BaseTestState() {
-			_initializeEvent.AddLast( async cancel => await TestProcess( cancel, "initialize" ) );
-			_enterEvent.AddLast( async cancel => await TestProcess( cancel, "enter" ) );
-			_updateEvent.AddLast( async cancel => await TestProcess( cancel, "update" ) );
-			_fixedUpdateDeltaEvent.AddLast().Subscribe( _ =>
-				Log.Debug( $"{this.GetAboutName()} _fixedUpdateDeltaEvent" ) );
-			_updateDeltaEvent.AddLast().Subscribe( _ =>
-				Log.Debug( $"{this.GetAboutName()} _updateDeltaEvent" ) );
-			_lateUpdateDeltaEvent.AddLast().Subscribe( _ =>
-				Log.Debug( $"{this.GetAboutName()} _lateUpdateDeltaEvent" ) );
-			_exitEvent.AddLast( async cancel => await TestProcess( cancel, "exit" ) );
-		}
-		async UniTask TestProcess( CancellationToken cancel, string functionName ) {
-			for ( var i = 0; i < 2; i++ ) {
-				Log.Debug( $"{this.GetAboutName()} {functionName} {i}" );
-				await UniTaskUtility.Delay( cancel, 500 );
+				_disposables.AddFirst( _fsm = new TestFSMManager( this ) );
 			}
 		}
-	}
 
-	public class TestStateA : BaseTestState {
-		public TestStateA() {
-/*
-			_updateDeltaEvent.AddLast()
-				.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
-				.Subscribe( _ => {
-					Log.Debug( $"{this.GetAboutName()} change TestStateB" );
-					_fsm.ChangeState<TestStateB>( _owner._activeAsyncCancel ).Forget();
-				} );
-*/
+
+
+		public class TestFSMManager : FiniteStateMachine<TestFSMManager, TestOwner, BaseTestState> {
+			public TestFSMManager( TestOwner owner ) : base(
+				owner,
+				new BaseTestState[] {
+					new TestStateA(),
+					new TestStateB(),
+					new TestStateC(),
+				}
+			) {
+			}
 		}
-	}
 
-	public class TestStateB : BaseTestState {
-		public TestStateB() {
-/*
-			_updateDeltaEvent.AddLast()
-				.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
-				.Subscribe( _ => {
-					Log.Debug( $"{this.GetAboutName()} change TestStateC" );
-					_fsm.ChangeState<TestStateC>( _owner._activeAsyncCancel ).Forget();
-				} );
-*/
+
+
+		public abstract class BaseTestState : State<TestFSMManager, TestOwner> {
+			public BaseTestState() {
+				_loadEvent.AddLast( async cancel => await TestProcess( cancel, "_loadEvent" ) );
+				_initializeEvent.AddLast( async cancel => await TestProcess( cancel, "_initializeEvent" ) );
+				_finalizeEvent.AddLast( async cancel => await TestProcess( cancel, "_finalizeEvent" ) );
+
+				_enableEvent.AddLast( async cancel => await TestProcess( cancel, "_enableEvent" ) );
+				_disableEvent.AddLast( async cancel => await TestProcess( cancel, "_disableEvent" ) );
+
+				_enterEvent.AddLast( async cancel => await TestProcess( cancel, "_enterEvent" ) );
+				_exitEvent.AddLast( async cancel => await TestProcess( cancel, "_exitEvent" ) );
+				_updateEvent.AddLast( async cancel => await TestProcess( cancel, "_updateEvent", 5 ) );
+
+				_fixedUpdateDeltaEvent.AddLast().Subscribe( _ =>
+					Log.Debug( $"{this.GetAboutName()}._fixedUpdateDeltaEvent" ) );
+				_updateDeltaEvent.AddLast().Subscribe( _ =>
+					Log.Debug( $"{this.GetAboutName()}._updateDeltaEvent" ) );
+				_lateUpdateDeltaEvent.AddLast().Subscribe( _ =>
+					Log.Debug( $"{this.GetAboutName()}._lateUpdateDeltaEvent" ) );
+			}
+			async UniTask TestProcess( CancellationToken cancel, string functionName, int count = 2 ) {
+				for ( var i = 0; i < count; i++ ) {
+					Log.Debug( $"{this.GetAboutName()}.{functionName} : {i}" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+				}
+			}
 		}
-	}
 
-	public class TestStateC : BaseTestState {
-		public TestStateC() {
+		public class TestStateA : BaseTestState {
+			public TestStateA() {
 /*
-			_updateDeltaEvent.AddLast()
-				.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
-				.Subscribe( _ => {
-					Log.Debug( $"{this.GetAboutName()} change TestStateA" );
-					_fsm.ChangeState<TestStateA>( _owner._activeAsyncCancel ).Forget();
-				} );
+				_updateDeltaEvent.AddLast()
+					.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
+					.Subscribe( _ => {
+						Log.Debug( $"{this.GetAboutName()} change TestStateB" );
+						_fsm.ChangeState<TestStateB>( _owner._activeAsyncCancel ).Forget();
+					} );
 */
+			}
+		}
+
+		public class TestStateB : BaseTestState {
+			public TestStateB() {
+/*
+				_updateDeltaEvent.AddLast()
+					.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
+					.Subscribe( _ => {
+						Log.Debug( $"{this.GetAboutName()} change TestStateC" );
+						_fsm.ChangeState<TestStateC>( _owner._activeAsyncCancel ).Forget();
+					} );
+*/
+			}
+		}
+
+		public class TestStateC : BaseTestState {
+			public TestStateC() {
+/*
+				_updateDeltaEvent.AddLast()
+					.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
+					.Subscribe( _ => {
+						Log.Debug( $"{this.GetAboutName()} change TestStateA" );
+						_fsm.ChangeState<TestStateA>( _owner._activeAsyncCancel ).Forget();
+					} );
+*/
+			}
 		}
 	}
 }
