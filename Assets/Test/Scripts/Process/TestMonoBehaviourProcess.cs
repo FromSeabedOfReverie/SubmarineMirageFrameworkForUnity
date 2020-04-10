@@ -30,7 +30,7 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-	public class TestMonoBehaviourProcessManager : Test {
+	public class TestMonoBehaviourProcess : Test {
 		MonoBehaviourProcess _process;
 		Text _text;
 
@@ -38,7 +38,7 @@ namespace SubmarineMirage.TestProcess {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 			var go = new GameObject( "TestMonoBehaviourProcess" );
-			_process = go.AddComponent<TestMonoBehaviourProcess>();
+			_process = go.AddComponent<TestMono>();
 //			_process.enabled = false;
 //			go.SetActive( false );
 
@@ -187,50 +187,50 @@ namespace SubmarineMirage.TestProcess {
 
 			while ( true )	{ yield return null; }
 		}
-	}
 
 
 
-	public class TestMonoBehaviourProcess : MonoBehaviourProcess {
-		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public class TestMono : MonoBehaviourProcess {
+			public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
+			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
 
-		public override void Create() {
-			Log.Debug( "Create()" );
-			_loadEvent.AddLast( async cancel => {
-				Log.Debug( "_loadEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_loadEvent end" );
-			} );
-			_initializeEvent.AddLast( async cancel => {
-				Log.Debug( "_initializeEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_initializeEvent end" );
-			} );
-			_enableEvent.AddLast( async cancel => {
-				Log.Debug( "_enableEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_enableEvent end" );
-			} );
-			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( "_fixedUpdateEvent" );
-			} );
-			_updateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( "_updateEvent" );
-			} );
-			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( "_lateUpdateEvent" );
-			} );
-			_disableEvent.AddLast( async cancel => {
-				Log.Debug( "_disableEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_disableEvent end" );
-			} );
-			_finalizeEvent.AddLast( async cancel => {
-				Log.Debug( "_finalizeEvent start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "_finalizeEvent end" );
-			} );
+			public override void Create() {
+				Log.Debug( "Create()" );
+				_loadEvent.AddLast( async cancel => {
+					Log.Debug( "_loadEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_loadEvent end" );
+				} );
+				_initializeEvent.AddLast( async cancel => {
+					Log.Debug( "_initializeEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_initializeEvent end" );
+				} );
+				_enableEvent.AddLast( async cancel => {
+					Log.Debug( "_enableEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_enableEvent end" );
+				} );
+				_fixedUpdateEvent.AddLast().Subscribe( _ => {
+					Log.Debug( "_fixedUpdateEvent" );
+				} );
+				_updateEvent.AddLast().Subscribe( _ => {
+					Log.Debug( "_updateEvent" );
+				} );
+				_lateUpdateEvent.AddLast().Subscribe( _ => {
+					Log.Debug( "_lateUpdateEvent" );
+				} );
+				_disableEvent.AddLast( async cancel => {
+					Log.Debug( "_disableEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_disableEvent end" );
+				} );
+				_finalizeEvent.AddLast( async cancel => {
+					Log.Debug( "_finalizeEvent start" );
+					await UniTaskUtility.Delay( cancel, 1000 );
+					Log.Debug( "_finalizeEvent end" );
+				} );
+			}
 		}
 	}
 }
