@@ -24,6 +24,7 @@ namespace SubmarineMirage.TestFSM {
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
+	using RunState = FSM.New.FiniteStateMachineRunState;
 	using RanState = Process.New.ProcessBody.RanState;
 	using ActiveState = Process.New.ProcessBody.ActiveState;
 
@@ -58,11 +59,8 @@ namespace SubmarineMirage.TestFSM {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() {
-			yield return UniTask.ToCoroutine( async () => {
+			yield return From( async () => {
 				await _process.RunStateEvent( RanState.Creating );
-				await _process.RunStateEvent( RanState.Loading );
-				await _process.RunStateEvent( RanState.Initializing );
-				await _process.RunActiveEvent();
 			} );
 
 			var state = _process._fsm._state;
@@ -138,15 +136,25 @@ namespace SubmarineMirage.TestFSM {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
 					Log.Warning( "key down Enter" );
-					state.RunStateEvent( FiniteStateMachineRunState.Enter ).Forget();
+					state.RunStateEvent( RunState.Enter ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
 					Log.Warning( "key down Update" );
-					state.RunStateEvent( FiniteStateMachineRunState.Update ).Forget();
+					state.RunStateEvent( RunState.Update ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.C ) ).Subscribe( _ => {
 					Log.Warning( "key down Exit" );
-					state.RunStateEvent( FiniteStateMachineRunState.Exit ).Forget();
+					state.RunStateEvent( RunState.Exit ).Forget();
+				} )
+			);
+			_disposables.AddLast(
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.KeypadPlus ) ).Subscribe( _ => {
+					Log.Warning( "key down Owner active" );
+					_process.ChangeActive( true ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.KeypadMinus ) ).Subscribe( _ => {
+					Log.Warning( "key down Owner Owner disable" );
+					_process.ChangeActive( false ).Forget();
 				} )
 			);
 			_disposables.AddLast(
@@ -157,8 +165,17 @@ namespace SubmarineMirage.TestFSM {
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Delete ) ).Subscribe( _ => {
 					Log.Warning( "key down Owner StopActiveAsync" );
 					_process.StopActiveAsync();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.RightShift ) ).Subscribe( _ => {
+					Log.Warning( "key down Owner Owner finalize" );
+					_process.RunStateEvent( RanState.Finalizing ).Forget();
 				} )
 			);
+
+			yield return From( async () => {
+				await _process.RunStateEvent( RanState.Loading );
+				await _process.RunStateEvent( RanState.Initializing );
+			} );
 
 			while ( true )	{ yield return null; }
 		}
@@ -202,7 +219,7 @@ namespace SubmarineMirage.TestFSM {
 
 				_enterEvent.AddLast( async cancel => await TestProcess( cancel, "_enterEvent" ) );
 				_exitEvent.AddLast( async cancel => await TestProcess( cancel, "_exitEvent" ) );
-				_updateEvent.AddLast( async cancel => await TestProcess( cancel, "_updateEvent" ) );
+				_updateEvent.AddLast( async cancel => await TestProcess( cancel, "_updateEvent", 5 ) );
 
 				_fixedUpdateDeltaEvent.AddLast().Subscribe( _ =>
 					Log.Debug( $"{this.GetAboutName()}._fixedUpdateDeltaEvent" ) );
@@ -211,8 +228,8 @@ namespace SubmarineMirage.TestFSM {
 				_lateUpdateDeltaEvent.AddLast().Subscribe( _ =>
 					Log.Debug( $"{this.GetAboutName()}._lateUpdateDeltaEvent" ) );
 			}
-			async UniTask TestProcess( CancellationToken cancel, string functionName ) {
-				for ( var i = 0; i < 2; i++ ) {
+			async UniTask TestProcess( CancellationToken cancel, string functionName, int count = 2 ) {
+				for ( var i = 0; i < count; i++ ) {
 					Log.Debug( $"{this.GetAboutName()}.{functionName} : {i}" );
 					await UniTaskUtility.Delay( cancel, 1000 );
 				}

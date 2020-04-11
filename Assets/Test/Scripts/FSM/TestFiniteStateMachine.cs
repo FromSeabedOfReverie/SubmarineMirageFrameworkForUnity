@@ -104,15 +104,11 @@ namespace SubmarineMirage.TestFSM {
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
 					Log.Warning( "key down Disabling" );
 					_process.ChangeActive( false ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.C ) ).Subscribe( _ => {
-					Log.Warning( "key down RunActiveEvent" );
-					_process.RunActiveEvent().Forget();
 				} )
 			);
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose" );
+					Log.Warning( "key down delete" );
 					_process.Dispose();
 					_process = null;
 				} )
@@ -121,7 +117,7 @@ namespace SubmarineMirage.TestFSM {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
 					Log.Warning( "key down change state" );
-					i = (i + 1) % 3;
+					i = (i + 1) % 5;
 					switch ( i ) {
 						case 0:
 							Log.Debug( $"{this.GetAboutName()} change TestStateA" );
@@ -134,6 +130,14 @@ namespace SubmarineMirage.TestFSM {
 						case 2:
 							Log.Debug( $"{this.GetAboutName()} change TestStateC" );
 							_process._fsm.ChangeState<TestStateC>().Forget();
+							break;
+						case 3:
+							Log.Debug( $"{this.GetAboutName()} change null" );
+							_process._fsm.ChangeState( null ).Forget();
+							break;
+						case 4:
+							Log.Debug( $"{this.GetAboutName()} change null to null" );
+							_process._fsm.ChangeState( null ).Forget();
 							break;
 					}
 				} )
@@ -149,37 +153,6 @@ namespace SubmarineMirage.TestFSM {
 			public TestFSMManager _fsm	{ get; private set; }
 
 			public override void Create() {
-				_loadEvent.AddLast( async cancel => {
-					Log.Debug( "_loadEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_loadEvent end" );
-				} );
-				_initializeEvent.AddLast( async cancel => {
-					Log.Debug( "_initializeEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_initializeEvent end" );
-				} );
-				_finalizeEvent.AddLast( async cancel => {
-					Log.Debug( "_finalizeEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_finalizeEvent end" );
-				} );
-
-				_enableEvent.AddLast( async cancel => {
-					Log.Debug( "_enableEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_enableEvent end" );
-				} );
-				_disableEvent.AddLast( async cancel => {
-					Log.Debug( "_disableEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_disableEvent end" );
-				} );
-
-				_fixedUpdateEvent.AddLast().Subscribe( _ => Log.Debug( "_fixedUpdateEvent" ) );
-				_updateEvent.AddLast().Subscribe( _ => Log.Debug( "_updateEvent" ) );
-				_lateUpdateEvent.AddLast().Subscribe( _ => Log.Debug( "_lateUpdateEvent" ) );
-
 				_disposables.AddFirst( _fsm = new TestFSMManager( this ) );
 			}
 		}
@@ -230,40 +203,16 @@ namespace SubmarineMirage.TestFSM {
 
 		public class TestStateA : BaseTestState {
 			public TestStateA() {
-/*
-				_updateDeltaEvent.AddLast()
-					.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
-					.Subscribe( _ => {
-						Log.Debug( $"{this.GetAboutName()} change TestStateB" );
-						_fsm.ChangeState<TestStateB>( _owner._activeAsyncCancel ).Forget();
-					} );
-*/
 			}
 		}
 
 		public class TestStateB : BaseTestState {
 			public TestStateB() {
-/*
-				_updateDeltaEvent.AddLast()
-					.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
-					.Subscribe( _ => {
-						Log.Debug( $"{this.GetAboutName()} change TestStateC" );
-						_fsm.ChangeState<TestStateC>( _owner._activeAsyncCancel ).Forget();
-					} );
-*/
 			}
 		}
 
 		public class TestStateC : BaseTestState {
 			public TestStateC() {
-/*
-				_updateDeltaEvent.AddLast()
-					.Where( _ => Input.GetKeyDown( KeyCode.Space ) )
-					.Subscribe( _ => {
-						Log.Debug( $"{this.GetAboutName()} change TestStateA" );
-						_fsm.ChangeState<TestStateA>( _owner._activeAsyncCancel ).Forget();
-					} );
-*/
 			}
 		}
 	}
