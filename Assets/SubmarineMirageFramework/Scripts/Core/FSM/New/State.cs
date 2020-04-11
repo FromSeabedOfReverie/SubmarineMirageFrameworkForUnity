@@ -7,11 +7,14 @@
 namespace SubmarineMirage.FSM.New {
 	using System;
 	using System.Threading;
+	using UniRx;
 	using UniRx.Async;
 	using MultiEvent;
 	using Process.New;
 	using Extension;
+	using Utility;
 	using Debug;
+	using RunState = FiniteStateMachineRunState;
 	using RanState = Process.New.ProcessBody.RanState;
 	using ActiveState = Process.New.ProcessBody.ActiveState;
 
@@ -26,7 +29,7 @@ namespace SubmarineMirage.FSM.New {
 		public TFSM _fsm		{ get; private set; }
 		public TOwner _owner	{ get; private set; }
 		public bool _isActive => _owner._isActive;
-		public FiniteStateMachineRunState _runState	{ get; private set; } = FiniteStateMachineRunState.Exit;
+		public RunState _runState	{ get; private set; } = RunState.Exit;
 
 		protected readonly MultiAsyncEvent _loadEvent = new MultiAsyncEvent();
 		protected readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
@@ -40,7 +43,6 @@ namespace SubmarineMirage.FSM.New {
 		protected readonly MultiAsyncEvent _disableEvent = new MultiAsyncEvent();
 		protected readonly MultiAsyncEvent _finalizeEvent = new MultiAsyncEvent();
 
-		CancellationTokenSource _internalActiveAsyncCanceler = new CancellationTokenSource();
 		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
 		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
 
@@ -66,8 +68,6 @@ namespace SubmarineMirage.FSM.New {
 
 		void SetActiveAsyncCancelerDisposable() {
 			_disposables.AddFirst( "_activeAsyncCanceler", () => {
-				_internalActiveAsyncCanceler.Cancel();
-				_internalActiveAsyncCanceler.Dispose();
 				_activeAsyncCanceler.Cancel();
 				_activeAsyncCanceler.Dispose();
 			} );
@@ -77,6 +77,7 @@ namespace SubmarineMirage.FSM.New {
 			_fsm = owner._fsm;
 			_owner = owner;
 			StopActiveAsync();
+			_owner._activeAsyncCancelEvent.AddLast().Subscribe( _ => StopActiveAsync() );
 		}
 
 		public void Dispose() => _disposables.Dispose();
@@ -85,31 +86,45 @@ namespace SubmarineMirage.FSM.New {
 
 
 		public void StopActiveAsync() {
-			Log.Debug( "StopActiveAsync()" );
+			Log.Debug( $"{this.GetAboutName()}.StopActiveAsync()" );
 			_disposables.Remove( "_activeAsyncCanceler" );
-			_internalActiveAsyncCanceler = new CancellationTokenSource();
-			_activeAsyncCanceler = _internalActiveAsyncCanceler.Token.Add( _owner._activeAsyncCancel );
+			using ( var canceler = new CancellationTokenSource() ) {
+				_activeAsyncCanceler = canceler.Token.Add( _owner._activeAsyncCancel );
+			}
 			SetActiveAsyncCancelerDisposable();
 		}
 
 
-		public async UniTask RunStateEvent( FiniteStateMachineRunState state ) {
+		public async UniTask RunStateEvent( RunState state ) {
 			switch ( state ) {
-				case FiniteStateMachineRunState.Enter:
-					_runState = FiniteStateMachineRunState.Enter;
+				case RunState.Enter:
+					switch ( _runState ) {
+						case RunState.Enter:
+						case RunState.Update:
+							return;
+					}
+					_runState = RunState.Enter;
 					await _enterEvent.Run( _fsm._changeStateAsyncCancel );
 					return;
 
-				case FiniteStateMachineRunState.Update:
-					_runState = FiniteStateMachineRunState.Update;
+				case RunState.Update:
+					switch ( _runState ) {
+						case RunState.Exit:
+							return;
+					}
+					_runState = RunState.Update;
 					if ( _isActive ) {
 						Log.Debug( "Run _updateEvent" );
 						await _updateEvent.Run( _activeAsyncCancel );
 					}
 					return;
 
-				case FiniteStateMachineRunState.Exit:
-					_runState = FiniteStateMachineRunState.Exit;
+				case RunState.Exit:
+					switch ( _runState ) {
+						case RunState.Exit:
+							return;
+					}
+					_runState = RunState.Exit;
 					StopActiveAsync();
 					await _exitEvent.Run( _fsm._changeStateAsyncCancel );
 					return;
@@ -128,19 +143,19 @@ namespace SubmarineMirage.FSM.New {
 					return;
 
 				case RanState.FixedUpdate:
-					if ( _runState == FiniteStateMachineRunState.Update ) {
+					if ( _runState == RunState.Update ) {
 						_fixedUpdateDeltaEvent.Run();
 					}
 					return;
 
 				case RanState.Update:
-					if ( _runState == FiniteStateMachineRunState.Update ) {
+					if ( _runState == RunState.Update ) {
 						_updateDeltaEvent.Run();
 					}
 					return;
 
 				case RanState.LateUpdate:
-					if ( _runState == FiniteStateMachineRunState.Update ) {
+					if ( _runState == RunState.Update ) {
 						_lateUpdateDeltaEvent.Run();
 					}
 					return;
@@ -165,15 +180,19 @@ namespace SubmarineMirage.FSM.New {
 			switch ( state ) {
 				case ActiveState.Enabling:
 					await _enableEvent.Run( cancel );
-					if ( _runState == FiniteStateMachineRunState.Update ) {
-						Log.Debug( "Run _updateEvent" );
-// TODO : _activeAsyncCancelが、owner由来でキャンセルされた場合、リセットされず即停止する
-						_updateEvent.Run( _activeAsyncCancel ).Forget();
-					}
+					UniTask.Void( async () => {
+						Log.Debug( $"wait check _updateEvent : {_owner._body._activeState}" );
+						var lastActiveState = _owner._body._activeState;
+						await UniTaskUtility.WaitWhile(
+							_activeAsyncCancel, () => lastActiveState == _owner._body._activeState );
+						Log.Debug( $"end wait check _updateEvent : {_owner._body._activeState}" );
+						if ( _runState == RunState.Update ) {
+							await RunStateEvent( RunState.Update );
+						}
+					} );
 					return;
 
 				case ActiveState.Disabling:
-					StopActiveAsync();
 					await _disableEvent.Run( cancel );
 					return;
 
