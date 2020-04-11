@@ -67,6 +67,7 @@ namespace SubmarineMirage.Process.New {
 		public readonly MultiAsyncEvent _disableEvent = new MultiAsyncEvent();
 		public readonly MultiAsyncEvent _finalizeEvent = new MultiAsyncEvent();
 
+		public readonly MultiSubject _activeAsyncCancelEvent = new MultiSubject();
 		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
 		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
 		CancellationTokenSource _inActiveAsyncCanceler = new CancellationTokenSource();
@@ -92,7 +93,8 @@ namespace SubmarineMirage.Process.New {
 				_updateEvent,
 				_lateUpdateEvent,
 				_disableEvent,
-				_finalizeEvent
+				_finalizeEvent,
+				_activeAsyncCancelEvent
 			);
 		}
 
@@ -112,6 +114,7 @@ namespace SubmarineMirage.Process.New {
 			_disposables.Remove( "_activeAsyncCanceler" );
 			_activeAsyncCanceler = new CancellationTokenSource();
 			SetActiveAsyncCancelerDisposable();
+			_activeAsyncCancelEvent.Run();
 		}
 
 

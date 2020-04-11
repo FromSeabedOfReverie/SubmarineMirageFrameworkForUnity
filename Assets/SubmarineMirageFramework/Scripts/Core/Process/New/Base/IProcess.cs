@@ -33,6 +33,7 @@ namespace SubmarineMirage.Process.New {
 		MultiAsyncEvent _disableEvent		{ get; }
 		MultiAsyncEvent _finalizeEvent		{ get; }
 
+		MultiSubject _activeAsyncCancelEvent	{ get; }
 		CancellationToken _activeAsyncCancel	{ get; }
 		CancellationToken _inActiveAsyncCancel	{ get; }
 
