@@ -9,6 +9,7 @@ namespace SubmarineMirage.Test {
 	using System.Collections;
 	using NUnit.Framework;
 	using UniRx.Async;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -35,7 +36,7 @@ namespace SubmarineMirage.Test {
 		protected IEnumerator From( Func<UniTask> task ) => UniTask.ToCoroutine( async () => {
 			try										{ await task.Invoke(); }
 			catch ( OperationCanceledException )	{}
-			catch ( Exception e ) { Debug.Log.Error( e ); }
+			catch ( Exception e )					{ Log.Error( e ); }
 		} );
 	}
 }

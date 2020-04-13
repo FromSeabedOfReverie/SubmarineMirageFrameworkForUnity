@@ -249,6 +249,7 @@ namespace SubmarineMirage.Process.New {
 					}
 					StopActiveAsync();
 					var lastRanState = _ranState;
+					// 非同期停止時に、catchで状態が変わる為、1フレーム待機
 					await UniTaskUtility.Yield( _inActiveAsyncCancel );
 					Log.Debug( $"Run {state}" );
 					switch ( lastRanState ) {
@@ -380,9 +381,9 @@ namespace SubmarineMirage.Process.New {
 
 						case ActiveState.Enabled:
 							StopActiveAsync();
+							Log.Debug( $"Run {ActiveState.Disabling}" );
 							_nextActiveState = null;
 							_activeState = ActiveState.Disabling;
-							Log.Debug( $"Run {ActiveState.Disabling}" );
 							try {
 								await _disableEvent.Run( _inActiveAsyncCancel );
 							} catch {
