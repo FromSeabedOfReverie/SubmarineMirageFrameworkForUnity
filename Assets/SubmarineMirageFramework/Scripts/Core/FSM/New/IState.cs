@@ -22,14 +22,14 @@ namespace SubmarineMirage.FSM.New {
 		TFSM _fsm		{ get; }
 		TOwner _owner	{ get; }
 
-		bool _isActive	{ get; }
 		FiniteStateMachineRunState _runState	{ get; }
+		bool _isActive	{ get; }
 		CancellationToken _activeAsyncCancel	{ get; }
 
 		void Set( TOwner owner );
 		void StopActiveAsync();
 		UniTask RunStateEvent( FiniteStateMachineRunState state );
-		UniTask RunProcessStateEvent( ProcessBody.RanState state, CancellationToken cancel = default );
-		UniTask RunProcessActiveEvent( ProcessBody.ActiveState state, CancellationToken cancel );
+		UniTask ChangeActive( CancellationToken cancel, bool isActive, bool isWait );
+		UniTask RunProcessStateEvent( CancellationToken cancel, ProcessBody.RanState state );
 	}
 }

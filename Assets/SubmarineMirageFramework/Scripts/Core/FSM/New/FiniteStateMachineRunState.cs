@@ -11,8 +11,11 @@ namespace SubmarineMirage.FSM.New {
 
 
 	public enum FiniteStateMachineRunState {
-		Enter,
+		Entering,
+		Entered,
+		BeforeUpdate,
 		Update,
-		Exit,
+		Exiting,
+		Exited,
 	}
 }

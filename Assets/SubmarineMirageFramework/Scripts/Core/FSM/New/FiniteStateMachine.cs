@@ -39,7 +39,7 @@ namespace SubmarineMirage.FSM.New {
 		public TState _state	{ get; private set; }
 		protected TState _nextState;
 		bool _isRequestNextState;
-		bool _isChangingState => _state != null && _runState != RunState.Update;
+		bool _isChangingState;
 
 		public MultiAsyncEvent _loadEvent		=> _owner._loadEvent;
 		public MultiAsyncEvent _initializeEvent	=> _owner._initializeEvent;
@@ -67,13 +67,13 @@ namespace SubmarineMirage.FSM.New {
 						.Select( pair => pair.Value )
 						.Select( state => {
 							state.Set( _owner );
-							return state.RunProcessStateEvent( RanState.Loading, cancel );
+							return state.RunProcessStateEvent( cancel, RanState.Loading );
 						} )
 				);
 			} );
 			_initializeEvent.AddLast( _registerEventName, async cancel => {
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Initializing, cancel ) )
+					_states.Select( pair => pair.Value.RunProcessStateEvent( cancel, RanState.Initializing ) )
 				);
 				var start = startState ?? _states.First().Value.GetType();
 				await ChangeState( start );
@@ -82,31 +82,28 @@ namespace SubmarineMirage.FSM.New {
 				await ChangeState( null );
 				Log.Debug( "_state is null and stop _updateEvent" );
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Finalizing, cancel ) )
+					_states.Select( pair => pair.Value.RunProcessStateEvent( cancel, RanState.Finalizing ) )
 				);
 			} );
 
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( RanState.FixedUpdate ).Forget()
+				_state?.RunProcessStateEvent( default, RanState.FixedUpdate ).Forget()
 			);
 			_updateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( RanState.Update ).Forget()
+				_state?.RunProcessStateEvent( default, RanState.Update ).Forget()
 			);
 			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( RanState.LateUpdate ).Forget()
+				_state?.RunProcessStateEvent( default, RanState.LateUpdate ).Forget()
 			);
 
-// TODO : 状態遷移中に、活動状態変更すると、別の状態のenable、disableが呼ばれる為、双方を待機
 			_enableEvent.AddLast( _registerEventName, async cancel => {
-				await UniTaskUtility.WaitWhile( cancel, () => _isChangingState );
 				if ( _state != null ) {
-					await _state.RunProcessActiveEvent( ActiveState.Enabling, cancel );
+					await _state.ChangeActive( cancel, true, true );
 				}
 			} );
 			_disableEvent.AddFirst( _registerEventName, async cancel => {
-				await UniTaskUtility.WaitWhile( cancel, () => _isChangingState );
 				if ( _state != null ) {
-					await _state.RunProcessActiveEvent( ActiveState.Disabling, cancel );
+					await _state.ChangeActive( cancel, false, true );
 				}
 			} );
 
@@ -120,16 +117,6 @@ namespace SubmarineMirage.FSM.New {
 				_state = null;
 				_nextState = null;
 			} );
-
-#if DEVELOP && false
-			_disposables.AddLast( Observable.EveryUpdate().Subscribe( _ => {
-				DebugDisplay.s_instance.Add( $"{_owner.GetAboutName()}.{_registerEventName}" );
-				DebugDisplay.s_instance.Add( $"_state : {_state?.GetAboutName()}.{_runState}" );
-				DebugDisplay.s_instance.Add(
-					$"_nextState : {_nextState?.GetAboutName()}"
-				);
-			} ) );
-#endif
 		}
 
 		public void Dispose() => _disposables.Dispose();
@@ -166,32 +153,25 @@ namespace SubmarineMirage.FSM.New {
 		async UniTask RunChangeState( bool isWait ) {
 			Log.Debug( $"call RunChangeState()" );
 			if ( isWait && _isChangingState ) {
-				Log.Debug( $"wait {_state?.GetAboutName()}.{_runState}" );
+				Log.Debug( $"wait _isChangingState : {_state?.GetAboutName()}.{_runState}" );
 				await UniTaskUtility.WaitWhile( _changeStateAsyncCancel, () => _isChangingState );
-				Log.Debug( $"end wait {_state?.GetAboutName()}.{_runState}" );
+				Log.Debug( $"end wait _isChangingState : {_state?.GetAboutName()}.{_runState}" );
 				return;
 			}
-// TODO : 状態遷移中に、活動状態変更すると、別の状態のenable、disableが呼ばれる為、双方を待機
-			switch( _owner._body._activeState ) {
-				case ActiveState.Enabling:
-				case ActiveState.Disabling:
-					var lastActiveState = _owner._body._activeState;
-					await UniTaskUtility.WaitWhile(
-						_changeStateAsyncCancel, () => lastActiveState == _owner._body._activeState );
-					break;
-			}
 
+			_isChangingState = true;
 			if ( _state != null ) {
-				await _state.RunStateEvent( RunState.Exit );
+				await _state.RunStateEvent( RunState.Exiting );
 			}
 			_state = _nextState;
 			_nextState = null;
 			_isRequestNextState = false;
 			if ( _state == null || _owner._body._ranState == RanState.Finalizing ) {
 				Log.Debug( "set state null" );
+				_isChangingState = false;
 				return;
 			}
-			await _state.RunStateEvent( RunState.Enter );
+			await _state.RunStateEvent( RunState.Entering );
 
 			if ( _state != null && _owner._body._ranState == RanState.Finalizing ) {
 				_nextState = null;
@@ -202,6 +182,7 @@ namespace SubmarineMirage.FSM.New {
 				Log.Debug( "restart RunChangeState()" );
 				await RunChangeState( false );
 			} else {
+				_isChangingState = false;
 				_state.RunStateEvent( RunState.Update ).Forget();
 			}
 		}
