@@ -234,6 +234,13 @@ namespace SubmarineMirage.Process.New {
 				case RanState.Finalizing:
 					if ( _owner._type == Type.DontWork )	{ return; }
 					switch ( _ranState ) {
+						case RanState.Finalizing:
+						case RanState.Finalized:
+							return;
+					}
+					var lastRanState = _ranState;
+					_ranState = RanState.Finalizing;
+					switch ( lastRanState ) {
 						case RanState.Initialized:
 						case RanState.FixedUpdate:
 						case RanState.Update:
@@ -242,15 +249,16 @@ namespace SubmarineMirage.Process.New {
 							await ChangeActive( false );
 							break;
 					}
-					switch ( _ranState ) {
+					switch ( lastRanState ) {
 						case RanState.Finalizing:
 						case RanState.Finalized:
 							return;
 					}
 					StopActiveAsync();
-					var lastRanState = _ranState;
+					if ( _ranState != RanState.Finalizing )	{ lastRanState = _ranState; }
 					// 非同期停止時に、catchで状態が変わる為、1フレーム待機
 					await UniTaskUtility.Yield( _inActiveAsyncCancel );
+					_ranState = RanState.Finalizing;
 					Log.Debug( $"Run {state}" );
 					switch ( lastRanState ) {
 						case RanState.Loading:
@@ -260,7 +268,6 @@ namespace SubmarineMirage.Process.New {
 						case RanState.FixedUpdate:
 						case RanState.Update:
 						case RanState.LateUpdate:
-							_ranState = RanState.Finalizing;
 							try {
 								await _finalizeEvent.Run( _inActiveAsyncCancel );
 							} catch {
@@ -313,6 +320,12 @@ namespace SubmarineMirage.Process.New {
 					break;
 
 				case RanState.Finalizing:
+					if ( _nextActiveState == ActiveState.Disabling ) {
+						break;
+					} else {
+						_nextActiveState = ActiveState.Disabling;
+						return;
+					}
 				case RanState.Finalized:
 					return;
 			}
