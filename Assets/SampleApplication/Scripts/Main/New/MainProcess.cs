@@ -50,7 +50,8 @@ namespace SubmarineMirage.Main.New {
 			DOTween.defaultAutoPlay = AutoPlay.None;
 
 #if DEVELOP
-			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "LunarConsole" ) );
+			var p = await Resources.LoadAsync<GameObject>( "LunarConsole" ).ConfigureAwait( s_asyncCancel );
+			var go = UnityObject.Instantiate( p );
 			UnityObject.DontDestroyOnLoad( go );
 #endif
 			await UniTaskUtility.DontWait();
@@ -58,7 +59,6 @@ namespace SubmarineMirage.Main.New {
 
 		static async UniTask RegisterProcesses() {
 //			await SceneManager.WaitForCreation();
-//			new TestOwner();
 
 			await UniTaskUtility.DontWait();
 		}
