@@ -342,7 +342,7 @@ PrefabInstance:
     - target: {fileID: 5969852391473367263, guid: b7ca6fd8ac2c1994482a67b5909ca6f3,
         type: 3}
       propertyPath: m_Name
-      value: Main Camera
+      value: TestCamera
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b7ca6fd8ac2c1994482a67b5909ca6f3, type: 3}
@@ -356,7 +356,7 @@ PrefabInstance:
     - target: {fileID: 7917747076937931024, guid: af64ee49d9ce2b7479e9c924a8122977,
         type: 3}
       propertyPath: m_Name
-      value: Canvas
+      value: TestCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 7917747076937931036, guid: af64ee49d9ce2b7479e9c924a8122977,
         type: 3}
