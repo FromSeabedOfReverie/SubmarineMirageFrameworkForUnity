@@ -29,6 +29,50 @@ namespace SubmarineMirage.TestFSM {
 
 
 	// TODO : コメント追加、整頓
+/*
+enable, state	→	state	→	enable
+enable, state	→	state	→	disable
+enable, state	→	enable	→	state
+enable, state	→	disable	→	state
+
+disable, state	→	state	→	enable
+disable, state	→	state	→	disable
+disable, state	→	enable	→	state
+disable, state	→	disable	→	state
+
+
+enable, state	→	null	→	enable
+enable, state	→	null	→	disable
+enable, state	→	enable	→	null
+enable, state	→	disable	→	null
+
+disable, state	→	null	→	enable
+disable, state	→	null	→	disable
+disable, state	→	enable	→	null
+disable, state	→	disable	→	null
+
+
+enable, null	→	null	→	enable
+enable, null	→	null	→	disable
+enable, null	→	enable	→	null
+enable, null	→	disable	→	null
+
+disable, null	→	null	→	enable
+disable, null	→	null	→	disable
+disable, null	→	enable	→	null
+disable, null	→	disable	→	null
+
+
+enable, null	→	state	→	enable
+enable, null	→	state	→	disable
+enable, null	→	enable	→	state
+enable, null	→	disable	→	state
+
+disable, null	→	state	→	enable
+disable, null	→	state	→	disable
+disable, null	→	enable	→	state
+disable, null	→	disable	→	state
+*/
 
 
 	public class TestFiniteStateMachine : Test {

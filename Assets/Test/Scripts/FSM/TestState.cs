@@ -70,52 +70,52 @@ namespace SubmarineMirage.TestFSM {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Loading" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Loading ).Forget();
+					_state.RunProcessStateEvent( RanState.Loading ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
 					Log.Warning( "key down Initializing" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Initializing ).Forget();
+					_state.RunProcessStateEvent( RanState.Initializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
 					Log.Warning( "key down FixedUpdate" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.FixedUpdate ).Forget();
+					_state.RunProcessStateEvent( RanState.FixedUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
 					Log.Warning( "key down Update" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Update ).Forget();
+					_state.RunProcessStateEvent( RanState.Update ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
 					Log.Warning( "key down LateUpdate" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.LateUpdate ).Forget();
+					_state.RunProcessStateEvent( RanState.LateUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
 					Log.Warning( "key down Finalizing" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Finalizing ).Forget();
+					_state.RunProcessStateEvent( RanState.Finalizing ).Forget();
 				} ),
 
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Keypad1 ) ).Subscribe( _ => {
 					Log.Warning( "key down None" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.None ).Forget();
+					_state.RunProcessStateEvent( RanState.None ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Keypad2 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Creating ).Forget();
+					_state.RunProcessStateEvent( RanState.Creating ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Keypad3 ) ).Subscribe( _ => {
 					Log.Warning( "key down Created" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Created ).Forget();
+					_state.RunProcessStateEvent( RanState.Created ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Keypad4 ) ).Subscribe( _ => {
 					Log.Warning( "key down Loaded" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Loaded ).Forget();
+					_state.RunProcessStateEvent( RanState.Loaded ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Keypad5 ) ).Subscribe( _ => {
 					Log.Warning( "key down Initialized" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Initialized ).Forget();
+					_state.RunProcessStateEvent( RanState.Initialized ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Keypad6 ) ).Subscribe( _ => {
 					Log.Warning( "key down Finalized" );
-					_state.RunProcessStateEvent( _asyncCancel, RanState.Finalized ).Forget();
+					_state.RunProcessStateEvent( RanState.Finalized ).Forget();
 				} )
 			);
 
