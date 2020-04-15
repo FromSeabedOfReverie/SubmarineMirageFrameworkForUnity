@@ -36,6 +36,7 @@ namespace SubmarineMirage.FSM.New {
 		protected readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 		public TState _state	{ get; private set; }
 		protected TState _nextState;
+		protected Type _startState;
 		bool _isRequestNextState;
 		public bool _isChangingState	{ get; private set; }
 
@@ -58,6 +59,7 @@ namespace SubmarineMirage.FSM.New {
 			_owner = owner;
 			_registerEventName = this.GetAboutName();
 			states.ForEach( s => _states[s.GetType()] = s );
+			_startState = startState;
 
 			_loadEvent.AddLast( _registerEventName, async cancel => {
 				await UniTask.WhenAll(
@@ -74,8 +76,8 @@ namespace SubmarineMirage.FSM.New {
 					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Initializing ) )
 				);
 				_isInitialized = true;
-				var start = startState ?? _states.First().Value.GetType();
-				await ChangeState( start );
+				var state = _startState ?? _states.First().Value.GetType();
+				await ChangeState( state );
 			} );
 			_finalizeEvent.AddFirst( _registerEventName, async cancel => {
 				await ChangeState( null );
