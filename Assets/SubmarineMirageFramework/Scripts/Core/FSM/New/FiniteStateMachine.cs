@@ -32,6 +32,7 @@ namespace SubmarineMirage.FSM.New {
 	{
 		protected TOwner _owner	{ get; private set; }
 		public bool _isActive => _owner._isActive;
+		bool _isInitialized;
 		RunState? _runState => _state?._runState;
 		public string _registerEventName	{ get; private set; }
 
@@ -39,7 +40,7 @@ namespace SubmarineMirage.FSM.New {
 		public TState _state	{ get; private set; }
 		protected TState _nextState;
 		bool _isRequestNextState;
-		bool _isChangingState;
+		public bool _isChangingState	{ get; private set; }
 
 		public MultiAsyncEvent _loadEvent		=> _owner._loadEvent;
 		public MultiAsyncEvent _initializeEvent	=> _owner._initializeEvent;
@@ -67,14 +68,15 @@ namespace SubmarineMirage.FSM.New {
 						.Select( pair => pair.Value )
 						.Select( state => {
 							state.Set( _owner );
-							return state.RunProcessStateEvent( cancel, RanState.Loading );
+							return state.RunProcessStateEvent( RanState.Loading );
 						} )
 				);
 			} );
 			_initializeEvent.AddLast( _registerEventName, async cancel => {
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( cancel, RanState.Initializing ) )
+					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Initializing ) )
 				);
+				_isInitialized = true;
 				var start = startState ?? _states.First().Value.GetType();
 				await ChangeState( start );
 			} );
@@ -82,28 +84,39 @@ namespace SubmarineMirage.FSM.New {
 				await ChangeState( null );
 				Log.Debug( "_state is null and stop _updateEvent" );
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( cancel, RanState.Finalizing ) )
+					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Finalizing ) )
 				);
 			} );
 
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( default, RanState.FixedUpdate ).Forget()
+				_state?.RunProcessStateEvent( RanState.FixedUpdate ).Forget()
 			);
 			_updateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( default, RanState.Update ).Forget()
+				_state?.RunProcessStateEvent( RanState.Update ).Forget()
 			);
 			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( default, RanState.LateUpdate ).Forget()
+				_state?.RunProcessStateEvent( RanState.LateUpdate ).Forget()
 			);
 
 			_enableEvent.AddLast( _registerEventName, async cancel => {
+				if ( _isChangingState ) {
+					Log.Debug( "wait _isChangingState" );
+					await UniTaskUtility.WaitWhile( cancel, () => _isChangingState );
+					Log.Debug( "end wait _isChangingState" );
+				}
 				if ( _state != null ) {
-					await _state.ChangeActive( cancel, true, true );
+					await _state.ChangeActive( true );
 				}
 			} );
 			_disableEvent.AddFirst( _registerEventName, async cancel => {
+				if ( _isChangingState && _owner._body._ranState != RanState.Finalizing ) {
+					Log.Debug( "wait _isChangingState" );
+					await UniTaskUtility.WaitWhile(
+						cancel, () => _isChangingState && _owner._body._ranState != RanState.Finalizing );
+					Log.Debug( "end wait _isChangingState" );
+				}
 				if ( _state != null ) {
-					await _state.ChangeActive( cancel, false, true );
+					await _state.ChangeActive( false );
 				}
 			} );
 
@@ -128,13 +141,6 @@ namespace SubmarineMirage.FSM.New {
 			=> await ChangeState( typeof( T ) );
 
 		public async UniTask ChangeState( Type state ) {
-			if ( state != null && !_states.ContainsKey( state ) ) {
-				throw new ArgumentOutOfRangeException( $"{state}", "未定義状態へ遷移" );
-			}
-			var next = state != null ? _states[state] : null;
-			if ( state != null && !IsPossibleChangeState( next ) ) {
-				throw new InvalidOperationException( $"状態遷移が不可能 : {state}" );
-			}
 			switch ( _owner._body._ranState ) {
 				case RanState.None:
 				case RanState.Creating:
@@ -142,45 +148,74 @@ namespace SubmarineMirage.FSM.New {
 				case RanState.Loading:
 				case RanState.Loaded:
 					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
+				case RanState.Initializing:
+					if ( _isInitialized )	{ break; }
+					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
+				case RanState.Finalizing:
+					if ( state == null )	{ break; }
+					throw new InvalidOperationException( $"終了後の呼び出し : {_owner._body._ranState}" );
 				case RanState.Finalized:
 					throw new InvalidOperationException( $"終了後の呼び出し : {_owner._body._ranState}" );
 			}
+			if ( state != null && !_states.ContainsKey( state ) ) {
+				throw new ArgumentOutOfRangeException( $"{state}", "未定義状態へ遷移" );
+			}
+			var next = state != null ? _states[state] : null;
+			if ( state != null && !IsPossibleChangeState( next ) ) {
+				throw new InvalidOperationException( $"状態遷移が不可能 : {state}" );
+			}
+
 			_nextState = next;
 			_isRequestNextState = true;
-			await RunChangeState( true );
-		}
 
-		async UniTask RunChangeState( bool isWait ) {
-			Log.Debug( $"call RunChangeState()" );
-			if ( isWait && _isChangingState ) {
+			if ( _isChangingState ) {
 				Log.Debug( $"wait _isChangingState : {_state?.GetAboutName()}.{_runState}" );
 				await UniTaskUtility.WaitWhile( _changeStateAsyncCancel, () => _isChangingState );
 				Log.Debug( $"end wait _isChangingState : {_state?.GetAboutName()}.{_runState}" );
 				return;
 			}
+			await RunChangeState();
+		}
 
+		async UniTask RunChangeState() {
+			Log.Debug( $"call RunChangeState()" );
 			_isChangingState = true;
+
 			if ( _state != null ) {
+				_state.StopActiveAsync();
+				await _state.ChangeActive( false );
 				await _state.RunStateEvent( RunState.Exiting );
+			}
+
+			if ( _owner._body._ranState == RanState.Finalizing ) {
+				_nextState = null;
 			}
 			_state = _nextState;
 			_nextState = null;
 			_isRequestNextState = false;
-			if ( _state == null || _owner._body._ranState == RanState.Finalizing ) {
+			if ( _state == null ) {
 				Log.Debug( "set state null" );
 				_isChangingState = false;
 				return;
 			}
-			await _state.RunStateEvent( RunState.Entering );
 
-			if ( _state != null && _owner._body._ranState == RanState.Finalizing ) {
+			await _state.RunStateEvent( RunState.Entering );
+			if ( _owner._body._ranState == RanState.Finalizing ) {
+				_nextState = null;
+				_isRequestNextState = true;
+			}
+
+			if ( _owner._isActive && !_isRequestNextState )	{
+				await _state.ChangeActive( true );
+			}
+			if ( _owner._body._ranState == RanState.Finalizing ) {
 				_nextState = null;
 				_isRequestNextState = true;
 			}
 
 			if ( _isRequestNextState ) {
 				Log.Debug( "restart RunChangeState()" );
-				await RunChangeState( false );
+				await RunChangeState();
 			} else {
 				_isChangingState = false;
 				_state.RunStateEvent( RunState.Update ).Forget();

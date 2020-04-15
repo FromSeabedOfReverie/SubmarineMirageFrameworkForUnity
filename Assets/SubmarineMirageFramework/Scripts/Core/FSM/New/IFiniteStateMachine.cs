@@ -18,6 +18,7 @@ namespace SubmarineMirage.FSM.New {
 	public interface IFiniteStateMachine : IDisposableExtension {
 		bool _isActive				{ get; }
 		string _registerEventName	{ get; }
+		bool _isChangingState		{ get; }
 
 		MultiAsyncEvent _loadEvent			{ get; }
 		MultiAsyncEvent _initializeEvent	{ get; }

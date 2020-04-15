@@ -10,7 +10,6 @@ namespace SubmarineMirage.FSM.New {
 	using UniRx;
 	using UniRx.Async;
 	using MultiEvent;
-	using Process.New;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -98,20 +97,6 @@ namespace SubmarineMirage.FSM.New {
 		}
 
 
-		async UniTask WaitChangeActive() {
-			switch ( _owner._body._activeState ) {
-				case ActiveState.Enabling:
-				case ActiveState.Disabling:
-					var lastActiveState = _owner._body._activeState;
-					Log.Debug( "wait owner change active" );
-					await UniTaskUtility.WaitWhile(
-						_fsm._changeStateAsyncCancel, () => lastActiveState == _owner._body._activeState );
-					Log.Debug( "end wait owner change active" );
-					break;
-			}
-		}
-
-
 		public async UniTask RunStateEvent( RunState state ) {
 			Log.Debug( $"call RunStateEvent : {state}" );
 
@@ -119,12 +104,6 @@ namespace SubmarineMirage.FSM.New {
 				case RunState.Entering:
 					switch ( _runState ) {
 						case RunState.Exited:
-							await WaitChangeActive();
-							switch ( _runState ) {
-								case RunState.Entering:
-								case RunState.Entered:
-									return;
-							}
 							Log.Debug( "RunStateEvent : Entering" );
 							_runState = RunState.Entering;
 							try {
@@ -134,9 +113,6 @@ namespace SubmarineMirage.FSM.New {
 								throw;
 							}
 							_runState = RunState.Entered;
-							if ( _owner._isActive ) {
-								await ChangeActive( _fsm._changeStateAsyncCancel, true, false );
-							}
 							Log.Debug( "end RunStateEvent : Entering" );
 							return;
 					}
@@ -164,16 +140,7 @@ namespace SubmarineMirage.FSM.New {
 						case RunState.BeforeUpdate:
 						case RunState.Update:
 							Log.Debug( "RunStateEvent : Exiting" );
-							StopActiveAsync();
 							var lastRunState = _runState;
-							// 非同期停止時に、catchで状態が変わる為、1フレーム待機
-							await UniTaskUtility.Yield( _fsm._changeStateAsyncCancel );
-							await ChangeActive( _fsm._changeStateAsyncCancel, false, false );
-							switch ( _runState ) {
-								case RunState.Exiting:
-								case RunState.Exited:
-									return;
-							}
 							_runState = RunState.Exiting;
 							try {
 								await _exitEvent.Run( _fsm._changeStateAsyncCancel );
@@ -195,20 +162,20 @@ namespace SubmarineMirage.FSM.New {
 		}
 
 
-		public async UniTask ChangeActive( CancellationToken cancel, bool isActive, bool isWait ) {
+		public async UniTask ChangeActive( bool isActive ) {
 			_nextActiveState = isActive ? ActiveState.Enabling : ActiveState.Disabling;
-			await RunActiveEvent( cancel, isWait );
+			await RunActiveEvent();
 		}
 
-		async UniTask RunActiveEvent( CancellationToken cancel, bool isWait ) {
-			if ( !_nextActiveState.HasValue )		{ return; }
+		async UniTask RunActiveEvent() {
+			if ( !_nextActiveState.HasValue )	{ return; }
 
-			if ( isWait && _runState != RunState.Update && _runState != RunState.BeforeUpdate ) {
-				Log.Debug( "wait _isChangingState" );
-				await UniTaskUtility.WaitWhile( cancel,
-					() => isWait && _runState != RunState.Update && _runState != RunState.BeforeUpdate );
-				Log.Debug( "end wait _isChangingState" );
-			}
+			var cancel = (
+				_fsm._isChangingState						? _fsm._changeStateAsyncCancel :
+				_nextActiveState == ActiveState.Enabling	? _owner._activeAsyncCancel :
+				_nextActiveState == ActiveState.Disabling	? _owner._inActiveAsyncCancel
+															: default
+			);
 
 			switch ( _nextActiveState ) {
 				case ActiveState.Enabling:
@@ -216,8 +183,7 @@ namespace SubmarineMirage.FSM.New {
 					switch ( _activeState ) {
 						case ActiveState.Enabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile(
-								cancel, () => _activeState == ActiveState.Enabling );
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Enabling );
 							return;
 
 						case ActiveState.Enabled:
@@ -225,9 +191,8 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case ActiveState.Disabling:
-							await UniTaskUtility.WaitWhile(
-								cancel, () => _activeState == ActiveState.Disabling );
-							await RunActiveEvent( cancel, isWait );
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Disabling );
+							await RunActiveEvent();
 							return;
 
 						case ActiveState.Disabled:
@@ -251,8 +216,7 @@ namespace SubmarineMirage.FSM.New {
 					switch ( _activeState ) {
 						case ActiveState.Disabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile(
-								cancel, () => _activeState == ActiveState.Disabling );
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Disabling );
 							return;
 
 						case ActiveState.Disabled:
@@ -260,9 +224,8 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case ActiveState.Enabling:
-							await UniTaskUtility.WaitWhile(
-								cancel, () => _activeState == ActiveState.Enabling );
-							await RunActiveEvent( cancel, isWait );
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Enabling );
+							await RunActiveEvent();
 							return;
 
 						case ActiveState.Enabled:
@@ -287,14 +250,14 @@ namespace SubmarineMirage.FSM.New {
 		}
 
 
-		public async UniTask RunProcessStateEvent( CancellationToken cancel, RanState state ) {
+		public async UniTask RunProcessStateEvent( RanState state ) {
 			switch ( state ) {
 				case RanState.Loading:
-					await _loadEvent.Run( cancel );
+					await _loadEvent.Run( _owner._activeAsyncCancel );
 					return;
 
 				case RanState.Initializing:
-					await _initializeEvent.Run( cancel );
+					await _initializeEvent.Run( _owner._activeAsyncCancel );
 					return;
 
 				case RanState.FixedUpdate:
@@ -329,7 +292,7 @@ namespace SubmarineMirage.FSM.New {
 					return;
 
 				case RanState.Finalizing:
-					await _finalizeEvent.Run( cancel );
+					await _finalizeEvent.Run( _owner._inActiveAsyncCancel );
 					return;
 
 				case RanState.None:

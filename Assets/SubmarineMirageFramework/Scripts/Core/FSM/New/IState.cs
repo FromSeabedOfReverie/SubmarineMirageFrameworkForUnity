@@ -7,7 +7,6 @@
 namespace SubmarineMirage.FSM.New {
 	using System.Threading;
 	using UniRx.Async;
-	using MultiEvent;
 	using Process.New;
 	using Extension;
 
@@ -29,7 +28,7 @@ namespace SubmarineMirage.FSM.New {
 		void Set( TOwner owner );
 		void StopActiveAsync();
 		UniTask RunStateEvent( FiniteStateMachineRunState state );
-		UniTask ChangeActive( CancellationToken cancel, bool isActive, bool isWait );
-		UniTask RunProcessStateEvent( CancellationToken cancel, ProcessBody.RanState state );
+		UniTask ChangeActive( bool isActive );
+		UniTask RunProcessStateEvent( ProcessBody.RanState state );
 	}
 }
