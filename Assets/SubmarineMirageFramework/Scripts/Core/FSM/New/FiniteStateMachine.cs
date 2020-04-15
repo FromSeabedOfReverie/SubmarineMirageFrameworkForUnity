@@ -13,13 +13,10 @@ namespace SubmarineMirage.FSM.New {
 	using UniRx.Async;
 	using KoganeUnityLib;
 	using MultiEvent;
-	using Process.New;
 	using Extension;
 	using Utility;
-	using Debug;
 	using RunState = FiniteStateMachineRunState;
 	using RanState = Process.New.ProcessBody.RanState;
-	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 	// TODO : コメント追加、整頓
@@ -82,7 +79,6 @@ namespace SubmarineMirage.FSM.New {
 			} );
 			_finalizeEvent.AddFirst( _registerEventName, async cancel => {
 				await ChangeState( null );
-				Log.Debug( "_state is null and stop _updateEvent" );
 				await UniTask.WhenAll(
 					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Finalizing ) )
 				);
@@ -99,22 +95,14 @@ namespace SubmarineMirage.FSM.New {
 			);
 
 			_enableEvent.AddLast( _registerEventName, async cancel => {
-				if ( _isChangingState ) {
-					Log.Debug( "wait _isChangingState" );
-					await UniTaskUtility.WaitWhile( cancel, () => _isChangingState );
-					Log.Debug( "end wait _isChangingState" );
-				}
+				await UniTaskUtility.WaitWhile( cancel, () => _isChangingState );
 				if ( _state != null ) {
 					await _state.ChangeActive( true );
 				}
 			} );
 			_disableEvent.AddFirst( _registerEventName, async cancel => {
-				if ( _isChangingState && _owner._body._ranState != RanState.Finalizing ) {
-					Log.Debug( "wait _isChangingState" );
-					await UniTaskUtility.WaitWhile(
-						cancel, () => _isChangingState && _owner._body._ranState != RanState.Finalizing );
-					Log.Debug( "end wait _isChangingState" );
-				}
+				await UniTaskUtility.WaitWhile(
+					cancel, () => _isChangingState && _owner._body._ranState != RanState.Finalizing );
 				if ( _state != null ) {
 					await _state.ChangeActive( false );
 				}
@@ -169,16 +157,13 @@ namespace SubmarineMirage.FSM.New {
 			_isRequestNextState = true;
 
 			if ( _isChangingState ) {
-				Log.Debug( $"wait _isChangingState : {_state?.GetAboutName()}.{_runState}" );
 				await UniTaskUtility.WaitWhile( _changeStateAsyncCancel, () => _isChangingState );
-				Log.Debug( $"end wait _isChangingState : {_state?.GetAboutName()}.{_runState}" );
 				return;
 			}
 			await RunChangeState();
 		}
 
 		async UniTask RunChangeState() {
-			Log.Debug( $"call RunChangeState()" );
 			_isChangingState = true;
 
 			if ( _state != null ) {
@@ -194,7 +179,6 @@ namespace SubmarineMirage.FSM.New {
 			_nextState = null;
 			_isRequestNextState = false;
 			if ( _state == null ) {
-				Log.Debug( "set state null" );
 				_isChangingState = false;
 				return;
 			}
@@ -214,7 +198,6 @@ namespace SubmarineMirage.FSM.New {
 			}
 
 			if ( _isRequestNextState ) {
-				Log.Debug( "restart RunChangeState()" );
 				await RunChangeState();
 			} else {
 				_isChangingState = false;

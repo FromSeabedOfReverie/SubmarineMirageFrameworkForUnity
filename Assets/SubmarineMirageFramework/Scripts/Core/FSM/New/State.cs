@@ -12,7 +12,6 @@ namespace SubmarineMirage.FSM.New {
 	using MultiEvent;
 	using Extension;
 	using Utility;
-	using Debug;
 	using RunState = FiniteStateMachineRunState;
 	using RanState = Process.New.ProcessBody.RanState;
 	using ActiveState = Process.New.ProcessBody.ActiveState;
@@ -88,7 +87,6 @@ namespace SubmarineMirage.FSM.New {
 
 
 		public void StopActiveAsync() {
-			Log.Debug( $"{this.GetAboutName()}.StopActiveAsync()" );
 			_disposables.Remove( "_activeAsyncCanceler" );
 			using ( var canceler = new CancellationTokenSource() ) {
 				_activeAsyncCanceler = canceler.Token.Add( _owner._activeAsyncCancel );
@@ -98,13 +96,10 @@ namespace SubmarineMirage.FSM.New {
 
 
 		public async UniTask RunStateEvent( RunState state ) {
-			Log.Debug( $"call RunStateEvent : {state}" );
-
 			switch ( state ) {
 				case RunState.Entering:
 					switch ( _runState ) {
 						case RunState.Exited:
-							Log.Debug( "RunStateEvent : Entering" );
 							_runState = RunState.Entering;
 							try {
 								await _enterEvent.Run( _fsm._changeStateAsyncCancel );
@@ -113,7 +108,6 @@ namespace SubmarineMirage.FSM.New {
 								throw;
 							}
 							_runState = RunState.Entered;
-							Log.Debug( "end RunStateEvent : Entering" );
 							return;
 					}
 					return;
@@ -122,14 +116,11 @@ namespace SubmarineMirage.FSM.New {
 					switch ( _runState ) {
 						case RunState.Entered:
 						case RunState.BeforeUpdate:
-							Log.Debug( "RunStateEvent : Update" );
 							_runState = RunState.BeforeUpdate;
 							if ( _owner._isActive ) {
-								Log.Debug( "Run _updateEvent" );
 								_runState = RunState.Update;
 								await _updateEvent.Run( _activeAsyncCancel );
 							}
-							Log.Debug( "end RunStateEvent : Update" );
 							return;
 					}
 					return;
@@ -139,7 +130,6 @@ namespace SubmarineMirage.FSM.New {
 						case RunState.Entered:
 						case RunState.BeforeUpdate:
 						case RunState.Update:
-							Log.Debug( "RunStateEvent : Exiting" );
 							var lastRunState = _runState;
 							_runState = RunState.Exiting;
 							try {
@@ -149,7 +139,6 @@ namespace SubmarineMirage.FSM.New {
 								throw;
 							}
 							_runState = RunState.Exited;
-							Log.Debug( "end RunStateEvent : Exiting" );
 							return;
 					}
 					return;
@@ -179,7 +168,6 @@ namespace SubmarineMirage.FSM.New {
 
 			switch ( _nextActiveState ) {
 				case ActiveState.Enabling:
-					Log.Debug( $"call {this.GetAboutName()}.{ActiveState.Enabling}" );
 					switch ( _activeState ) {
 						case ActiveState.Enabling:
 							_nextActiveState = null;
@@ -196,7 +184,6 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case ActiveState.Disabled:
-							Log.Debug( $"run {this.GetAboutName()}.{ActiveState.Enabling}" );
 							_nextActiveState = null;
 							_activeState = ActiveState.Enabling;
 							try {
@@ -212,7 +199,6 @@ namespace SubmarineMirage.FSM.New {
 					return;
 
 				case ActiveState.Disabling:
-					Log.Debug( $"call {this.GetAboutName()}.{ActiveState.Disabling}" );
 					switch ( _activeState ) {
 						case ActiveState.Disabling:
 							_nextActiveState = null;
@@ -229,7 +215,6 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case ActiveState.Enabled:
-							Log.Debug( $"run {this.GetAboutName()}.{ActiveState.Disabling}" );
 							_nextActiveState = null;
 							_activeState = ActiveState.Disabling;
 							try {
