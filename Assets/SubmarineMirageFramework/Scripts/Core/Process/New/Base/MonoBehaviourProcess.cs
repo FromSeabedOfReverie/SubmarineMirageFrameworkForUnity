@@ -42,12 +42,6 @@ namespace SubmarineMirage.Process.New {
 
 
 		public void Constructor() {
-			if ( _hierarchy == null ) {
-				var ps = GetComponents<MonoBehaviourProcess>();
-				var process = ps.FirstOrDefault( p => p._hierarchy != null );
-				if ( process != null )	{ process._hierarchy.SetBrothers( ps ); }
-				else					{ _hierarchy = new ProcessHierarchy( gameObject, ps ); }
-			}
 			_body = new ProcessBody(
 				this,
 				isActiveAndEnabled ? ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling

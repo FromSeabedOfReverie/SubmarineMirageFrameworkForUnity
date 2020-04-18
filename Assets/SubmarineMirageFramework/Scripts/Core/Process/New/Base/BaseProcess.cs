@@ -41,7 +41,7 @@ namespace SubmarineMirage.Process.New {
 
 
 		protected BaseProcess() {
-			_hierarchy = new ProcessHierarchy( null, new IProcess[] { this } );
+			_hierarchy = new ProcessHierarchy( null, new IProcess[] { this }, null );
 			_body = new ProcessBody( this, ProcessBody.ActiveState.Enabling );
 		}
 

@@ -28,28 +28,27 @@ namespace SubmarineMirage.Process.New {
 		public ProcessBody.LifeSpan _lifeSpan	{ get; private set; }
 		public string _belongSceneName			{ get; private set; }
 
-		GameObject _owner;
+		public GameObject _owner	{ get; private set; }
 		readonly List<IProcess> _processes = new List<IProcess>();
 		ProcessHierarchy _parent;
-		ProcessHierarchy _child;
+		readonly List<ProcessHierarchy> _children = new List<ProcessHierarchy>();
 		ProcessHierarchy _top;
 
 		readonly MultiDisposable _disposables = new MultiDisposable();
 
 
-		public ProcessHierarchy( GameObject owner, IEnumerable<IProcess> processes ) {
+		public ProcessHierarchy( GameObject owner, IEnumerable<IProcess> processes, ProcessHierarchy parent ) {
 			_owner = owner;
 
-			SetParent();
+			SetParent( parent );
+			SetChildren();
 			SetBrothers( processes );
 
-			_disposables.AddLast( () => {
-				if ( _parent != null )	{ _parent._child = null; }
-			} );
+			_disposables.AddLast( () => _parent?._children.Remove( this ) );
 			_disposables.AddLast( _processes );
-			_disposables.AddLast( _child );
+			_disposables.AddLast( _children );
 
-			SetTopData();
+			SetTop();
 
 			Log.Debug( $"作成 : {this}" );
 		}
@@ -59,41 +58,59 @@ namespace SubmarineMirage.Process.New {
 		public void Dispose() => _disposables.Dispose();
 
 
-		void SetParent() {
+		void SetParent( ProcessHierarchy parent ) {
 			if ( _owner == null )	{ return; }
 
-			if ( _parent != null ) {
-				_parent._child = null;
-				_parent = null;
-			}
-			var parents = _owner.GetComponentsInParentUntilOneHierarchy<MonoBehaviourProcess>( true );
-			if ( parents.IsEmpty() )	{ return; }
-			var parent = parents.FirstOrDefault( p => p._hierarchy != null );
-			if ( parent == null ) {
-				parent = parents.FirstOrDefault();
-				parent._hierarchy = new ProcessHierarchy( parent.gameObject, parents );
-			}
-			_parent = parent._hierarchy;
-			_parent._child = this;
+			_parent?._children.Remove( this );
+			_parent = parent;
+			_parent?._children.Add( this );
 		}
 
-		public void SetBrothers( IEnumerable<IProcess> processes ) {
+		void SetChildren() {
+			if ( _owner == null )	{ return; }
+
+			var currents = new List<Transform> { _owner.transform };
+			while ( !currents.IsEmpty() ) {
+				var children = new List<Transform>();
+				currents.ForEach( t => {
+					foreach ( Transform child in t ) {
+						var ps = child.GetComponents<MonoBehaviourProcess>();
+						if ( !ps.IsEmpty() ) {
+							new ProcessHierarchy( child.gameObject, ps, this );
+						} else {
+							children.Add( child );
+						}
+					}
+				} );
+				currents = children;
+			}
+		}
+
+		void SetBrothers( IEnumerable<IProcess> processes ) {
 			_processes.Clear();
 			_processes.Add( processes );
 			_processes.ForEach( p => p._hierarchy = this );
+			if ( _owner != null ) {
+				_processes.ForEach( p => ( (MonoBehaviourProcess)p ).Constructor() );
+			}
 		}
 
-		void SetTopData() {
+		void SetTop() {
 			if ( _top != null )	{ return; }
-			for ( _top = this; _top._parent != null; _top = _top._parent ) {
-			}
+			for ( _top = this; _top._parent != null; _top = _top._parent );
 
-			var allHierarchy = new List<ProcessHierarchy>();
-			var allProcesses = new List<IProcess>();
-			for ( var h = _top; h != null; h = h._child ) {
-				allHierarchy.Add( h );
-				allProcesses.Add( h._processes );
+			SetAllHierarchiesData();
+
+			if ( _top._owner != null && _lifeSpan == ProcessBody.LifeSpan.Forever ) {
+				UnityObject.DontDestroyOnLoad( _top._owner );
 			}
+//			CoreProcessManager.s_instance.Register( _top ).Forget();
+//			_disposables.AddLast( "Unregister", () => CoreProcessManager.s_instance.Unregister( _top ) );
+		}
+
+		void SetAllHierarchiesData() {
+			var allHierarchy = GetHierarchiesInChildren( _top );
+			var allProcesses = allHierarchy.SelectMany( h => h._processes );
 
 			_type = (
 				allProcesses.Any( p => p._type == ProcessBody.Type.FirstWork )	? ProcessBody.Type.FirstWork :
@@ -104,14 +121,9 @@ namespace SubmarineMirage.Process.New {
 				ProcessBody.LifeSpan.Forever : ProcessBody.LifeSpan.InScene;
 			_belongSceneName = (
 				_lifeSpan == ProcessBody.LifeSpan.Forever	? ProcessBody.FOREVER_SCENE_NAME :
-				_owner != null								? _owner.scene.name
+				_top._owner != null							? _top._owner.scene.name
 															: SceneManager.s_instance._currentSceneName
 			);
-			if ( _owner != null && _lifeSpan == ProcessBody.LifeSpan.Forever ) {
-// TODO : DontDestroyOnLoad後に、シーンのルートオブジェクトを取得する方法は無い為、
-//			フラグ付与前にシーンから取得し、初期化関数を呼び、関数内でフラグを設定する
-				UnityObject.DontDestroyOnLoad( _owner );
-			}
 
 			allHierarchy.ForEach( h => {
 				h._top = _top;
@@ -119,11 +131,21 @@ namespace SubmarineMirage.Process.New {
 				h._lifeSpan = _lifeSpan;
 				h._belongSceneName = _belongSceneName;
 			} );
+		}
 
-			if ( _top == this ) {
-//				CoreProcessManager.s_instance.Register( this ).Forget();
-//				_disposables.AddLast( "Unregister", () => CoreProcessManager.s_instance.Unregister( this ) );
+
+		List<ProcessHierarchy> GetHierarchiesInChildren( ProcessHierarchy parent ) {
+			var result = new List<ProcessHierarchy>();
+			var currents = new List<ProcessHierarchy> { parent };
+			while ( !currents.IsEmpty() ) {
+				var children = new List<ProcessHierarchy>();
+				currents.ForEach( h => {
+					result.Add( h );
+					children.Add( h._children );
+				} );
+				currents = children;
 			}
+			return result;
 		}
 
 
@@ -132,36 +154,90 @@ namespace SubmarineMirage.Process.New {
 
 			_owner.transform.SetParent( parent, isWorldPositionStays );
 //			if ( _top == this )	{ _disposables.Remove( "Unregister" ); }
-			SetParent();
+
+			var p = _owner.GetComponentInParentUntilOneHierarchy<MonoBehaviourProcess>( true )
+				?._hierarchy;
+			SetParent( p );
 
 			if ( _parent == null ) {
 				_top = null;
-				SetTopData();
+				SetTop();
+
 			} else {
-				for ( var h = this; h != null; h = h._child ) {
-					h._top = h._parent._top;
-					h._type = h._parent._type;
-					h._lifeSpan = h._parent._lifeSpan;
-					h._belongSceneName = h._parent._belongSceneName;
-				}
+				GetHierarchiesInChildren( this ).ForEach( h => {
+					h._top = _parent._top;
+					h._type = _parent._type;
+					h._lifeSpan = _parent._lifeSpan;
+					h._belongSceneName = _parent._belongSceneName;
+				} );
 			}
 		}
 
 
-// TODO : これらの関数を作成
-		public void AddComponent() {
+		public T AddProcess<T>() where T : MonoBehaviourProcess {
+			if ( _owner == null )	{ return null; }
+			var p = _owner.AddComponent<T>();
+			_processes.Add( p );
+			p._hierarchy = this;
+			p.Constructor();
+			return p;
 		}
 
-		public void Instantiate() {
+		public T GetProcess<T>() where T : MonoBehaviourProcess {
+			if ( _owner == null )	{ return null; }
+			return (T)_processes.FirstOrDefault( p => p is T );
 		}
 
-		public void Destroy() {
+
+		public ProcessHierarchy InstantiateHierarchy( GameObject instance ) {
+			var ps = instance.GetComponents<MonoBehaviourProcess>();
+			var parent = instance.GetComponentInParentUntilOneHierarchy<MonoBehaviourProcess>( true )
+				?._hierarchy;
+			return new ProcessHierarchy( instance.gameObject, ps, parent );
+		}
+
+		public GameObject InstantiateProcess( GameObject original, Transform parent,
+												bool isWorldPositionStays )
+		{
+			var go = UnityObject.Instantiate( original, parent, isWorldPositionStays );
+			InstantiateHierarchy( go );
+			return go;
+		}
+		public GameObject InstantiateProcess( GameObject original, Transform parent ) {
+			var go = UnityObject.Instantiate( original, parent );
+			InstantiateHierarchy( go );
+			return go;
+		}
+		public GameObject InstantiateProcess( GameObject original, Vector3 position, Quaternion rotation,
+												Transform parent )
+		{
+			var go = UnityObject.Instantiate( original, position, rotation, parent );
+			InstantiateHierarchy( go );
+			return go;
+		}
+		public GameObject InstantiateProcess( GameObject original, Vector3 position, Quaternion rotation ) {
+			var go = UnityObject.Instantiate( original, position, rotation );
+			InstantiateHierarchy( go );
+			return go;
+		}
+		public GameObject InstantiateProcess( GameObject original ) {
+			var go = UnityObject.Instantiate( original );
+			InstantiateHierarchy( go );
+			return go;
+		}
+
+
+		public async UniTask Destroy() {
+// TODO : Destroy中のオブジェクトを、管理クラスで監視する
+			SetParent( null );
+			await RunStateEvent( ProcessBody.RanState.Finalizing );
+			Dispose();
 		}
 
 
 		public async UniTask RunStateEvent( ProcessBody.RanState state ) {
 			using ( var events = new MultiAsyncEvent() ) {
-				switch( _type ) {
+				switch ( _type ) {
 					case ProcessBody.Type.FirstWork:
 						events.AddLast( async _ => {
 							foreach ( var p in _processes ) {
@@ -169,20 +245,23 @@ namespace SubmarineMirage.Process.New {
 								catch ( OperationCanceledException )	{}
 							}
 						} );
-						if ( _child != null ) {
-							events.AddLast( async _ => await _child.RunStateEvent( state ) );
-						}
+						events.AddLast( async _ => {
+							foreach ( var p in _children ) {
+								await p.RunStateEvent( state );
+							}
+						} );
 						break;
 
 					case ProcessBody.Type.Work:
-						events.AddLast( async _ => {
-							var tasks = _processes.Select( p => {
-								try										{ return p.RunStateEvent( state ); }
-								catch ( OperationCanceledException )	{ return UniTaskUtility.DontWait(); }
-							} ).ToList();
-							if ( _child != null )	{ tasks.Add( _child.RunStateEvent( state ) ); }
-							await UniTask.WhenAll( tasks );
-						} );
+						events.AddLast( async _ => await UniTask.WhenAll(
+							_processes.Select( async p => {
+								try										{ await p.RunStateEvent( state ); }
+								catch ( OperationCanceledException )	{}
+							} )
+							.Concat(
+								_children.Select( p => p.RunStateEvent( state ) )
+							)
+						) );
 						break;
 				}
 				if ( state == ProcessBody.RanState.Finalizing )	{ events.Reverse(); }
@@ -201,7 +280,7 @@ namespace SubmarineMirage.Process.New {
 						await UniTaskUtility.DontWait();
 					} );
 				}
-				switch( _type ) {
+				switch ( _type ) {
 					case ProcessBody.Type.FirstWork:
 						events.AddLast( async _ => {
 							foreach ( var p in _processes ) {
@@ -209,20 +288,23 @@ namespace SubmarineMirage.Process.New {
 								catch ( OperationCanceledException )	{}
 							}
 						} );
-						if ( _child != null ) {
-							events.AddLast( async _ => await _child.ChangeActive( isActive, false ) );
-						}
+						events.AddLast( async _ => {
+							foreach ( var p in _children ) {
+								await p.ChangeActive( isActive, false );
+							}
+						} );
 						break;
 
 					case ProcessBody.Type.Work:
-						events.AddLast( async _ => {
-							var tasks = _processes.Select( p => {
-								try										{ return p.ChangeActive( isActive ); }
-								catch ( OperationCanceledException )	{ return UniTaskUtility.DontWait(); }
-							} ).ToList();
-							if ( _child != null )	{ tasks.Add( _child.ChangeActive( isActive, false ) ); }
-							await UniTask.WhenAll( tasks );
-						} );
+						events.AddLast( async _ => await UniTask.WhenAll(
+							_processes.Select( async p => {
+								try										{ await p.ChangeActive( isActive ); }
+								catch ( OperationCanceledException )	{}
+							} )
+							.Concat(
+								_children.Select( p => p.ChangeActive( isActive, false ) )
+							)
+						) );
 						break;
 				}
 				if ( !isActive )	{ events.Reverse(); }
@@ -234,7 +316,7 @@ namespace SubmarineMirage.Process.New {
 
 		public async UniTask RunActiveEvent() {
 			using ( var events = new MultiAsyncEvent() ) {
-				switch( _type ) {
+				switch ( _type ) {
 					case ProcessBody.Type.FirstWork:
 						events.AddLast( async _ => {
 							foreach ( var p in _processes ) {
@@ -242,20 +324,23 @@ namespace SubmarineMirage.Process.New {
 								catch ( OperationCanceledException )	{}
 							}
 						} );
-						if ( _child != null ) {
-							events.AddLast( async _ => await _child.RunActiveEvent() );
-						}
+						events.AddLast( async _ => {
+							foreach ( var p in _children ) {
+								await p.RunActiveEvent();
+							}
+						} );
 						break;
 
 					case ProcessBody.Type.Work:
-						events.AddLast( async _ => {
-							var tasks = _processes.Select( p => {
-								try										{ return p.RunActiveEvent(); }
-								catch ( OperationCanceledException )	{ return UniTaskUtility.DontWait(); }
-							} ).ToList();
-							if ( _child != null )	{ tasks.Add( _child.RunActiveEvent() ); }
-							await UniTask.WhenAll( tasks );
-						} );
+						events.AddLast( async _ => await UniTask.WhenAll(
+							_processes.Select( async p => {
+								try										{ await p.RunActiveEvent(); }
+								catch ( OperationCanceledException )	{}
+							} )
+							.Concat(
+								_children.Select( p => p.RunActiveEvent() )
+							)
+						) );
 						break;
 				}
 				using ( var canceler = new CancellationTokenSource() ) {
@@ -266,8 +351,6 @@ namespace SubmarineMirage.Process.New {
 
 
 		public override string ToString() {
-//			return this.ToDeepString();
-
 			var result = $"{this.GetAboutName()}(\n"
 				+ $"    _type : {_type}\n"
 				+ $"    _lifeSpan : {_lifeSpan}\n"
@@ -275,22 +358,24 @@ namespace SubmarineMirage.Process.New {
 				+ $"    _owner : {_owner}\n";
 
 			result += $"    _processes : \n";
-			_processes.ForEach( (p, i) => result += $"        {i} : {p.GetAboutName()}\n" );
+			_processes.ForEach( ( p, i ) => result += $"        {i} : {p.GetAboutName()}\n" );
 
 			new KeyValuePair<string, ProcessHierarchy>[] {
-				new KeyValuePair<string, ProcessHierarchy>( "_parent", _parent ),
-				new KeyValuePair<string, ProcessHierarchy>( "_child", _child ),
 				new KeyValuePair<string, ProcessHierarchy>( "_top", _top ),
+				new KeyValuePair<string, ProcessHierarchy>( "_parent", _parent ),
 			}
 			.ForEach( pair => {
 				var s = (
 					pair.Value == null			? string.Empty :
 					pair.Value == this			? "this" :
-					pair.Value._owner != null	? pair.Value._owner.ToString()
-												: pair.Value._processes.FirstOrDefault().ToString()
+					pair.Value._owner != null	? $"{pair.Value._owner}"
+												: $"{pair.Value._processes.FirstOrDefault()}"
 				);
 				result += $"    {pair.Key} : {s}\n";
 			} );
+
+			result += $"    _children : \n";
+			_children.ForEach( ( h, i ) => result += $"        {i} : {h._owner}\n" );
 
 			result += ")";
 			return result;
