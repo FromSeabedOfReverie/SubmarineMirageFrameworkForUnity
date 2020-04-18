@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
+	using UniRx.Async;
 	using Process.New;
 
 
@@ -34,7 +35,15 @@ namespace SubmarineMirage.Singleton.New {
 			s_instanceObject = FindObjectOfType<T>();
 			if ( s_isCreated )	{ return; }
 
-			s_instanceObject = MonoBehaviourSingletonManager.s_instance.CreateComponent<T>();
+			s_instanceObject = typeof( T ) == typeof( MonoBehaviourSingletonManager ) ?
+				(T)(object)MonoBehaviourSingletonManager.CreateTopInstance() :
+				MonoBehaviourSingletonManager.s_instance.CreateProcess<T>();
+		}
+
+
+		public static async UniTask WaitForCreation() {
+			var i = s_instance;
+			await UniTask.Delay( 1 );
 		}
 
 

@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
+	using System.Collections.Generic;
 	using UnityEngine;
 	using Extension;
 	using Process.New;
@@ -14,35 +15,37 @@ namespace SubmarineMirage.Singleton.New {
 	// TODO : コメント追加、整頓
 
 
-	public class MonoBehaviourSingletonManager : Singleton<MonoBehaviourSingletonManager> {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-		static GameObject s_parent;
-
-
-		void CreateGameObject() {
-			if ( s_parent != null )	{ return; }
+	public class MonoBehaviourSingletonManager : MonoBehaviourSingleton<MonoBehaviourSingletonManager> {
+		public static MonoBehaviourSingletonManager CreateTopInstance() {
+			MonoBehaviourSingletonManager instance = null;
 
 			var tag = TagManager.s_instance.Get( TagManager.Name.Singletons );
-			s_parent = GameObject.FindWithTag( tag );
-			if ( s_parent != null )	{ return; }
+			var go = GameObject.FindWithTag( tag );
+			if ( go != null ) {
+				var p = go.GetComponent<MonoBehaviourSingletonManager>();
+				if ( p != null ) {
+					instance = p;
+				}
+			}
+			if ( instance != null )	{ return instance; }
 
-			s_parent = new GameObject( tag );
-			s_parent.tag = tag;
-			Object.DontDestroyOnLoad( s_parent );
+			go = new GameObject( tag );
+			go.tag = tag;
+			instance = go.AddComponent<MonoBehaviourSingletonManager>();
+			new ProcessHierarchy( go, new List<IProcess>() { instance }, null );
 
-			Log.Debug( $"作成（GameObject） : { this.GetAboutName() }", Log.Tag.Singleton );
+			Log.Debug( $"作成（GameObject） : { instance.GetAboutName() }", Log.Tag.Singleton );
+			return instance;
 		}
 
 
-		public T CreateComponent<T>() where T : MonoBehaviourProcess {
-			CreateGameObject();
+		public T CreateProcess<T>() where T : MonoBehaviourProcess {
+			var process = _hierarchy.GetProcess<T>();
+			if ( process != null )	{ return process; }
 
-			var component = s_parent.GetComponent<T>();
-			if ( component != null )	{ return component; }
-
-			component = s_parent.AddComponent<T>();
-			Log.Debug( $"作成（Component） : { component.GetAboutName() }", Log.Tag.Singleton );
-			return component;
+			process = _hierarchy.AddProcess<T>();
+			Log.Debug( $"作成（Component） : { process.GetAboutName() }", Log.Tag.Singleton );
+			return process;
 		}
 
 
