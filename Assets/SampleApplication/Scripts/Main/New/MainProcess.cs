@@ -58,7 +58,9 @@ namespace SubmarineMirage.Main.New {
 		}
 
 		static async UniTask RegisterProcesses() {
-//			await SceneManager.WaitForCreation();
+			await MonoBehaviourSingletonManager.WaitForCreation();
+//			await CoreProcessManager.WaitForCreation();
+			await SceneManager.WaitForCreation();
 
 			await UniTaskUtility.DontWait();
 		}
