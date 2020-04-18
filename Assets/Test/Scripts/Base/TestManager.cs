@@ -6,7 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Test {
 	using System.Collections.Generic;
+	using UnityEngine;
 	using SubmarineMirage.Editor;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -14,9 +16,13 @@ namespace SubmarineMirage.Test {
 
 	public static class TestManager {
 		static List<BaseTest> _tests = new List<BaseTest>();
+		
+		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
+		static void Main() {
+			ConsoleEditorUtility.Clear();
+		}
 
 		static TestManager() {
-			ConsoleEditorUtility.Clear();
 			Dispose();
 			PlayerExtensionEditor._playStopEvent = () => Dispose();
 		}
