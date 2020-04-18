@@ -4,43 +4,31 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.MultiEvent {
+namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine;
 	using UniRx;
+	using MultiEvent;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class TestMultiDisposable {
-		MultiDisposable _events = new MultiDisposable();
+	public class TestMultiEvent {
+		MultiEvent _events = new MultiEvent();
 
-		public TestMultiDisposable() {
+		public TestMultiEvent() {
 			Application.targetFrameRate = 10;
 
 			Log.Debug( _events );
-/*
-			_events.AddLast( "0", () => Log.Debug( "0" ) );
-			_events.InsertLast( "0", () => Log.Debug( "1" ) );
-			_events.InsertLast( "0", Disposable.Create( () => Log.Debug( "2" ) ) );
-			_events.InsertLast( "0",
-				Disposable.Create( () => Log.Debug( "3" ) ),
-				Disposable.Create( () => Log.Debug( "4" ) )
-			);
-			_events.InsertLast( "0", "5", () => Log.Debug( "5" ) );
-			_events.InsertLast( "0", "6", Disposable.Create( () => Log.Debug( "6" ) ) );
-			_events.InsertLast( "0", "7",
-				Disposable.Create( () => Log.Debug( "7" ) ),
-				Disposable.Create( () => Log.Debug( "8" ) )
-			);
-*/
 			_events.AddLast( "b", () => Log.Debug( "b" ) );
 			_events.AddLast( "c", () => Log.Debug( "c" ) );
 			_events.AddFirst( "a", () => Log.Debug( "a" ) );
 			Log.Debug( _events );
 
 
+			Observable.EveryUpdate()
+				.Subscribe( _ => _events.Run() );
 			Observable.EveryUpdate()
 				.Where( _ => Input.GetKeyDown( KeyCode.R ) )
 				.Subscribe( _ => {
@@ -69,6 +57,6 @@ namespace SubmarineMirage.MultiEvent {
 				} );
 		}
 
-		~TestMultiDisposable() => _events.Dispose();
+		~TestMultiEvent() => _events.Dispose();
 	}
 }

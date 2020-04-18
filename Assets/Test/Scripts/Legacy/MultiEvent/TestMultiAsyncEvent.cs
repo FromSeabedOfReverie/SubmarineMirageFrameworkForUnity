@@ -4,30 +4,45 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.MultiEvent {
+namespace SubmarineMirage.TestMultiEvent {
+	using System.Threading;
 	using UnityEngine;
 	using UniRx;
+	using UniRx.Async;
+	using MultiEvent;
+	using Utility;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class TestMultiEvent {
-		MultiEvent _events = new MultiEvent();
+	public class TestMultiAsyncEvent {
+		MultiAsyncEvent _events = new MultiAsyncEvent();
+		CancellationTokenSource _canceler = new CancellationTokenSource();
 
-		public TestMultiEvent() {
+		public TestMultiAsyncEvent() {
 			Application.targetFrameRate = 10;
 
 			Log.Debug( _events );
-			_events.AddLast( "b", () => Log.Debug( "b" ) );
-			_events.AddLast( "c", () => Log.Debug( "c" ) );
-			_events.AddFirst( "a", () => Log.Debug( "a" ) );
+			_events.AddLast( "b", async cancel => {
+				Log.Debug( "b start" );
+				await UniTaskUtility.Delay( cancel, 1000 );
+				Log.Debug( "b end" );
+			} );
+			_events.AddLast( "c", async cancel => {
+				Log.Debug( "c start" );
+				await UniTaskUtility.Delay( cancel, 1000 );
+				Log.Debug( "c end" );
+			} );
+			_events.AddFirst( "a", async cancel => {
+				Log.Debug( "a start" );
+				await UniTaskUtility.Delay( cancel, 1000 );
+				Log.Debug( "a end" );
+			} );
 			Log.Debug( _events );
 
 
-			Observable.EveryUpdate()
-				.Subscribe( _ => _events.Run() );
 			Observable.EveryUpdate()
 				.Where( _ => Input.GetKeyDown( KeyCode.R ) )
 				.Subscribe( _ => {
@@ -43,8 +58,22 @@ namespace SubmarineMirage.MultiEvent {
 					Log.Warning( "key down A" );
 					Log.Debug( _events );
 					var ii = i++;
-					_events.AddLast( $"{ii}", () => Log.Debug( $"{ii}" ) );
+					_events.AddLast( $"{ii}", async cancel => {
+						Log.Debug( $"{ii} start" );
+						await UniTaskUtility.Delay( cancel, 1000 );
+						Log.Debug( $"{ii} end" );
+					} );
 					Log.Debug( _events );
+				} );
+			Observable.EveryUpdate()
+				.Where( _ => Input.GetKeyDown( KeyCode.S ) )
+				.Subscribe( _ => {
+					Log.Warning( "key down S" );
+					Log.Debug( _events );
+					UniTask.Void( async () => {
+						await _events.Run( _canceler.Token );
+						Log.Debug( _events );
+					} );
 				} );
 			Observable.EveryUpdate()
 				.Where( _ => Input.GetKeyDown( KeyCode.D ) )
@@ -56,6 +85,6 @@ namespace SubmarineMirage.MultiEvent {
 				} );
 		}
 
-		~TestMultiEvent() => _events.Dispose();
+		~TestMultiAsyncEvent() => _events.Dispose();
 	}
 }

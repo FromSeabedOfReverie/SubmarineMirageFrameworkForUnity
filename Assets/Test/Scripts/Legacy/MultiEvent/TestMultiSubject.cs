@@ -4,9 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.MultiEvent {
+namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine;
 	using UniRx;
+	using MultiEvent;
 	using Debug;
 
 

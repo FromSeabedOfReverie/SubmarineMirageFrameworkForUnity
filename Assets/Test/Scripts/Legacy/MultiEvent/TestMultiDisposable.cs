@@ -4,42 +4,41 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.MultiEvent {
-	using System;
-	using System.Threading;
+namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine;
 	using UniRx;
-	using UniRx.Async;
-	using Utility;
+	using MultiEvent;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class TestMultiAsyncEvent {
-		MultiAsyncEvent _events = new MultiAsyncEvent();
-		CancellationTokenSource _canceler = new CancellationTokenSource();
+	public class TestMultiDisposable {
+		MultiDisposable _events = new MultiDisposable();
 
-		public TestMultiAsyncEvent() {
+		public TestMultiDisposable() {
 			Application.targetFrameRate = 10;
 
 			Log.Debug( _events );
-			_events.AddLast( "b", async cancel => {
-				Log.Debug( "b start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "b end" );
-			} );
-			_events.AddLast( "c", async cancel => {
-				Log.Debug( "c start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "c end" );
-			} );
-			_events.AddFirst( "a", async cancel => {
-				Log.Debug( "a start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( "a end" );
-			} );
+/*
+			_events.AddLast( "0", () => Log.Debug( "0" ) );
+			_events.InsertLast( "0", () => Log.Debug( "1" ) );
+			_events.InsertLast( "0", Disposable.Create( () => Log.Debug( "2" ) ) );
+			_events.InsertLast( "0",
+				Disposable.Create( () => Log.Debug( "3" ) ),
+				Disposable.Create( () => Log.Debug( "4" ) )
+			);
+			_events.InsertLast( "0", "5", () => Log.Debug( "5" ) );
+			_events.InsertLast( "0", "6", Disposable.Create( () => Log.Debug( "6" ) ) );
+			_events.InsertLast( "0", "7",
+				Disposable.Create( () => Log.Debug( "7" ) ),
+				Disposable.Create( () => Log.Debug( "8" ) )
+			);
+*/
+			_events.AddLast( "b", () => Log.Debug( "b" ) );
+			_events.AddLast( "c", () => Log.Debug( "c" ) );
+			_events.AddFirst( "a", () => Log.Debug( "a" ) );
 			Log.Debug( _events );
 
 
@@ -58,22 +57,8 @@ namespace SubmarineMirage.MultiEvent {
 					Log.Warning( "key down A" );
 					Log.Debug( _events );
 					var ii = i++;
-					_events.AddLast( $"{ii}", async cancel => {
-						Log.Debug( $"{ii} start" );
-						await UniTaskUtility.Delay( cancel, 1000 );
-						Log.Debug( $"{ii} end" );
-					} );
+					_events.AddLast( $"{ii}", () => Log.Debug( $"{ii}" ) );
 					Log.Debug( _events );
-				} );
-			Observable.EveryUpdate()
-				.Where( _ => Input.GetKeyDown( KeyCode.S ) )
-				.Subscribe( _ => {
-					Log.Warning( "key down S" );
-					Log.Debug( _events );
-					UniTask.Void( async () => {
-						await _events.Run( _canceler.Token );
-						Log.Debug( _events );
-					} );
 				} );
 			Observable.EveryUpdate()
 				.Where( _ => Input.GetKeyDown( KeyCode.D ) )
@@ -85,6 +70,6 @@ namespace SubmarineMirage.MultiEvent {
 				} );
 		}
 
-		~TestMultiAsyncEvent() => _events.Dispose();
+		~TestMultiDisposable() => _events.Dispose();
 	}
 }
