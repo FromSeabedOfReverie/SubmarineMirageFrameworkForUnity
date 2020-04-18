@@ -116,19 +116,19 @@ namespace SubmarineMirage.TestScene {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
 					Log.Warning( "key down change scene" );
-					i = (i + 1) % 3;
+					i = (i + 1) % 2;
 					switch ( i ) {
 						case 0:
-							Log.Debug( $"{this.GetAboutName()} change UnknownScene" );
-							_process._fsm.ChangeScene<UnknownScene>().Forget();
+							Log.Debug( $"{this.GetAboutName()} change TestChangeScene1Scene" );
+							_process._fsm.ChangeScene<TestChangeScene1Scene>().Forget();
 							break;
 						case 1:
 							Log.Debug( $"{this.GetAboutName()} change TestChangeScene2Scene" );
 							_process._fsm.ChangeScene<TestChangeScene2Scene>().Forget();
 							break;
 						case 2:
-							Log.Debug( $"{this.GetAboutName()} change TestChangeScene1Scene" );
-							_process._fsm.ChangeScene<TestChangeScene1Scene>().Forget();
+							Log.Debug( $"{this.GetAboutName()} change UnknownScene" );
+							_process._fsm.ChangeScene<UnknownScene>().Forget();
 							break;
 					}
 				} )
