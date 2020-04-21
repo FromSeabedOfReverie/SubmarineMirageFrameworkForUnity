@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
+	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using UniRx.Async;
 	using KoganeUnityLib;
@@ -14,6 +15,7 @@ namespace SubmarineMirage.Scene {
 	using FSM.New;
 	using Debug;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
+	using LifeSpan = Process.New.ProcessBody.LifeSpan;
 
 
 	// TODO : コメント追加、整頓
@@ -24,7 +26,9 @@ namespace SubmarineMirage.Scene {
 		public string _currentSceneName => _scene._name;
 		public Scene _currentScene => _scene._scene;
 		public Scene _foreverScene	{ get; private set; }
+		public static readonly string FOREVER_SCENE_NAME = LifeSpan.Forever.ToString();
 		public bool _isSkipLoadForFirstScene = true;
+
 
 		public SceneStateMachine( SceneManager owner ) : base(
 			owner,
@@ -41,8 +45,9 @@ namespace SubmarineMirage.Scene {
 				?.GetType();
 			if ( _startState == null )	{ _startState = typeof( UnknownScene ); }
 
-			_foreverScene = UnitySceneManager.CreateScene( ProcessBody.FOREVER_SCENE_NAME );
+			_foreverScene = UnitySceneManager.CreateScene( FOREVER_SCENE_NAME );
 		}
+
 
 // TODO : MultiFSM実装後、複数シーン読込に対応する
 		public async UniTask ChangeScene<T>() where T : BaseScene

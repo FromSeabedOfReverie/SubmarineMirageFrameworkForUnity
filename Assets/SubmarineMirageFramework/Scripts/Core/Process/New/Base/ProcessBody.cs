@@ -48,7 +48,6 @@ namespace SubmarineMirage.Process.New {
 			InScene,
 			Forever,
 		}
-		public static readonly string FOREVER_SCENE_NAME = LifeSpan.Forever.ToString();
 
 		public RanState _ranState	{ get; private set; }
 		public ActiveState _activeState	{ get; private set; }
