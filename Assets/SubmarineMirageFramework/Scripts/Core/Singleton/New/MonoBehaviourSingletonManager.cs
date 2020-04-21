@@ -16,6 +16,9 @@ namespace SubmarineMirage.Singleton.New {
 
 
 	public class MonoBehaviourSingletonManager : MonoBehaviourSingleton<MonoBehaviourSingletonManager> {
+		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+
+
 		public static MonoBehaviourSingletonManager CreateTopInstance() {
 			MonoBehaviourSingletonManager instance = null;
 
