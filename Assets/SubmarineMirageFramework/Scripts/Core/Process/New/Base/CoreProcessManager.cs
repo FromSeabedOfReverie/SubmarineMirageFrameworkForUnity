@@ -28,12 +28,12 @@ namespace SubmarineMirage.Process.New {
 	public class CoreProcessManager : MonoBehaviourSingleton<CoreProcessManager> {
 		public override Type _type => Type.DontWork;
 
-		public string _foreverSceneName => ProcessBody.FOREVER_SCENE_NAME;
+		public string _foreverSceneName => SceneStateMachine.FOREVER_SCENE_NAME;
 		public string _currentSceneName => SceneManager.s_instance._currentSceneName;
 
-		readonly Dictionary< string, Dictionary< Type, List<ProcessHierarchy> > > _processes
+		readonly Dictionary< string, Dictionary< Type, List<ProcessHierarchy> > > _hierarchies
 			= new Dictionary< string, Dictionary< Type, List<ProcessHierarchy> > >();
-		readonly List<ProcessHierarchy> _requestUnregisterProcesses = new List<ProcessHierarchy>();
+		readonly List<ProcessHierarchy> _requestUnregisterHierarchies = new List<ProcessHierarchy>();
 
 #if DEVELOP
 		public readonly MultiSubject _onGUIEvent = new MultiSubject();
@@ -48,119 +48,84 @@ namespace SubmarineMirage.Process.New {
 			} );
 
 			_initializeEvent.AddLast( async cancel => {
-				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Creating );
-				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Loading );
-				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Initializing );
-				await RunEventWithProcesses( _foreverSceneName, RanState.Creating );
-				await RunEventWithProcesses( _foreverSceneName, RanState.Loading );
-				await RunEventWithProcesses( _foreverSceneName, RanState.Initializing );
+				await RunStateEventWithProcesses( _foreverSceneName, Type.FirstWork, RanState.Creating );
+				await RunStateEventWithProcesses( _foreverSceneName, Type.FirstWork, RanState.Loading );
+				await RunStateEventWithProcesses( _foreverSceneName, Type.FirstWork, RanState.Initializing );
+
+				await RunStateEventWithProcesses( _foreverSceneName, Type.Work, RanState.Creating );
+				await RunStateEventWithProcesses( _foreverSceneName, Type.Work, RanState.Loading );
+				await RunStateEventWithProcesses( _foreverSceneName, Type.Work, RanState.Initializing );
 			} );
 
 			_enableEvent.AddLast( async cancel => {
-				await ChangeActiveWithFirstProcesses( _foreverSceneName, true );
-				await ChangeActiveWithProcesses( _foreverSceneName, true );
+				await RunActiveEventWithProcesses( _foreverSceneName, Type.FirstWork );
+				await RunActiveEventWithProcesses( _foreverSceneName, Type.Work );
 			} );
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				RunEventWithFirstProcesses( _foreverSceneName, RanState.FixedUpdate ).Forget();
-				RunEventWithProcesses( _foreverSceneName, RanState.FixedUpdate ).Forget();
-				RunEventWithFirstProcesses( _currentSceneName, RanState.FixedUpdate ).Forget();
-				RunEventWithProcesses( _currentSceneName, RanState.FixedUpdate ).Forget();
+				RunStateEventWithProcesses( _foreverSceneName, Type.FirstWork, RanState.FixedUpdate ).Forget();
+				RunStateEventWithProcesses( _foreverSceneName, Type.Work, RanState.FixedUpdate ).Forget();
+
+				RunStateEventWithProcesses( _currentSceneName, Type.FirstWork, RanState.FixedUpdate ).Forget();
+				RunStateEventWithProcesses( _currentSceneName, Type.Work, RanState.FixedUpdate ).Forget();
 			} );
 
 			_updateEvent.AddLast().Subscribe( _ => {
-				RunEventWithFirstProcesses( _foreverSceneName, RanState.Update ).Forget();
-				RunEventWithProcesses( _foreverSceneName, RanState.Update ).Forget();
-				RunEventWithFirstProcesses( _currentSceneName, RanState.Update ).Forget();
-				RunEventWithProcesses( _currentSceneName, RanState.Update ).Forget();
+				RunStateEventWithProcesses( _foreverSceneName, Type.FirstWork, RanState.Update ).Forget();
+				RunStateEventWithProcesses( _foreverSceneName, Type.Work, RanState.Update ).Forget();
+
+				RunStateEventWithProcesses( _currentSceneName, Type.FirstWork, RanState.Update ).Forget();
+				RunStateEventWithProcesses( _currentSceneName, Type.Work, RanState.Update ).Forget();
 			} );
 
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				RunEventWithFirstProcesses( _foreverSceneName, RanState.LateUpdate ).Forget();
-				RunEventWithProcesses( _foreverSceneName, RanState.LateUpdate ).Forget();
-				RunEventWithFirstProcesses( _currentSceneName, RanState.LateUpdate ).Forget();
-				RunEventWithProcesses( _currentSceneName, RanState.LateUpdate ).Forget();
-				CheckUnregisterProcesses();
+				RunStateEventWithProcesses( _foreverSceneName, Type.FirstWork, RanState.LateUpdate ).Forget();
+				RunStateEventWithProcesses( _foreverSceneName, Type.Work, RanState.LateUpdate ).Forget();
+
+				RunStateEventWithProcesses( _currentSceneName, Type.FirstWork, RanState.LateUpdate ).Forget();
+				RunStateEventWithProcesses( _currentSceneName, Type.Work, RanState.LateUpdate ).Forget();
+				CheckUnregisterHierarchies();
 			} );
 
 			_disableEvent.AddLast( async cancel => {
-				await ChangeActiveWithFirstProcesses( _foreverSceneName, false, true );
-				await ChangeActiveWithProcesses( _foreverSceneName, false );
+				await ChangeActiveWithProcesses( _foreverSceneName, Type.Work, false );
+				await ChangeActiveWithProcesses( _foreverSceneName, Type.FirstWork, false );
 			} );
 
 			_finalizeEvent.AddLast( async cancel => {
-				await RunEventWithFirstProcesses( _foreverSceneName, RanState.Finalizing, true );
-				await RunEventWithProcesses( _foreverSceneName, RanState.Finalizing );
-				CheckUnregisterProcesses();
+				await RunStateEventWithProcesses( _foreverSceneName, Type.Work, RanState.Finalizing );
+				await RunStateEventWithProcesses( _foreverSceneName, Type.FirstWork, RanState.Finalizing );
+				CheckUnregisterHierarchies();
 				Dispose();
 			} );
 
 
 			_disposables.AddFirst(
-				Observable.EveryFixedUpdate().Subscribe( _ => RunStateEvent( RanState.FixedUpdate ).Forget() ),
-				Observable.EveryUpdate().Subscribe( _ => RunStateEvent( RanState.Update ).Forget() ),
-				Observable.EveryLateUpdate().Subscribe( _ => RunStateEvent( RanState.LateUpdate ).Forget() )
+				Observable.EveryFixedUpdate().Subscribe(	_ => RunStateEvent( RanState.FixedUpdate ).Forget() ),
+				Observable.EveryUpdate().Subscribe(			_ => RunStateEvent( RanState.Update ).Forget() ),
+				Observable.EveryLateUpdate().Subscribe(		_ => RunStateEvent( RanState.LateUpdate ).Forget() )
 			);
-
-
-#if DEVELOP && false
-			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				DebugDisplay.s_instance.Add( Color.cyan );
-				DebugDisplay.s_instance.Add( $"● {this.GetAboutName()}" );
-				DebugDisplay.s_instance.Add( Color.white );
-				GetAllProcesses().ForEach( p => DebugDisplay.s_instance.Add( $"\t{p.GetAboutName()}" ) );
-			} );
-#endif
-///*
-			_disposables.AddFirst(
-				Observable.EveryUpdate()
-					.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
-					.Take( 1 )
-					.Subscribe( _ => {
-						Log.Debug( "KeyDown Return" );
-						DeleteForeverProcesses().Forget();
-					} )
-			);
-//*/
-			_loadEvent.AddFirst(	async cancel => Log.Debug( $"{this.GetAboutName()}._loadEvent start" ) );
-			_loadEvent.AddLast(		async cancel => Log.Debug( $"{this.GetAboutName()}._loadEvent end" ) );
-
-			_initializeEvent.AddFirst(	async cancel => Log.Debug( $"{this.GetAboutName()}._initializeEvent start" ) );
-			_initializeEvent.AddLast(	async cancel => Log.Debug( $"{this.GetAboutName()}._initializeEvent end" ) );
-
-			_enableEvent.AddFirst(	async cancel => Log.Debug( $"{this.GetAboutName()}._enableEvent start" ) );
-			_enableEvent.AddLast(	async cancel => Log.Debug( $"{this.GetAboutName()}._enableEvent end" ) );
-
-			_fixedUpdateEvent.AddFirst().Subscribe(	_ => Log.Debug( $"{this.GetAboutName()}._fixedUpdateEvent start" ) );
-			_fixedUpdateEvent.AddLast().Subscribe(	_ => Log.Debug( $"{this.GetAboutName()}._fixedUpdateEvent end" ) );
-
-			_updateEvent.AddFirst().Subscribe(	_ => Log.Debug( $"{this.GetAboutName()}._updateEvent start" ) );
-			_updateEvent.AddLast().Subscribe(	_ => Log.Debug( $"{this.GetAboutName()}._updateEvent end" ) );
-
-			_lateUpdateEvent.AddFirst().Subscribe(	_ => Log.Debug( $"{this.GetAboutName()}._lateUpdateEvent start" ) );
-			_lateUpdateEvent.AddLast().Subscribe(	_ => Log.Debug( $"{this.GetAboutName()}._lateUpdateEvent end" ) );
-
-			_disableEvent.AddFirst(	async cancel => Log.Debug( $"{this.GetAboutName()}._disableEvent start" ) );
-			_disableEvent.AddLast(	async cancel => Log.Debug( $"{this.GetAboutName()}._disableEvent end" ) );
-
-			_finalizeEvent.AddFirst(	async cancel => Log.Debug( $"{this.GetAboutName()}._finalizeEvent start" ) );
-			_finalizeEvent.AddLast(		async cancel => Log.Debug( $"{this.GetAboutName()}._finalizeEvent end" ) );
-
 
 #if DEVELOP
 			_disposables.AddFirst( _onGUIEvent );
 #endif
-			_disposables.AddFirst( GetAllProcesses() );
 			_disposables.AddFirst( () => {
-				_processes.Clear();
-				_requestUnregisterProcesses.Clear();
+				_hierarchies
+					.SelectMany( pair => pair.Value )
+					.SelectMany( pair => pair.Value )
+					.ForEach( h => h.Dispose() );
+				_hierarchies.Clear();
+				_requestUnregisterHierarchies.Clear();
 			} );
 
-			Observable.OnceApplicationQuit().Subscribe( _ => DisposeInstance() );
-
+			_disposables.AddLast(
+				Observable.OnceApplicationQuit().Subscribe( _ => DisposeInstance() )
+			);
 
 //			await UniTaskUtility.Yield( _activeAsyncCancel );
 			await RunForeverProcesses();
+
+			await UniTaskUtility.DontWait();
 		}
 
 #if DEVELOP
@@ -168,114 +133,153 @@ namespace SubmarineMirage.Process.New {
 #endif
 
 
-		public override void Create() {
-			Log.Debug( $"{this.GetAboutName()}.Create()" );
+		public override void Create()
+			=> Log.Debug( $"{this.GetAboutName()}.Create()" );
+
+
+		void CreateHierarchies( string sceneName ) {
+			if ( !_hierarchies.ContainsKey( sceneName ) ) {
+				_hierarchies[sceneName] = new Dictionary< Type, List<ProcessHierarchy> >();
+			}
+			var sceneHS = _hierarchies[sceneName];
+			if ( !sceneHS.ContainsKey( Type.FirstWork ) ) {
+				sceneHS[Type.FirstWork] = new List<ProcessHierarchy>();
+			}
+			if ( !sceneHS.ContainsKey( Type.Work ) ) {
+				sceneHS[Type.Work] = new List<ProcessHierarchy>();
+			}
 		}
 
-
-		void CreateProcesses( string sceneName ) {
-			if ( !_processes.ContainsKey( sceneName ) ) {
-				_processes[sceneName] = new Dictionary< Type, List<ProcessHierarchy> >();
-			}
-			var scenePS = _processes[sceneName];
-			if ( !scenePS.ContainsKey( Type.FirstWork ) ) {
-				scenePS[Type.FirstWork] = new List<ProcessHierarchy>();
-			}
-			if ( !scenePS.ContainsKey( Type.Work ) ) {
-				scenePS[Type.Work] = new List<ProcessHierarchy>();
-			}
-		}
-
-		List<ProcessHierarchy> GetProcesses( string sceneName, Type type, bool isReverse = false ) {
-			CreateProcesses( sceneName );
-			var ps = _processes[sceneName][type];
+		List<ProcessHierarchy> GetHierarchies( string sceneName, Type type, bool isReverse = false ) {
+			CreateHierarchies( sceneName );
+			var hs = _hierarchies[sceneName][type];
 			if ( isReverse ) {
 // TODO : 元のリストは、元のまま、入れ替わってないか？
-				Log.Debug( $"Work 逆転前\n{_body.ToDeepString()}" );
-				ps = ps.ReverseByClone();
-				Log.Debug( $"Work 逆転前\n{_body.ToDeepString()}" );
+				Log.Debug( $"Work 逆転前\n{_body}" );
+				hs = hs.ReverseByClone();
+				Log.Debug( $"Work 逆転前\n{_body}" );
 			}
 // TODO : 使用先で、Add、Removeされた場合、元もちゃんと変更されるか？
-			return ps;
-		}
-
-		IEnumerable<ProcessHierarchy> GetAllProcesses() {
-			return _processes
-				.SelectMany( pair => pair.Value )
-				.SelectMany( pair => pair.Value );
+			return hs;
 		}
 
 
 // TODO : RunStateEventの、子変更オプションを、finalizeに適用させる
-		async UniTask RunEventWithFirstProcesses( string sceneName, RanState state, bool isReverse = false ) {
-			var ps = GetProcesses( sceneName, Type.FirstWork, isReverse );
-			foreach ( var p in ps ) {
-				await p.RunStateEvent( state );
+		async UniTask RunStateEventWithProcesses( string sceneName, Type type, RanState state ) {
+			var hs = GetHierarchies( sceneName, type, type == Type.FirstWork && state == RanState.Finalizing );
+			switch ( type ) {
+				case Type.FirstWork:
+					foreach ( var h in hs ) {
+						await h.RunStateEvent( state );
+					}
+					return;
+
+				case Type.Work:
+					await UniTask.WhenAll(
+						hs.Select( h => h.RunStateEvent( state ) )
+					);
+					return;
 			}
 		}
 
-		async UniTask RunEventWithProcesses( string sceneName, RanState state ) {
-			var ps = GetProcesses( sceneName, Type.Work );
-			await UniTask.WhenAll(
-				ps.Select( p => p.RunStateEvent( state ) )
-			);
-		}
+		async UniTask ChangeActiveWithProcesses( string sceneName, Type type, bool isActive ) {
+			var hs = GetHierarchies( sceneName, type, type == Type.FirstWork && !isActive );
+			switch ( type ) {
+				case Type.FirstWork:
+					foreach ( var h in hs ) {
+						await h.ChangeActive( isActive, true );
+					}
+					return;
 
-		async UniTask ChangeActiveWithFirstProcesses( string sceneName, bool isActive, bool isReverse = false ) {
-			var ps = GetProcesses( sceneName, Type.FirstWork, isReverse );
-			foreach ( var p in ps ) {
-				await p.ChangeActive( isActive, true );
+				case Type.Work:
+					await UniTask.WhenAll(
+						hs.Select( h => h.ChangeActive( isActive, true ) )
+					);
+					return;
 			}
 		}
 
-		async UniTask ChangeActiveWithProcesses( string sceneName, bool isActive ) {
-			var ps = GetProcesses( sceneName, Type.Work );
-			await UniTask.WhenAll(
-				ps.Select( p => p.ChangeActive( isActive, true ) )
-			);
-		}
+		async UniTask RunActiveEventWithProcesses( string sceneName, Type type ) {
+			var hs = GetHierarchies( sceneName, type );
+			switch ( type ) {
+				case Type.FirstWork:
+					foreach ( var h in hs ) {
+						await h.RunActiveEvent();
+					}
+					return;
 
-
-		public async UniTask Register( ProcessHierarchy process ) {
-			GetProcesses( process._belongSceneName, process._type ).Add( process );
-
-			if ( _isInitializedInSceneProcesses ) {
-				await UniTaskUtility.Yield( _activeAsyncCancel );
-				await process.RunStateEvent( RanState.Creating );
-				await process.RunStateEvent( RanState.Loading );
-				await process.RunStateEvent( RanState.Initializing );
-// TODO : 初期化時のChangeActiveは、RunActiveEventを呼ぶよう、変更（活動状態が分からない為）
-				await process.RunActiveEvent();
+				case Type.Work:
+					await UniTask.WhenAll(
+						hs.Select( h => h.RunActiveEvent() )
+					);
+					return;
 			}
 		}
 
-		public void Unregister( ProcessHierarchy process ) {
-			_requestUnregisterProcesses.Add( process );
+
+		public async UniTask Register( ProcessHierarchy hierarchy ) {
+			if ( hierarchy._owner != null ) {
+				if ( hierarchy._lifeSpan == ProcessBody.LifeSpan.Forever ) {
+					DontDestroyOnLoad( hierarchy._owner );
+				} else {
+// TODO : 再登録時に、Forever解除に使う
+//					SceneManager.s_instance.DestroyOnLoad( hierarchy._owner );
+				}
+			}
+
+			switch ( hierarchy._type ) {
+				case Type.DontWork:
+					await UniTaskUtility.Yield( _activeAsyncCancel );
+					await hierarchy.RunStateEvent( RanState.Creating );
+					return;
+
+				case Type.Work:
+				case Type.FirstWork:
+					GetHierarchies( hierarchy._belongSceneName, hierarchy._type )
+						.Add( hierarchy );
+
+					if ( _isInitializedInSceneProcesses ) {
+						await UniTaskUtility.Yield( _activeAsyncCancel );
+						await hierarchy.RunStateEvent( RanState.Creating );
+						await hierarchy.RunStateEvent( RanState.Loading );
+						await hierarchy.RunStateEvent( RanState.Initializing );
+						await hierarchy.RunActiveEvent();
+					}
+					return;
+			}
 		}
 
-		void CheckUnregisterProcesses() {
-			if ( _requestUnregisterProcesses.IsEmpty() )	{ return; }
-			_requestUnregisterProcesses
-				.ForEach( p => GetProcesses(　p._belongSceneName, p._type　).Remove( p ) );
-			_requestUnregisterProcesses.Clear();
+		public void Unregister( ProcessHierarchy hierarchy ) {
+// TODO : Modefilerを作成し、追加、削除等をまとめて、ループ走査中以外の時に、実行する
+			_requestUnregisterHierarchies.Add( hierarchy );
+		}
+
+		void CheckUnregisterHierarchies() {
+			if ( _requestUnregisterHierarchies.IsEmpty() )	{ return; }
+			_requestUnregisterHierarchies.ForEach( h => {
+				GetHierarchies(　h._belongSceneName, h._type　).Remove( h );
+			} );
+			_requestUnregisterHierarchies.Clear();
+		}
+
+		public void ReRegister() {
 		}
 
 
-// TODO : 削除時に、ゲーム物に2つ以上Processがくっついている場合を考慮し、指定するのはゲーム物にして、
-//			一々GetComponentsで取得走査し、全部Finalize後に、ゲーム物を削除させる
-		public async UniTask Delete( ProcessHierarchy process ) {
-			await process.ChangeActive( false, true );
-			await process.RunStateEvent( RanState.Finalizing );
+		public async UniTask Delete( ProcessHierarchy hierarchy ) {
+// TODO : Hierarchy内部を整理
+			await hierarchy.Destroy();
 		}
 
-		public async UniTask ChangeActive( ProcessHierarchy process, bool isActive ) {
-			await process.ChangeActive( isActive, true );
+		public async UniTask ChangeActive( ProcessHierarchy hierarchy, bool isActive ) {
+			await hierarchy.ChangeActive( isActive, true );
 		}
 
 
 		async UniTask RunForeverProcesses() {
 			await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => _body._ranState != RanState.Created );
 			await RunStateEvent( RanState.Loading );
+			return;
 			await RunStateEvent( RanState.Initializing );
 			await ChangeActive( true );
 			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );
@@ -290,32 +294,31 @@ namespace SubmarineMirage.Process.New {
 
 
 		public async UniTask RunSceneProcesses() {
-			await RunEventWithFirstProcesses( _currentSceneName, RanState.Creating );
-			await RunEventWithFirstProcesses( _currentSceneName, RanState.Loading );
-			await RunEventWithFirstProcesses( _currentSceneName, RanState.Initializing );
-			await RunEventWithProcesses( _currentSceneName, RanState.Creating );
-			await RunEventWithProcesses( _currentSceneName, RanState.Loading );
-			await RunEventWithProcesses( _currentSceneName, RanState.Initializing );
+			await RunStateEventWithProcesses( _currentSceneName, Type.FirstWork, RanState.Creating );
+			await RunStateEventWithProcesses( _currentSceneName, Type.FirstWork, RanState.Loading );
+			await RunStateEventWithProcesses( _currentSceneName, Type.FirstWork, RanState.Initializing );
 
-			await ChangeActiveWithFirstProcesses( _currentSceneName, true );
-			await ChangeActiveWithProcesses( _currentSceneName, true );
+			await RunStateEventWithProcesses( _currentSceneName, Type.Work, RanState.Creating );
+			await RunStateEventWithProcesses( _currentSceneName, Type.Work, RanState.Loading );
+			await RunStateEventWithProcesses( _currentSceneName, Type.Work, RanState.Initializing );
+
+			await RunActiveEventWithProcesses( _currentSceneName, Type.FirstWork );
+			await RunActiveEventWithProcesses( _currentSceneName, Type.Work );
 
 			_isInitializedInSceneProcesses = true;
 		}
 
 		public async UniTask DeleteSceneProcesses() {
-			await ChangeActiveWithProcesses( _currentSceneName, false );
-			await ChangeActiveWithFirstProcesses( _currentSceneName, false, true );
+			await ChangeActiveWithProcesses( _currentSceneName, Type.Work, false );
+			await ChangeActiveWithProcesses( _currentSceneName, Type.FirstWork, false );
 
-			await RunEventWithProcesses( _currentSceneName, RanState.Finalizing );
-			await RunEventWithFirstProcesses( _currentSceneName, RanState.Finalizing, true );
+			await RunStateEventWithProcesses( _currentSceneName, Type.Work, RanState.Finalizing );
+			await RunStateEventWithProcesses( _currentSceneName, Type.FirstWork, RanState.Finalizing );
+
+			GetHierarchies( _currentSceneName, Type.Work ).Clear();
+			GetHierarchies( _currentSceneName, Type.FirstWork ).Clear();
 
 			_isInitializedInSceneProcesses = false;
 		}
-
-
-
-// TODO : Awakeは、ゲーム物が非活動化中の場合、呼ばれない
-//			シーンから、全ルートオブジェクトを参照し、1つ1つスクリプトを見て、初期化関数を呼ぶしかない
 	}
 }

@@ -25,44 +25,45 @@ namespace SubmarineMirage.Main.New {
 
 
 	public static class MainProcess {
-		static CancellationToken s_asyncCancel = new CancellationToken();
-//		static CancellationToken s_asyncCancel => CoreProcessManager.s_instance._activeAsyncCancel;
+		static CancellationToken s_asyncCancel => CoreProcessManager.s_instance._activeAsyncCancel;
+
 
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static async void Main() {
 			await Task.Delay( 1 );
-			await InitializePlugin();
-			await RegisterProcesses();
-//			await CoreProcessManager.s_instance.Create( InitializePlugin, RegisterProcesses );
-		}
 
-		static async UniTask InitializePlugin() {
-			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
+			await CoreProcessManager.s_instance.Create(
 
-			DOTween.Init(
-				false,
+				async () => {
+					UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
+
+					DOTween.Init(
+						false,
 #if DEVELOP
-				false,
+						false,
 #else
-				true,
+						true,
 #endif
-				LogBehaviour.ErrorsOnly );
-			DOTween.defaultAutoPlay = AutoPlay.None;
+						LogBehaviour.ErrorsOnly );
+					DOTween.defaultAutoPlay = AutoPlay.None;
 
 #if DEVELOP
-			var p = await Resources.LoadAsync<GameObject>( "LunarConsole" ).ConfigureAwait( s_asyncCancel );
-			var go = UnityObject.Instantiate( p );
-			UnityObject.DontDestroyOnLoad( go );
+					var p = await Resources.LoadAsync<GameObject>( "LunarConsole" )
+						.ConfigureAwait( s_asyncCancel );
+					var go = UnityObject.Instantiate( p );
+					UnityObject.DontDestroyOnLoad( go );
 #endif
-			await UniTaskUtility.DontWait();
-		}
+					await UniTaskUtility.DontWait();
+				},
 
-		static async UniTask RegisterProcesses() {
-			await MonoBehaviourSingletonManager.WaitForCreation();
-//			await CoreProcessManager.WaitForCreation();
-			await SceneManager.WaitForCreation();
+				async () => {
+					await MonoBehaviourSingletonManager.WaitForCreation();
+					await CoreProcessManager.WaitForCreation();
+					await SceneManager.WaitForCreation();
 
-			await UniTaskUtility.DontWait();
+					await UniTaskUtility.DontWait();
+				}
+			);
 		}
 	}
 }
