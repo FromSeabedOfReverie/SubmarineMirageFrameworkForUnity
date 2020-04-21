@@ -21,6 +21,7 @@ namespace SubmarineMirage.MultiEvent {
 		BaseMultiEvent<T> _owner;
 		readonly CompositeDisposable _disposables = new CompositeDisposable();
 
+
 		public EventModifyler( BaseMultiEvent<T> owner ) {
 			_owner = owner;
 			_disposables.Add( Disposable.Create( () => {
@@ -31,7 +32,10 @@ namespace SubmarineMirage.MultiEvent {
 			} ) );
 		}
 
+		~EventModifyler() => Dispose();
+
 		public void Dispose() => _disposables.Dispose();
+
 
 		public void Register( EventModifyData<T> data ) {
 			_owner.CheckDisposeError( data );
@@ -39,11 +43,13 @@ namespace SubmarineMirage.MultiEvent {
 			_eventData.Add( data );
 		}
 
+
 		public void Run() {
 			if ( _eventData.IsEmpty() )	{ return; }
 			_eventData.ForEach( data => data.Run() );
 			_eventData.Clear();
 		}
+
 
 		public override string ToString() =>
 			$"{this.GetAboutName()} (\n{string.Join( "\n", _eventData.Select( data => $"    {data}" ) )}\n)";
