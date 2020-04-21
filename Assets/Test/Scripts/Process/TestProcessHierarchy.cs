@@ -66,9 +66,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() {
+		void CreateObject() {
 			var top = new GameObject( "TestMono top" );
 			top.AddComponent<TestMono1>();
 //			top.SetActive( false );
@@ -94,7 +92,13 @@ namespace SubmarineMirage.TestProcess {
 				} );
 				parent = top.transform;
 			} );
+		}
 
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestManual() {
+			CreateObject();
 
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {

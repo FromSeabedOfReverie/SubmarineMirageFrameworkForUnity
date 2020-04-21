@@ -98,18 +98,11 @@ namespace SubmarineMirage.Process.New {
 		void SetTop() {
 			if ( _top != null )	{ return; }
 			for ( _top = this; _top._parent != null; _top = _top._parent );
-
-			SetAllHierarchiesData();
-
-			if ( _top._owner != null && _lifeSpan == ProcessBody.LifeSpan.Forever ) {
-				UnityObject.DontDestroyOnLoad( _top._owner );
-			}
-//			CoreProcessManager.s_instance.Register( _top ).Forget();
-//			_disposables.AddLast( "Unregister", () => CoreProcessManager.s_instance.Unregister( _top ) );
+			SetAllHierarchiesData( _top );
 		}
 
-		void SetAllHierarchiesData() {
-			var allHierarchy = GetHierarchiesInChildren( _top );
+		void SetAllHierarchiesData( ProcessHierarchy parent ) {
+			var allHierarchy = GetHierarchiesInChildren( parent );
 			var allProcesses = allHierarchy.SelectMany( h => h._processes );
 
 			_type = (
@@ -120,7 +113,7 @@ namespace SubmarineMirage.Process.New {
 			_lifeSpan = allProcesses.Any( p => p._lifeSpan == ProcessBody.LifeSpan.Forever ) ?
 				ProcessBody.LifeSpan.Forever : ProcessBody.LifeSpan.InScene;
 			_belongSceneName = (
-				_lifeSpan == ProcessBody.LifeSpan.Forever	? ProcessBody.FOREVER_SCENE_NAME :
+				_lifeSpan == ProcessBody.LifeSpan.Forever	? SceneStateMachine.FOREVER_SCENE_NAME :
 				_top._owner != null							? _top._owner.scene.name
 															: SceneManager.s_instance._currentSceneName
 			);
@@ -131,6 +124,10 @@ namespace SubmarineMirage.Process.New {
 				h._lifeSpan = _lifeSpan;
 				h._belongSceneName = _belongSceneName;
 			} );
+
+// TODO : 登録解除、再登録システムを作成する
+			CoreProcessManager.s_instance.Register( _top ).Forget();
+			_disposables.AddLast( "Unregister", () => CoreProcessManager.s_instance.Unregister( _top ) );
 		}
 
 
@@ -164,6 +161,8 @@ namespace SubmarineMirage.Process.New {
 				SetTop();
 
 			} else {
+// TODO : 親属性と、新規子供達の属性を考慮し、新規属性を設定
+//				SetAllHierarchiesData( _parent );
 				GetHierarchiesInChildren( this ).ForEach( h => {
 					h._top = _parent._top;
 					h._type = _parent._type;
@@ -177,9 +176,11 @@ namespace SubmarineMirage.Process.New {
 		public T AddProcess<T>() where T : MonoBehaviourProcess {
 			if ( _owner == null )	{ return null; }
 			var p = _owner.AddComponent<T>();
+// TODO : 兄達の既存属性、弟の属性を考慮し、新規設定、親にも伝搬される
 			_processes.Add( p );
 			p._hierarchy = this;
 			p.Constructor();
+// TODO : コンストラクタ以外にも、既にイベント実行済の場合、実行する
 			return p;
 		}
 
@@ -229,6 +230,7 @@ namespace SubmarineMirage.Process.New {
 
 		public async UniTask Destroy() {
 // TODO : Destroy中のオブジェクトを、管理クラスで監視する
+//			削除中にシーン遷移を待機する等の、必要あり
 			SetParent( null );
 			await RunStateEvent( ProcessBody.RanState.Finalizing );
 			Dispose();
