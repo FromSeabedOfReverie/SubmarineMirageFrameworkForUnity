@@ -32,14 +32,14 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-	public class TestCoreProcessManager : Test {
-		CoreProcessManager _process;
+	public class TestProcessHierarchyManager : Test {
+		ProcessHierarchyManager _process;
 		Text _text;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_process = CoreProcessManager.s_instance;
+			_process = ProcessHierarchyManager.s_instance;
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
@@ -67,14 +67,15 @@ namespace SubmarineMirage.TestProcess {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() {
+		public IEnumerator TestManual() => From( TestManualSub() );
+		IEnumerator TestManualSub() {
 			_disposables.AddFirst(
 				Observable.EveryUpdate()
 					.Where( _ => Input.GetKeyDown( KeyCode.Return ) )
 					.Take( 1 )
 					.Subscribe( _ => {
 						Log.Debug( "KeyDown Return" );
-//						_process.DeleteForeverProcesses().Forget();
+//						_process.DeleteForeverHierarchies().Forget();
 					} )
 			);
 
