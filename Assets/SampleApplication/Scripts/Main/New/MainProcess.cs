@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Main.New {
 	using System.Threading;
 	using System.Threading.Tasks;
+	using System.Collections.Generic;
 	using UnityEngine;
 	using DG.Tweening;
 	using UniRx;
@@ -25,45 +26,55 @@ namespace SubmarineMirage.Main.New {
 
 
 	public static class MainProcess {
-		static CancellationToken s_asyncCancel => CoreProcessManager.s_instance._activeAsyncCancel;
+		public static bool s_isInitialized	{ get; private set; }
 
 
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static async void Main() {
+			s_isInitialized = false;
 			await Task.Delay( 1 );
 
-			await CoreProcessManager.s_instance.Create(
 
-				async () => {
-					UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
+			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
 
-					DOTween.Init(
-						false,
+			DOTween.Init(
+				false,
 #if DEVELOP
-						false,
+				false,
 #else
-						true,
+				true,
 #endif
-						LogBehaviour.ErrorsOnly );
-					DOTween.defaultAutoPlay = AutoPlay.None;
+				LogBehaviour.ErrorsOnly );
+			DOTween.defaultAutoPlay = AutoPlay.None;
 
 #if DEVELOP
-					var p = await Resources.LoadAsync<GameObject>( "LunarConsole" )
-						.ConfigureAwait( s_asyncCancel );
-					var go = UnityObject.Instantiate( p );
-					UnityObject.DontDestroyOnLoad( go );
+			var prefab = Resources.Load<GameObject>( "LunarConsole" );
+			var go = UnityObject.Instantiate( prefab );
+			UnityObject.DontDestroyOnLoad( go );
 #endif
-					await UniTaskUtility.DontWait();
-				},
 
+
+			MonoBehaviourSingletonManager.CreateInstance();
+			ProcessHierarchyManager.CreateInstance();
+			var h = new ProcessHierarchy(
+				MonoBehaviourSingletonManager.s_instance.gameObject,
+				new List<IProcess>() { MonoBehaviourSingletonManager.s_instance },
+				null
+			);
+// TODO : 多分使わないので、未設定でもエラーにならない
+//			ProcessHierarchyManager.s_instance._hierarchy = h;
+
+
+			await ProcessHierarchyManager.s_instance.Create(
 				async () => {
-					await MonoBehaviourSingletonManager.WaitForCreation();
-					await CoreProcessManager.WaitForCreation();
+					new Log();
 					await SceneManager.WaitForCreation();
-
 					await UniTaskUtility.DontWait();
 				}
 			);
+
+
+			s_isInitialized = true;
 		}
 	}
 }

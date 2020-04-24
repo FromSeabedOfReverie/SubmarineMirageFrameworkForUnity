@@ -42,11 +42,11 @@ namespace SubmarineMirage.Scene {
 				ResetScene();
 				UnitySceneManager.SetActiveScene( _scene );
 				SetupProcess();
-//				await CoreProcessManager.s_instance.RunSceneProcesses();
+//				await ProcessHierarchyManager.s_instance.RunSceneHierarchies();
 			} );
 
 			_exitEvent.AddFirst( async cancel => {
-//				await CoreProcessManager.s_instance.DeleteSceneProcesses();
+//				await ProcessHierarchyManager.s_instance.DeleteSceneHierarchies();
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
 //				DOTween.KillAll();
 //				GameAudioManager.s_instance.StopAll();

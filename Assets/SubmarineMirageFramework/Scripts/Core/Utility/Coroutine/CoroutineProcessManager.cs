@@ -42,7 +42,7 @@ namespace SubmarineMirage.Utility {
 		public override void Create() {
 #if DEVELOP && false
 			// デバッグ表示を設定
-			CoreProcessManager.s_instance._updateEvent.AddLast().Subscribe( _ => {
+			ProcessHierarchyManager.s_instance._updateEvent.AddLast().Subscribe( _ => {
 				DebugDisplay.s_instance.Add( $"{this.GetAboutName()}" );
 				_coroutines.ForEach( p => DebugDisplay.s_instance.Add( $"\t{p.GetAboutName()}" ) );
 			} );
