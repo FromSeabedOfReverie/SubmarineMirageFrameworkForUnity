@@ -7,7 +7,11 @@
 namespace SubmarineMirage.Test {
 	using System;
 	using System.Threading;
+	using System.Threading.Tasks;
 	using UniRx;
+	using UniRx.Async;
+	using Main.New;
+	using Utility;
 	using Debug;
 
 
@@ -17,14 +21,12 @@ namespace SubmarineMirage.Test {
 	public abstract class RawTest : BaseTest {
 		protected readonly Subject<Unit> _initializeEvent = new Subject<Unit>();
 		protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
-		CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
-		protected CancellationToken _asyncCancel => _asyncCanceler.Token;
 		protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 
-		protected override void Awake() {
+		protected override async UniTask AwakeSub() {
 			try {
-				base.Awake();
+				await Task.Delay( 2, _asyncCancel );
 				_disposables.Add( Disposable.Create( () => {
 					_asyncCanceler.Cancel();
 					_asyncCanceler.Dispose();
@@ -33,8 +35,11 @@ namespace SubmarineMirage.Test {
 					_finalizeEvent.OnCompleted();
 					_finalizeEvent.Dispose();
 				} ) );
+				await UniTaskUtility.WaitWhile( _asyncCancel, () => !MainProcess.s_isInitialized );
 				Create();
 				_initializeEvent.OnNext( Unit.Default );
+				_isInitialized = true;
+
 			} catch ( Exception e ) {
 				Log.Error( e );
 			}

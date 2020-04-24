@@ -20,7 +20,7 @@ namespace SubmarineMirage.Test {
 	public class TestTest : Test {
 		protected override void Create() {
 			Log.Debug( "Create" );
-			_initializeEvent.AddLast().Subscribe( _ => Log.Debug( "_initializeEvent" ) );
+			_initializeEvent.AddLast( async cancel => Log.Debug( "_initializeEvent" ) );
 			_finalizeEvent.AddLast().Subscribe( _ => Log.Debug( "_finalizeEvent" ) );
 			_disposables.AddLast( () => Log.Debug( "Dispose" ) );
 		}
