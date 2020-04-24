@@ -5,7 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
-	using Singleton;
+	using Process.New;
+	using Singleton.New;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 装飾管理クラス
@@ -17,8 +18,8 @@ namespace SubmarineMirage.Extension {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>登録するか？</summary>
-		public override bool _isRegister => false;
+		/// <summary>処理の型</summary>
+		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
 		/// <summary>NGUI装飾</summary>
 		public NGUIDecoration _nGUI { get; private set; }
 		/// <summary>UGUI装飾</summary>
@@ -32,5 +33,11 @@ namespace SubmarineMirage.Extension {
 			_nGUI = new NGUIDecoration();
 			_uGUI = new UGUIDecoration();
 		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 作成
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public override void Create() {}
 	}
 }

@@ -32,7 +32,7 @@ namespace SubmarineMirage.Extension {
 		/// ● コンストラクタ
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public UGUIDecoration() : base() {
+		public UGUIDecoration() {
 			// UGUI書式対応の、指定文字配列を設定
 			_formatTexts = new List<string[]> {
 				{ new string[] { "<b>",	"",	"</b>"		} },
@@ -45,9 +45,8 @@ namespace SubmarineMirage.Extension {
 		/// ● 色書式を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		protected override string ConvertColorFormat( Color c ) {
-			return c.ToUGUIFormat();
-		}
+		protected override string ConvertColorFormat( Color c )
+			=> c.ToUGUIFormat();
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 複数書式型で装飾

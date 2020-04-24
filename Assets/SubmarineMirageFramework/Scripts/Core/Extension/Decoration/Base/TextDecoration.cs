@@ -41,74 +41,59 @@ namespace SubmarineMirage.Extension {
 		/// <summary>書式と指定文字の配列</summary>
 		protected List<string[]> _formatTexts = new List<string[]>();
 		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● コンストラクタ
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public TextDecoration() {
-		}
-		///------------------------------------------------------------------------------------------------
 		/// ● 書式文字を取得
 		///------------------------------------------------------------------------------------------------
 		/// <summary>● 書式文字を取得（整数）</summary>
-		protected string GetFormat( int code, Order order ) {
-			return _formatTexts[code][(int)order];
-		}
+		protected string GetFormat( int code, Order order )
+			=> _formatTexts[code][(int)order];
 		/// <summary>● 書式文字を取得（定数）</summary>
-		string GetFormat( Type code, Order order ) {
-			return GetFormat( (int)code, order );
-		}
+		string GetFormat( Type code, Order order )
+			=> GetFormat( (int)code, order );
 		///------------------------------------------------------------------------------------------------
 		/// ● 書式文字に整形
 		///------------------------------------------------------------------------------------------------
 		/// <summary>● 書式文字に整形（整数）</summary>
-		protected string By( int code, string text ) {
-			return (
+		protected string By( int code, string text )
+			=> (
 				GetFormat( code, Order.Start ) +
 				text +
 				GetFormat( code, Order.End )
 			);
-		}
 		/// <summary>● 書式文字に整形（定数）</summary>
-		string By( Type code, string text ) {
-			return By( (int)code, text );
-		}
+		string By( Type code, string text )
+			=> By( (int)code, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 太文字で装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string ByBold( string text ) {
-			return By( Type.Bold, text );
-		}
+		public string ByBold( string text )
+			=> By( Type.Bold, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 斜体で装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string ByItalic( string text ) {
-			return By( Type.Italic, text );
-		}
+		public string ByItalic( string text )
+			=> By( Type.Italic, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 色で装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string ByColor( string text, Color color ) {
-			return (
+		public string ByColor( string text, Color color )
+			=> (
 				ConvertColorFormat(color) +
 				text +
 				GetFormat( Type.Color, Order.End )
 			);
-		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 色書式を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		protected virtual string ConvertColorFormat( Color c ) {
-			return string.Empty;
-		}
+		protected virtual string ConvertColorFormat( Color c )
+			=> string.Empty;
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 複数書式型で装飾

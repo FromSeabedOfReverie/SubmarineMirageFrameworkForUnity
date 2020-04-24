@@ -42,7 +42,7 @@ namespace SubmarineMirage.Extension {
 		/// ● コンストラクタ
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public NGUIDecoration() : base() {
+		public NGUIDecoration() {
 			// NGUI書式対応の、指定文字配列を設定
 			_formatTexts = new List<string[]> {
 				{ new string[] { "[b]",		"",		"[/b]" } },
@@ -60,71 +60,63 @@ namespace SubmarineMirage.Extension {
 		/// ● 書式文字を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		string GetFormat( Type code, Order order ) {
-			return GetFormat( (int)code, order );
-		}
+		string GetFormat( Type code, Order order )
+			=> GetFormat( (int)code, order );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 書式文字に整形
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		string By( Type code, string text ) {
-			return By( (int)code, text );
-		}
+		string By( Type code, string text )
+			=> By( (int)code, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 下線で装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string ByUnderline( string text ) {
-			return By( Type.Underline, text );
-		}
+		public string ByUnderline( string text )
+			=> By( Type.Underline, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 打消線で装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string ByStrikethrough( string text ) {
-			return By( Type.Strikethrough, text );
-		}
+		public string ByStrikethrough( string text )
+			=> By( Type.Strikethrough, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 下付き文字で装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string BySubscript( string text ) {
-			return By( Type.Subscript, text );
-		}
+		public string BySubscript( string text )
+			=> By( Type.Subscript, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 上付き文字で装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string BySuperscript( string text ) {
-			return By( Type.Superscript, text );
-		}
+		public string BySuperscript( string text )
+			=> By( Type.Superscript, text );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● URLで装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public string ByHyperlink( string text, string url ) {
-			return (
+		public string ByHyperlink( string text, string url )
+			=> (
 				GetFormat( Type.Hyperlink, Order.Start ) +
 				url +
 				GetFormat( Type.Hyperlink, Order.StartEnd ) +
 				text +
 				GetFormat( Type.Hyperlink, Order.End )
 			);
-		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 色書式を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		protected override string ConvertColorFormat( Color c ) {
-			return c.ToNGUIFormat();
-		}
+		protected override string ConvertColorFormat( Color c )
+			=> c.ToNGUIFormat();
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 複数書式型で装飾
