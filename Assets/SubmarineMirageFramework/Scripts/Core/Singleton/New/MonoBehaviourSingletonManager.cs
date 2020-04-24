@@ -7,8 +7,9 @@
 namespace SubmarineMirage.Singleton.New {
 	using System.Collections.Generic;
 	using UnityEngine;
-	using Extension;
+	using KoganeUnityLib;
 	using Process.New;
+	using Extension;
 	using Debug;
 
 
@@ -18,27 +19,27 @@ namespace SubmarineMirage.Singleton.New {
 	public class MonoBehaviourSingletonManager : MonoBehaviourSingleton<MonoBehaviourSingletonManager> {
 		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
 
+		new public static void CreateInstance() {
+			if ( s_isCreated )	{ return; }
 
-		public static MonoBehaviourSingletonManager CreateTopInstance() {
-			MonoBehaviourSingletonManager instance = null;
+			s_instanceObject = FindObjectOfType<MonoBehaviourSingletonManager>();
+			if ( s_isCreated )	{ return; }
 
-			var tag = TagManager.s_instance.Get( TagManager.Name.Singletons );
+			var tag = TagManager.Name.Singletons.ToString();
 			var go = GameObject.FindWithTag( tag );
 			if ( go != null ) {
 				var p = go.GetComponent<MonoBehaviourSingletonManager>();
 				if ( p != null ) {
-					instance = p;
+					s_instanceObject = p;
 				}
 			}
-			if ( instance != null )	{ return instance; }
+			if ( s_isCreated )	{ return; }
 
 			go = new GameObject( tag );
 			go.tag = tag;
-			instance = go.AddComponent<MonoBehaviourSingletonManager>();
-			new ProcessHierarchy( go, new List<IProcess>() { instance }, null );
+			s_instanceObject = go.AddComponent<MonoBehaviourSingletonManager>();
 
-			Log.Debug( $"作成（GameObject） : { instance.GetAboutName() }", Log.Tag.Singleton );
-			return instance;
+			Log.Debug( $"作成（GameObject） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
 		}
 
 
@@ -47,7 +48,7 @@ namespace SubmarineMirage.Singleton.New {
 			if ( process != null )	{ return process; }
 
 			process = _hierarchy.AddProcess<T>();
-			Log.Debug( $"作成（Component） : { process.GetAboutName() }", Log.Tag.Singleton );
+			Log.Debug( $"作成（Component） : {process.GetAboutName()}", Log.Tag.Singleton );
 			return process;
 		}
 

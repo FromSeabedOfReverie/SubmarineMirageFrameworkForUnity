@@ -53,7 +53,7 @@ namespace SubmarineMirage.Process.New {
 #endif
 		void OnDestroy() => Dispose();
 
-		public void Dispose() => _body.Dispose();
+		public void Dispose() => _body?.Dispose();
 
 		public abstract void Create();
 

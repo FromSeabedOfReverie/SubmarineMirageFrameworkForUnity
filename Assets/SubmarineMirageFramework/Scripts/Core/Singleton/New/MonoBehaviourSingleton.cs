@@ -15,7 +15,7 @@ namespace SubmarineMirage.Singleton.New {
 	public abstract class MonoBehaviourSingleton<T> : MonoBehaviourProcess, ISingleton
 		where T : MonoBehaviourProcess
 	{
-		static T s_instanceObject;
+		protected static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
 		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
 		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
@@ -35,9 +35,7 @@ namespace SubmarineMirage.Singleton.New {
 			s_instanceObject = FindObjectOfType<T>();
 			if ( s_isCreated )	{ return; }
 
-			s_instanceObject = typeof( T ) == typeof( MonoBehaviourSingletonManager ) ?
-				(T)(object)MonoBehaviourSingletonManager.CreateTopInstance() :
-				MonoBehaviourSingletonManager.s_instance.CreateProcess<T>();
+			s_instanceObject = MonoBehaviourSingletonManager.s_instance.CreateProcess<T>();
 		}
 
 
