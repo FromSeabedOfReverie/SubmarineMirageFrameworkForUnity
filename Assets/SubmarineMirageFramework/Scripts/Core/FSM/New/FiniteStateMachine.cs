@@ -33,7 +33,7 @@ namespace SubmarineMirage.FSM.New {
 		RunState? _runState => _state?._runState;
 		public string _registerEventName	{ get; private set; }
 
-		protected readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
+		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 		public TState _state	{ get; private set; }
 		protected TState _nextState;
 		protected Type _startState;
