@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Main.New {
+	using System;
 	using System.Threading;
 	using System.Threading.Tasks;
 	using System.Collections.Generic;
@@ -25,16 +26,8 @@ namespace SubmarineMirage.Main.New {
 	// TODO : コメント追加、整頓
 
 
-	public static class MainProcess {
-		public static bool s_isInitialized	{ get; private set; }
-
-
-		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
-		static async void Main() {
-			s_isInitialized = false;
-			await Task.Delay( 1 );
-
-
+	public static class ApplicationMain {
+		static async UniTask InitializePlugin() {
 			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
 
 			DOTween.Init(
@@ -53,28 +46,20 @@ namespace SubmarineMirage.Main.New {
 			UnityObject.DontDestroyOnLoad( go );
 #endif
 
-
-			MonoBehaviourSingletonManager.CreateInstance();
-			ProcessHierarchyManager.CreateInstance();
-			var h = new ProcessHierarchy(
-				MonoBehaviourSingletonManager.s_instance.gameObject,
-				new List<IProcess>() { MonoBehaviourSingletonManager.s_instance },
-				null
-			);
-// TODO : 多分使わないので、未設定でもエラーにならない
-//			ProcessHierarchyManager.s_instance._hierarchy = h;
-
-
-			await ProcessHierarchyManager.s_instance.Create(
-				async () => {
-					new Log();
-					await SceneManager.WaitForCreation();
-					await UniTaskUtility.DontWait();
-				}
-			);
-
-
-			s_isInitialized = true;
+			await UniTaskUtility.DontWait();
 		}
+
+
+		static async UniTask RegisterProcesses() {
+			new Log();
+			await SceneManager.WaitForCreation();
+			await UniTaskUtility.DontWait();
+
+			await UniTaskUtility.DontWait();
+		}
+
+
+		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
+		static async void Main() => await SubmarineMirage.TakeOff( InitializePlugin, RegisterProcesses );
 	}
 }
