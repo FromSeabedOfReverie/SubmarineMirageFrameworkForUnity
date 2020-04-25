@@ -29,7 +29,7 @@ namespace SubmarineMirage.Test {
 				await Task.Delay( 2, _asyncCancel );
 				SetAsyncCancelerDisposable();
 				_disposables.AddLast( _initializeEvent, _finalizeEvent );
-				await UniTaskUtility.WaitWhile( _asyncCancel, () => !MainProcess.s_isInitialized );
+				await UniTaskUtility.WaitWhile( _asyncCancel, () => !SubmarineMirage.s_isInitialized );
 				Create();
 				await _initializeEvent.Run( _asyncCancel );
 				_isInitialized = true;
