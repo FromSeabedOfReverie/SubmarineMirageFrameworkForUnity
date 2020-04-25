@@ -13,6 +13,7 @@ namespace SubmarineMirage.Scene {
 	using KoganeUnityLib;
 	using Process.New;
 	using FSM.New;
+	using Utility;
 	using Debug;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 	using LifeSpan = Process.New.ProcessBody.LifeSpan;
@@ -25,8 +26,7 @@ namespace SubmarineMirage.Scene {
 		public BaseScene _scene => _state;
 		public string _currentSceneName => _scene._name;
 		public Scene _currentScene => _scene._scene;
-		public Scene _foreverScene	{ get; private set; }
-		public static readonly string FOREVER_SCENE_NAME = LifeSpan.Forever.ToString();
+		public ForeverScene _foreverScene	{ get; private set; }
 		public bool _isSkipLoadForFirstScene = true;
 
 
@@ -38,14 +38,18 @@ namespace SubmarineMirage.Scene {
 				new TestChangeScene2Scene(),
 			}
 		) {
+			_foreverScene = new ForeverScene();
+			_loadEvent.AddLast( async cancel => {
+				_foreverScene.Set( _owner );
+				await UniTaskUtility.DontWait();
+			} );
+
 			_startState = _states
 				.Select( pair => pair.Value )
 				.Where( s => !( s is UnknownScene ) )
 				.FirstOrDefault( s => s._name == UnitySceneManager.GetActiveScene().name )
 				?.GetType();
 			if ( _startState == null )	{ _startState = typeof( UnknownScene ); }
-
-			_foreverScene = UnitySceneManager.CreateScene( FOREVER_SCENE_NAME );
 		}
 
 
@@ -56,8 +60,4 @@ namespace SubmarineMirage.Scene {
 		public async UniTask ChangeScene( Type stateType )
 			=> await ChangeState( stateType );
 	}
-
-
-	public class TestChangeScene1Scene : BaseScene {}
-	public class TestChangeScene2Scene : BaseScene {}
 }

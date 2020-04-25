@@ -26,13 +26,20 @@ namespace SubmarineMirage.Scene {
 
 	public abstract class BaseScene : State<SceneStateMachine, SceneManager> {
 		public string _name	{ get; protected set; }
+		protected string registerKey	{ get; private set; }
+
 		public Scene _scene	{ get; protected set; }
+		public ProcessHierarchyManager _hierarchies	{ get; private set; }
+
 
 		public BaseScene() {
 			_name = this.GetAboutName().RemoveAtLast( "Scene" );
+			registerKey = nameof( BaseScene );
 			ResetScene();
+			_hierarchies = new ProcessHierarchyManager( this );
+			_disposables.AddLast( _hierarchies );
 
-			_enterEvent.AddFirst( async cancel => {
+			_enterEvent.AddFirst( registerKey, async cancel => {
 				if ( _fsm._isSkipLoadForFirstScene ) {
 					_fsm._isSkipLoadForFirstScene = false;
 				} else {
@@ -41,12 +48,11 @@ namespace SubmarineMirage.Scene {
 				}
 				ResetScene();
 				UnitySceneManager.SetActiveScene( _scene );
-				SetupProcess();
-//				await ProcessHierarchyManager.s_instance.RunSceneHierarchies();
+				await _hierarchies.Enter();
 			} );
 
-			_exitEvent.AddFirst( async cancel => {
-//				await ProcessHierarchyManager.s_instance.DeleteSceneHierarchies();
+			_exitEvent.AddFirst( registerKey, async cancel => {
+				await _hierarchies.Exit();
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
 //				DOTween.KillAll();
 //				GameAudioManager.s_instance.StopAll();
@@ -57,24 +63,5 @@ namespace SubmarineMirage.Scene {
 
 		protected virtual void ResetScene()
 			=> _scene = UnitySceneManager.GetSceneByName( _name );
-
-
-		public void SetupProcess() {
-			var currents = _scene.GetRootGameObjects().Select( go => go.transform ).ToList();
-			while ( !currents.IsEmpty() ) {
-				var children = new List<Transform>();
-				currents.ForEach( t => {
-					var ps = t.GetComponents<MonoBehaviourProcess>();
-					if ( !ps.IsEmpty() ) {
-						new ProcessHierarchy( t.gameObject, ps, null );
-					} else {
-						foreach ( Transform child in t ) {
-							children.Add( child );
-						}
-					}
-				} );
-				currents = children;
-			}
-		}
 	}
 }
