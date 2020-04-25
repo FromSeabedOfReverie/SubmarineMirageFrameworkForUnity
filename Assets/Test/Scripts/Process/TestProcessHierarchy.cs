@@ -189,7 +189,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 		public class TestMono2 : TestMono1 {
 			public override ProcessBody.Type _type => ProcessBody.Type.Work;
-			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 		}
 		public class TestMono3 : TestMono1 {
 			public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
