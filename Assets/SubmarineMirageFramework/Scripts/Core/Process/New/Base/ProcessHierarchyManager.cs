@@ -7,9 +7,9 @@
 namespace SubmarineMirage.Process.New {
 	using System;
 	using System.Linq;
+	using System.Threading;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using UnityEngine.SceneManagement;
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
@@ -20,6 +20,7 @@ namespace SubmarineMirage.Process.New {
 	using Utility;
 	using Debug;
 	using UnityObject = UnityEngine.Object;
+	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 	using Type = ProcessBody.Type;
 	using RanState = ProcessBody.RanState;
 
@@ -28,25 +29,31 @@ namespace SubmarineMirage.Process.New {
 
 
 	public class ProcessHierarchyManager : IDisposableExtension {
-		BaseScene _owner;
+		public BaseScene _owner	{ get; private set; }
 		public readonly Dictionary< Type, List<ProcessHierarchy> > _hierarchies
 			= new Dictionary< Type, List<ProcessHierarchy> >();
+		HierarchyModifyler _modifyler;
 		public bool _isEnter	{ get; private set; }
+
+		public CancellationToken _activeAsyncCancel => _owner._activeAsyncCancel;
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public ProcessHierarchyManager( BaseScene owner ) {
 			_owner = owner;
+
 			EnumUtils.GetValues<Type>()
 				.ForEach( t => _hierarchies[t] = new List<ProcessHierarchy>() );
-
 			_disposables.AddLast( () => {
 				_hierarchies
 					.SelectMany( pair => pair.Value )
 					.ForEach( h => h.Dispose() );
 				_hierarchies.Clear();
 			} );
+
+			_modifyler = new HierarchyModifyler( this );
+			_disposables.AddLast( _modifyler );
 		}
 
 		public void Dispose() => _disposables.Dispose();
@@ -54,57 +61,24 @@ namespace SubmarineMirage.Process.New {
 		~ProcessHierarchyManager() => Dispose();
 
 
-		public async UniTask Register( ProcessHierarchy top ) {
-			Log.Debug( $"register {top._owner}" );
-			if ( top._owner != null ) {
-				if ( top._lifeSpan == ProcessBody.LifeSpan.Forever ) {
-					UnityObject.DontDestroyOnLoad( top._owner );
-				} else {
-// TODO : 再登録時に、Forever解除に使う
-//					SceneManager.s_instance.DestroyOnLoad( top._owner );
-				}
-			}
+		public void Register( ProcessHierarchy top ) {
+			_modifyler.Register( new RegisterHierarchyModifyData( top ) );
+		}
 
-			Gets( top._type )
-				.Add( top );
-
-			switch ( top._type ) {
-				case Type.DontWork:
-					await UniTaskUtility.Yield( _owner._activeAsyncCancel );
-					await top.RunStateEvent( RanState.Creating );
-					return;
-				case Type.Work:
-				case Type.FirstWork:
-					if ( _isEnter ) {
-						await UniTaskUtility.Yield( _owner._activeAsyncCancel );
-						await top.RunStateEvent( RanState.Creating );
-						await top.RunStateEvent( RanState.Loading );
-						await top.RunStateEvent( RanState.Initializing );
-						await top.RunActiveEvent();
-					}
-					return;
-			}
+		public void ReRegister( ProcessHierarchy top, ProcessHierarchyManager lastOwner ) {
+			_modifyler.Register( new ReRegisterHierarchyModifyData( top, lastOwner ) );
 		}
 
 		public void Unregister( ProcessHierarchy top ) {
-// TODO : Modefilerを作成し、追加、削除等をまとめて、ループ走査中以外の時に、実行する
+			_modifyler.Register( new UnregisterHierarchyModifyData( top ) );
 		}
 
-		public void ReRegister() {
-		}
-
-
-		public async UniTask Delete( ProcessHierarchy top ) {
-// TODO : Hierarchy内部を整理
-			await top.Delete();
-		}
-
-		public async UniTask ChangeActive( ProcessHierarchy top, bool isActive ) {
-			await top.ChangeActive( isActive, true );
+		public void Delete( ProcessHierarchy top ) {
+			_modifyler.Register( new DeleteHierarchyModifyData( top ) );
 		}
 
 
-		List<ProcessHierarchy> Gets( Type type, bool isReverse = false ) {
+		public List<ProcessHierarchy> Gets( Type type, bool isReverse = false ) {
 			var hs = _hierarchies[type];
 			if ( isReverse ) {
 				Log.Debug(

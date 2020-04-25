@@ -28,15 +28,15 @@ namespace SubmarineMirage.Process.New {
 
 
 	public class ProcessHierarchy : IDisposable {
-		public Type _type				{ get; private set; }
-		public LifeSpan _lifeSpan		{ get; private set; }
-		public string _belongSceneName	{ get; private set; }
+		public Type _type			{ get; private set; }
+		public LifeSpan _lifeSpan	{ get; private set; }
+		public BaseScene _scene		{ get; private set; }
 
 		public GameObject _owner	{ get; private set; }
 		public readonly List<IProcess> _processes = new List<IProcess>();
-		ProcessHierarchy _parent;
+		public ProcessHierarchy _parent;
 		public readonly List<ProcessHierarchy> _children = new List<ProcessHierarchy>();
-		ProcessHierarchy _top;
+		public ProcessHierarchy _top;
 
 		readonly MultiDisposable _disposables = new MultiDisposable();
 
@@ -62,7 +62,7 @@ namespace SubmarineMirage.Process.New {
 		public void Dispose() => _disposables.Dispose();
 
 
-		void SetParent( ProcessHierarchy parent ) {
+		public void SetParent( ProcessHierarchy parent ) {
 			if ( _owner == null )	{ return; }
 
 			_parent?._children.Remove( this );
@@ -99,7 +99,7 @@ namespace SubmarineMirage.Process.New {
 			}
 		}
 
-		void SetTop() {
+		public void SetTop() {
 			if ( _top != null )	{ return; }
 			for ( _top = this; _top._parent != null; _top = _top._parent );
 			SetAllHierarchiesData( _top );
@@ -116,26 +116,26 @@ namespace SubmarineMirage.Process.New {
 			);
 			_lifeSpan = allProcesses.Any( p => p._lifeSpan == LifeSpan.Forever ) ?
 				LifeSpan.Forever : LifeSpan.InScene;
-			_belongSceneName = (
-				_lifeSpan == LifeSpan.Forever	? ForeverScene.NAME :
-				_top._owner != null				? _top._owner.scene.name
-												: SceneManager.s_instance._currentSceneName
+			_scene = (
+				_lifeSpan == LifeSpan.Forever	? SceneManager.s_instance._fsm._foreverScene :
+				_top._owner != null				? SceneManager.s_instance._fsm.Get( _top._owner.scene )
+												: SceneManager.s_instance._fsm._scene
 			);
 
 			allHierarchy.ForEach( h => {
 				h._top = _top;
 				h._type = _type;
 				h._lifeSpan = _lifeSpan;
-				h._belongSceneName = _belongSceneName;
+				h._scene = _scene;
 			} );
 
 // TODO : 登録解除、再登録システムを作成する
-			ProcessRunner.s_instance.Register( _top ).Forget();
-			_disposables.AddLast( "Unregister", () => ProcessRunner.s_instance.Unregister( _top ) );
+			_top._scene._hierarchies.Register( _top );
+			_disposables.AddLast( "Unregister", () => _top._scene._hierarchies.Unregister( _top ) );
 		}
 
 
-		List<ProcessHierarchy> GetHierarchiesInChildren( ProcessHierarchy parent ) {
+		public List<ProcessHierarchy> GetHierarchiesInChildren( ProcessHierarchy parent ) {
 			var result = new List<ProcessHierarchy>();
 			var currents = new List<ProcessHierarchy> { parent };
 			while ( !currents.IsEmpty() ) {
@@ -147,67 +147,6 @@ namespace SubmarineMirage.Process.New {
 				currents = children;
 			}
 			return result;
-		}
-
-
-		public void ChangeParent( Transform parent, bool isWorldPositionStays ) {
-			if ( _owner == null )	{ return; }
-
-			_owner.transform.SetParent( parent, isWorldPositionStays );
-//			if ( _top == this )	{ _disposables.Remove( "Unregister" ); }
-
-			SetParent(
-				_owner.GetComponentInParentUntilOneHierarchy<MonoBehaviourProcess>( true )
-					?._hierarchy
-			);
-
-			if ( _parent == null ) {
-				_top = null;
-				SetTop();
-
-			} else {
-// TODO : 親属性と、新規子供達の属性を考慮し、新規属性を設定
-//				SetAllHierarchiesData( _parent );
-				GetHierarchiesInChildren( this ).ForEach( h => {
-					h._top = _parent._top;
-					h._type = _parent._type;
-					h._lifeSpan = _parent._lifeSpan;
-					h._belongSceneName = _parent._belongSceneName;
-				} );
-			}
-		}
-
-
-		public async UniTask RunProcess( IProcess process ) {
-// TODO : 管理クラスで初期化途中の場合、全初期化が終わるまで、実行されない
-			switch ( process._type ) {
-				case Type.DontWork:
-					await UniTaskUtility.Yield( process._activeAsyncCancel );
-					await process.RunStateEvent( RanState.Creating );
-					return;
-				case Type.Work:
-				case Type.FirstWork:
-					if ( ProcessRunner.s_instance._isInitializedInScene ) {
-						await UniTaskUtility.Yield( process._activeAsyncCancel );
-						await process.RunStateEvent( RanState.Creating );
-						await process.RunStateEvent( RanState.Loading );
-						await process.RunStateEvent( RanState.Initializing );
-						await process.RunActiveEvent();
-					}
-					return;
-			}
-		}
-
-		public T AddProcess<T>() where T : MonoBehaviourProcess {
-			if ( _owner == null )	{ return null; }
-			var p = _owner.AddComponent<T>();
-// TODO : 兄達の既存属性、弟の属性を考慮し、新規設定、親にも伝搬される
-			_processes.Add( p );
-			p._hierarchy = this;
-			p.Constructor();
-// TODO : コンストラクタ以外にも、既にイベント実行済の場合、実行する
-			RunProcess( p ).Forget();
-			return p;
 		}
 
 		public T GetProcess<T>() where T : MonoBehaviourProcess {
@@ -251,15 +190,6 @@ namespace SubmarineMirage.Process.New {
 			var go = UnityObject.Instantiate( original );
 			InstantiateHierarchy( go );
 			return go;
-		}
-
-
-		public async UniTask Delete() {
-// TODO : Destroy中のオブジェクトを、管理クラスで監視する
-//			削除中にシーン遷移を待機する等の、必要あり
-			SetParent( null );
-			await RunStateEvent( RanState.Finalizing );
-			Dispose();
 		}
 
 
@@ -382,7 +312,7 @@ namespace SubmarineMirage.Process.New {
 			var result = $"{this.GetAboutName()}(\n"
 				+ $"    _type : {_type}\n"
 				+ $"    _lifeSpan : {_lifeSpan}\n"
-				+ $"    _belongSceneName : {_belongSceneName}\n"
+				+ $"    _scene : {_scene}\n"
 				+ $"    _owner : {_owner}\n";
 
 			result += $"    _processes : \n";

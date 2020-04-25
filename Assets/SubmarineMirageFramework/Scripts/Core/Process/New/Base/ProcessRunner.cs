@@ -29,11 +29,11 @@ namespace SubmarineMirage.Process.New {
 	public class ProcessRunner : MonoBehaviourSingleton<ProcessRunner> {
 		public ForeverScene _foreverScene => SceneManager.s_instance._fsm._foreverScene;
 		public BaseScene _currentScene => SceneManager.s_instance._fsm._scene;
-
+		public bool _isEnterInForever	=> _foreverScene._hierarchies._isEnter;
+		public bool _isEnterInScene		=> _currentScene._hierarchies._isEnter;
 #if DEVELOP
 		public readonly MultiSubject _onGUIEvent = new MultiSubject();
 #endif
-		public bool _isInitializedInScene	{ get; private set; }
 
 
 		new public static void CreateInstance() {
@@ -114,23 +114,6 @@ namespace SubmarineMirage.Process.New {
 #endif
 
 		public override void Create() {}
-
-
-		public async UniTask Register( ProcessHierarchy top ) {
-		}
-
-		public void Unregister( ProcessHierarchy top ) {
-		}
-
-		public void ReRegister() {
-		}
-
-
-		public async UniTask Delete( ProcessHierarchy top ) {
-		}
-
-		public async UniTask ChangeActive( ProcessHierarchy top, bool isActive ) {
-		}
 
 
 		async UniTask RunForeverHierarchies() {
