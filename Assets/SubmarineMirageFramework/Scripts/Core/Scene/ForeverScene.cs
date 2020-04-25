@@ -13,10 +13,7 @@ namespace SubmarineMirage.Scene {
 
 
 	public class ForeverScene : BaseScene {
-		public static readonly string NAME = LifeSpan.Forever.ToString();
-
 		public ForeverScene() {
-			_name = NAME;
 			_scene = UnitySceneManager.CreateScene( _name );
 
 			_enterEvent.Remove( registerKey );

@@ -53,6 +53,15 @@ namespace SubmarineMirage.Scene {
 		}
 
 
+		public BaseScene Get( Scene scene ) {
+			var result = _states
+				.Select( pair => pair.Value )
+				.FirstOrDefault( s => s._scene == scene );
+			if ( result == null )	{ result = _states[typeof( UnknownScene )]; }
+			return result;
+		}
+
+
 // TODO : MultiFSM実装後、複数シーン読込に対応する
 		public async UniTask ChangeScene<T>() where T : BaseScene
 			=> await ChangeState<T>();

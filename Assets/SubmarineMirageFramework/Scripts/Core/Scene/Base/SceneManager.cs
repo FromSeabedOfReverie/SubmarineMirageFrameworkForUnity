@@ -29,11 +29,6 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public void DestroyOnLoad( GameObject top ) {
-			UnitySceneManager.MoveGameObjectToScene( top, _currentScene );
-		}
-
-
 		public bool IsInBuildScene() {
 #if UNITY_EDITOR
 			var path = _currentScene.path;
