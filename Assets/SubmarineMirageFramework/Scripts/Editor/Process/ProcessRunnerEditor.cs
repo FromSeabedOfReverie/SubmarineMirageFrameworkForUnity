@@ -27,32 +27,42 @@ namespace SubmarineMirage.Editor.EditorProcess {
 	// TODO : コメント追加、整頓
 
 
-	[CustomEditor( typeof( ProcessHierarchyManager ) )]
-	public class ProcessHierarchyManagerEditor : Editor {
-		ProcessHierarchyManager instance;
-		Vector2 scroll;
+	[CustomEditor( typeof( ProcessRunner ) )]
+	public class ProcessRunnerEditor : Editor {
+		ProcessRunner _instance;
+		Vector2 _scrollPosition;
+		string _focusedText = string.Empty;
+
 
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
+			_instance = (ProcessRunner)target;
 
-			instance = (ProcessHierarchyManager)target;
-			scroll = EditorGUILayout.BeginScrollView( scroll );
-
+			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
 			ShowAllHierarchies();
 			ShowDetail();
-
 			EditorGUILayout.EndScrollView();
+
+			Repaint();
+			if ( Event.current.type == EventType.Repaint ) {
+				_focusedText = GUI.GetNameOfFocusedControl();
+			}
 		}
+
 
 		void ShowAllHierarchies() {
 			ShowHeading1( "All Process Hierarchies" );
 
 			EditorGUI.indentLevel++;
-			instance._hierarchies.ForEach( scenePair => {
-				ShowHeading2( scenePair.Key );
+			
+			var scenes = SceneManager.s_instance._fsm._states.Select( pair => pair.Value ).ToList();
+			scenes.InsertFirst( SceneManager.s_instance._fsm._foreverScene );
+
+			scenes.ForEach( scene => {
+				ShowHeading2( scene._name );
 
 				EditorGUI.indentLevel++;
-				scenePair.Value.ForEach( typePair => {
+				scene._hierarchies._hierarchies.ForEach( typePair => {
 					ShowHeading3( typePair.Key.ToString() );
 					typePair.Value.ForEach( h => ShowHierarchy( h ) );
 				} );
@@ -66,16 +76,15 @@ namespace SubmarineMirage.Editor.EditorProcess {
 
 			GUI.SetNextControlName( hierarchy.ToString() );
 			var p = hierarchy._processes.First();
-			var a = p._isActive ? "→" : "×";
+			var a = p._isActive ? "◯" : "×";
 			var g = hierarchy._owner != null ? $"( {hierarchy._owner.name} )" : "";
 			EditorGUILayout.SelectableLabel(
 				$"{a} {p.GetAboutName()}{g}( {p._body._ranState} )",
 				GUILayout.Height( 16 )
 			);
 
-			hierarchy._children.ForEach( child => {
-				ShowHierarchy( child );
-			} );
+			hierarchy._children
+				.ForEach( child => ShowHierarchy( child ) );
 
 			EditorGUI.indentLevel--;
 		}
@@ -83,10 +92,8 @@ namespace SubmarineMirage.Editor.EditorProcess {
 		void ShowDetail() {
 			ShowHeading1( "Detail" );
 			EditorGUI.indentLevel++;
-			EditorGUILayout.LabelField(
-				GUI.GetNameOfFocusedControl(),
-				GUILayout.ExpandHeight( true )
-			);
+			_focusedText.Split( "\n" )
+				.ForEach( s => EditorGUILayout.LabelField( s ) );
 			EditorGUI.indentLevel--;
 		}
 
@@ -107,80 +114,6 @@ namespace SubmarineMirage.Editor.EditorProcess {
 		}
 		void ShowHeading3( string text ) {
 			EditorGUILayout.LabelField( $"・{text}", EditorStyles.boldLabel );
-		}
-	}
-
-
-
-	public class Tree<T> {
-		public T Data	{ get; set; }
-		public IEnumerable< Tree<T> > Childs	{ get; set; }
-		public bool Opened	{ get; set; }
-
-		public Tree() {
-			Childs = Enumerable.Empty< Tree<T> >();
-			Opened = true;
-		}
-	}
-
-
-
-	public static class GUIExtension {
-		public static void ShowTree( Tree<string> tree ) {
-			var text = tree.Data.ToString();
-			GUI.SetNextControlName( text );
-			if ( !tree.Childs.IsEmpty() ) {
-				tree.Opened = EditorGUILayout.Foldout( tree.Opened, text );
-			} else {
-				EditorGUILayout.SelectableLabel( text, GUILayout.Height( 16 ) );
-			}
-			EditorGUI.indentLevel++;
-
-			if ( tree.Opened ) {
-				foreach ( var child in tree.Childs ) {
-					ShowTree( child );
-				}
-			}
-			EditorGUI.indentLevel--;
-		}
-	}
-
-
-
-	public class TreeView : EditorWindow {
-		Vector2 scroll;
-		Tree<string> tree;
-
-		void OnGUI() {
-			if ( tree == null )	{ return; }
-
-			scroll = EditorGUILayout.BeginScrollView( scroll );
-			GUIExtension.ShowTree( tree );
-			EditorGUILayout.LabelField( GUI.GetNameOfFocusedControl() );
-			EditorGUILayout.EndScrollView();
-		}
-
-		void OnSelectionChange() {
-			tree = GameObjectToTree( Selection.activeGameObject );
-			Repaint();
-		}
-
-		Tree<string> GameObjectToTree( GameObject go ) {
-			var childs = new List< Tree<string> >();
-
-			foreach ( Transform child in go.transform ) {
-				childs.Add( GameObjectToTree( child.gameObject ) );
-			}
-
-			return new Tree<string> {
-				Data = go.name,
-				Childs = childs
-			};
-		}
-
-		[MenuItem( "Window/TreeView" )]
-		static void ShowWindow() {
-			GetWindow<TreeView>();
 		}
 	}
 }

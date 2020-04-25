@@ -117,9 +117,9 @@ namespace SubmarineMirage.Process.New {
 			_lifeSpan = allProcesses.Any( p => p._lifeSpan == LifeSpan.Forever ) ?
 				LifeSpan.Forever : LifeSpan.InScene;
 			_belongSceneName = (
-				_lifeSpan == LifeSpan.Forever	? SceneStateMachine.FOREVER_SCENE_NAME :
-				_top._owner != null							? _top._owner.scene.name
-															: SceneManager.s_instance._currentSceneName
+				_lifeSpan == LifeSpan.Forever	? ForeverScene.NAME :
+				_top._owner != null				? _top._owner.scene.name
+												: SceneManager.s_instance._currentSceneName
 			);
 
 			allHierarchy.ForEach( h => {
@@ -130,8 +130,8 @@ namespace SubmarineMirage.Process.New {
 			} );
 
 // TODO : 登録解除、再登録システムを作成する
-			ProcessHierarchyManager.s_instance.Register( _top ).Forget();
-			_disposables.AddLast( "Unregister", () => ProcessHierarchyManager.s_instance.Unregister( _top ) );
+			ProcessRunner.s_instance.Register( _top ).Forget();
+			_disposables.AddLast( "Unregister", () => ProcessRunner.s_instance.Unregister( _top ) );
 		}
 
 
@@ -187,7 +187,7 @@ namespace SubmarineMirage.Process.New {
 					return;
 				case Type.Work:
 				case Type.FirstWork:
-					if ( ProcessHierarchyManager.s_instance._isInitializedInScene ) {
+					if ( ProcessRunner.s_instance._isInitializedInScene ) {
 						await UniTaskUtility.Yield( process._activeAsyncCancel );
 						await process.RunStateEvent( RanState.Creating );
 						await process.RunStateEvent( RanState.Loading );

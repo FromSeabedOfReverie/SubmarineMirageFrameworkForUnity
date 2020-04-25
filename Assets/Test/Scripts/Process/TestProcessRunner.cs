@@ -32,14 +32,14 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-	public class TestProcessHierarchyManager : Test {
-		ProcessHierarchyManager _process;
+	public class TestProcessRunner : Test {
+		ProcessRunner _process;
 		Text _text;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_process = ProcessHierarchyManager.s_instance;
+			_process = ProcessRunner.s_instance;
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
