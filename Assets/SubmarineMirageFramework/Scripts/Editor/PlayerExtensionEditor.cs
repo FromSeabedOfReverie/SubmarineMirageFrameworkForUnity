@@ -22,7 +22,7 @@ namespace SubmarineMirage.Editor {
 		static void PlayExtension() {
 			if ( EditorApplication.isPlaying ) {
 				UniTask.Void( async () => {
-					ProcessHierarchyManager.DisposeInstance();
+					ProcessRunner.DisposeInstance();
 					_playStopEvent?.Invoke();
 					_playStopEvent = null;
 					if ( _isStartEditorPlay ) {
