@@ -12,8 +12,8 @@ namespace SubmarineMirage.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public class DeleteHierarchyModifyData : HierarchyModifyData {
-		public DeleteHierarchyModifyData( ProcessHierarchy hierarchy ) {
+	public class DestroyHierarchyModifyData : HierarchyModifyData {
+		public DestroyHierarchyModifyData( ProcessHierarchy hierarchy ) {
 			_hierarchy = hierarchy;
 		}
 

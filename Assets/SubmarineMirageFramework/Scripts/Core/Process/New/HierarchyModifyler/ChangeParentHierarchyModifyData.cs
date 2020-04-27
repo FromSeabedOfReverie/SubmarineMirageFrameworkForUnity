@@ -46,13 +46,12 @@ namespace SubmarineMirage.Process.New {
 			);
 
 			if ( _hierarchy._parent == null ) {
-				_hierarchy._top = null;
-				_hierarchy.SetTop();
+				_hierarchy.ResetTop();
 
 			} else {
 // TODO : 親属性と、新規子供達の属性を考慮し、新規属性を設定
-//				_hierarchy.SetAllHierarchiesData( _parent );
-				_hierarchy.GetHierarchiesInChildren( _hierarchy ).ForEach( h => {
+//				_hierarchy._parent.SetAllHierarchiesData();
+				_hierarchy.GetHierarchiesInChildren().ForEach( h => {
 					h._top = _hierarchy._parent._top;
 					h._type = _hierarchy._parent._type;
 					h._lifeSpan = _hierarchy._parent._lifeSpan;

@@ -40,6 +40,9 @@ namespace SubmarineMirage.Process.New {
 			data._owner = _owner;
 			data._modifyler = this;
 			_allData.Add( data );
+
+// TODO : テストなので、後で消す
+			Run();
 		}
 
 

@@ -16,19 +16,22 @@ namespace SubmarineMirage.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public class AddHierarchyModifyData<T> : HierarchyModifyData where T : MonoBehaviourProcess {
-		public AddHierarchyModifyData( ProcessHierarchy hierarchy ) {
+	public class AddHierarchyModifyData : HierarchyModifyData {
+		MonoBehaviourProcess _process;
+
+
+		public AddHierarchyModifyData( ProcessHierarchy hierarchy, MonoBehaviourProcess process ) {
 			_hierarchy = hierarchy;
+			_process = process;
 		}
 
 
 		protected override async UniTask Run() {
-			var p = _hierarchy._owner.AddComponent<T>();
 // TODO : 兄達の既存属性、弟の属性を考慮し、新規設定、親にも伝搬される
-			_hierarchy._processes.Add( p );
-			p._hierarchy = _hierarchy;
+			_hierarchy._processes.Add( _process );
+			_process._hierarchy = _hierarchy;
 
-			await RunProcess( p );
+			await RunProcess( _process );
 		}
 
 
