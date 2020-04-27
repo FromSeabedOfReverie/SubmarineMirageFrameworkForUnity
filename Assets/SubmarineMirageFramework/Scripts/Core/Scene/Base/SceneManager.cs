@@ -9,6 +9,7 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
+	using Process.New;
 	using FSM.New;
 	using Singleton.New;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
@@ -23,10 +24,14 @@ namespace SubmarineMirage.Scene {
 		public Scene _currentScene => _fsm._currentScene;
 
 
-		public override void Create() {
+		public void SetupInstance() {
 			_fsm = new SceneStateMachine( this );
 			_disposables.AddFirst( _fsm );
+			_hierarchy.ResetTop();
 		}
+
+		public override void Create() {}
+
 
 
 		public bool IsInBuildScene() {

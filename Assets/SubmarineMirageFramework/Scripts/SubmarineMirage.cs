@@ -11,6 +11,7 @@ namespace SubmarineMirage.Main.New {
 	using UniRx.Async;
 	using Process.New;
 	using Singleton.New;
+	using Scene;
 
 
 	// TODO : コメント追加、整頓
@@ -31,6 +32,7 @@ namespace SubmarineMirage.Main.New {
 
 			MonoBehaviourSingletonManager.CreateInstance();
 			ProcessRunner.CreateInstance();
+			SceneManager.s_instance.SetupInstance();
 			var h = new ProcessHierarchy(
 				MonoBehaviourSingletonManager.s_instance.gameObject,
 				new List<IProcess>() { MonoBehaviourSingletonManager.s_instance },
