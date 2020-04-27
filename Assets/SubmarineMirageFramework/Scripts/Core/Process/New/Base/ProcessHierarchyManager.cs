@@ -61,23 +61,6 @@ namespace SubmarineMirage.Process.New {
 		~ProcessHierarchyManager() => Dispose();
 
 
-		public void Register( ProcessHierarchy top ) {
-			_modifyler.Register( new RegisterHierarchyModifyData( top ) );
-		}
-
-		public void ReRegister( ProcessHierarchy top, ProcessHierarchyManager lastOwner ) {
-			_modifyler.Register( new ReRegisterHierarchyModifyData( top, lastOwner ) );
-		}
-
-		public void Unregister( ProcessHierarchy top ) {
-			_modifyler.Register( new UnregisterHierarchyModifyData( top ) );
-		}
-
-		public void Delete( ProcessHierarchy top ) {
-			_modifyler.Register( new DeleteHierarchyModifyData( top ) );
-		}
-
-
 		public List<ProcessHierarchy> Gets( Type type, bool isReverse = false ) {
 			var hs = _hierarchies[type];
 			if ( isReverse ) {
@@ -98,6 +81,30 @@ namespace SubmarineMirage.Process.New {
 // TODO : 使用先で、Add、Removeされた場合、元もちゃんと変更されるか？
 			return hs;
 		}
+
+
+		public void Register( ProcessHierarchy top )
+			=> _modifyler.Register( new RegisterHierarchyModifyData( top ) );
+
+		public void ReRegister( ProcessHierarchy top, ProcessHierarchyManager lastOwner )
+			=> _modifyler.Register( new ReRegisterHierarchyModifyData( top, lastOwner ) );
+
+		public void Unregister( ProcessHierarchy top )
+			=> _modifyler.Register( new UnregisterHierarchyModifyData( top ) );
+
+		public T Add<T>( ProcessHierarchy hierarchy ) where T : MonoBehaviourProcess {
+			var p = hierarchy._owner.AddComponent<T>();
+			_modifyler.Register( new AddHierarchyModifyData( hierarchy, p ) );
+			return p;
+		}
+
+		public void Destroy( ProcessHierarchy top )
+			=> _modifyler.Register( new DestroyHierarchyModifyData( top ) );
+
+		public void ChangeParent( ProcessHierarchy hierarchy, Transform parent, bool isWorldPositionStays )
+			=> _modifyler.Register(
+				new ChangeParentHierarchyModifyData( hierarchy, parent, isWorldPositionStays )
+			);
 
 
 		public async UniTask RunAllStateEvents( Type type, RanState state ) {
@@ -201,10 +208,8 @@ namespace SubmarineMirage.Process.New {
 					}
 				} );
 				currents = children;
+				await UniTaskUtility.Yield( _activeAsyncCancel );
 			}
-
-			// TODO : そのうち、オープンワールド用に、非同期読込に対応させる
-			await UniTaskUtility.DontWait();
 		}
 	}
 }

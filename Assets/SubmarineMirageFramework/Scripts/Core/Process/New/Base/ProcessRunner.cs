@@ -126,7 +126,7 @@ namespace SubmarineMirage.Process.New {
 			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );
 		}
 
-		async UniTask DeleteForeverHierarchies() {
+		async UniTask EndForeverHierarchies() {
 			await _currentScene._fsm.ChangeScene( null );
 			await ChangeActive( false );
 			await RunStateEvent( RanState.Finalizing );

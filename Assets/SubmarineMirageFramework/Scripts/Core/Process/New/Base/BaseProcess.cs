@@ -19,7 +19,7 @@ namespace SubmarineMirage.Process.New {
 		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 
 		public ProcessHierarchy _hierarchy	{ get; set; }
-		public ProcessBody _body			{ get; private set; }
+		public ProcessBody _body			{ get; protected set; }
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isActive		=> _body._isActive;
@@ -41,8 +41,8 @@ namespace SubmarineMirage.Process.New {
 
 
 		protected BaseProcess() {
-			_hierarchy = new ProcessHierarchy( null, new IProcess[] { this }, null );
 			_body = new ProcessBody( this, ProcessBody.ActiveState.Enabling );
+			_hierarchy = new ProcessHierarchy( null, new IProcess[] { this }, null );
 		}
 
 		~BaseProcess() => Dispose();
