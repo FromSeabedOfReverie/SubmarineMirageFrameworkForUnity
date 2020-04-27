@@ -5,11 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
-	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
 	using Process.New;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -47,7 +47,7 @@ namespace SubmarineMirage.Singleton.New {
 			var process = _hierarchy.GetProcess<T>();
 			if ( process != null )	{ return process; }
 
-			process = _hierarchy.AddProcess<T>();
+			process = _hierarchy.Add<T>();
 			Log.Debug( $"作成（Component） : {process.GetAboutName()}", Log.Tag.Singleton );
 			return process;
 		}
