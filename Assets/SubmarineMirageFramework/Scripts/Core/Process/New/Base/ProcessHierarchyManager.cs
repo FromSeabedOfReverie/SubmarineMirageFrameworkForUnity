@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Process.New {
-	using System;
 	using System.Linq;
 	using System.Threading;
 	using System.Collections.Generic;
@@ -13,14 +12,11 @@ namespace SubmarineMirage.Process.New {
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
-	using Singleton.New;
 	using MultiEvent;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
-	using UnityObject = UnityEngine.Object;
-	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 	using Type = ProcessBody.Type;
 	using RanState = ProcessBody.RanState;
 
@@ -86,8 +82,8 @@ namespace SubmarineMirage.Process.New {
 		public void Register( ProcessHierarchy top )
 			=> _modifyler.Register( new RegisterHierarchyModifyData( top ) );
 
-		public void ReRegister( ProcessHierarchy top, ProcessHierarchyManager lastOwner )
-			=> _modifyler.Register( new ReRegisterHierarchyModifyData( top, lastOwner ) );
+		public void ReRegister( ProcessHierarchy top, Type lastType, BaseScene lastScene )
+			=> _modifyler.Register( new ReRegisterHierarchyModifyData( top, lastType, lastScene ) );
 
 		public void Unregister( ProcessHierarchy top )
 			=> _modifyler.Register( new UnregisterHierarchyModifyData( top ) );
@@ -162,7 +158,7 @@ namespace SubmarineMirage.Process.New {
 		public async UniTask Enter() {
 			await Load();
 			_isEnter = true;
-			return;
+//			return;
 			await RunAllStateEvents( Type.FirstWork, RanState.Creating );
 			await RunAllStateEvents( Type.FirstWork, RanState.Loading );
 			await RunAllStateEvents( Type.FirstWork, RanState.Initializing );
@@ -194,6 +190,9 @@ namespace SubmarineMirage.Process.New {
 
 
 		async UniTask Load() {
+			Log.Debug( "Load" );
+			if ( _owner == _owner._fsm._foreverScene )	{ return; }
+
 			var currents = _owner._scene.GetRootGameObjects().Select( go => go.transform ).ToList();
 			while ( !currents.IsEmpty() ) {
 				var children = new List<Transform>();

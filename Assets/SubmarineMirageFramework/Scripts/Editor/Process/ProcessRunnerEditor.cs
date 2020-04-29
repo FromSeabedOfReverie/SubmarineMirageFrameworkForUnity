@@ -36,12 +36,16 @@ namespace SubmarineMirage.Editor.EditorProcess {
 
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
+
+			if ( target == null )				{ return; }
+			if ( !SceneManager.s_isCreated )	{ return; }
+
 			_instance = (ProcessRunner)target;
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
 			ShowAllHierarchies();
-			ShowDetail();
 			EditorGUILayout.EndScrollView();
+			ShowDetail();
 
 			Repaint();
 			if ( Event.current.type == EventType.Repaint ) {
@@ -51,24 +55,20 @@ namespace SubmarineMirage.Editor.EditorProcess {
 
 
 		void ShowAllHierarchies() {
-			ShowHeading1( "All Process Hierarchies" );
-
-			EditorGUI.indentLevel++;
-			
 			var scenes = SceneManager.s_instance._fsm._states.Select( pair => pair.Value ).ToList();
 			scenes.InsertFirst( SceneManager.s_instance._fsm._foreverScene );
 
 			scenes.ForEach( scene => {
-				ShowHeading2( scene._name );
+				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
 				scene._hierarchies._hierarchies.ForEach( typePair => {
-					ShowHeading3( typePair.Key.ToString() );
+					ShowHeading2( typePair.Key.ToString() );
 					typePair.Value.ForEach( h => ShowHierarchy( h ) );
 				} );
 				EditorGUI.indentLevel--;
 			} );
-			EditorGUI.indentLevel--;
+			EditorGUILayout.Space();
 		}
 
 		void ShowHierarchy( ProcessHierarchy hierarchy ) {
@@ -90,7 +90,9 @@ namespace SubmarineMirage.Editor.EditorProcess {
 		}
 
 		void ShowDetail() {
+			ShowLine();
 			ShowHeading1( "Detail" );
+
 			EditorGUI.indentLevel++;
 			_focusedText.Split( "\n" )
 				.ForEach( s => EditorGUILayout.LabelField( s ) );
@@ -105,14 +107,9 @@ namespace SubmarineMirage.Editor.EditorProcess {
 			);
 		}
 		void ShowHeading1( string text ) {
-			ShowLine();
-			EditorGUILayout.LabelField( $"■ {text}", EditorStyles.boldLabel );
-			ShowLine();
-		}
-		void ShowHeading2( string text ) {
 			EditorGUILayout.LabelField( $"● {text}", EditorStyles.boldLabel );
 		}
-		void ShowHeading3( string text ) {
+		void ShowHeading2( string text ) {
 			EditorGUILayout.LabelField( $"・{text}", EditorStyles.boldLabel );
 		}
 	}

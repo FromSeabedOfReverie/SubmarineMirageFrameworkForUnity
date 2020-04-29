@@ -43,6 +43,8 @@ namespace SubmarineMirage.Process.New {
 			if ( s_isCreated )	{ return; }
 
 			s_instanceObject = MonoBehaviourSingletonManager.s_instance.AddComponent<ProcessRunner>();
+// TODO : 多分使わないので、未設定でもエラーにならない
+//			s_instanceObject._hierarchy = MonoBehaviourSingletonManager.s_instance._hierarchy;
 			s_instanceObject.Constructor();
 
 			Log.Debug( $"作成（Component） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
@@ -55,6 +57,7 @@ namespace SubmarineMirage.Process.New {
 			} );
 
 			_initializeEvent.AddLast( async cancel => {
+// TODO : シーン読込後に、テストオブジェクトを作成してしまう
 				await _foreverScene.RunStateEvent( FiniteStateMachineRunState.Entering );
 			} );
 
@@ -117,10 +120,10 @@ namespace SubmarineMirage.Process.New {
 
 
 		async UniTask RunForeverHierarchies() {
-//			await UniTaskUtility.Yield( _activeAsyncCancel );
+			await UniTaskUtility.Yield( _activeAsyncCancel );
 			await RunStateEvent( RanState.Creating );
 			await RunStateEvent( RanState.Loading );
-			return;
+//			return;
 			await RunStateEvent( RanState.Initializing );
 			await RunActiveEvent();
 			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );

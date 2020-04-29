@@ -17,27 +17,26 @@ namespace SubmarineMirage.Process.New {
 	using Extension;
 	using Utility;
 	using Debug;
-	using UnityObject = UnityEngine.Object;
 	using Type = ProcessBody.Type;
 	using LifeSpan = ProcessBody.LifeSpan;
 	using RanState = ProcessBody.RanState;
-	using ActiveState = ProcessBody.ActiveState;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public class ProcessHierarchy : IDisposable {
-		public Type _type			{ get; set; }
-		public LifeSpan _lifeSpan	{ get; set; }
-		public BaseScene _scene		{ get; set; }
+		public Type _type			{ get; private set; }
+		public LifeSpan _lifeSpan	{ get; private set; }
+		public BaseScene _scene		{ get; private set; }
 		public ProcessHierarchyManager _hierarchies => _scene?._hierarchies;
 
-		public GameObject _owner	{ get; private set; }
-		public readonly List<IProcess> _processes = new List<IProcess>();
-		public ProcessHierarchy _parent;
+		public GameObject _owner		{ get; private set; }
+		public ProcessHierarchy _top	{ get; private set; }
+		public ProcessHierarchy _parent	{ get; private set; }
 		public readonly List<ProcessHierarchy> _children = new List<ProcessHierarchy>();
-		public ProcessHierarchy _top;
+		public readonly List<IProcess> _processes = new List<IProcess>();
+		public bool _isTop => _top == this;
 
 		readonly MultiDisposable _disposables = new MultiDisposable();
 
@@ -48,11 +47,10 @@ namespace SubmarineMirage.Process.New {
 			SetParent( parent );
 			SetChildren();
 			SetBrothers( processes );
-			SetTop();
+			if ( _top == null )	{ SetTop(); }
 
-			_disposables.AddLast( () => _parent?._children.Remove( this ) );
-			_disposables.AddLast( _processes );
-			_disposables.AddLast( _children );
+			_disposables.AddLast( () => _processes.ForEach( p => p.Dispose() ) );
+			_disposables.AddLast( () => _children.ForEach( p => p.Dispose() ) );
 
 			Log.Debug( $"作成 : {this}" );
 		}
@@ -102,44 +100,44 @@ namespace SubmarineMirage.Process.New {
 		}
 
 		public void SetTop() {
-			if ( _top != null )	{ return; }
 			for ( _top = this; _top._parent != null; _top = _top._parent )	{}
-			_top.SetAllHierarchiesData();
-			if ( _hierarchies != null ) {
-				_hierarchies.Register( _top );
-				_disposables.AddLast( "Unregister", () => _hierarchies.Unregister( _top ) );
-			}
+			SetAllData();
 		}
 
-		public void ResetTop() {
-			_top = null;
-			SetTop();
-		}
-
-		public void SetAllHierarchiesData() {
-			var allHierarchy = GetHierarchiesInChildren();
+		public void SetAllData() {
+			var lastType = _top._type;
+			var lastScene = _top._scene;
+			var allHierarchy = _top.GetHierarchiesInChildren();
 			var allProcesses = allHierarchy.SelectMany( h => h._processes );
 
-			_type = (
+			_top._type = (
 				allProcesses.Any( p => p._type == Type.FirstWork )	? Type.FirstWork :
 				allProcesses.Any( p => p._type == Type.Work )		? Type.Work
 																	: Type.DontWork
 			);
-			_lifeSpan = allProcesses.Any( p => p._lifeSpan == LifeSpan.Forever ) ?
+			_top._lifeSpan = allProcesses.Any( p => p._lifeSpan == LifeSpan.Forever ) ?
 				LifeSpan.Forever : LifeSpan.InScene;
-			_scene = (
-				!SceneManager.s_isCreated		? null :
-				_lifeSpan == LifeSpan.Forever	? SceneManager.s_instance._fsm._foreverScene :
-				_top._owner != null				? SceneManager.s_instance._fsm.Get( _top._owner.scene )
-												: SceneManager.s_instance._fsm._scene
+			_top._scene = (
+				// SceneManager作成時の場合、循環参照になる為、設定出来ない
+				!SceneManager.s_isCreated			? null :
+				_top._lifeSpan == LifeSpan.Forever	? SceneManager.s_instance._fsm._foreverScene :
+				_top._owner != null					? SceneManager.s_instance._fsm.Get( _top._owner.scene )
+													: SceneManager.s_instance._fsm._scene
 			);
 
 			allHierarchy.ForEach( h => {
 				h._top = _top;
-				h._type = _type;
-				h._lifeSpan = _lifeSpan;
-				h._scene = _scene;
+				h._type = _top._type;
+				h._lifeSpan = _top._lifeSpan;
+				h._scene = _top._scene;
 			} );
+
+			if ( lastScene == null ) {
+				// SceneManager作成時の場合、循環参照になる為、設定出来ない
+				_hierarchies?.Register( _top );
+			} else if ( _top._type != lastType || _top._scene != lastScene ) {
+				_hierarchies.ReRegister( _top, lastType, lastScene );
+			}
 		}
 
 
@@ -163,12 +161,6 @@ namespace SubmarineMirage.Process.New {
 			}
 			return result;
 		}
-
-/*
-		public void Register() => _hierarchies.Register( this );
-		public void ReRegister( ProcessHierarchyManager lastOwner ) => _hierarchies.ReRegister( this, lastOwner );
-		public void Unregister() => _hierarchies.Unregister( this );
-*/
 
 		public T Add<T>() where T : MonoBehaviourProcess => _hierarchies.Add<T>( this );
 

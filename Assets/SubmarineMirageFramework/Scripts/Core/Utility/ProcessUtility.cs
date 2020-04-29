@@ -22,36 +22,33 @@ namespace SubmarineMirage.Utility {
 			return new ProcessHierarchy( instance.gameObject, ps, parent );
 		}
 
-		public static GameObject Instantiate( GameObject original, Transform parent, bool isWorldPositionStays ) {
+		public static ProcessHierarchy Instantiate( GameObject original, Transform parent,
+													bool isWorldPositionStays
+		) {
 			var go = UnityObject.Instantiate( original, parent, isWorldPositionStays );
-			InstantiateHierarchy( go );
-			return go;
+			return InstantiateHierarchy( go );
 		}
 
-		public static GameObject Instantiate( GameObject original, Transform parent ) {
+		public static ProcessHierarchy Instantiate( GameObject original, Transform parent ) {
 			var go = UnityObject.Instantiate( original, parent );
-			InstantiateHierarchy( go );
-			return go;
+			return InstantiateHierarchy( go );
 		}
 
-		public static GameObject Instantiate( GameObject original, Vector3 position, Quaternion rotation,
-												Transform parent )
-		{
+		public static ProcessHierarchy Instantiate( GameObject original, Vector3 position, Quaternion rotation,
+													Transform parent
+		) {
 			var go = UnityObject.Instantiate( original, position, rotation, parent );
-			InstantiateHierarchy( go );
-			return go;
+			return InstantiateHierarchy( go );
 		}
 
-		public static GameObject Instantiate( GameObject original, Vector3 position, Quaternion rotation ) {
+		public static ProcessHierarchy Instantiate( GameObject original, Vector3 position, Quaternion rotation ) {
 			var go = UnityObject.Instantiate( original, position, rotation );
-			InstantiateHierarchy( go );
-			return go;
+			return InstantiateHierarchy( go );
 		}
 
-		public static GameObject Instantiate( GameObject original ) {
+		public static ProcessHierarchy Instantiate( GameObject original ) {
 			var go = UnityObject.Instantiate( original );
-			InstantiateHierarchy( go );
-			return go;
+			return InstantiateHierarchy( go );
 		}
 	}
 }

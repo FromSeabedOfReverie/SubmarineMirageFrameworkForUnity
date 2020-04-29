@@ -95,6 +95,7 @@ namespace SubmarineMirage.Process.New {
 				_finalizeEvent,
 				_activeAsyncCancelEvent
 			);
+			_disposables.AddLast( () => Log.Debug( $"Dispose Body : {_owner.GetAboutName()}" ) );
 		}
 
 		void SetActiveAsyncCancelerDisposable() {

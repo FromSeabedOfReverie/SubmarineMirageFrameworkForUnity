@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Process.New {
-	using System.Linq;
 	using System.Threading;
 	using UniRx.Async;
 	using MultiEvent;
