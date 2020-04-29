@@ -7,7 +7,6 @@
 namespace SubmarineMirage.Main.New {
 	using System;
 	using System.Threading.Tasks;
-	using System.Collections.Generic;
 	using UniRx.Async;
 	using Process.New;
 	using Singleton.New;
@@ -30,16 +29,9 @@ namespace SubmarineMirage.Main.New {
 
 			await _initializePluginEvent();
 
+			SceneManager.CreateInstance();
 			MonoBehaviourSingletonManager.CreateInstance();
 			ProcessRunner.CreateInstance();
-			SceneManager.s_instance.SetupInstance();
-			var h = new ProcessHierarchy(
-				MonoBehaviourSingletonManager.s_instance.gameObject,
-				new List<IProcess>() { MonoBehaviourSingletonManager.s_instance },
-				null
-			);
-// TODO : 多分使わないので、未設定でもエラーにならない
-//			ProcessRunner.s_instance._hierarchy = h;
 
 			await ProcessRunner.s_instance.Create( () => _registerProcessesEvent() );
 

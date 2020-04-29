@@ -17,7 +17,6 @@ namespace SubmarineMirage.Main.New {
 	using MultiEvent;
 	using Singleton.New;
 	using FSM.New;
-	using Scene;
 	using Utility;
 	using Debug;
 	using UnityObject = UnityEngine.Object;
