@@ -17,9 +17,9 @@ namespace SubmarineMirage.MultiEvent {
 
 		public void Run() {
 			CheckDisposeError();
-			_isInvoking.Value = true;
+			_isLock = true;
 			_events.ForEach( pair => pair.Value.Invoke() );
-			_isInvoking.Value = false;
+			_isLock = false;
 		}
 	}
 }

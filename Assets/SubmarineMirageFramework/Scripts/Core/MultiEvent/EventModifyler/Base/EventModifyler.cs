@@ -17,19 +17,27 @@ namespace SubmarineMirage.MultiEvent {
 
 
 	public class EventModifyler<T> : IDisposable {
-		readonly List< EventModifyData<T> > _eventData = new List< EventModifyData<T> >();
 		BaseMultiEvent<T> _owner;
+		readonly List< EventModifyData<T> > _eventData = new List< EventModifyData<T> >();
+		public readonly ReactiveProperty<bool> _isLock = new ReactiveProperty<bool>();
 		readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 
 		public EventModifyler( BaseMultiEvent<T> owner ) {
 			_owner = owner;
+
 			_disposables.Add( Disposable.Create( () => {
 				_eventData
 					.Where( data => data._function != null )
 					.ForEach( data => _owner.OnRemove( data._function ) );
 				_eventData.Clear();
 			} ) );
+
+			_isLock
+				.SkipLatestValueOnSubscribe()
+				.Where( isLock => !isLock )
+				.Subscribe( _ => Run() );
+			_disposables.Add( _isLock );
 		}
 
 		~EventModifyler() => Dispose();
@@ -41,17 +49,24 @@ namespace SubmarineMirage.MultiEvent {
 			_owner.CheckDisposeError( data );
 			data._owner = _owner;
 			_eventData.Add( data );
+
+			if ( !_isLock.Value )	{ Run(); }
 		}
 
 
-		public void Run() {
+		void Run() {
 			if ( _eventData.IsEmpty() )	{ return; }
 			_eventData.ForEach( data => data.Run() );
 			_eventData.Clear();
 		}
 
 
-		public override string ToString() =>
-			$"{this.GetAboutName()} (\n{string.Join( "\n", _eventData.Select( data => $"    {data}" ) )}\n)";
+		public override string ToString() {
+			var result = $"{this.GetAboutName()}(\n"
+				+ $"    _isLock : {_isLock}\n";
+			_eventData.ForEach( data => result += $"    {data}\n" );
+			result += ")";
+			return result;
+		}
 	}
 }

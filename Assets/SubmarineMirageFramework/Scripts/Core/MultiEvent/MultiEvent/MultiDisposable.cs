@@ -9,19 +9,23 @@ namespace SubmarineMirage.MultiEvent {
 	using System.Collections.Generic;
 	using UniRx;
 	using KoganeUnityLib;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public class MultiDisposable : BaseMultiEvent<IDisposable>, IDisposable {
+		public override bool _isLock {
+			get => base._isLock;
+			set => throw new NotSupportedException( $"{this.GetAboutName()} : ロック機能は、利用不可" );
+		}
 		public new CompositeDisposable _disposables	{ get; private set; }
 		public override bool _isDispose => _disposables.IsDisposed;
 
 
 		protected override void SetDisposables() {
 			_disposables = new CompositeDisposable();
-			_disposables.Add( _isInvoking );
 			_disposables.Add( _eventModifyler );
 			_disposables.Add( Disposable.Create( () => {
 				_events.ForEach( pair => OnRemove( pair.Value ) );

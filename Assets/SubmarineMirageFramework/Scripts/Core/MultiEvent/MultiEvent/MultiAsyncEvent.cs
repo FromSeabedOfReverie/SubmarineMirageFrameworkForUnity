@@ -32,13 +32,13 @@ namespace SubmarineMirage.MultiEvent {
 			CheckDisposeError();
 
 			var linkedCanceler = _canceler.Token.Add( cancel );
-			_isInvoking.Value = true;
+			_isLock = true;
 			try {
 				foreach ( var pair in _events ) {
 					await pair.Value.Invoke( linkedCanceler.Token );
 				}
 			} finally {
-				_isInvoking.Value = false;
+				_isLock = false;
 				linkedCanceler.Dispose();
 			}
 		}

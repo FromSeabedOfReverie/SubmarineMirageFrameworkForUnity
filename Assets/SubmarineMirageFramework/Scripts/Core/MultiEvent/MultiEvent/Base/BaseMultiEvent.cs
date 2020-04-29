@@ -6,9 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
-	using UniRx;
 	using Extension;
 
 
@@ -17,27 +15,23 @@ namespace SubmarineMirage.MultiEvent {
 
 	public abstract class BaseMultiEvent<T> : IDisposableExtension {
 		public readonly List< KeyValuePair<string, T> > _events = new List< KeyValuePair<string, T> >();
-		protected EventModifyler<T> _eventModifyler;
-		protected readonly ReactiveProperty<bool> _isInvoking = new ReactiveProperty<bool>();
+		protected EventModifyler<T> _eventModifyler	{ get; private set; }
+		public virtual bool _isLock {
+			get => _eventModifyler._isLock.Value;
+			set => _eventModifyler._isLock.Value = value;
+		}
 		public MultiDisposable _disposables	{ get; private set; }
 		public virtual bool _isDispose => _disposables._isDispose;
 
 
 		public BaseMultiEvent() {
 			_eventModifyler = new EventModifyler<T>( this );
-			_isInvoking
-				.SkipLatestValueOnSubscribe()
-				.Where( is_ => !is_ )
-				.Subscribe( is_ => _eventModifyler.Run() );
 			SetDisposables();
 		}
 
 		protected virtual void SetDisposables() {
 			_disposables = new MultiDisposable();
-			_disposables.AddLast(
-				_isInvoking,
-				_eventModifyler
-			);
+			_disposables.AddLast( _eventModifyler );
 			_disposables.AddLast( () => {
 				_events.ForEach( pair => OnRemove( pair.Value ) );
 				_events.Clear();
@@ -51,7 +45,6 @@ namespace SubmarineMirage.MultiEvent {
 
 		protected void RegisterEventModifyler( EventModifyData<T> data ) {
 			_eventModifyler.Register( data );
-			if ( !_isInvoking.Value )	{ _eventModifyler.Run(); }
 		}
 
 
@@ -127,12 +120,11 @@ namespace SubmarineMirage.MultiEvent {
 
 
 		public override string ToString() {
-			return (
-				$"{this.GetAboutName()} (\n"
-				+ $"{_eventModifyler}\n"
-				+ string.Join( "\n", _events.Select( pair => $"    {pair.Key} : {pair.Value.GetAboutName()}" ) )
-				+ "\n)"
-			);
+			var result = $"{this.GetAboutName()}(\n";
+			_events.ForEach( pair => result += $"    {pair.Key} : {pair.Value.GetAboutName()}\n" );
+			result += $"{_eventModifyler}\n";
+			result += "\n)";
+			return result;
 		}
 	}
 }
