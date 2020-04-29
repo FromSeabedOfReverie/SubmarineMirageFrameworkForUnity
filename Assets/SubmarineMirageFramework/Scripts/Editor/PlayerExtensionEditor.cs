@@ -9,6 +9,7 @@ namespace SubmarineMirage.Editor {
 	using UnityEditor;
 	using UniRx.Async;
 	using Process.New;
+	using Scene;
 
 
 	// TODO : コメント追加、整頓
@@ -23,6 +24,7 @@ namespace SubmarineMirage.Editor {
 			if ( EditorApplication.isPlaying ) {
 				UniTask.Void( async () => {
 					ProcessRunner.DisposeInstance();
+					SceneManager.DisposeInstance();
 					_playStopEvent?.Invoke();
 					_playStopEvent = null;
 					if ( _isStartEditorPlay ) {

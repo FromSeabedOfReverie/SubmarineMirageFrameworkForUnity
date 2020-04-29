@@ -13,6 +13,7 @@ namespace SubmarineMirage.Scene {
 	using FSM.New;
 	using Singleton.New;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -24,10 +25,13 @@ namespace SubmarineMirage.Scene {
 		public Scene _currentScene => _fsm._currentScene;
 
 
-		public void SetupInstance() {
-			_fsm = new SceneStateMachine( this );
-			_disposables.AddFirst( _fsm );
-			_hierarchy.ResetTop();
+		new public static void CreateInstance() {
+			if ( s_isCreated )	{ return; }
+
+			s_instance._fsm = new SceneStateMachine( s_instance );
+			s_instance._fsm._foreverScene.Set( s_instance );
+			s_instance._disposables.AddFirst( s_instance._fsm );
+			s_instance._hierarchy.SetAllData();
 		}
 
 		public override void Create() {}

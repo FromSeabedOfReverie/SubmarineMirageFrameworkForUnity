@@ -34,15 +34,12 @@ namespace SubmarineMirage.Scene {
 			owner,
 			new BaseScene[] {
 				new UnknownScene(),
-				new TestChangeScene1Scene(),
-				new TestChangeScene2Scene(),
+				new TestChange1Scene(),
+				new TestChange2Scene(),
 			}
 		) {
 			_foreverScene = new ForeverScene();
-			_loadEvent.AddLast( async cancel => {
-				_foreverScene.Set( _owner );
-				await UniTaskUtility.DontWait();
-			} );
+			_disposables.AddLast( _foreverScene );
 
 			_startState = _states
 				.Select( pair => pair.Value )
