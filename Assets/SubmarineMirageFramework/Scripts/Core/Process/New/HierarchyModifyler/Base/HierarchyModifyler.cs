@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Process.New {
 	using System.Linq;
 	using System.Collections.Generic;
+	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
 	using MultiEvent;
@@ -19,16 +20,27 @@ namespace SubmarineMirage.Process.New {
 
 	public class HierarchyModifyler : IDisposableExtension {
 		ProcessHierarchyManager _owner;
-		readonly List<HierarchyModifyData> _allData = new List<HierarchyModifyData>();
+		public readonly List<HierarchyModifyData> _registerData = new List<HierarchyModifyData>();
+		public readonly List<HierarchyModifyData> _runningData = new List<HierarchyModifyData>();
+		public readonly ReactiveProperty<bool> _isLock = new ReactiveProperty<bool>();
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public HierarchyModifyler( ProcessHierarchyManager owner ) {
 			_owner = owner;
+
 			_disposables.AddLast( () => {
-				_allData.ForEach( d => d._hierarchy.Dispose() );
-				_allData.Clear();
+				_registerData.ForEach( d => d._hierarchy.Dispose() );
+				_registerData.Clear();
+				_runningData.ForEach( d => d._hierarchy.Dispose() );
+				_runningData.Clear();
 			} );
+
+			_isLock
+				.SkipLatestValueOnSubscribe()
+				.Where( isLock => !isLock )
+				.Subscribe( _ => Run() );
+			_disposables.AddLast( _isLock );
 		}
 
 		~HierarchyModifyler() => Dispose();
@@ -39,30 +51,37 @@ namespace SubmarineMirage.Process.New {
 		public void Register( HierarchyModifyData data ) {
 			data._owner = _owner;
 			data._modifyler = this;
-			_allData.Add( data );
+			_registerData.Add( data );
 
-// TODO : テストなので、後で消す
-			Run();
+			if ( !_isLock.Value )	{ Run(); }
 		}
 
 
-		public void Run() {
-			if ( _allData.IsEmpty() )	{ return; }
-			UniTask.WhenAll(
-				_allData.Select( d => d.RunTop() )
-			).Forget();
-			_allData.RemoveAll( d => !d._isRunning );
+		void Run() {
+			if ( _registerData.IsEmpty() )	{ return; }
+			var temp = new List<HierarchyModifyData>( _registerData );
+			_runningData.Add( temp );
+			_registerData.Clear();
+			temp.ForEach( d => d.RunTop().Forget() );
 		}
 
 
 		public async UniTask WaitForRunning() {
 // TODO : Destroy中のオブジェクトを、管理クラスで監視する
 //			削除中にシーン遷移を待機する等の、必要あり
-			await UniTaskUtility.WaitWhile( _owner._activeAsyncCancel, () => !_allData.IsEmpty() );
+			await UniTaskUtility.WaitWhile( _owner._activeAsyncCancel, () => !_runningData.IsEmpty() );
 		}
 
 
-		public override string ToString() =>
-			$"{this.GetAboutName()} (\n{string.Join( "\n", _allData.Select( data => $"    {data}" ) )}\n)";
+		public override string ToString() {
+			var result = $"{this.GetAboutName()}(\n"
+				+ $"    _isLock : {_isLock}\n";
+			result += "    _registerData : \n";
+			_registerData.ForEach( data => result += $"        {data}\n" );
+			result += "    _runningData : \n";
+			_runningData.ForEach( data => result += $"        {data}\n" );
+			result += ")";
+			return result;
+		}
 	}
 }

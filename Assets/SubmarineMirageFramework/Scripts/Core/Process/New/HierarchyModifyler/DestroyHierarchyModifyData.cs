@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Process.New {
+	using UnityEngine;
 	using UniRx.Async;
 	using RanState = ProcessBody.RanState;
 
@@ -13,26 +14,28 @@ namespace SubmarineMirage.Process.New {
 
 
 	public class DestroyHierarchyModifyData : HierarchyModifyData {
-		public DestroyHierarchyModifyData( ProcessHierarchy hierarchy ) {
-			_hierarchy = hierarchy;
-		}
+		public DestroyHierarchyModifyData( ProcessHierarchy hierarchy ) : base( hierarchy ) {}
 
 
 		protected override async UniTask Run() {
-			if ( _hierarchy == _hierarchy._top ) {
+			if ( _hierarchy._isTop ) {
 				_owner.Gets( _hierarchy._type )
 					.Remove( _hierarchy );
 			} else {
-// TODO : ChangeParentに変更する
+				var lastTop = _hierarchy._top;
 				_hierarchy.SetParent( null );
+				lastTop.SetAllData();
 			}
+
 			await RunHierarchy();
 		}
 
 
 		public async UniTask RunHierarchy() {
+			await _hierarchy.ChangeActive( false, true );
 			await _hierarchy.RunStateEvent( RanState.Finalizing );
 			_hierarchy.Dispose();
+			if ( _hierarchy._owner != null )	{ Object.Destroy( _hierarchy._owner ); }
 		}
 	}
 }

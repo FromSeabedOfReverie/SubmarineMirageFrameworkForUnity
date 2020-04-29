@@ -20,10 +20,15 @@ namespace SubmarineMirage.Process.New {
 		public bool _isRunning	{ get; private set; }
 
 
+		public HierarchyModifyData( ProcessHierarchy hierarchy ) {
+			_hierarchy = hierarchy;
+		}
+
+
 		public async UniTask RunTop() {
-			if ( _isRunning )	{ return; }
 			_isRunning = true;
 			await Run();
+			_modifyler._runningData.Remove( this );
 			_isRunning = false;
 		}
 

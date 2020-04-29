@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Process.New {
+	using UnityEngine;
 	using UniRx.Async;
 	using Utility;
 
@@ -13,15 +14,14 @@ namespace SubmarineMirage.Process.New {
 
 
 	public class UnregisterHierarchyModifyData : HierarchyModifyData {
-		public UnregisterHierarchyModifyData( ProcessHierarchy hierarchy ) {
-			_hierarchy = hierarchy;
-		}
+		public UnregisterHierarchyModifyData( ProcessHierarchy hierarchy ) : base( hierarchy ) {}
 
 
 		protected override async UniTask Run() {
-			_hierarchy.Dispose();
 			_owner.Gets( _hierarchy._type )
 				.Remove( _hierarchy );
+			_hierarchy.Dispose();
+			if ( _hierarchy._owner != null )	{ Object.Destroy( _hierarchy._owner ); }
 
 			await UniTaskUtility.DontWait();
 		}

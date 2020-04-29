@@ -17,17 +17,16 @@ namespace SubmarineMirage.Process.New {
 
 
 	public class RegisterHierarchyModifyData : HierarchyModifyData {
-		public RegisterHierarchyModifyData( ProcessHierarchy hierarchy ) {
-			_hierarchy = hierarchy;
-		}
+		public RegisterHierarchyModifyData( ProcessHierarchy hierarchy ) : base( hierarchy ) {}
 
 
 		protected override async UniTask Run() {
 			if ( _hierarchy._lifeSpan == LifeSpan.Forever && _hierarchy._owner != null ) {
-				UnitySceneManager.MoveGameObjectToScene( _hierarchy._owner, _owner._owner._scene );
+				UnitySceneManager.MoveGameObjectToScene( _hierarchy._owner, _hierarchy._scene._scene );
 			}
 			_owner.Gets( _hierarchy._type )
 				.Add( _hierarchy );
+
 			await RunHierarchy();
 		}
 
