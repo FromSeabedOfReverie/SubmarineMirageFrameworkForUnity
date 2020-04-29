@@ -5,11 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
+	using System.Collections.Generic;
 	using UnityEngine;
-	using KoganeUnityLib;
 	using Process.New;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -18,6 +17,7 @@ namespace SubmarineMirage.Singleton.New {
 
 	public class MonoBehaviourSingletonManager : MonoBehaviourSingleton<MonoBehaviourSingletonManager> {
 		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+
 
 		new public static void CreateInstance() {
 			if ( s_isCreated )	{ return; }
@@ -38,6 +38,7 @@ namespace SubmarineMirage.Singleton.New {
 			go = new GameObject( tag );
 			go.tag = tag;
 			s_instanceObject = go.AddComponent<MonoBehaviourSingletonManager>();
+			new ProcessHierarchy( go, new List<IProcess>() { s_instanceObject }, null );
 
 			Log.Debug( $"作成（GameObject） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
 		}

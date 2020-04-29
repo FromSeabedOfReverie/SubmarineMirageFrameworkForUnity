@@ -6,9 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
 	using UniRx.Async;
-	using Extension;
-	using Debug;
 	using Process.New;
+	using Extension;
+	using Utility;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -40,7 +41,7 @@ namespace SubmarineMirage.Singleton.New {
 
 		public static async UniTask WaitForCreation() {
 			var i = s_instance;
-			await UniTask.Delay( 1 );
+			await UniTaskUtility.Yield( s_instance._activeAsyncCancel );
 		}
 
 
