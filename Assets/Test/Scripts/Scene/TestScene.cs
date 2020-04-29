@@ -119,12 +119,12 @@ namespace SubmarineMirage.TestScene {
 					i = (i + 1) % 2;
 					switch ( i ) {
 						case 0:
-							Log.Debug( $"{this.GetAboutName()} change TestChangeScene1Scene" );
-							_process._fsm.ChangeScene<TestChangeScene1Scene>().Forget();
+							Log.Debug( $"{this.GetAboutName()} change TestChange1Scene" );
+							_process._fsm.ChangeScene<TestChange1Scene>().Forget();
 							break;
 						case 1:
-							Log.Debug( $"{this.GetAboutName()} change TestChangeScene2Scene" );
-							_process._fsm.ChangeScene<TestChangeScene2Scene>().Forget();
+							Log.Debug( $"{this.GetAboutName()} change TestChange2Scene" );
+							_process._fsm.ChangeScene<TestChange2Scene>().Forget();
 							break;
 						case 2:
 							Log.Debug( $"{this.GetAboutName()} change UnknownScene" );

@@ -10,6 +10,6 @@ namespace SubmarineMirage.Scene {
 	// TODO : コメント追加、整頓
 
 
-	public class TestChangeScene1Scene : BaseScene {}
-	public class TestChangeScene2Scene : BaseScene {}
+	public class TestChange1Scene : BaseScene {}
+	public class TestChange2Scene : BaseScene {}
 }

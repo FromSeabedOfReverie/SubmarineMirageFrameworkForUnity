@@ -30,9 +30,9 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestGetRootGameObjects() => From( async () => {
-			await SceneManager.LoadSceneAsync( "TestChangeScene1", LoadSceneMode.Additive )
+			await SceneManager.LoadSceneAsync( "TestChange1", LoadSceneMode.Additive )
 				.ConfigureAwait( _asyncCancel );
-			SceneManager.SetActiveScene( SceneManager.GetSceneByName( "TestChangeScene1" ) );
+			SceneManager.SetActiveScene( SceneManager.GetSceneByName( "TestChange1" ) );
 			new GameObject( "New" );
 			var gos = SceneManager.GetActiveScene().GetRootGameObjects();
 			gos.ForEach( go => Log.Debug( go ) );
