@@ -125,7 +125,8 @@ namespace SubmarineMirage.TestProcess {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() {
+		public IEnumerator TestManual() => From( TestManualSub() );
+		IEnumerator TestManualSub() {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );

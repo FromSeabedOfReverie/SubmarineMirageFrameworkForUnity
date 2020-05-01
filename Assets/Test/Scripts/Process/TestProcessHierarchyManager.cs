@@ -15,7 +15,9 @@ namespace SubmarineMirage.TestProcess {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using UniRx.Async;
+	using KoganeUnityLib;
 	using Process.New;
+	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -30,20 +32,18 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-	public class TestMonoBehaviourProcess : Test {
-		MonoBehaviourProcess _process;
+	public class TestProcessHierarchyManager : Test {
+		SceneManager _process;
 		Text _text;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			var go = new GameObject( "TestMonoBehaviourProcess" );
-			_process = go.AddComponent<TestMono>();
-//			_process.enabled = false;
-//			go.SetActive( false );
+			_process = SceneManager.s_instance;
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
-			go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
+			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
+			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
 				if ( _process == null ) {
@@ -52,82 +52,49 @@ namespace SubmarineMirage.TestProcess {
 				}
 				_text.text =
 					$"{_process.GetAboutName()}(\n"
-					+ $"    _isInitialized {_process._isInitialized}\n"
-					+ $"    _isActive {_process._isActive}\n"
-					+ $"    isActiveAndEnabled {_process.isActiveAndEnabled}\n"
-					+ $"    {_process._body._ranState}\n"
-					+ $"    {_process._body._activeState}\n"
-					+ $"    next {_process._body._nextActiveState}\n"
-					+ $")";
+					+ $"    _isInitialized : {_process._isInitialized}\n"
+					+ $"    _isActive : {_process._isActive}\n"
+					+ $"    _ranState : {_process._body._ranState}\n"
+					+ $"    _activeState : {_process._body._activeState}\n"
+					+ $"    next : {_process._body._nextActiveState}\n"
+					+ $")\n"
+					+ $"_fsm : {_process._fsm}";
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
 			_disposables.AddLast( _process );
-			_disposables.AddLast( () => {
-				if ( _process != null )	{ UnityObject.Destroy( _process.gameObject ); }
-			} );
+
+			CreateObject();
 		}
 
 
-		[UnityTest]
-		public IEnumerator TestRunErrorState() => From( async () => {
-			var errorRuns = new RanState[] {
-				RanState.None, RanState.Created, RanState.Loaded, RanState.Initialized, RanState.Finalized,
-			};
-			foreach ( var state in errorRuns ) {
-				try						{ await _process.RunStateEvent( state ); }
-				catch ( Exception e )	{ Log.Error( e ); }
-			}
-		} );
+		void CreateObject() {
+			var top = new GameObject( "TestMono top" );
+			top.AddComponent<TestMono1>();
+			top.SetActive( false );
+			var parent = top.transform;
+			var id = 0;
 
+			3.Times( brotherIndex => {
+				3.Times( hierarchyIndex => {
+					var go = new GameObject();
+					go.name = $"TestMono {id++}";
+					go.SetParent( parent );
+					parent = go.transform;
 
-		[UnityTest]
-		public IEnumerator TestRunStateEvent() => From( async () => {
-			var states = new RanState[] {
-				RanState.Creating, RanState.Loading, RanState.Initializing, RanState.FixedUpdate,
-				RanState.Update, RanState.LateUpdate, RanState.Finalizing,
-			};
-			foreach( var run in states ) {
-				Log.Debug( $"request : {run}" );
-				await _process.RunStateEvent( run );
-			}
-		} );
-
-
-		[UnityTest]
-		public IEnumerator TestStopActiveAsync() => From( async () => {
-			UniTask.Void( async () => {
-				await UniTaskUtility.Delay( _asyncCancel, 3000 );
-				Log.Debug( "StopActiveAsync" );
-				_process.StopActiveAsync();
+					if ( hierarchyIndex == 0 )	{ go.SetActive( false ); }
+					if ( hierarchyIndex == 0 && brotherIndex == 0 )	{ go.AddComponent<TestMono1>(); }
+					if ( hierarchyIndex == 1 && brotherIndex == 1 )	{ go.AddComponent<TestMono2>(); }
+					if ( hierarchyIndex == 2 && brotherIndex == 2 )	{ go.AddComponent<TestMono3>(); }
+					if ( hierarchyIndex == 2 && brotherIndex == 0 )	{
+						go.AddComponent<TestMono1>();
+						go.AddComponent<TestMono2>();
+						go.AddComponent<TestMono3>();
+					}
+				} );
+				parent = top.transform;
 			} );
-			try {
-				while ( true ) {
-					Log.Debug( " Runnning " );
-					await UniTaskUtility.Delay( _process._activeAsyncCancel, 1000 );
-				}
-			} catch ( OperationCanceledException ) {
-			}
-			Log.Debug( "end TestStopActiveAsync()" );
-		} );
-
-
-		[UnityTest]
-		public IEnumerator TestDispose() => From( async () => {
-			UniTask.Void( async () => {
-				await UniTaskUtility.Delay( _asyncCancel, 3000 );
-				Log.Debug( "Dispose" );
-				_process.Dispose();
-			} );
-			try {
-				while ( true ) {
-					Log.Debug( " Runnning " );
-					await UniTaskUtility.Delay( _process._activeAsyncCancel, 1000 );
-				}
-			} catch ( OperationCanceledException ) {
-			}
-			Log.Debug( "end TestDispose()" );
-		} );
+		}
 
 
 		[UnityTest]
@@ -178,6 +145,27 @@ namespace SubmarineMirage.TestProcess {
 					_process.RunActiveEvent().Forget();
 				} )
 			);
+			var i = 0;
+			_disposables.AddLast(
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
+					Log.Warning( "key down change scene" );
+					i = (i + 1) % 2;
+					switch ( i ) {
+						case 0:
+							Log.Debug( $"{this.GetAboutName()} change TestChange1Scene" );
+							_process._fsm.ChangeScene<TestChange1Scene>().Forget();
+							break;
+						case 1:
+							Log.Debug( $"{this.GetAboutName()} change TestChange2Scene" );
+							_process._fsm.ChangeScene<TestChange2Scene>().Forget();
+							break;
+						case 2:
+							Log.Debug( $"{this.GetAboutName()} change UnknownScene" );
+							_process._fsm.ChangeScene<UnknownScene>().Forget();
+							break;
+					}
+				} )
+			);
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
 					Log.Warning( "key down Dispose" );
@@ -191,47 +179,22 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-		public class TestMono : MonoBehaviourProcess {
-			public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
-
+		public class TestMono1 : MonoBehaviourProcess {
+			public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+			static int s_count;
+			public int _id	{ get; private set; }
 			public override void Create() {
-				Log.Debug( "Create()" );
-				_loadEvent.AddLast( async cancel => {
-					Log.Debug( "_loadEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_loadEvent end" );
-				} );
-				_initializeEvent.AddLast( async cancel => {
-					Log.Debug( "_initializeEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_initializeEvent end" );
-				} );
-				_enableEvent.AddLast( async cancel => {
-					Log.Debug( "_enableEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_enableEvent end" );
-				} );
-				_fixedUpdateEvent.AddLast().Subscribe( _ => {
-					Log.Debug( "_fixedUpdateEvent" );
-				} );
-				_updateEvent.AddLast().Subscribe( _ => {
-					Log.Debug( "_updateEvent" );
-				} );
-				_lateUpdateEvent.AddLast().Subscribe( _ => {
-					Log.Debug( "_lateUpdateEvent" );
-				} );
-				_disableEvent.AddLast( async cancel => {
-					Log.Debug( "_disableEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_disableEvent end" );
-				} );
-				_finalizeEvent.AddLast( async cancel => {
-					Log.Debug( "_finalizeEvent start" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-					Log.Debug( "_finalizeEvent end" );
-				} );
+				_id = s_count++;
 			}
+		}
+		public class TestMono2 : TestMono1 {
+			public override ProcessBody.Type _type => ProcessBody.Type.Work;
+			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+		}
+		public class TestMono3 : TestMono1 {
+			public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
+			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 		}
 	}
 }
