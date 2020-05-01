@@ -5,39 +5,71 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Editor {
-	using System;
 	using UnityEditor;
 	using UniRx.Async;
-	using Process.New;
-	using Scene;
+	using Main.New;
 
 
 	// TODO : コメント追加、整頓
 
 
+	public class PlayerExtensionEditorManager : ScriptableSingleton<PlayerExtensionEditorManager> {
+		public PlayerExtensionEditor.PlayType _playType;
+		PlayerExtensionEditor _windowObject;
+
+		public PlayerExtensionEditor _window {
+			get {
+				if ( _windowObject == null )	{ _windowObject = CreateInstance<PlayerExtensionEditor>(); }
+				return _windowObject;
+			}
+		}
+	}
+
+
+	[InitializeOnLoad]
 	public class PlayerExtensionEditor : EditorWindow {
-		public static Action _playStopEvent;
-		static bool _isStartEditorPlay;
+		public enum PlayType {
+			Stop,
+			Runtime,
+			Editor,
+			Test,
+		}
+
+
+		static PlayerExtensionEditor() {
+			EditorApplication.playModeStateChanged += mode => {
+				switch ( mode ) {
+					case PlayModeStateChange.EnteredPlayMode:
+						if ( PlayerExtensionEditorManager.instance._playType == PlayType.Stop ) {
+							PlayerExtensionEditorManager.instance._playType = PlayType.Runtime;
+						}
+						break;
+					case PlayModeStateChange.ExitingPlayMode:
+						PlayerExtensionEditorManager.instance._playType = PlayType.Stop;
+						break;
+				}
+			};
+		}
+
 
 		[MenuItem( "Edit/PlayExtension _F5", priority = 100000 )]
 		static void PlayExtension() {
-			if ( EditorApplication.isPlaying ) {
+			if ( !EditorApplication.isPlaying ) {
+				SubmarineMirage.DisposeInstance();
+				PlayerExtensionEditorManager.instance._playType = PlayType.Editor;
+				EditorApplication.isPlaying = true;
+
+			} else {
 				UniTask.Void( async () => {
-					ProcessRunner.DisposeInstance();
-					SceneManager.DisposeInstance();
-					_playStopEvent?.Invoke();
-					_playStopEvent = null;
-					if ( _isStartEditorPlay ) {
+					SubmarineMirage.DisposeInstance();
+					if ( PlayerExtensionEditorManager.instance._playType != PlayType.Test ) {
 						await UniTask.Yield();
 					}
-					_isStartEditorPlay = false;
 					EditorApplication.isPlaying = false;
 				} );
-			} else {
-				_isStartEditorPlay = true;
-				EditorApplication.isPlaying = true;
 			}
 		}
+
 
 		[MenuItem( "Edit/PauseExtension _F6", priority = 100001 )]
 		static void PauseExtension() {

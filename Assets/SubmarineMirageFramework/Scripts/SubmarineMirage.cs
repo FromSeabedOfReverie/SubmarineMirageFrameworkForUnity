@@ -6,36 +6,56 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Main.New {
 	using System;
+	using System.Threading;
 	using System.Threading.Tasks;
 	using UniRx.Async;
 	using Process.New;
 	using Singleton.New;
+	using MultiEvent;
 	using Scene;
+	using Utility;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public static class SubmarineMirage {
-		public static bool s_isInitialized	{ get; private set; }
+	public class SubmarineMirage : RawSingleton<SubmarineMirage> {
+		public readonly MultiAsyncEvent _createTestEvent = new MultiAsyncEvent();
+		public bool _isRegisterCreateTestEvent = true;
+		public bool _isInitialized	{ get; private set; }
+		CancellationTokenSource _canceler = new CancellationTokenSource();
+
+
+		public SubmarineMirage() {
+			_disposables.AddLast( () => {
+				_canceler.Cancel();
+				_canceler.Dispose();
+			} );
+			_disposables.AddLast( _createTestEvent );
+			_disposables.AddLast( () => {
+				ProcessRunner.DisposeInstance();
+				SceneManager.DisposeInstance();
+			} );
+		}
 
 
 // TODO : もっと良い開始名を考える
-		public static async UniTask TakeOff( Func<UniTask> _initializePluginEvent,
-												Func<UniTask> _registerProcessesEvent )
+		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerProcessesEvent )
 		{
-			s_isInitialized = false;
-			await Task.Delay( 1 );
+			await Task.Delay( 1, _canceler.Token );
 
-			await _initializePluginEvent();
+			await initializePluginEvent();
 
 			SceneManager.CreateInstance();
 			MonoBehaviourSingletonManager.CreateInstance();
 			ProcessRunner.CreateInstance();
 
-			await ProcessRunner.s_instance.Create( () => _registerProcessesEvent() );
+			await UniTaskUtility.WaitWhile( _canceler.Token, () => !_isRegisterCreateTestEvent );
+			await _createTestEvent.Run( _canceler.Token );
 
-			s_isInitialized = true;
+			await ProcessRunner.s_instance.Create( () => registerProcessesEvent() );
+
+			_isInitialized = true;
 		}
 	}
 }

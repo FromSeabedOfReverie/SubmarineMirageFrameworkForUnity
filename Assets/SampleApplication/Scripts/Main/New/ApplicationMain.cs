@@ -57,6 +57,7 @@ namespace SubmarineMirage.Main.New {
 
 
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
-		static async void Main() => await SubmarineMirage.TakeOff( InitializePlugin, RegisterProcesses );
+		static async void Main()
+			=> await SubmarineMirage.s_instance.TakeOff( InitializePlugin, RegisterProcesses );
 	}
 }

@@ -16,6 +16,7 @@ namespace SubmarineMirage.Process.New {
 	using FSM.New;
 	using MultiEvent;
 	using Scene;
+	using Main.New;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -102,7 +103,7 @@ namespace SubmarineMirage.Process.New {
 			_disposables.AddFirst( _onGUIEvent );
 #endif
 			_disposables.AddLast(
-				Observable.OnceApplicationQuit().Subscribe( _ => DisposeInstance() )
+				Observable.OnceApplicationQuit().Subscribe( _ => SubmarineMirage.DisposeInstance() )
 			);
 
 			await RunForeverHierarchies();
@@ -120,7 +121,6 @@ namespace SubmarineMirage.Process.New {
 
 
 		async UniTask RunForeverHierarchies() {
-			await UniTaskUtility.Yield( _activeAsyncCancel );
 			await RunStateEvent( RanState.Creating );
 			await RunStateEvent( RanState.Loading );
 //			return;
