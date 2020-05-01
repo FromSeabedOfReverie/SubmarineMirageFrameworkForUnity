@@ -7,57 +7,52 @@
 namespace SubmarineMirage.Test {
 	using System;
 	using System.Threading;
-	using System.Threading.Tasks;
 	using UniRx;
 	using UniRx.Async;
 	using Main.New;
 	using Utility;
-	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public abstract class RawTest : BaseTest {
-		protected readonly Subject<Unit> _initializeEvent = new Subject<Unit>();
+		protected Func<CancellationToken, UniTask> _createEvent;
+		protected Func<CancellationToken, UniTask> _initializeEvent;
 		protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
 		protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 
 		protected override async UniTask AwakeSub() {
-			try {
-				await Task.Delay( 2, _asyncCancel );
-				_disposables.Add( Disposable.Create( () => {
-					_asyncCanceler.Cancel();
-					_asyncCanceler.Dispose();
-					_initializeEvent.OnCompleted();
-					_initializeEvent.Dispose();
-					_finalizeEvent.OnCompleted();
-					_finalizeEvent.Dispose();
-				} ) );
-				await UniTaskUtility.WaitWhile( _asyncCancel, () => !SubmarineMirage.s_isInitialized );
-				Create();
-				_initializeEvent.OnNext( Unit.Default );
-				_isInitialized = true;
-
-			} catch ( Exception e ) {
-				Log.Error( e );
-			}
-		}
-
-
-		protected override void OnDestroy() {
-			try {
+			_disposables.Add( Disposable.Create( () => {
 				_finalizeEvent.OnNext( Unit.Default );
-				base.OnDestroy();
-			} catch ( Exception e ) {
-				Log.Error( e );
+			} ) );
+			_disposables.Add( Disposable.Create( () => {
+				_asyncCanceler.Cancel();
+				_asyncCanceler.Dispose();
+			} ) );
+			_disposables.Add( Disposable.Create( () => {
+				_createEvent = null;
+				_initializeEvent = null;
+				_finalizeEvent.OnCompleted();
+				_finalizeEvent.Dispose();
+			} ) );
+
+			Create();
+			if ( _createEvent != null ) {
+				await _createEvent.Invoke( _asyncCancel );
 			}
+
+			UniTask.Void( async () => {
+				await UniTaskUtility.WaitWhile( _asyncCancel, () => !SubmarineMirage.s_instance._isInitialized );
+				if ( _initializeEvent != null ) {
+					await _initializeEvent.Invoke( _asyncCancel );
+				}
+				_isInitialized = true;
+			} );
 		}
 
 		public override void Dispose() => _disposables.Dispose();
-
-		~RawTest() => Dispose();
 
 
 		protected void StopAsync() {

@@ -9,7 +9,6 @@ namespace SubmarineMirage.Test {
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UniRx.Async;
 	using Utility;
 	using Debug;
 
@@ -20,37 +19,25 @@ namespace SubmarineMirage.Test {
 	public class TestRawTest : RawTest {
 		protected override void Create() {
 			Log.Debug( "Create" );
-			_initializeEvent.Subscribe( _ => Log.Debug( "_initializeEvent" ) );
+			_createEvent += async cancel => {
+				Log.Debug( "start _createEvent" );
+				await UniTaskUtility.Delay( _asyncCancel, 1000 );
+				Log.Debug( "end _createEvent" );
+			};
+			_initializeEvent += async cancel => {
+				Log.Debug( "start _initializeEvent" );
+				await UniTaskUtility.Delay( _asyncCancel, 1000 );
+				Log.Debug( "end _initializeEvent" );
+			};
 			_finalizeEvent.Subscribe( _ => Log.Debug( "_finalizeEvent" ) );
 			_disposables.Add( Disposable.Create( () => Log.Debug( "Dispose" ) ) );
 		}
 
 
 		[UnityTest]
-		public IEnumerator TestDelay() => From( async () => {
-			Log.Debug( 1 );
-			await UniTaskUtility.Delay( _asyncCancel, 1000 );
-			Log.Debug( 2 );
-		} );
-
-
-		[UnityTest]
-		public IEnumerator TestCancel() => From( async () => {
-			Log.Debug( 1 );
-			UniTask.Void( async () => {
-				await UniTaskUtility.Delay( _asyncCancel, 1000 );
-				StopAsync();
-			} );
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
-			Log.Debug( 2 );
-		} );
-
-
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestDispose() => From( async () => {
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
-			// エディタ停止ボタンは、解放されない為、F5ボタンの拡張停止を使う
+		public IEnumerator Test() => From( async () => {
+			Log.Debug( " Test" );
+			await UniTaskUtility.DontWait();
 		} );
 	}
 }

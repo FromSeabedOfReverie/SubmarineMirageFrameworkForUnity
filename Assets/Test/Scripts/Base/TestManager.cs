@@ -6,34 +6,26 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Test {
 	using System.Collections.Generic;
-	using UnityEngine;
-	using SubmarineMirage.Editor;
-	using Debug;
+	using Singleton.New;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public static class TestManager {
-		static List<BaseTest> _tests = new List<BaseTest>();
-		
-		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
-		static void Main() {
-			ConsoleEditorUtility.Clear();
+	public class TestManager : RawSingleton<TestManager> {
+		readonly List<BaseTest> _tests = new List<BaseTest>();
+
+
+		public TestManager() {
+			_disposables.AddLast( () => {
+				_tests.ForEach( t => t.Dispose() );
+				_tests.Clear();
+			} );
 		}
 
-		static TestManager() {
-			Dispose();
-			PlayerExtensionEditor._playStopEvent = () => Dispose();
-		}
 
-		static void Dispose() {
-			_tests.ForEach( t => t.Dispose() );
-			_tests.Clear();
-		}
+		public void Register( BaseTest test ) => _tests.Add( test );
 
-		public static void Register( BaseTest test ) => _tests.Add( test );
-
-		public static void UnRegister( BaseTest test ) => _tests.Remove( test );
+		public void UnRegister( BaseTest test ) => _tests.Remove( test );
 	}
 }
