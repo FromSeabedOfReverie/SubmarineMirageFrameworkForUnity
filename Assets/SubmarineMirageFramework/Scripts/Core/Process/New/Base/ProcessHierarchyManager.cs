@@ -190,7 +190,6 @@ namespace SubmarineMirage.Process.New {
 
 
 		async UniTask Load() {
-			Log.Debug( "Load" );
 			if ( _owner == _owner._fsm._foreverScene )	{ return; }
 
 			var currents = _owner._scene.GetRootGameObjects().Select( go => go.transform ).ToList();
