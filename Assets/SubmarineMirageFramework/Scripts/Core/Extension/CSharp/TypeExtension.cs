@@ -90,5 +90,20 @@ namespace SubmarineMirage.Extension {
 				.MakeGenericMethod( genericType )
 				.Invoke( classInstance, arguments.ToArray() );
 		}
+		///------------------------------------------------------------------------------------------------
+		/// ● インスタンス作成
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● インスタンス作成
+		/// </summary>
+		public static object Create( this Type self ) {
+			return Activator.CreateInstance( self );
+		}
+		/// <summary>
+		/// ● インスタンス作成（型指定）
+		/// </summary>
+		public static T Create<T>( this Type self ) {
+			return (T)Activator.CreateInstance( self );
+		}
 	}
 }
