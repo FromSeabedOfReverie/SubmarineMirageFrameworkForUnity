@@ -9,6 +9,7 @@ namespace SubmarineMirage.TestProcess {
 	using System.Linq;
 	using System.Threading;
 	using System.Collections;
+	using System.Collections.Generic;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.UI;
@@ -62,40 +63,181 @@ namespace SubmarineMirage.TestProcess {
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
-			_disposables.AddLast( _process );
-
-			CreateObject();
-		}
-
-
-		void CreateObject() {
-			var top = new GameObject( "TestMono top" );
-			top.AddComponent<TestMono1>();
-			top.SetActive( false );
-			var parent = top.transform;
-			var id = 0;
-
-			3.Times( brotherIndex => {
-				3.Times( hierarchyIndex => {
-					var go = new GameObject();
-					go.name = $"TestMono {id++}";
-					go.SetParent( parent );
-					parent = go.transform;
-
-					if ( hierarchyIndex == 0 )	{ go.SetActive( false ); }
-					if ( hierarchyIndex == 0 && brotherIndex == 0 )	{ go.AddComponent<TestMono1>(); }
-					if ( hierarchyIndex == 1 && brotherIndex == 1 )	{ go.AddComponent<TestMono2>(); }
-					if ( hierarchyIndex == 2 && brotherIndex == 2 )	{ go.AddComponent<TestMono3>(); }
-					if ( hierarchyIndex == 2 && brotherIndex == 0 )	{
-						go.AddComponent<TestMono1>();
-						go.AddComponent<TestMono2>();
-						go.AddComponent<TestMono3>();
-					}
-				} );
-				parent = top.transform;
+			_createEvent.AddLast( async cancel => {
+				Log.Debug( $"start Create{_testName}" );
+				switch ( _testName ) {
+					case "TestVariable":		CreateTestVariable();		break;
+					case "TestMultiVariable":	CreateTestMultiVariable();	break;
+					case "TestHierarchy":		CreateTestHierarchy();		break;
+					case "TestManual":			CreateTestManual();			break;
+				}
+				Log.Debug( $"end Create{_testName}" );
+//				await UniTaskUtility.Yield( _asyncCancel );
 			} );
 		}
 
+
+/*
+		・単体変数テスト
+		_type、_lifeSpan、_sceneが、適切に設定されるか？
+		_type、_lifeSpan、_sceneにより、適切に登録されるか？
+		_ownerちゃんと設定？
+*/
+		void CreateTestVariable() {
+			new Type[] { typeof( B1 ), typeof( B2 ), typeof( B3 ), typeof( B4 ), typeof( B5 ), typeof( B6 ) }
+				.ForEach( t => t.Create() );
+			new Type[] { typeof( M1 ), typeof( M2 ), typeof( M3 ), typeof( M4 ), typeof( M5 ), typeof( M6 ) }
+				.ForEach( t => {
+					var go = new GameObject( $"{t.Name}", t );
+					go.SetActive( false );
+				} );
+		}
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestVariable() => From( TestVariableSub() );
+		IEnumerator TestVariableSub() {
+			Log.Debug( "TestVariableSub" );
+			while ( true )	{ yield return null; }
+		}
+
+
+/*
+		・複数変数テスト
+		_type、_lifeSpan、_sceneが、適切に設定されるか？
+		_type、_lifeSpan、_sceneにより、適切に登録されるか？
+		_ownerちゃんと設定？
+		_processes、複数もちゃんと設定？
+*/
+		void CreateTestMultiVariable() => TestProcessUtility.CreateMonoBehaviourProcess( @"
+			M1, M1, M1,
+			M2, M2, M2,
+			M3, M3, M3,
+			M4, M4, M4,
+			M5, M5, M5,
+			M6, M6, M6,
+
+			M1,
+			M1, M2,
+			M1, M2, M3,
+			M1, M2, M3, M4,
+			M1, M2, M3, M4, M5,
+			M1, M2, M3, M4, M5, M6,
+
+			M1, M4,
+			M1, M5,
+			M1, M6,
+		" );
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestMultiVariable() => From( TestMultiVariableSub() );
+		IEnumerator TestMultiVariableSub() {
+			Log.Debug( "TestMultiVariableSub" );
+			while ( true )	{ yield return null; }
+		}
+
+/*
+		・階層テスト
+		_top、_parent、_children、親子兄弟関係、が正しく設定されるか？
+		SetParent、SetChildren、SetBrothers、それぞれ1回だけ呼ばれる？
+		SetTop、SetAllData、親子階層含めて、1回だけ呼ばれる？
+*/
+		void CreateTestHierarchy() => TestProcessUtility.CreateMonoBehaviourProcess(
+#if false
+		@"
+			M1,
+				null,
+					M2,
+					M1,
+						M3,
+							null,
+							null,
+								M4,
+				null,
+					M1,
+				M1,
+		"
+#else
+		@"
+			M1,
+				M1,
+					M1,
+			M2,
+				null,
+					null,
+						M2,
+							null,
+								null,
+									M2,
+										null,
+											null,
+			null,
+				M3,
+
+			M1, M1, M1,
+				null,
+					M1, M1, M1,
+						null
+							M1, M1, M1,
+			M1,
+			M1,
+				M2,
+			M1,
+				M2,
+					M3,
+			M1,
+				M2,
+					M3,
+						M4,
+			M1,
+				M2,
+					M3,
+						M4,
+							M5,
+			M1,
+				M2,
+					M3,
+						M4,
+							M5,
+								M6,
+			M1, M1,
+				M1, M2,
+			M1, M1,
+				M1, M3,
+			M1, M1,
+				M1, M4,
+			M1, M1,
+				M1, M5,
+			M1, M1,
+				M1, M6,
+
+			M1,
+				null,
+					M2,
+					M1,
+						M3,
+							null,
+							null,
+								M4,
+				null,
+					M1,
+				M1,
+		"
+#endif
+		);
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestHierarchy() => From( TestHierarchySub() );
+		IEnumerator TestHierarchySub() {
+			Log.Debug( "TestHierarchySub" );
+			while ( true )	{ yield return null; }
+		}
+
+
+		void CreateTestManual() {
+		}
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
@@ -175,26 +317,6 @@ namespace SubmarineMirage.TestProcess {
 			);
 
 			while ( true )	{ yield return null; }
-		}
-
-
-
-		public class TestMono1 : MonoBehaviourProcess {
-			public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
-			static int s_count;
-			public int _id	{ get; private set; }
-			public override void Create() {
-				_id = s_count++;
-			}
-		}
-		public class TestMono2 : TestMono1 {
-			public override ProcessBody.Type _type => ProcessBody.Type.Work;
-			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
-		}
-		public class TestMono3 : TestMono1 {
-			public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
 		}
 	}
 }
