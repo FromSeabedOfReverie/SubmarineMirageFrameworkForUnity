@@ -23,6 +23,7 @@ namespace SubmarineMirage.Test {
 
 
 	public abstract class BaseTest : IPrebuildSetup, IDisposable {
+		protected string _testName => TestContext.CurrentContext.Test.Name;
 		protected bool _isInitialized;
 		protected CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
 		protected CancellationToken _asyncCancel => _asyncCanceler.Token;
