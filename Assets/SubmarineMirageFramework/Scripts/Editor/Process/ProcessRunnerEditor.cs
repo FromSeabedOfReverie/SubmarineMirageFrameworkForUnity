@@ -62,6 +62,8 @@ namespace SubmarineMirage.Editor.EditorProcess {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
+				EditorGUILayout.LabelField( $"_isLock : {scene._hierarchies._modifyler._isLock.Value}" );
+
 				scene._hierarchies._hierarchies.ForEach( typePair => {
 					ShowHeading2( typePair.Key.ToString() );
 					typePair.Value.ForEach( h => ShowHierarchy( h ) );
