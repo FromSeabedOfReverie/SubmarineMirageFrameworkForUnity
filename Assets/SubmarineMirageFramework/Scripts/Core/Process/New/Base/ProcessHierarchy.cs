@@ -42,17 +42,18 @@ namespace SubmarineMirage.Process.New {
 
 
 		public ProcessHierarchy( GameObject owner, IEnumerable<IProcess> processes, ProcessHierarchy parent ) {
+			Log.Debug( $"作成開始 : {processes.FirstOrDefault().GetAboutName()}.{this}" );
 			_owner = owner;
 
+			SetBrothers( processes );
 			SetParent( parent );
 			SetChildren();
-			SetBrothers( processes );
-			if ( _top == null )	{ SetTop(); }
+			if ( _parent == null )	{ SetTop(); }
 
 			_disposables.AddLast( () => _processes.ForEach( p => p.Dispose() ) );
 			_disposables.AddLast( () => _children.ForEach( p => p.Dispose() ) );
 
-			Log.Debug( $"作成 : {this}" );
+			Log.Debug( $"作成 : {_processes.FirstOrDefault().GetAboutName()}.{this}" );
 		}
 
 		~ProcessHierarchy() => Dispose();
@@ -60,16 +61,32 @@ namespace SubmarineMirage.Process.New {
 		public void Dispose() => _disposables.Dispose();
 
 
+		void SetBrothers( IEnumerable<IProcess> processes ) {
+			Log.Debug( $"start SetBrothers : {this}" );
+			_processes.Clear();
+			_processes.Add( processes );
+			_processes.ForEach( p => p._hierarchy = this );
+			if ( _owner != null ) {
+				_processes
+					.Select( p => (MonoBehaviourProcess)p )
+					.ForEach( p => p.Constructor() );
+			}
+			Log.Debug( $"end SetBrothers : {this}" );
+		}
+
 		public void SetParent( ProcessHierarchy parent ) {
 			if ( _owner == null )	{ return; }
+			Log.Debug( $"start SetParent : {this}" );
 
 			_parent?._children.Remove( this );
 			_parent = parent;
 			_parent?._children.Add( this );
+			Log.Debug( $"end SetParent : {this}" );
 		}
 
 		void SetChildren() {
 			if ( _owner == null )	{ return; }
+			Log.Debug( $"start SetChildren : {this}" );
 
 			var currents = new List<Transform> { _owner.transform };
 			while ( !currents.IsEmpty() ) {
@@ -86,29 +103,25 @@ namespace SubmarineMirage.Process.New {
 				} );
 				currents = children;
 			}
-		}
-
-		void SetBrothers( IEnumerable<IProcess> processes ) {
-			_processes.Clear();
-			_processes.Add( processes );
-			_processes.ForEach( p => p._hierarchy = this );
-			if ( _owner != null ) {
-				_processes
-					.Select( p => (MonoBehaviourProcess)p )
-					.ForEach( p => p.Constructor() );
-			}
+			Log.Debug( $"end SetChildren : {this}" );
 		}
 
 		public void SetTop() {
+			Log.Debug( $"start SetTop : {this}" );
 			for ( _top = this; _top._parent != null; _top = _top._parent )	{}
 			SetAllData();
+			Log.Debug( $"end SetTop : {this}" );
 		}
 
 		public void SetAllData() {
+			Log.Debug( $"start SetAllData : {this}" );
 			var lastType = _top._type;
 			var lastScene = _top._scene;
 			var allHierarchy = _top.GetHierarchiesInChildren();
 			var allProcesses = allHierarchy.SelectMany( h => h._processes );
+			Log.Debug(
+				$"allProcesses : \n{string.Join( ", ", allProcesses.Select( p => p.GetAboutName() ) )}"
+			);
 
 			_top._type = (
 				allProcesses.Any( p => p._type == Type.FirstWork )	? Type.FirstWork :
@@ -121,8 +134,10 @@ namespace SubmarineMirage.Process.New {
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				!SceneManager.s_isCreated			? null :
 				_top._lifeSpan == LifeSpan.Forever	? SceneManager.s_instance._fsm._foreverScene :
-				_top._owner != null					? SceneManager.s_instance._fsm.Get( _top._owner.scene )
-													: SceneManager.s_instance._fsm._scene
+				_top._owner != null					? SceneManager.s_instance._fsm.Get( _top._owner.scene ) :
+				SceneManager.s_instance._fsm._scene != null
+													? SceneManager.s_instance._fsm._scene
+													: SceneManager.s_instance._fsm._startScene
 			);
 
 			allHierarchy.ForEach( h => {
@@ -133,18 +148,22 @@ namespace SubmarineMirage.Process.New {
 			} );
 
 			if ( lastScene == null ) {
+//				Log.Debug( $"Register : {_top}" );
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				_hierarchies?.Register( _top );
 			} else if ( _top._type != lastType || _top._scene != lastScene ) {
+//				Log.Debug( $"ReRegister : {_top}" );
 				_hierarchies.ReRegister( _top, lastType, lastScene );
+			} else {
+//				Log.Debug( $"DontRegister : {_top}" );
 			}
+			Log.Debug( $"end SetAllData : {this}" );
 		}
 
 
 
 
-		public T GetProcess<T>() where T : MonoBehaviourProcess {
-			if ( _owner == null )	{ return null; }
+		public T GetProcess<T>() where T : IProcess {
 			return (T)_processes.FirstOrDefault( p => p is T );
 		}
 

@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Process.New {
+	using System;
 	using UniRx.Async;
 	using Utility;
 	using Type = ProcessBody.Type;
@@ -22,6 +23,9 @@ namespace SubmarineMirage.Process.New {
 			: base( hierarchy )
 		{
 			_process = process;
+			if ( hierarchy._owner == null ) {
+				throw new NotSupportedException( $"{nameof(BaseProcess)}._hierarchyに、追加不可 :\n{hierarchy}" );
+			}
 		}
 
 

@@ -23,6 +23,9 @@ namespace SubmarineMirage.Process.New {
 		protected override async UniTask Run() {
 			if ( _hierarchy._lifeSpan == LifeSpan.Forever && _hierarchy._owner != null ) {
 				UnitySceneManager.MoveGameObjectToScene( _hierarchy._owner, _hierarchy._scene._scene );
+//				Debug.Log.Debug( $"MoveGameObjectToScene : {_hierarchy._owner} {_hierarchy._scene._scene}" );
+			} else {
+//				Debug.Log.Debug( "Dont MoveGameObjectToScene" );
 			}
 			_owner.Gets( _hierarchy._type )
 				.Add( _hierarchy );

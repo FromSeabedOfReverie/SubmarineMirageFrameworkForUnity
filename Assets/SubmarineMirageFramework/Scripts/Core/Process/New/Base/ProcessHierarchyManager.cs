@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Process.New {
+	using System;
 	using System.Linq;
 	using System.Threading;
 	using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace SubmarineMirage.Process.New {
 		public BaseScene _owner	{ get; private set; }
 		public readonly Dictionary< Type, List<ProcessHierarchy> > _hierarchies
 			= new Dictionary< Type, List<ProcessHierarchy> >();
-		HierarchyModifyler _modifyler;
+		public HierarchyModifyler _modifyler	{ get; private set; }
 		public bool _isEnter	{ get; private set; }
 
 		public CancellationToken _activeAsyncCancel => _owner._activeAsyncCancel;
@@ -89,6 +90,10 @@ namespace SubmarineMirage.Process.New {
 			=> _modifyler.Register( new UnregisterHierarchyModifyData( top ) );
 
 		public T Add<T>( ProcessHierarchy hierarchy ) where T : MonoBehaviourProcess {
+			if ( hierarchy._owner == null ) {
+				throw new NotSupportedException(
+					$"{nameof(BaseProcess)}._hierarchyに、追加不可 :\n{hierarchy}" );
+			}
 			var p = hierarchy._owner.AddComponent<T>();
 			_modifyler.Register( new AddHierarchyModifyData( hierarchy, p ) );
 			return p;
@@ -104,59 +109,69 @@ namespace SubmarineMirage.Process.New {
 
 
 		public async UniTask RunAllStateEvents( Type type, RanState state ) {
+			_modifyler._isLock.Value = true;
 			var hs = Gets( type, type == Type.FirstWork && state == RanState.Finalizing );
 			switch ( type ) {
 				case Type.FirstWork:
 					foreach ( var h in hs ) {
 						await h.RunStateEvent( state );
 					}
-					return;
+					break;
 
 				case Type.Work:
 					await UniTask.WhenAll(
 						hs.Select( h => h.RunStateEvent( state ) )
 					);
-					return;
+					break;
 			}
+			_modifyler._isLock.Value = false;
 		}
 
 		public async UniTask ChangeAllActives( Type type, bool isActive ) {
+			_modifyler._isLock.Value = true;
 			var hs = Gets( type, type == Type.FirstWork && !isActive );
 			switch ( type ) {
 				case Type.FirstWork:
 					foreach ( var h in hs ) {
 						await h.ChangeActive( isActive, true );
 					}
-					return;
+					break;
 
 				case Type.Work:
 					await UniTask.WhenAll(
 						hs.Select( h => h.ChangeActive( isActive, true ) )
 					);
-					return;
+					break;
 			}
+			_modifyler._isLock.Value = false;
 		}
 
 		public async UniTask RunAllActiveEvents( Type type ) {
+			_modifyler._isLock.Value = true;
 			var hs = Gets( type );
 			switch ( type ) {
 				case Type.FirstWork:
 					foreach ( var h in hs ) {
 						await h.RunActiveEvent();
 					}
-					return;
+					break;
 
 				case Type.Work:
 					await UniTask.WhenAll(
 						hs.Select( h => h.RunActiveEvent() )
 					);
-					return;
+					break;
 			}
+			_modifyler._isLock.Value = false;
 		}
 
 
 		public async UniTask Enter() {
 			await Load();
+//			Log.Debug( $"end Load : {_owner.GetAboutName()} {_modifyler._isLock.Value}" );
+//			Log.Debug( _modifyler );
+//			await UniTaskUtility.Yield( _activeAsyncCancel );
+//			await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !Input.GetKeyDown( KeyCode.Return ) );
 			_isEnter = true;
 //			return;
 			await RunAllStateEvents( Type.FirstWork, RanState.Creating );

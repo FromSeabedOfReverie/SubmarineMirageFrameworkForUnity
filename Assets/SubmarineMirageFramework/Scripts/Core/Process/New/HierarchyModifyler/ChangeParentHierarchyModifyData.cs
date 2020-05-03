@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Process.New {
+	using System;
 	using UnityEngine;
 	using UniRx.Async;
 	using Extension;
@@ -25,6 +26,9 @@ namespace SubmarineMirage.Process.New {
 		{
 			_parent = parent;
 			_isWorldPositionStays = isWorldPositionStays;
+			if ( hierarchy._owner == null ) {
+				throw new NotSupportedException( $"{nameof(BaseProcess)}._hierarchyの、親変更不可 :\n{hierarchy}" );
+			}
 		}
 
 

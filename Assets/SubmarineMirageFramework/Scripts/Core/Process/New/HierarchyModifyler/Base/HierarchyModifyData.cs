@@ -22,6 +22,7 @@ namespace SubmarineMirage.Process.New {
 
 		public HierarchyModifyData( ProcessHierarchy hierarchy ) {
 			_hierarchy = hierarchy;
+//			Debug.Log.Debug( $"{this.GetAboutName()}( {_hierarchy} )" );
 		}
 
 
@@ -36,6 +37,6 @@ namespace SubmarineMirage.Process.New {
 
 
 		public override string ToString()
-			=> $"{this.GetAboutName()}( {_owner._owner}, {_hierarchy._processes.First()} )";
+			=> $"{this.GetAboutName()}( {_owner._owner.GetAboutName()}, {_hierarchy._processes.First().GetAboutName()} )";
 	}
 }
