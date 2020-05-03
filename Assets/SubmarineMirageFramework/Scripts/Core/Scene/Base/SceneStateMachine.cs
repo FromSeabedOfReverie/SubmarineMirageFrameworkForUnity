@@ -23,10 +23,11 @@ namespace SubmarineMirage.Scene {
 
 
 	public class SceneStateMachine : FiniteStateMachine<SceneStateMachine, SceneManager, BaseScene> {
-		public BaseScene _scene => _state;
-		public string _currentSceneName => _scene._name;
-		public Scene _currentScene => _scene._scene;
 		public ForeverScene _foreverScene	{ get; private set; }
+		public BaseScene _startScene	{ get; private set; }
+		public BaseScene _scene => _state;
+		public Scene _currentScene => _scene._scene;
+		public string _currentSceneName => _scene._name;
 		public bool _isSkipLoadForFirstScene = true;
 
 
@@ -41,12 +42,12 @@ namespace SubmarineMirage.Scene {
 			_foreverScene = new ForeverScene();
 			_disposables.AddLast( _foreverScene );
 
-			_startState = _states
+			_startScene = _states
 				.Select( pair => pair.Value )
 				.Where( s => !( s is UnknownScene ) )
-				.FirstOrDefault( s => s._name == UnitySceneManager.GetActiveScene().name )
-				?.GetType();
-			if ( _startState == null )	{ _startState = typeof( UnknownScene ); }
+				.FirstOrDefault( s => s._name == UnitySceneManager.GetActiveScene().name );
+			if ( _startScene == null )	{ _startScene = _states[typeof( UnknownScene )]; }
+			_startState = _startScene.GetType();
 		}
 
 
