@@ -6,12 +6,14 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
 	using System.Linq;
+	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
 	using Process.New;
 	using FSM.New;
 	using Singleton.New;
+	using Type = Process.New.ProcessBody.Type;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 	using Debug;
 
@@ -46,6 +48,61 @@ namespace SubmarineMirage.Scene {
 #else
 			return true;
 #endif
+		}
+
+
+		public TProcess GetProcess<TProcess, TScene>( Type? bodyType = null )
+			where TProcess : class, IProcess
+			where TScene : BaseScene
+		{
+			var a = _fsm.GetAllScene()
+//.Where( s => { Log.Debug(s); return true; } )
+				.FirstOrDefault( s => s is TScene );
+//Log.Debug( a );
+			return a
+				?._hierarchies.GetProcess<TProcess>( bodyType );
+		}
+		public T GetProcess<T>( Type? bodyType = null ) where T : IProcess {
+			return _fsm.GetAllScene()
+				.Select( s => s._hierarchies.GetProcess<T>( bodyType ) )
+				.FirstOrDefault( p => p != null );
+		}
+		public IProcess GetProcess( System.Type type, System.Type sceneType = null, Type? bodyType = null ) {
+			if ( sceneType != null ) {
+				return _fsm.GetAllScene()
+					.FirstOrDefault( s => s.GetType() == sceneType )
+					?._hierarchies.GetProcess( type, bodyType );
+			} else {
+				return _fsm.GetAllScene()
+					.Select( s => s._hierarchies.GetProcess( type, bodyType ) )
+					.FirstOrDefault( p => p != null );
+			}
+		}
+
+		public List<TProcess> GetProcesses<TProcess, TScene>( Type? bodyType = null )
+			where TProcess : class, IProcess
+			where TScene : BaseScene
+		{
+			return _fsm.GetAllScene()
+				.FirstOrDefault( s => s is TScene )
+				?._hierarchies.GetProcesses<TProcess>( bodyType );
+		}
+		public List<T> GetProcesses<T>( Type? bodyType = null ) where T : IProcess {
+			return _fsm.GetAllScene()
+				.SelectMany( s => s._hierarchies.GetProcesses<T>( bodyType ) )
+				.ToList();
+		}
+		public List<IProcess> GetProcesses( System.Type type, System.Type sceneType = null, Type? bodyType = null )
+		{
+			if ( sceneType != null ) {
+				return _fsm.GetAllScene()
+					.FirstOrDefault( s => s.GetType() == sceneType )
+					?._hierarchies.GetProcesses( type, bodyType );
+			} else {
+				return _fsm.GetAllScene()
+					.SelectMany( s => s._hierarchies.GetProcesses( type, bodyType ) )
+					.ToList();
+			}
 		}
 	}
 }

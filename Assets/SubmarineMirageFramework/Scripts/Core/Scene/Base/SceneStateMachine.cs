@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
+	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using UniRx.Async;
@@ -56,6 +57,12 @@ namespace SubmarineMirage.Scene {
 				.Select( pair => pair.Value )
 				.FirstOrDefault( s => s._scene == scene );
 			if ( result == null )	{ result = _states[typeof( UnknownScene )]; }
+			return result;
+		}
+
+		public List<BaseScene> GetAllScene() {
+			var result = new List<BaseScene> { _foreverScene };
+			result.Add( _states.Values );
 			return result;
 		}
 
