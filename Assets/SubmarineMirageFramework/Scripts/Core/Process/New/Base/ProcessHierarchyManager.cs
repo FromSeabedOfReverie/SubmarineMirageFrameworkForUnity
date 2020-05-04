@@ -58,6 +58,9 @@ namespace SubmarineMirage.Process.New {
 		~ProcessHierarchyManager() => Dispose();
 
 
+
+
+
 		public List<ProcessHierarchy> Gets( Type type, bool isReverse = false ) {
 			var hs = _hierarchies[type];
 			if ( isReverse ) {
@@ -80,6 +83,47 @@ namespace SubmarineMirage.Process.New {
 		}
 
 
+		public T GetProcess<T>( Type? bodyType = null ) where T : IProcess {
+			return
+				(
+					bodyType.HasValue	? _hierarchies[bodyType.Value]
+										: _hierarchies.SelectMany( pair => pair.Value )
+				)
+//.Where( h => { Log.Debug(h); return true; } )
+				.Select( h => h.GetProcessInChildren<T>() )
+//.Where( p => { Log.Debug(p.GetAboutName()); return true; } )
+				.FirstOrDefault( p => p != null );
+		}
+		public IProcess GetProcess( System.Type type, Type? bodyType = null ) {
+			return
+				(
+					bodyType.HasValue	? _hierarchies[bodyType.Value]
+										: _hierarchies.SelectMany( pair => pair.Value )
+				)
+				.Select( h => h.GetProcessInChildren( type ) )
+				.FirstOrDefault( p => p != null );
+		}
+
+		public List<T> GetProcesses<T>( Type? bodyType = null ) where T : IProcess {
+			return
+				(
+					bodyType.HasValue	? _hierarchies[bodyType.Value]
+										: _hierarchies.SelectMany( pair => pair.Value )
+				)
+				.SelectMany( h => h.GetProcessesInChildren<T>() )
+				.ToList();
+		}
+		public List<IProcess> GetProcesses( System.Type type, Type? bodyType = null ) {
+			return
+				(
+					bodyType.HasValue	? _hierarchies[bodyType.Value]
+										: _hierarchies.SelectMany( pair => pair.Value )
+				)
+				.SelectMany( h => h.GetProcessesInChildren( type ) )
+				.ToList();
+		}
+
+
 		public void Register( ProcessHierarchy top )
 			=> _modifyler.Register( new RegisterHierarchyModifyData( top ) );
 
@@ -89,7 +133,8 @@ namespace SubmarineMirage.Process.New {
 		public void Unregister( ProcessHierarchy top )
 			=> _modifyler.Register( new UnregisterHierarchyModifyData( top ) );
 
-		public T Add<T>( ProcessHierarchy hierarchy ) where T : MonoBehaviourProcess {
+
+		public T AddProcess<T>( ProcessHierarchy hierarchy ) where T : MonoBehaviourProcess {
 			if ( hierarchy._owner == null ) {
 				throw new NotSupportedException(
 					$"{nameof(BaseProcess)}._hierarchyに、追加不可 :\n{hierarchy}" );
@@ -98,6 +143,16 @@ namespace SubmarineMirage.Process.New {
 			_modifyler.Register( new AddHierarchyModifyData( hierarchy, p ) );
 			return p;
 		}
+		public MonoBehaviourProcess AddProcess( ProcessHierarchy hierarchy, System.Type type ) {
+			if ( hierarchy._owner == null ) {
+				throw new NotSupportedException(
+					$"{nameof(BaseProcess)}._hierarchyに、追加不可 :\n{hierarchy}" );
+			}
+			var p = (MonoBehaviourProcess)hierarchy._owner.AddComponent( type );
+			_modifyler.Register( new AddHierarchyModifyData( hierarchy, p ) );
+			return p;
+		}
+
 
 		public void Destroy( ProcessHierarchy top )
 			=> _modifyler.Register( new DestroyHierarchyModifyData( top ) );
@@ -106,6 +161,9 @@ namespace SubmarineMirage.Process.New {
 			=> _modifyler.Register(
 				new ChangeParentHierarchyModifyData( hierarchy, parent, isWorldPositionStays )
 			);
+
+
+
 
 
 		public async UniTask RunAllStateEvents( Type type, RanState state ) {
@@ -206,6 +264,7 @@ namespace SubmarineMirage.Process.New {
 
 		async UniTask Load() {
 			if ( _owner == _owner._fsm._foreverScene )	{ return; }
+			TimeManager.s_instance.StartMeasure();
 
 			var currents = _owner._scene.GetRootGameObjects().Select( go => go.transform ).ToList();
 			while ( !currents.IsEmpty() ) {
@@ -223,6 +282,8 @@ namespace SubmarineMirage.Process.New {
 				currents = children;
 				await UniTaskUtility.Yield( _activeAsyncCancel );
 			}
+
+			Log.Debug( $"Load {_owner.GetAboutName()} : {TimeManager.s_instance.StopMeasure()}秒" );
 		}
 	}
 }

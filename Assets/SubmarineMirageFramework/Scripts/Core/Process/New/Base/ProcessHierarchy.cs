@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestProcess
 namespace SubmarineMirage.Process.New {
 	using System;
 	using System.Linq;
@@ -42,7 +43,9 @@ namespace SubmarineMirage.Process.New {
 
 
 		public ProcessHierarchy( GameObject owner, IEnumerable<IProcess> processes, ProcessHierarchy parent ) {
-			Log.Debug( $"作成開始 : {processes.FirstOrDefault().GetAboutName()}.{this}" );
+#if TestProcess
+			Log.Debug( $"start : {processes.FirstOrDefault().GetAboutName()}.{this}" );
+#endif
 			_owner = owner;
 
 			SetBrothers( processes );
@@ -52,8 +55,9 @@ namespace SubmarineMirage.Process.New {
 
 			_disposables.AddLast( () => _processes.ForEach( p => p.Dispose() ) );
 			_disposables.AddLast( () => _children.ForEach( p => p.Dispose() ) );
-
-			Log.Debug( $"作成 : {_processes.FirstOrDefault().GetAboutName()}.{this}" );
+#if TestProcess
+			Log.Debug( $"end : {_processes.FirstOrDefault().GetAboutName()}.{this}" );
+#endif
 		}
 
 		~ProcessHierarchy() => Dispose();
@@ -62,7 +66,9 @@ namespace SubmarineMirage.Process.New {
 
 
 		void SetBrothers( IEnumerable<IProcess> processes ) {
+#if TestProcess
 			Log.Debug( $"start SetBrothers : {this}" );
+#endif
 			_processes.Clear();
 			_processes.Add( processes );
 			_processes.ForEach( p => p._hierarchy = this );
@@ -71,23 +77,29 @@ namespace SubmarineMirage.Process.New {
 					.Select( p => (MonoBehaviourProcess)p )
 					.ForEach( p => p.Constructor() );
 			}
+#if TestProcess
 			Log.Debug( $"end SetBrothers : {this}" );
+#endif
 		}
 
 		public void SetParent( ProcessHierarchy parent ) {
 			if ( _owner == null )	{ return; }
+#if TestProcess
 			Log.Debug( $"start SetParent : {this}" );
-
+#endif
 			_parent?._children.Remove( this );
 			_parent = parent;
 			_parent?._children.Add( this );
+#if TestProcess
 			Log.Debug( $"end SetParent : {this}" );
+#endif
 		}
 
 		void SetChildren() {
 			if ( _owner == null )	{ return; }
+#if TestProcess
 			Log.Debug( $"start SetChildren : {this}" );
-
+#endif
 			var currents = new List<Transform> { _owner.transform };
 			while ( !currents.IsEmpty() ) {
 				var children = new List<Transform>();
@@ -103,26 +115,35 @@ namespace SubmarineMirage.Process.New {
 				} );
 				currents = children;
 			}
+#if TestProcess
 			Log.Debug( $"end SetChildren : {this}" );
+#endif
 		}
 
 		public void SetTop() {
+#if TestProcess
 			Log.Debug( $"start SetTop : {this}" );
+#endif
 			for ( _top = this; _top._parent != null; _top = _top._parent )	{}
 			SetAllData();
+#if TestProcess
 			Log.Debug( $"end SetTop : {this}" );
+#endif
 		}
 
 		public void SetAllData() {
+#if TestProcess
 			Log.Debug( $"start SetAllData : {this}" );
+#endif
 			var lastType = _top._type;
 			var lastScene = _top._scene;
 			var allHierarchy = _top.GetHierarchiesInChildren();
 			var allProcesses = allHierarchy.SelectMany( h => h._processes );
+#if TestProcess
 			Log.Debug(
 				$"allProcesses : \n{string.Join( ", ", allProcesses.Select( p => p.GetAboutName() ) )}"
 			);
-
+#endif
 			_top._type = (
 				allProcesses.Any( p => p._type == Type.FirstWork )	? Type.FirstWork :
 				allProcesses.Any( p => p._type == Type.Work )		? Type.Work
@@ -148,25 +169,34 @@ namespace SubmarineMirage.Process.New {
 			} );
 
 			if ( lastScene == null ) {
-//				Log.Debug( $"Register : {_top}" );
+#if TestProcess
+				Log.Debug( $"Register : {_top}" );
+#endif
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				_hierarchies?.Register( _top );
 			} else if ( _top._type != lastType || _top._scene != lastScene ) {
-//				Log.Debug( $"ReRegister : {_top}" );
+#if TestProcess
+				Log.Debug( $"ReRegister : {_top}" );
+#endif
 				_hierarchies.ReRegister( _top, lastType, lastScene );
 			} else {
-//				Log.Debug( $"DontRegister : {_top}" );
+#if TestProcess
+				Log.Debug( $"DontRegister : {_top}" );
+#endif
 			}
+#if TestProcess
 			Log.Debug( $"end SetAllData : {this}" );
+#endif
 		}
 
 
-
-
-		public T GetProcess<T>() where T : IProcess {
-			return (T)_processes.FirstOrDefault( p => p is T );
+		public List<ProcessHierarchy> GetHierarchiesInParent() {
+			var result = new List<ProcessHierarchy>();
+			for ( var current = this; current != null; current = current._parent ) {
+				result.Add( current );
+			}
+			return result;
 		}
-
 		public List<ProcessHierarchy> GetHierarchiesInChildren() {
 			var result = new List<ProcessHierarchy>();
 			var currents = new List<ProcessHierarchy> { this };
@@ -181,9 +211,79 @@ namespace SubmarineMirage.Process.New {
 			return result;
 		}
 
-		public T Add<T>() where T : MonoBehaviourProcess => _hierarchies.Add<T>( this );
 
-		public void Destroy() => _hierarchies.Destroy( this );
+		public T GetProcess<T>() where T : IProcess
+			=> (T)_processes.FirstOrDefault( p => p is T );
+
+		public IProcess GetProcess( System.Type type )
+			=> _processes.FirstOrDefault( p => p.GetType() == type );
+
+		public List<T> GetProcesses<T>() where T : IProcess {
+			return _processes
+				.Where( p => p is T )
+				.Select( p => (T)p )
+				.ToList();
+		}
+		public List<IProcess> GetProcesses( System.Type type ) {
+			return _processes
+				.Where( p => p.GetType() == type )
+				.ToList();
+		}
+
+		public T GetProcessInParent<T>() where T : IProcess {
+			return GetHierarchiesInParent()
+				.Select( h => h.GetProcess<T>() )
+				.FirstOrDefault( p => p != null );
+		}
+		public IProcess GetProcessInParent( System.Type type ) {
+			return GetHierarchiesInParent()
+				.Select( h => h.GetProcess( type ) )
+				.FirstOrDefault( p => p != null );
+		}
+
+		public List<T> GetProcessesInParent<T>() where T : IProcess {
+			return GetHierarchiesInParent()
+				.SelectMany( h => h.GetProcesses<T>() )
+				.ToList();
+		}
+		public List<IProcess> GetProcessesInParent( System.Type type ) {
+			return GetHierarchiesInParent()
+				.SelectMany( h => h.GetProcesses( type ) )
+				.ToList();
+		}
+
+		public T GetProcessInChildren<T>() where T : IProcess {
+			return GetHierarchiesInChildren()
+				.Select( h => h.GetProcess<T>() )
+				.FirstOrDefault( p => p != null );
+		}
+		public IProcess GetProcessInChildren( System.Type type ) {
+			return GetHierarchiesInChildren()
+				.Select( h => h.GetProcess( type ) )
+				.FirstOrDefault( p => p != null );
+		}
+
+		public List<T> GetProcessesInChildren<T>() where T : IProcess {
+			return GetHierarchiesInChildren()
+				.SelectMany( h => h.GetProcesses<T>() )
+				.ToList();
+		}
+		public List<IProcess> GetProcessesInChildren( System.Type type ) {
+			return GetHierarchiesInChildren()
+				.SelectMany( h => h.GetProcesses( type ) )
+				.ToList();
+		}
+
+
+		public T AddProcess<T>() where T : MonoBehaviourProcess
+			=> _hierarchies.AddProcess<T>( this );
+
+		public MonoBehaviourProcess AddProcess( System.Type type )
+			=> _hierarchies.AddProcess( this, type );
+
+
+		public void Destroy()
+			=> _hierarchies.Destroy( this );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays )
 			=> _hierarchies.ChangeParent( this, parent, isWorldPositionStays );

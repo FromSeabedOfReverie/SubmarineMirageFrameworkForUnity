@@ -55,6 +55,10 @@ namespace SubmarineMirage.Process.New {
 		public void StopActiveAsync() => _body.StopActiveAsync();
 
 
+		public void DestroyHierarchy()
+			=> _hierarchy.Destroy();
+
+
 		public async UniTask RunStateEvent( ProcessBody.RanState state )
 			=> await _body.RunStateEvent( state );
 
@@ -66,6 +70,7 @@ namespace SubmarineMirage.Process.New {
 			=> await _body.RunActiveEvent();
 
 
-		public override string ToString() => this.ToDeepString();
+		public override string ToString()
+			=> $"{this.GetAboutName()}( {_type}, {_lifeSpan} )";
 	}
 }
