@@ -66,13 +66,15 @@ namespace SubmarineMirage.TestProcess {
 			_createEvent.AddLast( async cancel => {
 				Log.Debug( $"start Create{_testName}" );
 				switch ( _testName ) {
-					case "TestVariable":		CreateTestVariable();		break;
-					case "TestMultiVariable":	CreateTestMultiVariable();	break;
-					case "TestHierarchy":		CreateTestHierarchy();		break;
-					case "TestManual":			CreateTestManual();			break;
+					case "TestVariable":			CreateTestVariable();				break;
+					case "TestMultiVariable":		CreateTestMultiVariable();			break;
+					case "TestHierarchy":			CreateTestHierarchy();				break;
+					case "TestGetHierarchies":		CreateTestGetHierarchies();			break;
+					case "TestGetProcess":			CreateTestGetProcess();				break;
+					case "TestGetHierarchyProcess":	CreateTestGetHierarchyProcess();	break;
+					case "TestManual":				CreateTestManual();					break;
 				}
 				Log.Debug( $"end Create{_testName}" );
-//				await UniTaskUtility.Yield( _asyncCancel );
 			} );
 		}
 
@@ -84,6 +86,10 @@ namespace SubmarineMirage.TestProcess {
 		_ownerちゃんと設定？
 */
 		void CreateTestVariable() {
+#if false
+			new Type[] { typeof( B1 ), typeof( B2 ), typeof( B3 ), typeof( B4 ), typeof( B5 ), typeof( B6 ) }
+				.ForEach( t => t.Create() );
+#else
 			new Type[] { typeof( B1 ), typeof( B2 ), typeof( B3 ), typeof( B4 ), typeof( B5 ), typeof( B6 ) }
 				.ForEach( t => t.Create() );
 			new Type[] { typeof( M1 ), typeof( M2 ), typeof( M3 ), typeof( M4 ), typeof( M5 ), typeof( M6 ) }
@@ -91,6 +97,7 @@ namespace SubmarineMirage.TestProcess {
 					var go = new GameObject( $"{t.Name}", t );
 					go.SetActive( false );
 				} );
+#endif
 		}
 
 		[UnityTest]
@@ -211,7 +218,6 @@ namespace SubmarineMirage.TestProcess {
 				M1, M5,
 			M1, M1,
 				M1, M6,
-
 			M1,
 				null,
 					M2,
@@ -232,6 +238,176 @@ namespace SubmarineMirage.TestProcess {
 		public IEnumerator TestHierarchy() => From( TestHierarchySub() );
 		IEnumerator TestHierarchySub() {
 			Log.Debug( "TestHierarchySub" );
+			while ( true )	{ yield return null; }
+		}
+
+
+/*
+		・階層取得テスト
+		GetHierarchiesInParent、GetHierarchiesInChildren、動作確認
+*/
+		void CreateTestGetHierarchies() {
+			new Type[] { typeof( B1 ), typeof( B2 ), typeof( B3 ), typeof( B4 ), typeof( B5 ), typeof( B6 ) }
+				.ForEach( t => t.Create() );
+			TestProcessUtility.CreateMonoBehaviourProcess( @"
+				M1, M1, M2,
+					null,
+						M2,
+						M1,
+							M3,
+								null,
+									M4,
+										M5,
+								null,
+									M4, M4,
+					null,
+						M1,
+							M6,
+								M1, M1
+					M1,
+			" );
+		}
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestGetHierarchies() => From( TestGetHierarchiesSub() );
+		IEnumerator TestGetHierarchiesSub() {
+			Log.Debug( "TestGetHierarchiesSub" );
+
+			var top = SceneManager.s_instance.GetProcess<M1>()._hierarchy;
+			var center = SceneManager.s_instance.GetProcess<M3>()._hierarchy;
+			var bottom = SceneManager.s_instance.GetProcess<M5>()._hierarchy;
+			LogHierarchy( "top", top );
+			LogHierarchy( "center", center );
+			LogHierarchy( "bottom", bottom );
+
+			LogHierarchies( "top.GetHierarchiesInChildren",		top.GetHierarchiesInChildren() );
+			LogHierarchies( "center.GetHierarchiesInChildren",	center.GetHierarchiesInChildren() );
+			LogHierarchies( "bottom.GetHierarchiesInChildren",	bottom.GetHierarchiesInChildren() );
+
+			LogHierarchies( "top.GetHierarchiesInParent",		top.GetHierarchiesInParent() );
+			LogHierarchies( "center.GetHierarchiesInParent",	center.GetHierarchiesInParent() );
+			LogHierarchies( "bottom.GetHierarchiesInParent",	bottom.GetHierarchiesInParent() );
+
+			while ( true )	{ yield return null; }
+		}
+
+
+/*
+		・取得テスト
+		GetProcess<T>、GetProcess(type)、GetProcesses<T>、GetProcesses(type)、動作確認
+*/
+		void CreateTestGetProcess()
+			=> CreateTestGetHierarchies();
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestGetProcess() => From( TestGetProcessSub() );
+		IEnumerator TestGetProcessSub() {
+			Log.Debug( "TestGetProcessSub" );
+
+			var top = SceneManager.s_instance.GetProcess<M1>()._hierarchy;
+			LogHierarchy( "top", top );
+
+			LogProcess( "GetProcess<M1>",	top.GetProcess<M1>() );
+			LogProcess( "GetProcess( M1 )",	top.GetProcess( typeof( M1 ) ) );
+			LogProcess( "GetProcess<M2>",	top.GetProcess<M2>() );
+			LogProcess( "GetProcess( M2 )",	top.GetProcess( typeof( M2 ) ) );
+			LogProcess( "GetProcess<M3>",	top.GetProcess<M3>() );
+			LogProcess( "GetProcess( M3 )",	top.GetProcess( typeof( M3 ) ) );
+
+			LogProcesses( "GetProcesses<M1>",	top.GetProcesses<M1>() );
+			LogProcesses( "GetProcesses( M1 )",	top.GetProcesses( typeof( M1 ) ) );
+			LogProcesses( "GetProcesses<M2>",	top.GetProcesses<M2>() );
+			LogProcesses( "GetProcesses( M2 )",	top.GetProcesses( typeof( M2 ) ) );
+			LogProcesses( "GetProcesses<M3>",	top.GetProcesses<M3>() );
+			LogProcesses( "GetProcesses( M3 )",	top.GetProcesses( typeof( M3 ) ) );
+
+			while ( true )	{ yield return null; }
+		}
+
+
+/*
+		・取得テスト
+		GetProcessInParent<T>、GetProcessInParent(type)
+		GetProcessesInParent<T>、GetProcessesInParent(type)
+		GetProcessInChildren<T>、GetProcessInChildren(type)
+		GetProcessesInChildren<T>、GetProcessesInChildren(type)
+*/
+		void CreateTestGetHierarchyProcess()
+			=> CreateTestGetHierarchies();
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestGetHierarchyProcess() => From( TestGetHierarchyProcessSub() );
+		IEnumerator TestGetHierarchyProcessSub() {
+			Log.Debug( "TestGetHierarchyProcessSub" );
+
+			var top = SceneManager.s_instance.GetProcess<M1>()._hierarchy;
+			var center = SceneManager.s_instance.GetProcess<M3>()._hierarchy;
+			var bottom = SceneManager.s_instance.GetProcess<M5>()._hierarchy;
+			LogHierarchy( "top", top );
+			LogHierarchy( "center", center );
+			LogHierarchy( "bottom", bottom );
+
+
+			LogProcess( "top.GetProcessInParent<M1>",		top.GetProcessInParent<M1>() );
+			LogProcess( "top.GetProcessInParent( M1 )",		top.GetProcessInParent( typeof( M1 ) ) );
+			LogProcess( "center.GetProcessInParent<M1>",	center.GetProcessInParent<M1>() );
+			LogProcess( "center.GetProcessInParent( M1 )",	center.GetProcessInParent( typeof( M1 ) ) );
+			LogProcess( "bottom.GetProcessInParent<M1>",	bottom.GetProcessInParent<M1>() );
+			LogProcess( "bottom.GetProcessInParent( M1 )",	bottom.GetProcessInParent( typeof( M1 ) ) );
+
+			LogProcesses( "top.GetProcessesInParent<M1>",		top.GetProcessesInParent<M1>() );
+			LogProcesses( "top.GetProcessesInParent( M1 )",		top.GetProcessesInParent( typeof( M1 ) ) );
+			LogProcesses( "center.GetProcessesInParent<M1>",	center.GetProcessesInParent<M1>() );
+			LogProcesses( "center.GetProcessesInParent( M1 )",	center.GetProcessesInParent( typeof( M1 ) ) );
+			LogProcesses( "bottom.GetProcessesInParent<M1>",	bottom.GetProcessesInParent<M1>() );
+			LogProcesses( "bottom.GetProcessesInParent( M1 )",	bottom.GetProcessesInParent( typeof( M1 ) ) );
+
+			LogProcess( "top.GetProcessInChildren<M1>",		top.GetProcessInChildren<M1>() );
+			LogProcess( "top.GetProcessInChildren( M1 )",		top.GetProcessInChildren( typeof( M1 ) ) );
+			LogProcess( "center.GetProcessInChildren<M1>",	center.GetProcessInChildren<M1>() );
+			LogProcess( "center.GetProcessInChildren( M1 )",	center.GetProcessInChildren( typeof( M1 ) ) );
+			LogProcess( "bottom.GetProcessInChildren<M1>",	bottom.GetProcessInChildren<M1>() );
+			LogProcess( "bottom.GetProcessInChildren( M1 )",	bottom.GetProcessInChildren( typeof( M1 ) ) );
+
+			LogProcesses( "top.GetProcessesInChildren<M1>",		top.GetProcessesInChildren<M1>() );
+			LogProcesses( "top.GetProcessesInChildren( M1 )",		top.GetProcessesInChildren( typeof( M1 ) ) );
+			LogProcesses( "center.GetProcessesInChildren<M1>",	center.GetProcessesInChildren<M1>() );
+			LogProcesses( "center.GetProcessesInChildren( M1 )",	center.GetProcessesInChildren( typeof( M1 ) ) );
+			LogProcesses( "bottom.GetProcessesInChildren<M1>",	bottom.GetProcessesInChildren<M1>() );
+			LogProcesses( "bottom.GetProcessesInChildren( M1 )",	bottom.GetProcessesInChildren( typeof( M1 ) ) );
+
+
+			LogProcess( "top.GetProcessInParent<M4>",		top.GetProcessInParent<M4>() );
+			LogProcess( "top.GetProcessInParent( M4 )",		top.GetProcessInParent( typeof( M4 ) ) );
+			LogProcess( "center.GetProcessInParent<M4>",	center.GetProcessInParent<M4>() );
+			LogProcess( "center.GetProcessInParent( M4 )",	center.GetProcessInParent( typeof( M4 ) ) );
+			LogProcess( "bottom.GetProcessInParent<M4>",	bottom.GetProcessInParent<M4>() );
+			LogProcess( "bottom.GetProcessInParent( M4 )",	bottom.GetProcessInParent( typeof( M4 ) ) );
+
+			LogProcesses( "top.GetProcessesInParent<M4>",		top.GetProcessesInParent<M4>() );
+			LogProcesses( "top.GetProcessesInParent( M4 )",		top.GetProcessesInParent( typeof( M4 ) ) );
+			LogProcesses( "center.GetProcessesInParent<M4>",	center.GetProcessesInParent<M4>() );
+			LogProcesses( "center.GetProcessesInParent( M4 )",	center.GetProcessesInParent( typeof( M4 ) ) );
+			LogProcesses( "bottom.GetProcessesInParent<M4>",	bottom.GetProcessesInParent<M4>() );
+			LogProcesses( "bottom.GetProcessesInParent( M4 )",	bottom.GetProcessesInParent( typeof( M4 ) ) );
+
+			LogProcess( "top.GetProcessInChildren<M4>",		top.GetProcessInChildren<M4>() );
+			LogProcess( "top.GetProcessInChildren( M4 )",		top.GetProcessInChildren( typeof( M4 ) ) );
+			LogProcess( "center.GetProcessInChildren<M4>",	center.GetProcessInChildren<M4>() );
+			LogProcess( "center.GetProcessInChildren( M4 )",	center.GetProcessInChildren( typeof( M4 ) ) );
+			LogProcess( "bottom.GetProcessInChildren<M4>",	bottom.GetProcessInChildren<M4>() );
+			LogProcess( "bottom.GetProcessInChildren( M4 )",	bottom.GetProcessInChildren( typeof( M4 ) ) );
+
+			LogProcesses( "top.GetProcessesInChildren<M4>",		top.GetProcessesInChildren<M4>() );
+			LogProcesses( "top.GetProcessesInChildren( M4 )",		top.GetProcessesInChildren( typeof( M4 ) ) );
+			LogProcesses( "center.GetProcessesInChildren<M4>",	center.GetProcessesInChildren<M4>() );
+			LogProcesses( "center.GetProcessesInChildren( M4 )",	center.GetProcessesInChildren( typeof( M4 ) ) );
+			LogProcesses( "bottom.GetProcessesInChildren<M4>",	bottom.GetProcessesInChildren<M4>() );
+			LogProcesses( "bottom.GetProcessesInChildren( M4 )",	bottom.GetProcessesInChildren( typeof( M4 ) ) );
+
 			while ( true )	{ yield return null; }
 		}
 
@@ -317,6 +493,48 @@ namespace SubmarineMirage.TestProcess {
 			);
 
 			while ( true )	{ yield return null; }
+		}
+
+
+		void LogHierarchy( string text, ProcessHierarchy hierarchy ) {
+			if ( hierarchy == null ) {
+				Log.Debug( $"{text} : null" );
+				return;
+			}
+			var name = hierarchy._owner != null ? hierarchy._owner.name : null;
+			Log.Debug( $"{text} : " + string.Join( ", ",
+				hierarchy._processes.Select( p => p.GetAboutName() )
+			) + $" : {name}" );
+		}
+
+		void LogHierarchies( string text, IEnumerable<ProcessHierarchy> hierarchies ) {
+			Log.Debug( $"{text} :\n" + string.Join( "\n",
+				hierarchies.Select( h => {
+					var name = h._owner != null ? h._owner.name : null;
+					return string.Join( ", ",
+						h._processes.Select( p => p.GetAboutName() )
+					) + $" : {name}";
+				} )
+			) );
+		}
+
+
+		void LogProcess( string text, IProcess process ) {
+			if ( process == null ) {
+				Log.Debug( $"{text} : null" );
+				return;
+			}
+			var name = process._hierarchy._owner != null ? process._hierarchy._owner.name : null;
+			Log.Debug( $"{text} : {process.GetAboutName()} : {name}" );
+		}
+
+		void LogProcesses( string text, IEnumerable<IProcess> processes ) {
+			Log.Debug( $"{text} :\n" + string.Join( "\n",
+				processes.Select( p => {
+					var name = p._hierarchy._owner != null ? p._hierarchy._owner.name : null;
+					return p.GetAboutName() + $" : {name}";
+				} )
+			) );
 		}
 	}
 }
