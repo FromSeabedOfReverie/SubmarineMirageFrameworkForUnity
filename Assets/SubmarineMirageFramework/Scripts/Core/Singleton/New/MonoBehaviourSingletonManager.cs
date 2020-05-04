@@ -48,7 +48,7 @@ namespace SubmarineMirage.Singleton.New {
 			var process = _hierarchy.GetProcess<T>();
 			if ( process != null )	{ return process; }
 
-			process = _hierarchy.Add<T>();
+			process = _hierarchy.AddProcess<T>();
 			Log.Debug( $"作成（Component） : {process.GetAboutName()}", Log.Tag.Singleton );
 			return process;
 		}
