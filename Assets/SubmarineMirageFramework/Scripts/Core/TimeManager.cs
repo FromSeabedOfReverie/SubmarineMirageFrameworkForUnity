@@ -8,7 +8,7 @@ namespace SubmarineMirage {
 	using System.Diagnostics;
 	using UnityEngine;
 	using UniRx;
-	using Singleton;
+	using Singleton.New;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 時間の管理クラス
@@ -27,23 +27,21 @@ namespace SubmarineMirage {
 		/// <summary>時間加減速の影響を受けない、アプリケーション起動時からの秒数</summary>
 		public float _unscaledTime		{ get; private set; }	// Time.unscaledTimeは値が大きく飛ぶので代用
 		/// <summary>処理時間計測</summary>
-		Stopwatch _stopwatch;
+		Stopwatch _stopwatch = new Stopwatch();
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● コンストラクタ
+		/// ● 作成
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public TimeManager() {
+		public override void Create() {
 			var _lastUnscaledTime = 0f;
 
 			// ● 更新
-			_updateEvent.Subscribe( _ => {
+			_updateEvent.AddLast().Subscribe( _ => {
 				_unscaledDeltaTime = Mathf.Min( MAX_DELTA_TIME, Time.unscaledDeltaTime );
 				_unscaledTime += Mathf.Min( MAX_DELTA_TIME, Time.unscaledTime - _lastUnscaledTime );
 				_lastUnscaledTime = Time.unscaledTime;
 			} );
-
-			_stopwatch = new Stopwatch();
 		}
 		///------------------------------------------------------------------------------------------------
 		/// ● 処理時間を計測
