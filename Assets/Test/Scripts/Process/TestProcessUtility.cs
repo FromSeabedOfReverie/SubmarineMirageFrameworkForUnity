@@ -14,6 +14,7 @@ namespace SubmarineMirage.TestProcess {
 	using KoganeUnityLib;
 	using Process.New;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -23,7 +24,9 @@ namespace SubmarineMirage.TestProcess {
 
 
 	public static class TestProcessUtility {
-		public static void CreateMonoBehaviourProcess( string processData ) {
+		public static IProcess CreateMonoBehaviourProcess( string processData ) {
+			IProcess top = null;
+
 			var parents = new Dictionary<int, Transform>();
 			processData
 				.UnifyNewLine()
@@ -47,10 +50,57 @@ namespace SubmarineMirage.TestProcess {
 					go.SetActive( false );
 					a.types
 						.Where( t => t != "null" )
-						.ForEach( t =>
-							go.AddComponent( Type.GetType( $"{typeof(BaseM).Namespace}.{t}" ) )
-						);
+						.ForEach( t => {
+							var c = go.AddComponent( Type.GetType( $"{typeof(BaseM).Namespace}.{t}" ) );
+							if ( top == null )	{ top = (IProcess)c; }
+						} );
 				} );
+
+			return top;
+		}
+
+
+		public static void LogHierarchy( string text, ProcessHierarchy hierarchy ) {
+			if ( hierarchy == null ) {
+				Log.Debug( $"{text} : null" );
+				return;
+			}
+			var name = hierarchy._owner != null ? hierarchy._owner.name : null;
+			Log.Debug( $"{text} : " + string.Join( ", ",
+				hierarchy._processes.Select( p => p.GetAboutName() )
+			) + $" : {name}" );
+		}
+
+		public static void LogHierarchies( string text, IEnumerable<ProcessHierarchy> hierarchies ) {
+			Log.Debug( $"{text} :\n" + string.Join( "\n",
+				hierarchies.Select( h => {
+					var name = h._owner != null ? h._owner.name : null;
+					return string.Join( ", ",
+						h._processes.Select( p => p.GetAboutName() )
+					) + $" : {name}";
+				} )
+			) );
+		}
+
+
+		public static void LogProcess( string text, IProcess process ) {
+			if ( process == null ) {
+				Log.Debug( $"{text} : null" );
+				return;
+			}
+			var name = process._hierarchy._owner != null ? process._hierarchy._owner.name : null;
+			var id = ( process as BaseM )?._id ?? ( process as BaseB )?._id;
+			Log.Debug( $"{text} : {process.GetAboutName()}, {name}, processID : {id}" );
+		}
+
+		public static void LogProcesses( string text, IEnumerable<IProcess> processes ) {
+			Log.Debug( $"{text} :\n" + string.Join( "\n",
+				processes.Select( p => {
+					var name = p._hierarchy._owner != null ? p._hierarchy._owner.name : null;
+					var id = ( p as BaseM )?._id ?? ( p as BaseB )?._id;
+					return $"{p.GetAboutName()}, {name}, processID : {id}";
+				} )
+			) );
 		}
 	}
 
