@@ -64,11 +64,14 @@ namespace SubmarineMirage.Process.New {
 		public List<ProcessHierarchy> Gets( Type type, bool isReverse = false ) {
 			var hs = _hierarchies[type];
 			if ( isReverse ) {
+/*
 				Log.Debug(
 					$"befor reverse : " +
 					$"{string.Join( ", ", _hierarchies[type].Select( h => h._processes.First().GetAboutName() ) )}"
 				);
+*/
 				hs = hs.ReverseByClone();
+/*
 				Log.Debug(
 					$"new : " +
 					$"{string.Join( ", ", hs.Select( h => h._processes.First().GetAboutName() ) )}"
@@ -77,6 +80,7 @@ namespace SubmarineMirage.Process.New {
 					$"after reverse : " +
 					$"{string.Join( ", ", _hierarchies[type].Select( h => h._processes.First().GetAboutName() ) )}"
 				);
+*/
 			}
 // TODO : 使用先で、Add、Removeされた場合、元もちゃんと変更されるか？
 			return hs;
@@ -89,9 +93,7 @@ namespace SubmarineMirage.Process.New {
 					bodyType.HasValue	? _hierarchies[bodyType.Value]
 										: _hierarchies.SelectMany( pair => pair.Value )
 				)
-//.Where( h => { Log.Debug(h); return true; } )
 				.Select( h => h.GetProcessInChildren<T>() )
-//.Where( p => { Log.Debug(p.GetAboutName()); return true; } )
 				.FirstOrDefault( p => p != null );
 		}
 		public IProcess GetProcess( System.Type type, Type? bodyType = null ) {

@@ -55,11 +55,8 @@ namespace SubmarineMirage.Scene {
 			where TProcess : class, IProcess
 			where TScene : BaseScene
 		{
-			var a = _fsm.GetAllScene()
-//.Where( s => { Log.Debug(s); return true; } )
-				.FirstOrDefault( s => s is TScene );
-//Log.Debug( a );
-			return a
+			return _fsm.GetAllScene()
+				.FirstOrDefault( s => s is TScene )
 				?._hierarchies.GetProcess<TProcess>( bodyType );
 		}
 		public T GetProcess<T>( Type? bodyType = null ) where T : IProcess {
