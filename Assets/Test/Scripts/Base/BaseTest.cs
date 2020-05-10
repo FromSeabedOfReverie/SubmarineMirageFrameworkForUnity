@@ -112,5 +112,9 @@ namespace SubmarineMirage.Test {
 			while ( isRunning )	{ yield return null; }
 			disposable.Dispose();
 		}
+
+		protected IEnumerator RunForever() {
+			while ( true )	{ yield return null; }
+		}
 	}
 }
