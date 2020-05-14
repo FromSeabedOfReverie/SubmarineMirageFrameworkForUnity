@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestProcess {
+	using System.Linq;
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
@@ -31,17 +32,19 @@ namespace SubmarineMirage.TestProcess {
 			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _process == null ) {
+				if ( _hierarchy == null ) {
 					_text.text = string.Empty;
 					return;
 				}
+				var p = _hierarchy._processes.FirstOrDefault();
 				_text.text =
-					$"{_process.GetAboutName()}(\n"
-					+ $"    _isInitialized : {_process._isInitialized}\n"
-					+ $"    _isActive : {_process._isActive}\n"
-					+ $"    _ranState : {_process._body._ranState}\n"
-					+ $"    _activeState : {_process._body._activeState}\n"
-					+ $"    next : {_process._body._nextActiveState}\n"
+					$"{_hierarchy}\n"
+					+ $"{p.GetAboutName()}(\n"
+					+ $"    _isInitialized : {p._isInitialized}\n"
+					+ $"    _isActive : {p._isActive}\n"
+					+ $"    _ranState : {p._body._ranState}\n"
+					+ $"    _activeState : {p._body._activeState}\n"
+					+ $"    next : {p._body._nextActiveState}\n"
 					+ $")\n";
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
@@ -65,6 +68,7 @@ namespace SubmarineMirage.TestProcess {
 					case nameof( TestRunM1 ):						CreateTestRunM1();						break;
 					case nameof( TestRunM2 ):						CreateTestRunM2();						break;
 					case nameof( TestRunM3 ):						CreateTestRunM3();						break;
+					case nameof( TestRunBrothers1 ):				CreateTestRunBrothers1();				break;
 				}
 				Log.Debug( $"end Create{_testName}" );
 			} );

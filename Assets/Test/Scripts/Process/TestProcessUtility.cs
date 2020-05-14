@@ -24,7 +24,7 @@ namespace SubmarineMirage.TestProcess {
 
 
 	public static class TestProcessUtility {
-		public static IProcess CreateMonoBehaviourProcess( string processData ) {
+		public static IProcess CreateMonoBehaviourProcess( string processData, bool isActive = true ) {
 			IProcess top = null;
 
 			var parents = new Dictionary<int, Transform>();
@@ -47,7 +47,7 @@ namespace SubmarineMirage.TestProcess {
 					var go = new GameObject( $"indent : {a.i}, id : {i}" );
 					go.SetParent( parents.GetOrDefault( a.i - 1 ) );
 					parents[a.i] = go.transform;
-					go.SetActive( false );
+					go.SetActive( isActive );
 					a.types
 						.Where( t => t != "null" )
 						.ForEach( t => {
