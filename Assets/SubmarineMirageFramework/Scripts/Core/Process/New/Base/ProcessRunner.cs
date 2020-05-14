@@ -60,6 +60,11 @@ namespace SubmarineMirage.Process.New {
 			_initializeEvent.AddLast( async cancel => {
 // TODO : シーン読込後に、テストオブジェクトを作成してしまう
 				await _foreverScene.RunStateEvent( FiniteStateMachineRunState.Entering );
+// TODO : デバッグ用、暫定
+				await SceneManager.s_instance.RunStateEvent( RanState.Creating );
+				await SceneManager.s_instance.RunStateEvent( RanState.Loading );
+				await SceneManager.s_instance.RunStateEvent( RanState.Initializing );
+				await SceneManager.s_instance.RunActiveEvent();
 			} );
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {

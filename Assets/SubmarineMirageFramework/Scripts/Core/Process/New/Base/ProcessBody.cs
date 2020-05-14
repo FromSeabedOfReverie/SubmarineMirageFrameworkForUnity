@@ -124,7 +124,7 @@ namespace SubmarineMirage.Process.New {
 					if ( _activeState != ActiveState.Disabled )	{ return; }
 					switch ( _ranState ) {
 						case RanState.None:
-							Log.Debug( $"Run {state}" );
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_ranState = RanState.Creating;
 							try {
 // TODO : awaitが不要な事を、FSM等実装後に確認後、状態をCreateのみに、修正
@@ -145,7 +145,7 @@ namespace SubmarineMirage.Process.New {
 					if ( _nextActiveState != ActiveState.Enabling )	{ return; }
 					switch ( _ranState ) {
 						case RanState.Created:
-							Log.Debug( $"Run {state}" );
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_ranState = RanState.Loading;
 							try {
 								await _loadEvent.Run( _activeAsyncCancel );
@@ -164,7 +164,7 @@ namespace SubmarineMirage.Process.New {
 					if ( _nextActiveState != ActiveState.Enabling )	{ return; }
 					switch ( _ranState ) {
 						case RanState.Loaded:
-							Log.Debug( $"Run {state}" );
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_ranState = RanState.Initializing;
 							try {
 								await _initializeEvent.Run( _activeAsyncCancel );
@@ -190,7 +190,7 @@ namespace SubmarineMirage.Process.New {
 						case RanState.FixedUpdate:
 						case RanState.Update:
 						case RanState.LateUpdate:
-							Log.Debug( $"Run {state}" );
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_fixedUpdateEvent.Run();
 							return;
 					}
@@ -208,7 +208,7 @@ namespace SubmarineMirage.Process.New {
 					switch ( _ranState ) {
 						case RanState.Update:
 						case RanState.LateUpdate:
-							Log.Debug( $"Run {state}" );
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_updateEvent.Run();
 							return;
 					}
@@ -225,7 +225,7 @@ namespace SubmarineMirage.Process.New {
 					}
 					switch ( _ranState ) {
 						case RanState.LateUpdate:
-							Log.Debug( $"Run {state}" );
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_lateUpdateEvent.Run();
 							return;
 					}
@@ -245,7 +245,8 @@ namespace SubmarineMirage.Process.New {
 						case RanState.FixedUpdate:
 						case RanState.Update:
 						case RanState.LateUpdate:
-							Log.Debug( $"Want {state} check disable" );
+							Log.Debug(
+								$"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state} : check disable" );
 							await ChangeActive( false );
 							break;
 					}
@@ -259,7 +260,7 @@ namespace SubmarineMirage.Process.New {
 					// 非同期停止時に、catchで状態が変わる為、1フレーム待機
 					await UniTaskUtility.Yield( _inActiveAsyncCancel );
 					_ranState = RanState.Finalizing;
-					Log.Debug( $"Run {state}" );
+					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 					switch ( lastRanState ) {
 						case RanState.Loading:
 						case RanState.Loaded:
@@ -332,7 +333,7 @@ namespace SubmarineMirage.Process.New {
 
 			switch ( _nextActiveState ) {
 				case ActiveState.Enabling:
-					Log.Debug( $"call {ActiveState.Enabling}" );
+					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState} : call" );
 					switch ( _activeState ) {
 						case ActiveState.Enabling:
 							_nextActiveState = null;
@@ -359,7 +360,8 @@ namespace SubmarineMirage.Process.New {
 								return;
 							}
 							if ( !_isInitialized ) { return; }
-							Log.Debug( $"Run {ActiveState.Enabling}" );
+							Log.Debug(
+								$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState}" );
 							_nextActiveState = null;
 							_activeState = ActiveState.Enabling;
 							try {
@@ -374,7 +376,7 @@ namespace SubmarineMirage.Process.New {
 					return;
 
 				case ActiveState.Disabling:
-					Log.Debug( $"call {ActiveState.Disabling}" );
+					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState} : call" );
 					switch ( _activeState ) {
 						case ActiveState.Disabling:
 							_nextActiveState = null;
@@ -394,7 +396,8 @@ namespace SubmarineMirage.Process.New {
 
 						case ActiveState.Enabled:
 							StopActiveAsync();
-							Log.Debug( $"Run {ActiveState.Disabling}" );
+							Log.Debug(
+								$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState}" );
 							_nextActiveState = null;
 							_activeState = ActiveState.Disabling;
 							try {

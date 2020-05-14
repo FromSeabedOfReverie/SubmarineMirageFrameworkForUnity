@@ -233,7 +233,7 @@ namespace SubmarineMirage.Process.New {
 //			await UniTaskUtility.Yield( _activeAsyncCancel );
 //			await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !Input.GetKeyDown( KeyCode.Return ) );
 			_isEnter = true;
-//			return;
+			return;
 			await RunAllStateEvents( Type.FirstWork, RanState.Creating );
 			await RunAllStateEvents( Type.FirstWork, RanState.Loading );
 			await RunAllStateEvents( Type.FirstWork, RanState.Initializing );

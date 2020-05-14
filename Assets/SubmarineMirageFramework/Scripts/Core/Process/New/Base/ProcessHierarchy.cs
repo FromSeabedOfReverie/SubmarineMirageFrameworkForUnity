@@ -39,6 +39,8 @@ namespace SubmarineMirage.Process.New {
 		public readonly List<IProcess> _processes = new List<IProcess>();
 		public bool _isTop => _top == this;
 
+		readonly CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
+		CancellationToken _asyncCancel => _asyncCanceler.Token;
 		readonly MultiDisposable _disposables = new MultiDisposable();
 
 
@@ -55,6 +57,11 @@ namespace SubmarineMirage.Process.New {
 
 			_disposables.AddLast( () => _processes.ForEach( p => p.Dispose() ) );
 			_disposables.AddLast( () => _children.ForEach( p => p.Dispose() ) );
+			_disposables.AddLast( () => {
+				_asyncCanceler.Cancel();
+				_asyncCanceler.Dispose();
+			} );
+			
 #if TestProcess
 			Log.Debug( $"end : {_processes.FirstOrDefault().GetAboutName()}.{this}" );
 #endif
@@ -319,21 +326,33 @@ namespace SubmarineMirage.Process.New {
 							)
 						) );
 						break;
+
+					case Type.DontWork:
+						if ( state != RanState.Creating )	{ break; }
+						events.AddLast( async _ => await UniTask.WhenAll(
+							_processes.Select( async p => {
+								try										{ await p.RunStateEvent( state ); }
+								catch ( OperationCanceledException )	{}
+							} )
+							.Concat(
+								_children.Select( h => h.RunStateEvent( state ) )
+							)
+						) );
+						break;
 				}
 				if ( state == RanState.Finalizing )	{ events.Reverse(); }
-				using ( var canceler = new CancellationTokenSource() ) {
-					await events.Run( canceler.Token );
-				}
+				await events.Run( _asyncCancel );
 			}
 		}
 
 
 		public async UniTask ChangeActive( bool isActive, bool isChangeOwner ) {
 			using ( var events = new MultiAsyncEvent() ) {
-				if ( _owner != null && isChangeOwner ) {
+				if ( isChangeOwner && _owner != null && _type != Type.DontWork ) {
 					events.AddLast( async _ => {
 						_owner.SetActive( isActive );
 						await UniTaskUtility.DontWait();
+						Log.Debug( $"{_owner.GetAboutName()}.SetActive : {isActive}" );
 					} );
 				}
 				switch ( _type ) {
@@ -364,9 +383,7 @@ namespace SubmarineMirage.Process.New {
 						break;
 				}
 				if ( !isActive )	{ events.Reverse(); }
-				using ( var canceler = new CancellationTokenSource() ) {
-					await events.Run( canceler.Token );
-				}
+				await events.Run( _asyncCancel );
 			}
 		}
 
@@ -399,9 +416,7 @@ namespace SubmarineMirage.Process.New {
 						) );
 						break;
 				}
-				using ( var canceler = new CancellationTokenSource() ) {
-					await events.Run( canceler.Token );
-				}
+				await events.Run( _asyncCancel );
 			}
 		}
 
