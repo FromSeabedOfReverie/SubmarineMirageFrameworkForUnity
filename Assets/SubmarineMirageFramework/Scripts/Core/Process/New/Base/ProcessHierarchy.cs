@@ -39,8 +39,11 @@ namespace SubmarineMirage.Process.New {
 		public readonly List<IProcess> _processes = new List<IProcess>();
 		public bool _isTop => _top == this;
 
+		int _isRunningCount;
+
 		readonly CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
 		CancellationToken _asyncCancel => _asyncCanceler.Token;
+
 		readonly MultiDisposable _disposables = new MultiDisposable();
 
 
@@ -299,15 +302,31 @@ namespace SubmarineMirage.Process.New {
 
 
 		public async UniTask RunStateEvent( RanState state ) {
+			if ( _isRunningCount > 0 ) {
+				var isForcedRunState = false;
+				switch ( state ) {
+					case RanState.Creating:
+					case RanState.Finalizing:
+						isForcedRunState = true;
+						break;
+					case RanState.FixedUpdate:
+					case RanState.Update:
+					case RanState.LateUpdate:
+						return;
+				}
+				await UniTaskUtility.WaitWhile(
+					_asyncCancel, () => _isRunningCount > 0 && !isForcedRunState );
+			}
+
 			using ( var events = new MultiAsyncEvent() ) {
 				switch ( _type ) {
 					case Type.FirstWork:
-						events.AddLast( async _ => {
-							foreach ( var p in _processes ) {
+						foreach ( var p in _processes ) {
+							events.AddLast( async _ => {
 								try										{ await p.RunStateEvent( state ); }
 								catch ( OperationCanceledException )	{}
-							}
-						} );
+							} );
+						}
 						events.AddLast( async _ => {
 							foreach ( var h in _children ) {
 								await h.RunStateEvent( state );
@@ -341,15 +360,24 @@ namespace SubmarineMirage.Process.New {
 						break;
 				}
 				if ( state == RanState.Finalizing )	{ events.Reverse(); }
-				await events.Run( _asyncCancel );
+				try {
+					_isRunningCount++;
+					await events.Run( _asyncCancel );
+				} finally {
+					_isRunningCount--;
+				}
 			}
 		}
 
 
 		public async UniTask ChangeActive( bool isActive, bool isChangeOwner ) {
+// TODO : 活動状態を、高速で沢山切り替えた場合、全部、待機実行される（間を端折らない為、遅い）
+			await UniTaskUtility.WaitWhile( _asyncCancel, () => _isRunningCount > 0 );
+
 			using ( var events = new MultiAsyncEvent() ) {
 				if ( isChangeOwner && _owner != null && _type != Type.DontWork ) {
 					events.AddLast( async _ => {
+// TODO : Disable時でも、Activeにしてしまうが、Managerの方で呼ばないはず、確認する
 						_owner.SetActive( isActive );
 						await UniTaskUtility.DontWait();
 						Log.Debug( $"{_owner.GetAboutName()}.SetActive : {isActive}" );
@@ -357,12 +385,12 @@ namespace SubmarineMirage.Process.New {
 				}
 				switch ( _type ) {
 					case Type.FirstWork:
-						events.AddLast( async _ => {
-							foreach ( var p in _processes ) {
+						foreach ( var p in _processes ) {
+							events.AddLast( async _ => {
 								try										{ await p.ChangeActive( isActive ); }
 								catch ( OperationCanceledException )	{}
-							}
-						} );
+							} );
+						}
 						events.AddLast( async _ => {
 							foreach ( var h in _children ) {
 								await h.ChangeActive( isActive, false );
@@ -383,20 +411,27 @@ namespace SubmarineMirage.Process.New {
 						break;
 				}
 				if ( !isActive )	{ events.Reverse(); }
-				await events.Run( _asyncCancel );
+				try {
+					_isRunningCount++;
+					await events.Run( _asyncCancel );
+				} finally {
+					_isRunningCount--;
+				}
 			}
 		}
 
 		public async UniTask RunActiveEvent() {
+			await UniTaskUtility.WaitWhile( _asyncCancel, () => _isRunningCount > 0 );
+
 			using ( var events = new MultiAsyncEvent() ) {
 				switch ( _type ) {
 					case Type.FirstWork:
-						events.AddLast( async _ => {
-							foreach ( var p in _processes ) {
+						foreach ( var p in _processes ) {
+							events.AddLast( async _ => {
 								try										{ await p.RunActiveEvent(); }
 								catch ( OperationCanceledException )	{}
-							}
-						} );
+							} );
+						}
 						events.AddLast( async _ => {
 							foreach ( var h in _children ) {
 								await h.RunActiveEvent();
@@ -416,24 +451,33 @@ namespace SubmarineMirage.Process.New {
 						) );
 						break;
 				}
-				await events.Run( _asyncCancel );
+				try {
+					_isRunningCount++;
+					await events.Run( _asyncCancel );
+				} finally {
+					_isRunningCount--;
+				}
 			}
 		}
 
 
 		public override string ToString() {
 			var result = $"{this.GetAboutName()}(\n"
-				+ $"    _type : {_type}\n"
-				+ $"    _lifeSpan : {_lifeSpan}\n"
-				+ $"    _scene : {_scene}\n"
-				+ $"    _owner : {_owner}\n";
+				+ $"    {nameof( _type )} : {_type}\n"
+				+ $"    {nameof( _lifeSpan )} : {_lifeSpan}\n"
+				+ $"    {nameof( _scene )} : {_scene}\n"
+				+ $"    {nameof( _isRunningCount )} : {_isRunningCount}\n"
+				+ $"    {nameof( _owner )} : {_owner}\n";
 
-			result += $"    _processes : \n";
-			_processes.ForEach( ( p, i ) => result += $"        {i} : {p.GetAboutName()}\n" );
+			result += $"    {nameof( _processes )} : \n";
+			_processes.ForEach( ( p, i ) =>
+				result += $"        {i} : {p.GetAboutName()}( "
+					+ $"{p._body._ranState}, {p._body._activeState}, {p._body._nextActiveState} )\n"
+			);
 
 			new KeyValuePair<string, ProcessHierarchy>[] {
-				new KeyValuePair<string, ProcessHierarchy>( "_top", _top ),
-				new KeyValuePair<string, ProcessHierarchy>( "_parent", _parent ),
+				new KeyValuePair<string, ProcessHierarchy>( $"{nameof( _top )}", _top ),
+				new KeyValuePair<string, ProcessHierarchy>( $"{nameof( _parent )}", _parent ),
 			}
 			.ForEach( pair => {
 				var s = (
@@ -445,7 +489,7 @@ namespace SubmarineMirage.Process.New {
 				result += $"    {pair.Key} : {s}\n";
 			} );
 
-			result += $"    _children : \n";
+			result += $"    {nameof( _children )} : \n";
 			_children.ForEach( ( h, i ) => result += $"        {i} : {h._owner}\n" );
 
 			result += ")";
