@@ -69,6 +69,11 @@ namespace SubmarineMirage.TestProcess {
 					case nameof( TestRunM2 ):						CreateTestRunM2();						break;
 					case nameof( TestRunM3 ):						CreateTestRunM3();						break;
 					case nameof( TestRunBrothers1 ):				CreateTestRunBrothers1();				break;
+					case nameof( TestRunBrothers2 ):				CreateTestRunBrothers2();				break;
+					case nameof( TestRunBrothers3 ):				CreateTestRunBrothers3();				break;
+					case nameof( TestRunChildren1 ):				CreateTestRunChildren1();				break;
+					case nameof( TestRunChildren2 ):				CreateTestRunChildren2();				break;
+					case nameof( TestRunChildren3 ):				CreateTestRunChildren3();				break;
 				}
 				Log.Debug( $"end Create{_testName}" );
 			} );

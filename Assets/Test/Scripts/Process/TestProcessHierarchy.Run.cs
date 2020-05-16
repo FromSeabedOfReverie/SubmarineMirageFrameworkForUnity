@@ -129,7 +129,7 @@ namespace SubmarineMirage.TestProcess {
 		イベント実行中、活動状態変更の、兼ね合いテスト
 */
 		void CreateTestRunBrothers1() => _process = TestProcessUtility.CreateMonoBehaviourProcess( @"
-			M1, M2,
+			M1, M4,
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunBrothers1() => From( TestRunBrothers1Sub() );
 		IEnumerator TestRunBrothers1Sub() {
@@ -140,10 +140,21 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 		void CreateTestRunBrothers2() => _process = TestProcessUtility.CreateMonoBehaviourProcess( @"
-			M1, M2, M3,
-		" );
+			M1, M2, M2,
+		", true );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunBrothers2() => From( TestRunBrothers2Sub() );
 		IEnumerator TestRunBrothers2Sub() {
+			_hierarchy = _process._hierarchy;
+			_hierarchy._processes.ForEach( p => SetProcessEvent( p ) );
+			SetTestRunKey();
+			yield return RunForever();
+		}
+
+		void CreateTestRunBrothers3() => _process = TestProcessUtility.CreateMonoBehaviourProcess( @"
+			M1, M2, M3,
+		", true );
+		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunBrothers3() => From( TestRunBrothers3Sub() );
+		IEnumerator TestRunBrothers3Sub() {
 			_hierarchy = _process._hierarchy;
 			_hierarchy._processes.ForEach( p => SetProcessEvent( p ) );
 			SetTestRunKey();
@@ -167,6 +178,7 @@ namespace SubmarineMirage.TestProcess {
 		親enable　→　子disableの場合、正常実行
 		親disable　→　子disableの場合、内部で重複実行できない
 		親disable　→　子enableの場合、実行させないようにする
+		子だけ、ChangeActive( isChangeOwner )して、RunStateEvent等、上手く動作するか？
 
 		RunActiveEvent、実行
 		gameObject.SetActive順序を確認、多分弄らないのが正しい
@@ -175,21 +187,44 @@ namespace SubmarineMirage.TestProcess {
 
 		イベント実行中、活動状態変更の、兼ね合いテスト
 */
-		void CreateTestParentAndChild() {
-			var p = TestProcessUtility.CreateMonoBehaviourProcess( @"
+		void CreateTestRunChildren1() => _process = TestProcessUtility.CreateMonoBehaviourProcess( @"
+			M1, M1,
 				M1, M1,
-					M2, M2,
-						M3, M3,
-			");
-			_hierarchy = p._hierarchy;
-			SetProcessEvent( p );
+					M1, M1,
+		");
+		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren1() => From( TestRunChildren1Sub() );
+		IEnumerator TestRunChildren1Sub() {
+			_hierarchy = _process._hierarchy;
+			_hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => SetProcessEvent( p ) );
 			SetTestRunKey();
+			yield return RunForever();
 		}
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestParentAndChild() => From( RunForever() );
+		void CreateTestRunChildren2() => _process = TestProcessUtility.CreateMonoBehaviourProcess( @"
+			M1, M1,
+				M2, M2,
+					M2, M2,
+		");
+		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren2() => From( TestRunChildren2Sub() );
+		IEnumerator TestRunChildren2Sub() {
+			_hierarchy = _process._hierarchy;
+			_hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => SetProcessEvent( p ) );
+			SetTestRunKey();
+			yield return RunForever();
+		}
 
+		void CreateTestRunChildren3() => _process = TestProcessUtility.CreateMonoBehaviourProcess( @"
+			M1, M1,
+				M2, M2,
+					M3, M3,
+		");
+		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren3() => From( TestRunChildren3Sub() );
+		IEnumerator TestRunChildren3Sub() {
+			_hierarchy = _process._hierarchy;
+			_hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => SetProcessEvent( p ) );
+			SetTestRunKey();
+			yield return RunForever();
+		}
 
 
 
@@ -269,39 +304,46 @@ namespace SubmarineMirage.TestProcess {
 
 
 		void SetProcessEvent( IProcess process ) {
+			var name = process.GetAboutName();
+			var id = (
+				process is BaseM	? ( (BaseM)process )._id :
+				process is BaseB	? ( (BaseB)process )._id
+									: (int?)null
+			);
+
 			process._loadEvent.AddLast( async cancel => {
-				Log.Debug( $"{process.GetAboutName()}._loadEvent : start" );
+				Log.Debug( $"{name}( {id} )._loadEvent : start" );
 				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( $"{process.GetAboutName()}._loadEvent : end" );
+				Log.Debug( $"{name}( {id} )._loadEvent : end" );
 			} );
 			process._initializeEvent.AddLast( async cancel => {
-				Log.Debug( $"{process.GetAboutName()}._initializeEvent : start" );
+				Log.Debug( $"{name}( {id} )._initializeEvent : start" );
 				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( $"{process.GetAboutName()}._initializeEvent : end" );
+				Log.Debug( $"{name}( {id} )._initializeEvent : end" );
 			} );
 			process._enableEvent.AddLast( async cancel => {
-				Log.Debug( $"{process.GetAboutName()}._enableEvent : start" );
+				Log.Debug( $"{name}( {id} )._enableEvent : start" );
 				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( $"{process.GetAboutName()}._enableEvent : end" );
+				Log.Debug( $"{name}( {id} )._enableEvent : end" );
 			} );
 			process._fixedUpdateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( $"{process.GetAboutName()}._fixedUpdateEvent" );
+				Log.Debug( $"{name}( {id} )._fixedUpdateEvent" );
 			} );
 			process._updateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( $"{process.GetAboutName()}._updateEvent" );
+				Log.Debug( $"{name}( {id} )._updateEvent" );
 			} );
 			process._lateUpdateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( $"{process.GetAboutName()}._lateUpdateEvent" );
+				Log.Debug( $"{name}( {id} )._lateUpdateEvent" );
 			} );
 			process._disableEvent.AddLast( async cancel => {
-				Log.Debug( $"{process.GetAboutName()}._disableEvent : start" );
+				Log.Debug( $"{name}( {id} )._disableEvent : start" );
 				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( $"{process.GetAboutName()}._disableEvent : end" );
+				Log.Debug( $"{name}( {id} )._disableEvent : end" );
 			} );
 			process._finalizeEvent.AddLast( async cancel => {
-				Log.Debug( $"{process.GetAboutName()}._finalizeEvent : start" );
+				Log.Debug( $"{name}( {id} )._finalizeEvent : start" );
 				await UniTaskUtility.Delay( cancel, 1000 );
-				Log.Debug( $"{process.GetAboutName()}._finalizeEvent : end" );
+				Log.Debug( $"{name}( {id} )._finalizeEvent : end" );
 			} );
 		}
 	}

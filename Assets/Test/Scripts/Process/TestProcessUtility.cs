@@ -24,7 +24,7 @@ namespace SubmarineMirage.TestProcess {
 
 
 	public static class TestProcessUtility {
-		public static IProcess CreateMonoBehaviourProcess( string processData, bool isActive = true ) {
+		public static IProcess CreateMonoBehaviourProcess( string processData, bool isTopActive = true ) {
 			IProcess top = null;
 
 			var parents = new Dictionary<int, Transform>();
@@ -47,12 +47,14 @@ namespace SubmarineMirage.TestProcess {
 					var go = new GameObject( $"indent : {a.i}, id : {i}" );
 					go.SetParent( parents.GetOrDefault( a.i - 1 ) );
 					parents[a.i] = go.transform;
-					go.SetActive( isActive );
 					a.types
 						.Where( t => t != "null" )
 						.ForEach( t => {
 							var c = go.AddComponent( Type.GetType( $"{typeof(BaseM).Namespace}.{t}" ) );
-							if ( top == null )	{ top = (IProcess)c; }
+							if ( top == null ) {
+								top = (IProcess)c;
+								go.SetActive( isTopActive );
+							}
 						} );
 				} );
 
@@ -109,9 +111,10 @@ namespace SubmarineMirage.TestProcess {
 	public abstract class BaseB : BaseProcess {
 		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
 		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
-		static int s_count;
+		static int s_count = 0;
 		public int _id;
-		public override void Create() => _id = s_count++;
+		public BaseB() => _id = s_count++;
+		public override void Create() {}
 	}
 	public class B1 : BaseB {
 		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
@@ -143,9 +146,10 @@ namespace SubmarineMirage.TestProcess {
 	public abstract class BaseM : MonoBehaviourProcess {
 		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
 		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
-		static int s_count;
+		static int s_count = 0;
 		public int _id;
-		public override void Create() => _id = s_count++;
+		public BaseM() => _id = s_count++;
+		public override void Create() {}
 	}
 	public class M1 : BaseM {
 		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
