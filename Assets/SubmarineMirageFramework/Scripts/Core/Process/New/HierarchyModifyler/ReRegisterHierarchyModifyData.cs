@@ -32,9 +32,9 @@ namespace SubmarineMirage.Process.New {
 			if ( _hierarchy._scene != _lastScene && _hierarchy._owner != null ) {
 				UnitySceneManager.MoveGameObjectToScene( _hierarchy._owner, _hierarchy._scene._scene );
 			}
-			_lastScene._hierarchies.Gets( _lastType )
+			_lastScene._hierarchies.Get( _lastType )
 				.Remove( _hierarchy );
-			_owner.Gets( _hierarchy._type )
+			_owner.Get( _hierarchy._type )
 				.Add( _hierarchy );
 
 			await UniTaskUtility.DontWait();

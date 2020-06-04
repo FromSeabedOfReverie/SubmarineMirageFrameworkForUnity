@@ -18,7 +18,7 @@ namespace SubmarineMirage.Process.New {
 
 
 		protected override async UniTask Run() {
-			_owner.Gets( _hierarchy._type )
+			_owner.Get( _hierarchy._type )
 				.Remove( _hierarchy );
 			_hierarchy.Dispose();
 			if ( _hierarchy._owner != null )	{ Object.Destroy( _hierarchy._owner ); }

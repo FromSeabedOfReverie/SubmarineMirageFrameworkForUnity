@@ -19,7 +19,7 @@ namespace SubmarineMirage.Process.New {
 
 		protected override async UniTask Run() {
 			if ( _hierarchy._isTop ) {
-				_owner.Gets( _hierarchy._type )
+				_owner.Get( _hierarchy._type )
 					.Remove( _hierarchy );
 			} else {
 				var lastTop = _hierarchy._top;

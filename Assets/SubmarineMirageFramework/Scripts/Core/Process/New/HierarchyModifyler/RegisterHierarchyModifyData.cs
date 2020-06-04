@@ -27,7 +27,7 @@ namespace SubmarineMirage.Process.New {
 			} else {
 //				Debug.Log.Debug( "Dont MoveGameObjectToScene" );
 			}
-			_owner.Gets( _hierarchy._type )
+			_owner.Get( _hierarchy._type )
 				.Add( _hierarchy );
 
 			await RunHierarchy();

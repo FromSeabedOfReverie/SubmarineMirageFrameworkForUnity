@@ -36,7 +36,7 @@ namespace SubmarineMirage.Process.New {
 			_hierarchy._owner.transform.SetParent( _parent, _isWorldPositionStays );
 
 			if ( _hierarchy._isTop ) {
-				_owner.Gets( _hierarchy._type )
+				_owner.Get( _hierarchy._type )
 					.Remove( _hierarchy );
 			}
 			_hierarchy.SetParent(
