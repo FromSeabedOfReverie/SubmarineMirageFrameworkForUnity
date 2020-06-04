@@ -67,25 +67,25 @@ namespace SubmarineMirage.Data.Save {
 			/// <summary>1秒間に、60回描画（FPS）</summary>
 			_60
 		}
-		/// <summary>アプリケーション版　→　版名へ変換の為の、辞書</summary>
+		/// <summary>アプリケーション版 → 版名へ変換の為の、辞書</summary>
 		static readonly Dictionary<Edition, string> EDITION_TO_NAME = new Dictionary<Edition, string> {
 			{ Edition.Trial,		"評価版" },
 			{ Edition.Product,		"製品版" },
 			{ Edition.Exhibition,	"展示版" },
 		};
-		/// <summary>画面の大きさ　→　ベクトルへ変換の為の、辞書</summary>
+		/// <summary>画面の大きさ → ベクトルへ変換の為の、辞書</summary>
 		static readonly Dictionary<ScreenSize, Vector2Int> SCREEN_SIZE_TO_VECTORS
 			= new Dictionary<ScreenSize, Vector2Int> {
 				{ ScreenSize._960X540,		new Vector2Int( 960, 540 )		},
 				{ ScreenSize._1440X810,		new Vector2Int( 1440, 810 )		},
 				{ ScreenSize._1920X1080,	new Vector2Int( 1920, 1080 )	},
 			};
-		/// <summary>描画品質名　→　Unityの品質番号へ変換の為の、辞書</summary>
+		/// <summary>描画品質名 → Unityの品質番号へ変換の為の、辞書</summary>
 		static readonly Dictionary<string, int> QUALITY_NAME_TO_IDS
 			= QualitySettings.names
 				.Select( ( s, i ) => new {s, i} )
 				.ToDictionary( pair => pair.s, pair => pair.i );
-		/// <summary>描画品質名　→　Unityの品質名へ変換の為の、辞書</summary>
+		/// <summary>描画品質名 → Unityの品質名へ変換の為の、辞書</summary>
 		static readonly Dictionary<Quality, string> QUALITY_TO_NAMES = new Dictionary<Quality, string> {
 			{ Quality.VeryLow,	"Fastest"	},
 			{ Quality.Low,		"Fast"		},
@@ -93,7 +93,7 @@ namespace SubmarineMirage.Data.Save {
 			{ Quality.High,		"Good"		},
 			{ Quality.VeryHigh,	"Fantastic"	},
 		};
-		/// <summary>FPS型　→　整数へ変換の為の、辞書</summary>
+		/// <summary>FPS型 → 整数へ変換の為の、辞書</summary>
 		static readonly Dictionary<FrameRate, int> FRAME_RATE_TO_INT = new Dictionary<FrameRate, int> {
 			{ FrameRate._30,	30 },
 			{ FrameRate._60,	60 },

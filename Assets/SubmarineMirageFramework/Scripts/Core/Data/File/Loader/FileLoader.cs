@@ -63,7 +63,7 @@ namespace SubmarineMirage.Data.File {
 		/// ● 読込（サーバー）
 		///		audioType : 音書類で拡張子が不明の場合、指定する。（MP3非対応）
 		///		キャッシュデータ使用か？を、ユーザーは選択できない
-		///			（サーバーキャッシュが違う　→　ダウンロード　→　ダウンロード失敗　→　強制キャッシュ読込
+		///			（サーバーキャッシュが違う → ダウンロード → ダウンロード失敗 → 強制キャッシュ読込
 		///			のように、キャッシュ使用か？をシステムから変更する為）
 		/// </summary>
 		public async UniTask<T> LoadServer<T>( string url, AudioType audioType = AudioType.UNKNOWN ) {
