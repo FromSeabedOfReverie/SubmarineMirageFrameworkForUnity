@@ -23,6 +23,8 @@ namespace SubmarineMirage.Process.New {
 
 		public ProcessHierarchy _hierarchy	{ get; set; }
 		public ProcessBody _body			{ get; private set; }
+		public IProcess _previous	{ get; set; }
+		public IProcess _next		{ get; set; }
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isActive		=> _body._isActive;
@@ -72,13 +74,12 @@ namespace SubmarineMirage.Process.New {
 			=> (MonoBehaviourProcess)_hierarchy.GetProcess( type );
 
 
-		public List<T> GetProcesses<T>() where T : MonoBehaviourProcess
+		public IEnumerable<T> GetProcesses<T>() where T : MonoBehaviourProcess
 			=> _hierarchy.GetProcesses<T>();
 
-		public List<MonoBehaviourProcess> GetProcesses( System.Type type ) {
+		public IEnumerable<MonoBehaviourProcess> GetProcesses( System.Type type ) {
 			return _hierarchy.GetProcesses( type )
-				.Select( p => (MonoBehaviourProcess)p )
-				.ToList();
+				.Select( p => (MonoBehaviourProcess)p );
 		}
 
 
@@ -89,13 +90,12 @@ namespace SubmarineMirage.Process.New {
 			=> (MonoBehaviourProcess)_hierarchy.GetProcessInParent( type );
 
 
-		public List<T> GetProcessesInParent<T>() where T : MonoBehaviourProcess
+		public IEnumerable<T> GetProcessesInParent<T>() where T : MonoBehaviourProcess
 			=> _hierarchy.GetProcessesInParent<T>();
 
-		public List<MonoBehaviourProcess> GetProcessesInParent( System.Type type ) {
+		public IEnumerable<MonoBehaviourProcess> GetProcessesInParent( System.Type type ) {
 			return _hierarchy.GetProcessesInParent( type )
-				.Select( p => (MonoBehaviourProcess)p )
-				.ToList();
+				.Select( p => (MonoBehaviourProcess)p );
 		}
 
 
@@ -106,13 +106,12 @@ namespace SubmarineMirage.Process.New {
 			=> (MonoBehaviourProcess)_hierarchy.GetProcessInChildren( type );
 
 
-		public List<T> GetProcessesInChildren<T>() where T : MonoBehaviourProcess
+		public IEnumerable<T> GetProcessesInChildren<T>() where T : MonoBehaviourProcess
 			=> _hierarchy.GetProcessesInChildren<T>();
 
-		public List<MonoBehaviourProcess> GetProcessesInChildren( System.Type type ) {
+		public IEnumerable<MonoBehaviourProcess> GetProcessesInChildren( System.Type type ) {
 			return _hierarchy.GetProcessesInChildren( type )
-				.Select( p => (MonoBehaviourProcess)p )
-				.ToList();
+				.Select( p => (MonoBehaviourProcess)p );
 		}
 
 

@@ -95,6 +95,7 @@ namespace SubmarineMirage.Process.New {
 				_finalizeEvent,
 				_activeAsyncCancelEvent
 			);
+			_disposables.AddLast( () => UnLink() );
 			_disposables.AddLast( () => Log.Debug( $"Dispose Body : {_owner.GetAboutName()}" ) );
 		}
 
@@ -105,9 +106,17 @@ namespace SubmarineMirage.Process.New {
 			} );
 		}
 
+		~ProcessBody() => Dispose();
+
 		public void Dispose() => _disposables.Dispose();
 
-		~ProcessBody() => Dispose();
+		void UnLink() {
+			if ( _owner._previous != null )	{ _owner._previous._next = _owner._next; }
+			if ( _owner._next != null )		{ _owner._next._previous = _owner._previous; }
+			_owner._previous = null;
+			_owner._next = null;
+		}
+
 
 
 		public void StopActiveAsync() {

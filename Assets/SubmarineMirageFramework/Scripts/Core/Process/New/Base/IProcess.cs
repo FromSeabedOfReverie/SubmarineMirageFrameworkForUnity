@@ -20,6 +20,8 @@ namespace SubmarineMirage.Process.New {
 
 		ProcessHierarchy _hierarchy	{ get; set; }
 		ProcessBody _body			{ get; }
+		IProcess _previous	{ get; set; }
+		IProcess _next		{ get; set; }
 
 		bool _isInitialized	{ get; }
 		bool _isActive		{ get; }
