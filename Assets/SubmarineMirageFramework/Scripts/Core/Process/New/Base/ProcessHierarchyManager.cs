@@ -27,8 +27,8 @@ namespace SubmarineMirage.Process.New {
 
 	public class ProcessHierarchyManager : IDisposableExtension {
 		public BaseScene _owner	{ get; private set; }
-		public readonly Dictionary< Type, List<ProcessHierarchy> > _hierarchies
-			= new Dictionary< Type, List<ProcessHierarchy> >();
+		public readonly Dictionary<Type, ProcessHierarchy> _hierarchies
+			= new Dictionary<Type, ProcessHierarchy>();
 		public HierarchyModifyler _modifyler	{ get; private set; }
 		public bool _isEnter	{ get; private set; }
 
@@ -40,12 +40,11 @@ namespace SubmarineMirage.Process.New {
 		public ProcessHierarchyManager( BaseScene owner ) {
 			_owner = owner;
 
-			EnumUtils.GetValues<Type>()
-				.ForEach( t => _hierarchies[t] = new List<ProcessHierarchy>() );
+			EnumUtils.GetValues<Type>().ForEach( t => _hierarchies[t] = null );
 			_disposables.AddLast( () => {
 				_hierarchies
-					.SelectMany( pair => pair.Value )
-					.ForEach( h => h.Dispose() );
+					.SelectMany( pair => pair.Value?.GetBrothers() )
+					.ForEach( h => h?.Dispose() );
 				_hierarchies.Clear();
 			} );
 
@@ -61,68 +60,62 @@ namespace SubmarineMirage.Process.New {
 
 
 
-		public List<ProcessHierarchy> Gets( Type type, bool isReverse = false ) {
-			var hs = _hierarchies[type];
+		public IEnumerable<ProcessHierarchy> Get( Type? type = null, bool isReverse = false ) {
+			var result = (
+				type.HasValue	? _hierarchies[type.Value]?.GetBrothers() ?? Enumerable.Empty<ProcessHierarchy>()
+								: _hierarchies
+									.Where( pair => pair.Value != null )
+									.SelectMany( pair => pair.Value.GetBrothers() )
+			);
+
 			if ( isReverse ) {
 /*
-				Log.Debug(
-					$"befor reverse : " +
-					$"{string.Join( ", ", _hierarchies[type].Select( h => h._processes.First().GetAboutName() ) )}"
+				var befor = string.Join(
+					", ",
+					(	type.HasValue	? _hierarchies[type.Value].GetBrothers()
+										: _hierarchies
+											.Where( pair => pair.Value != null )
+											.SelectMany( pair => pair.Value.GetBrothers() )
+					).Select( h => h._process.GetAboutName() )
 				);
+				Log.Debug( $"befor reverse : {befor}" );
 */
-				hs = hs.ReverseByClone();
+				result = result.Reverse();
 /*
-				Log.Debug(
-					$"new : " +
-					$"{string.Join( ", ", hs.Select( h => h._processes.First().GetAboutName() ) )}"
+				Log.Debug( $"new : {string.Join( ", ", result.Select( h => h._process.GetAboutName() ) )}" );
+				var after = string.Join(
+					", ",
+					(	type.HasValue	? _hierarchies[type.Value].GetBrothers()
+										: _hierarchies
+											.Where( pair => pair.Value != null )
+											.SelectMany( pair => pair.Value.GetBrothers() )
+					).Select( h => h._process.GetAboutName() )
 				);
-				Log.Debug(
-					$"after reverse : " +
-					$"{string.Join( ", ", _hierarchies[type].Select( h => h._processes.First().GetAboutName() ) )}"
-				);
+				Log.Debug( $"after reverse : {after}" );
 */
 			}
-// TODO : 使用先で、Add、Removeされた場合、元もちゃんと変更されるか？
-			return hs;
+			return result;
 		}
 
 
-		public T GetProcess<T>( Type? bodyType = null ) where T : IProcess {
-			return
-				(
-					bodyType.HasValue	? _hierarchies[bodyType.Value]
-										: _hierarchies.SelectMany( pair => pair.Value )
-				)
+		public T GetProcess<T>( Type? type = null ) where T : IProcess {
+			return Get( type )
 				.Select( h => h.GetProcessInChildren<T>() )
 				.FirstOrDefault( p => p != null );
 		}
-		public IProcess GetProcess( System.Type type, Type? bodyType = null ) {
-			return
-				(
-					bodyType.HasValue	? _hierarchies[bodyType.Value]
-										: _hierarchies.SelectMany( pair => pair.Value )
-				)
-				.Select( h => h.GetProcessInChildren( type ) )
+		public IProcess GetProcess( System.Type systemType, Type? type = null ) {
+			return Get( type )
+				.Select( h => h.GetProcessInChildren( systemType ) )
 				.FirstOrDefault( p => p != null );
 		}
 
-		public List<T> GetProcesses<T>( Type? bodyType = null ) where T : IProcess {
-			return
-				(
-					bodyType.HasValue	? _hierarchies[bodyType.Value]
-										: _hierarchies.SelectMany( pair => pair.Value )
-				)
-				.SelectMany( h => h.GetProcessesInChildren<T>() )
-				.ToList();
+		public IEnumerable<T> GetProcesses<T>( Type? type = null ) where T : IProcess {
+			return Get( type )
+				.SelectMany( h => h.GetProcessesInChildren<T>() );
 		}
-		public List<IProcess> GetProcesses( System.Type type, Type? bodyType = null ) {
-			return
-				(
-					bodyType.HasValue	? _hierarchies[bodyType.Value]
-										: _hierarchies.SelectMany( pair => pair.Value )
-				)
-				.SelectMany( h => h.GetProcessesInChildren( type ) )
-				.ToList();
+		public IEnumerable<IProcess> GetProcesses( System.Type systemType, Type? type = null ) {
+			return Get( type )
+				.SelectMany( h => h.GetProcessesInChildren( systemType ) );
 		}
 
 
@@ -170,7 +163,7 @@ namespace SubmarineMirage.Process.New {
 
 		public async UniTask RunAllStateEvents( Type type, RanState state ) {
 			_modifyler._isLock.Value = true;
-			var hs = Gets( type, type == Type.FirstWork && state == RanState.Finalizing );
+			var hs = Get( type, type == Type.FirstWork && state == RanState.Finalizing );
 			switch ( type ) {
 				case Type.FirstWork:
 					foreach ( var h in hs ) {
@@ -189,7 +182,7 @@ namespace SubmarineMirage.Process.New {
 
 		public async UniTask ChangeAllActives( Type type, bool isActive ) {
 			_modifyler._isLock.Value = true;
-			var hs = Gets( type, type == Type.FirstWork && !isActive );
+			var hs = Get( type, type == Type.FirstWork && !isActive );
 			switch ( type ) {
 				case Type.FirstWork:
 					foreach ( var h in hs ) {
@@ -208,7 +201,7 @@ namespace SubmarineMirage.Process.New {
 
 		public async UniTask RunAllActiveEvents( Type type ) {
 			_modifyler._isLock.Value = true;
-			var hs = Gets( type );
+			var hs = Get( type );
 			switch ( type ) {
 				case Type.FirstWork:
 					foreach ( var h in hs ) {
@@ -253,12 +246,11 @@ namespace SubmarineMirage.Process.New {
 			await RunAllStateEvents( Type.Work, RanState.Finalizing );
 			await RunAllStateEvents( Type.FirstWork, RanState.Finalizing );
 
-			Gets( Type.Work ).Clear();
-			Gets( Type.FirstWork ).Clear();
+			Get( Type.Work ).ForEach( h => h.Dispose() );
+			Get( Type.FirstWork ).ForEach( h => h.Dispose() );
+			Get( Type.DontWork ).ForEach( h => h.Dispose() );
 
-			var hs = Gets( Type.DontWork );
-			hs.ForEach( h => h.Dispose() );
-			hs.Clear();
+			_hierarchies.ForEach( pair => _hierarchies[pair.Key] = null );
 
 			_isEnter = false;
 		}
@@ -268,16 +260,16 @@ namespace SubmarineMirage.Process.New {
 			if ( _owner == _owner._fsm._foreverScene )	{ return; }
 			TimeManager.s_instance.StartMeasure();
 
-			var currents = _owner._scene.GetRootGameObjects().Select( go => go.transform ).ToList();
+			var currents = _owner._scene.GetRootGameObjects().Select( go => go.transform );
 			while ( !currents.IsEmpty() ) {
-				var children = new List<Transform>();
+				var children = Enumerable.Empty<Transform>();
 				currents.ForEach( t => {
 					var ps = t.GetComponents<MonoBehaviourProcess>();
 					if ( !ps.IsEmpty() ) {
 						new ProcessHierarchy( t.gameObject, ps, null );
 					} else {
 						foreach ( Transform child in t ) {
-							children.Add( child );
+							children.Concat( child );
 						}
 					}
 				} );
