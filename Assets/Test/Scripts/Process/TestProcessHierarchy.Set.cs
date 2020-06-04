@@ -91,7 +91,7 @@ namespace SubmarineMirage.TestProcess {
 /*
 		・階層テスト
 		_top、_parent、_children、親子兄弟関係、が正しく設定されるか？
-		SetParent、SetChildren、SetBrothers、それぞれ1回だけ呼ばれる？
+		SetParent、SetChildren、SetProcesses、それぞれ1回だけ呼ばれる？
 		SetTop、SetAllData、親子階層含めて、1回だけ呼ばれる？
 */
 		void CreateTestHierarchy() => TestProcessUtility.CreateMonoBehaviourProcess(

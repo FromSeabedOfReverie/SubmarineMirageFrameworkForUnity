@@ -58,13 +58,13 @@ namespace SubmarineMirage.TestProcess {
 			TestProcessUtility.LogHierarchy( "center", center );
 			TestProcessUtility.LogHierarchy( "bottom", bottom );
 
-			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInChildren",		top.GetHierarchiesInChildren() );
-			TestProcessUtility.LogHierarchies( "center.GetHierarchiesInChildren",	center.GetHierarchiesInChildren() );
-			TestProcessUtility.LogHierarchies( "bottom.GetHierarchiesInChildren",	bottom.GetHierarchiesInChildren() );
+			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInChildren",		top.GetAllChildren() );
+			TestProcessUtility.LogHierarchies( "center.GetHierarchiesInChildren",	center.GetAllChildren() );
+			TestProcessUtility.LogHierarchies( "bottom.GetHierarchiesInChildren",	bottom.GetAllChildren() );
 
-			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInParent",	top.GetHierarchiesInParent() );
-			TestProcessUtility.LogHierarchies( "center.GetHierarchiesInParent",	center.GetHierarchiesInParent() );
-			TestProcessUtility.LogHierarchies( "bottom.GetHierarchiesInParent",	bottom.GetHierarchiesInParent() );
+			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInParent",	top.GetAllParents() );
+			TestProcessUtility.LogHierarchies( "center.GetHierarchiesInParent",	center.GetAllParents() );
+			TestProcessUtility.LogHierarchies( "bottom.GetHierarchiesInParent",	bottom.GetAllParents() );
 
 			while ( true )	{ yield return null; }
 		}
@@ -260,8 +260,8 @@ namespace SubmarineMirage.TestProcess {
 			var top = SceneManager.s_instance.GetProcess<B1>()._hierarchy;
 			TestProcessUtility.LogHierarchy( "top", top );
 
-			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInChildren",	top.GetHierarchiesInChildren() );
-			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInParent",	top.GetHierarchiesInParent() );
+			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInChildren",	top.GetAllChildren() );
+			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInParent",	top.GetAllParents() );
 			
 			TestProcessUtility.LogProcess( "top.GetProcess<B1>",	top.GetProcess<B1>() );
 			TestProcessUtility.LogProcess( "top.GetProcess( B1 )",	top.GetProcess( typeof( B1 ) ) );

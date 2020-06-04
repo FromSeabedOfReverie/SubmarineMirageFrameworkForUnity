@@ -9,6 +9,7 @@ namespace SubmarineMirage.TestProcess {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
+	using Process.New;
 	using Extension;
 	using Debug;
 	using Test;
@@ -22,6 +23,7 @@ namespace SubmarineMirage.TestProcess {
 
 	public partial class TestProcessHierarchy : Test {
 		Text _text;
+		IProcess _process;
 
 
 		protected override void Create() {
@@ -32,13 +34,13 @@ namespace SubmarineMirage.TestProcess {
 			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _hierarchy == null ) {
+				if ( _process._hierarchy == null ) {
 					_text.text = string.Empty;
 					return;
 				}
-				var p = _hierarchy._processes.FirstOrDefault();
+				var p = _process._hierarchy._processes.FirstOrDefault();
 				_text.text =
-					$"{_hierarchy}\n"
+					$"{_process._hierarchy}\n"
 					+ $"{p.GetAboutName()}(\n"
 					+ $"    _isInitialized : {p._isInitialized}\n"
 					+ $"    _isActive : {p._isActive}\n"
@@ -68,12 +70,18 @@ namespace SubmarineMirage.TestProcess {
 					case nameof( TestRunM1 ):						CreateTestRunM1();						break;
 					case nameof( TestRunM2 ):						CreateTestRunM2();						break;
 					case nameof( TestRunM3 ):						CreateTestRunM3();						break;
+
 					case nameof( TestRunBrothers1 ):				CreateTestRunBrothers1();				break;
 					case nameof( TestRunBrothers2 ):				CreateTestRunBrothers2();				break;
 					case nameof( TestRunBrothers3 ):				CreateTestRunBrothers3();				break;
+
 					case nameof( TestRunChildren1 ):				CreateTestRunChildren1();				break;
 					case nameof( TestRunChildren2 ):				CreateTestRunChildren2();				break;
 					case nameof( TestRunChildren3 ):				CreateTestRunChildren3();				break;
+
+					case nameof( TestRunByActiveState1 ):			CreateTestRunByActiveState1();			break;
+					case nameof( TestRunByActiveState2 ):			CreateTestRunByActiveState2();			break;
+					case nameof( TestRunByActiveState3 ):			CreateTestRunByActiveState3();			break;
 				}
 				Log.Debug( $"end Create{_testName}" );
 			} );
