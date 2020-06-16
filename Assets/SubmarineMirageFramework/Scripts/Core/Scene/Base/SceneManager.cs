@@ -76,7 +76,7 @@ namespace SubmarineMirage.Scene {
 			}
 		}
 
-		public List<TProcess> GetProcesses<TProcess, TScene>( Type? bodyType = null )
+		public IEnumerable<TProcess> GetProcesses<TProcess, TScene>( Type? bodyType = null )
 			where TProcess : class, IProcess
 			where TScene : BaseScene
 		{
@@ -84,21 +84,20 @@ namespace SubmarineMirage.Scene {
 				.FirstOrDefault( s => s is TScene )
 				?._hierarchies.GetProcesses<TProcess>( bodyType );
 		}
-		public List<T> GetProcesses<T>( Type? bodyType = null ) where T : IProcess {
+		public IEnumerable<T> GetProcesses<T>( Type? bodyType = null ) where T : IProcess {
 			return _fsm.GetAllScene()
-				.SelectMany( s => s._hierarchies.GetProcesses<T>( bodyType ) )
-				.ToList();
+				.SelectMany( s => s._hierarchies.GetProcesses<T>( bodyType ) );
 		}
-		public List<IProcess> GetProcesses( System.Type type, System.Type sceneType = null, Type? bodyType = null )
-		{
+		public IEnumerable<IProcess> GetProcesses( System.Type type, System.Type sceneType = null,
+													Type? bodyType = null
+		) {
 			if ( sceneType != null ) {
 				return _fsm.GetAllScene()
 					.FirstOrDefault( s => s.GetType() == sceneType )
 					?._hierarchies.GetProcesses( type, bodyType );
 			} else {
 				return _fsm.GetAllScene()
-					.SelectMany( s => s._hierarchies.GetProcesses( type, bodyType ) )
-					.ToList();
+					.SelectMany( s => s._hierarchies.GetProcesses( type, bodyType ) );
 			}
 		}
 	}

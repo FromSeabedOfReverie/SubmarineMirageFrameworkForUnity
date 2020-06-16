@@ -60,10 +60,11 @@ namespace SubmarineMirage.Scene {
 			return result;
 		}
 
-		public List<BaseScene> GetAllScene() {
-			var result = new List<BaseScene> { _foreverScene };
-			result.Add( _states.Values );
-			return result;
+		public IEnumerable<BaseScene> GetAllScene() {
+			yield return _foreverScene;
+			foreach ( var pair in _states ) {
+				yield return pair.Value;
+			}
 		}
 
 
