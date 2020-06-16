@@ -45,6 +45,10 @@ namespace SubmarineMirage.Process.New {
 			);
 			_hierarchy.SetTop();
 
+			if ( _hierarchy._parent?._owner.activeInHierarchy ?? false ) {
+				// TODO : 親の活動状態と、変更してきた子の活動状態が異なる場合、子の活動状態を、親に合わせる
+			}
+
 			await UniTaskUtility.DontWait();
 		}
 	}
