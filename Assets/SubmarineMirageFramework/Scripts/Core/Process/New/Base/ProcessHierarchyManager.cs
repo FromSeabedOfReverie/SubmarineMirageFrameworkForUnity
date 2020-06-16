@@ -263,16 +263,17 @@ namespace SubmarineMirage.Process.New {
 			var currents = _owner._scene.GetRootGameObjects().Select( go => go.transform );
 			while ( !currents.IsEmpty() ) {
 				var children = Enumerable.Empty<Transform>();
-				currents.ForEach( t => {
+				foreach ( var t in currents ) {
 					var ps = t.GetComponents<MonoBehaviourProcess>();
 					if ( !ps.IsEmpty() ) {
 						new ProcessHierarchy( t.gameObject, ps, null );
+						await UniTaskUtility.Yield( _activeAsyncCancel );
 					} else {
 						foreach ( Transform child in t ) {
 							children.Concat( child );
 						}
 					}
-				} );
+				}
 				currents = children;
 				await UniTaskUtility.Yield( _activeAsyncCancel );
 			}

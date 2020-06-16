@@ -42,6 +42,7 @@ namespace SubmarineMirage.Process.New {
 		public ProcessHierarchy _top		{ get; private set; }
 
 		public bool _isTop => _top == this;
+// TODO : ロックは不要なので消す
 		int _isRunningCount;
 
 		readonly CancellationTokenSource _asyncCanceler = new CancellationTokenSource();

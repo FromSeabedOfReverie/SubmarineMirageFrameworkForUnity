@@ -55,18 +55,15 @@ namespace SubmarineMirage.Editor.EditorProcess {
 
 
 		void ShowAllHierarchies() {
-			var scenes = SceneManager.s_instance._fsm._states.Select( pair => pair.Value ).ToList();
-			scenes.InsertFirst( SceneManager.s_instance._fsm._foreverScene );
-
-			scenes.ForEach( scene => {
+			SceneManager.s_instance._fsm.GetAllScene().ForEach( scene => {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
 				EditorGUILayout.LabelField( $"_isLock : {scene._hierarchies._modifyler._isLock.Value}" );
 
-				scene._hierarchies._hierarchies.ForEach( typePair => {
-					ShowHeading2( typePair.Key.ToString() );
-					typePair.Value.ForEach( h => ShowHierarchy( h ) );
+				scene._hierarchies._hierarchies.ForEach( pair => {
+					ShowHeading2( pair.Key.ToString() );
+					scene._hierarchies.Get( pair.Key ).ForEach( h => ShowHierarchy( h ) );
 				} );
 				EditorGUI.indentLevel--;
 			} );
@@ -77,7 +74,7 @@ namespace SubmarineMirage.Editor.EditorProcess {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( hierarchy.ToString() );
-			var p = hierarchy._processes.First();
+			var p = hierarchy._process;
 			var a = p._isActive ? "◯" : "×";
 			var g = hierarchy._owner != null ? $"( {hierarchy._owner.name} )" : "";
 			EditorGUILayout.SelectableLabel(
@@ -85,8 +82,7 @@ namespace SubmarineMirage.Editor.EditorProcess {
 				GUILayout.Height( 16 )
 			);
 
-			hierarchy._children
-				.ForEach( child => ShowHierarchy( child ) );
+			hierarchy.GetChildren().ForEach( child => ShowHierarchy( child ) );
 
 			EditorGUI.indentLevel--;
 		}
