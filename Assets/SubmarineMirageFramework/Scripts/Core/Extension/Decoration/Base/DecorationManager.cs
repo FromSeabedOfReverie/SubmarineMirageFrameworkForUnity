@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
-	using Process.New;
+	using SMTask;
 	using Singleton.New;
 	///====================================================================================================
 	/// <summary>
@@ -19,7 +19,7 @@ namespace SubmarineMirage.Extension {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>処理の型</summary>
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+		public override SMTaskType _type => SMTaskType.DontWork;
 		/// <summary>NGUI装飾</summary>
 		public NGUIDecoration _nGUI { get; private set; }
 		/// <summary>UGUI装飾</summary>

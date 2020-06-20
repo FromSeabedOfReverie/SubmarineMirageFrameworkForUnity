@@ -4,21 +4,19 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene {
-	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
+namespace SubmarineMirage.SMTask.Modifyler {
+	using UniRx.Async;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ForeverScene : BaseScene {
-		public ForeverScene() {
-			_scene = UnitySceneManager.CreateScene( _name );
+	public class RunActiveSMHierarchy : SMHierarchyModifyData {
+		public RunActiveSMHierarchy( SMHierarchy hierarchy ) : base( hierarchy )	{}
 
-			_enterEvent.Remove( registerKey );
-			_enterEvent.AddFirst( registerKey, async cancel => await _hierarchies.Enter() );
-			_exitEvent.Remove( registerKey );
-			_exitEvent.AddFirst( registerKey, async cancel => await _hierarchies.Exit() );
+
+		protected override async UniTask Run() {
+			await _hierarchy.RunActiveEvent();
 		}
 	}
 }

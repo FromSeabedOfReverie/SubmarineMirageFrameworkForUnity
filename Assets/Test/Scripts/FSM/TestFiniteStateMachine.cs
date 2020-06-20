@@ -17,15 +17,13 @@ namespace SubmarineMirage.TestFSM {
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
-	using Process.New;
+	using SMTask;
 	using FSM.New;
 	using Extension;
 	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
-	using RanState = Process.New.ProcessBody.RanState;
-	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 	// TODO : コメント追加、整頓
@@ -113,31 +111,31 @@ disable, null	→	disable	→	state
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
-					_process.RunStateEvent( RanState.Creating ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Creating ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
 					Log.Warning( "key down Loading" );
-					_process.RunStateEvent( RanState.Loading ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Loading ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
 					Log.Warning( "key down Initializing" );
-					_process.RunStateEvent( RanState.Initializing ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Initializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
 					Log.Warning( "key down FixedUpdate" );
-					_process.RunStateEvent( RanState.FixedUpdate ).Forget();
+					_process.RunStateEvent( SMTaskRanState.FixedUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
 					Log.Warning( "key down Update" );
-					_process.RunStateEvent( RanState.Update ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Update ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
 					Log.Warning( "key down LateUpdate" );
-					_process.RunStateEvent( RanState.LateUpdate ).Forget();
+					_process.RunStateEvent( SMTaskRanState.LateUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
 					Log.Warning( "key down Finalizing" );
-					_process.RunStateEvent( RanState.Finalizing ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Finalizing ).Forget();
 				} )
 			);
 			_disposables.AddLast(
@@ -192,8 +190,8 @@ disable, null	→	disable	→	state
 
 
 
-		public class TestOwner : BaseProcess, IFiniteStateMachineOwner<TestFSMManager> {
-			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public class TestOwner : SMBehavior, IFiniteStateMachineOwner<TestFSMManager> {
+			public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 			public TestFSMManager _fsm	{ get; private set; }
 
 			public override void Create() {

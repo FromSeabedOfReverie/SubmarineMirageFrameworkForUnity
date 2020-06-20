@@ -5,9 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
-	using System.Collections.Generic;
 	using UnityEngine;
-	using Process.New;
+	using SMTask;
 	using Extension;
 	using Debug;
 
@@ -16,7 +15,7 @@ namespace SubmarineMirage.Singleton.New {
 
 
 	public class MonoBehaviourSingletonManager : MonoBehaviourSingleton<MonoBehaviourSingletonManager> {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+		public override SMTaskType _type => SMTaskType.DontWork;
 
 
 		new public static void CreateInstance() {
@@ -38,13 +37,13 @@ namespace SubmarineMirage.Singleton.New {
 			go = new GameObject( tag );
 			go.tag = tag;
 			s_instanceObject = go.AddComponent<MonoBehaviourSingletonManager>();
-			new ProcessHierarchy( go, new List<IProcess>() { s_instanceObject }, null );
+			new SMHierarchy( go, new ISMBehavior[] { s_instanceObject }, null );
 
 			Log.Debug( $"作成（GameObject） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
 		}
 
 
-		public T CreateProcess<T>() where T : MonoBehaviourProcess {
+		public T CreateProcess<T>() where T : SMMonoBehaviour {
 			var process = _hierarchy.GetProcess<T>();
 			if ( process != null )	{ return process; }
 

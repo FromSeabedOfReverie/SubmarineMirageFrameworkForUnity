@@ -10,11 +10,10 @@ namespace SubmarineMirage.FSM.New {
 	using UniRx;
 	using UniRx.Async;
 	using MultiEvent;
+	using SMTask;
 	using Extension;
 	using Utility;
 	using RunState = FiniteStateMachineRunState;
-	using RanState = Process.New.ProcessBody.RanState;
-	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 	// TODO : コメント追加、整頓
@@ -28,9 +27,9 @@ namespace SubmarineMirage.FSM.New {
 		public TOwner _owner	{ get; private set; }
 
 		public RunState _runState	{ get; private set; } = RunState.Exited;
-		ActiveState _activeState;
-		ActiveState? _nextActiveState;
-		public bool _isActive => _activeState == ActiveState.Enabled;
+		SMTaskActiveState _activeState;
+		SMTaskActiveState? _nextActiveState;
+		public bool _isActive => _activeState == SMTaskActiveState.Enabled;
 
 		protected readonly MultiAsyncEvent _loadEvent = new MultiAsyncEvent();
 		protected readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
@@ -152,7 +151,7 @@ namespace SubmarineMirage.FSM.New {
 
 
 		public async UniTask ChangeActive( bool isActive ) {
-			_nextActiveState = isActive ? ActiveState.Enabling : ActiveState.Disabling;
+			_nextActiveState = isActive ? SMTaskActiveState.Enabling : SMTaskActiveState.Disabling;
 			await RunActiveEvent();
 		}
 
@@ -161,91 +160,91 @@ namespace SubmarineMirage.FSM.New {
 
 			var cancel = (
 				_fsm._isChangingState						? _fsm._changeStateAsyncCancel :
-				_nextActiveState == ActiveState.Enabling	? _owner._activeAsyncCancel :
-				_nextActiveState == ActiveState.Disabling	? _owner._inActiveAsyncCancel
+				_nextActiveState == SMTaskActiveState.Enabling	? _owner._activeAsyncCancel :
+				_nextActiveState == SMTaskActiveState.Disabling	? _owner._inActiveAsyncCancel
 															: default
 			);
 
 			switch ( _nextActiveState ) {
-				case ActiveState.Enabling:
+				case SMTaskActiveState.Enabling:
 					switch ( _activeState ) {
-						case ActiveState.Enabling:
+						case SMTaskActiveState.Enabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Enabling );
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Enabling );
 							return;
 
-						case ActiveState.Enabled:
+						case SMTaskActiveState.Enabled:
 							_nextActiveState = null;
 							return;
 
-						case ActiveState.Disabling:
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Disabling );
+						case SMTaskActiveState.Disabling:
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Disabling );
 							await RunActiveEvent();
 							return;
 
-						case ActiveState.Disabled:
+						case SMTaskActiveState.Disabled:
 							_nextActiveState = null;
-							_activeState = ActiveState.Enabling;
+							_activeState = SMTaskActiveState.Enabling;
 							try {
 								await _enableEvent.Run( cancel );
 							} catch {
-								_activeState = ActiveState.Disabled;
+								_activeState = SMTaskActiveState.Disabled;
 								throw;
 							}
-							_activeState = ActiveState.Enabled;
+							_activeState = SMTaskActiveState.Enabled;
 							if ( _runState == RunState.Update )	{ _runState = RunState.BeforeUpdate; }
 							return;
 					}
 					return;
 
-				case ActiveState.Disabling:
+				case SMTaskActiveState.Disabling:
 					switch ( _activeState ) {
-						case ActiveState.Disabling:
+						case SMTaskActiveState.Disabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Disabling );
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Disabling );
 							return;
 
-						case ActiveState.Disabled:
+						case SMTaskActiveState.Disabled:
 							_nextActiveState = null;
 							return;
 
-						case ActiveState.Enabling:
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == ActiveState.Enabling );
+						case SMTaskActiveState.Enabling:
+							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Enabling );
 							await RunActiveEvent();
 							return;
 
-						case ActiveState.Enabled:
+						case SMTaskActiveState.Enabled:
 							_nextActiveState = null;
-							_activeState = ActiveState.Disabling;
+							_activeState = SMTaskActiveState.Disabling;
 							try {
 								await _disableEvent.Run( cancel );
 							} catch {
-								_activeState = ActiveState.Enabled;
+								_activeState = SMTaskActiveState.Enabled;
 								throw;
 							}
-							_activeState = ActiveState.Disabled;
+							_activeState = SMTaskActiveState.Disabled;
 							return;
 					}
 					return;
 
-				case ActiveState.Enabled:
-				case ActiveState.Disabled:
+				case SMTaskActiveState.Enabled:
+				case SMTaskActiveState.Disabled:
 					throw new ArgumentOutOfRangeException( $"{_nextActiveState}", $"実行不可能な型を指定" );
 			}
 		}
 
 
-		public async UniTask RunProcessStateEvent( RanState state ) {
+		public async UniTask RunProcessStateEvent( SMTaskRanState state ) {
 			switch ( state ) {
-				case RanState.Loading:
+				case SMTaskRanState.Loading:
 					await _loadEvent.Run( _owner._activeAsyncCancel );
 					return;
 
-				case RanState.Initializing:
+				case SMTaskRanState.Initializing:
 					await _initializeEvent.Run( _owner._activeAsyncCancel );
 					return;
 
-				case RanState.FixedUpdate:
+				case SMTaskRanState.FixedUpdate:
 					if ( !_isActive )	{ return; }
 					switch ( _runState ) {
 						case RunState.BeforeUpdate:
@@ -255,7 +254,7 @@ namespace SubmarineMirage.FSM.New {
 					}
 					return;
 
-				case RanState.Update:
+				case SMTaskRanState.Update:
 					if ( !_isActive )	{ return; }
 					switch ( _runState ) {
 						case RunState.BeforeUpdate:
@@ -266,7 +265,7 @@ namespace SubmarineMirage.FSM.New {
 					}
 					return;
 
-				case RanState.LateUpdate:
+				case SMTaskRanState.LateUpdate:
 					if ( !_isActive )	{ return; }
 					switch ( _runState ) {
 						case RunState.BeforeUpdate:
@@ -276,16 +275,16 @@ namespace SubmarineMirage.FSM.New {
 					}
 					return;
 
-				case RanState.Finalizing:
+				case SMTaskRanState.Finalizing:
 					await _finalizeEvent.Run( _owner._inActiveAsyncCancel );
 					return;
 
-				case RanState.None:
-				case RanState.Creating:
-				case RanState.Created:
-				case RanState.Loaded:
-				case RanState.Initialized:
-				case RanState.Finalized:
+				case SMTaskRanState.None:
+				case SMTaskRanState.Creating:
+				case SMTaskRanState.Created:
+				case SMTaskRanState.Loaded:
+				case SMTaskRanState.Initialized:
+				case SMTaskRanState.Finalized:
 					throw new ArgumentOutOfRangeException( $"{state}", $"実行不可能な型を指定" );
 			}
 		}

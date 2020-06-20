@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask {
 	using System.Threading;
 	using UniRx.Async;
 	using MultiEvent;
@@ -14,14 +14,14 @@ namespace SubmarineMirage.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public interface IProcess : IDisposableExtension {
-		ProcessBody.Type _type			{ get; }
-		ProcessBody.LifeSpan _lifeSpan	{ get; }
+	public interface ISMBehavior : IDisposableExtension {
+		SMTaskType _type			{ get; }
+		SMTaskLifeSpan _lifeSpan	{ get; }
 
-		ProcessHierarchy _hierarchy	{ get; set; }
-		ProcessBody _body			{ get; }
-		IProcess _previous	{ get; set; }
-		IProcess _next		{ get; set; }
+		SMHierarchy _hierarchy	{ get; set; }
+		SMBehaviorBody _body	{ get; }
+		ISMBehavior _previous	{ get; set; }
+		ISMBehavior _next		{ get; set; }
 
 		bool _isInitialized	{ get; }
 		bool _isActive		{ get; }
@@ -41,7 +41,7 @@ namespace SubmarineMirage.Process.New {
 
 		void Create();
 		void StopActiveAsync();
-		UniTask RunStateEvent( ProcessBody.RanState state );
+		UniTask RunStateEvent( SMTaskRanState state );
 		UniTask ChangeActive( bool isActive );
 		UniTask RunActiveEvent();
 		string ToString();

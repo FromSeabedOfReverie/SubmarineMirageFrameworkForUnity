@@ -9,7 +9,7 @@ namespace SubmarineMirage.TestProcess {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
-	using Process.New;
+	using SMTask;
 	using Extension;
 	using Debug;
 	using Test;
@@ -23,7 +23,7 @@ namespace SubmarineMirage.TestProcess {
 
 	public partial class TestProcessHierarchy : Test {
 		Text _text;
-		IProcess _process;
+		ISMBehavior _process;
 
 
 		protected override void Create() {

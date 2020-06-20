@@ -13,12 +13,10 @@ namespace SubmarineMirage.TestProcess {
 	using UniRx.Async;
 	using KoganeUnityLib;
 	using MultiEvent;
-	using Process.New;
+	using SMTask;
 	using Extension;
 	using Utility;
 	using Debug;
-	using RanState = Process.New.ProcessBody.RanState;
-	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 
@@ -27,8 +25,8 @@ namespace SubmarineMirage.TestProcess {
 
 
 	public static class TestProcessUtility {
-		public static IProcess CreateMonoBehaviourProcess( string processData ) {
-			IProcess top = null;
+		public static ISMBehavior CreateMonoBehaviourProcess( string processData ) {
+			ISMBehavior top = null;
 
 			var parents = new Dictionary<int, Transform>();
 			processData
@@ -64,7 +62,7 @@ namespace SubmarineMirage.TestProcess {
 					
 					a.types.ForEach( t => {
 						var c = go.AddComponent( Type.GetType( $"{typeof(BaseM).Namespace}.{t}" ) );
-						if ( top == null )	{ top = (IProcess)c; }
+						if ( top == null )	{ top = (ISMBehavior)c; }
 					} );
 				} );
 
@@ -72,37 +70,37 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static MultiDisposable SetRunKey( ProcessHierarchy hierarchy ) {
+		public static MultiDisposable SetRunKey( SMHierarchy hierarchy ) {
 			var disposables = new MultiDisposable();
 
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
-					hierarchy.RunStateEvent( RanState.Creating ).Forget();
+					hierarchy.RunStateEvent( SMTaskRanState.Creating ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
 					Log.Warning( "key down Loading" );
-					hierarchy.RunStateEvent( RanState.Loading ).Forget();
+					hierarchy.RunStateEvent( SMTaskRanState.Loading ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
 					Log.Warning( "key down Initializing" );
-					hierarchy.RunStateEvent( RanState.Initializing ).Forget();
+					hierarchy.RunStateEvent( SMTaskRanState.Initializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
 					Log.Warning( "key down FixedUpdate" );
-					hierarchy.RunStateEvent( RanState.FixedUpdate ).Forget();
+					hierarchy.RunStateEvent( SMTaskRanState.FixedUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
 					Log.Warning( "key down Update" );
-					hierarchy.RunStateEvent( RanState.Update ).Forget();
+					hierarchy.RunStateEvent( SMTaskRanState.Update ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
 					Log.Warning( "key down LateUpdate" );
-					hierarchy.RunStateEvent( RanState.LateUpdate ).Forget();
+					hierarchy.RunStateEvent( SMTaskRanState.LateUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
 					Log.Warning( "key down Finalizing" );
-					hierarchy.RunStateEvent( RanState.Finalizing ).Forget();
+					hierarchy.RunStateEvent( SMTaskRanState.Finalizing ).Forget();
 				} )
 			);
 			disposables.AddLast(
@@ -139,7 +137,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static MultiDisposable SetChangeActiveKey( ProcessHierarchy hierarchy ) {
+		public static MultiDisposable SetChangeActiveKey( SMHierarchy hierarchy ) {
 			var disposables = new MultiDisposable();
 
 			disposables.AddLast(
@@ -157,7 +155,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static void SetEvent( IProcess process ) {
+		public static void SetEvent( ISMBehavior process ) {
 			var name = process.GetAboutName();
 			var id = (
 				process is BaseM	? ( (BaseM)process )._id :
@@ -202,7 +200,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static void LogHierarchy( string text, ProcessHierarchy hierarchy ) {
+		public static void LogHierarchy( string text, SMHierarchy hierarchy ) {
 			if ( hierarchy == null ) {
 				Log.Debug( $"{text} : null" );
 				return;
@@ -213,7 +211,7 @@ namespace SubmarineMirage.TestProcess {
 			) + $" : {name}" );
 		}
 
-		public static void LogHierarchies( string text, IEnumerable<ProcessHierarchy> hierarchies ) {
+		public static void LogHierarchies( string text, IEnumerable<SMHierarchy> hierarchies ) {
 			Log.Debug( $"{text} :\n" + string.Join( "\n",
 				hierarchies.Select( h => {
 					var name = h._owner != null ? h._owner.name : null;
@@ -225,7 +223,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static void LogProcess( string text, IProcess process ) {
+		public static void LogProcess( string text, ISMBehavior process ) {
 			if ( process == null ) {
 				Log.Debug( $"{text} : null" );
 				return;
@@ -235,7 +233,7 @@ namespace SubmarineMirage.TestProcess {
 			Log.Debug( $"{text} : {process.GetAboutName()}, {name}, processID : {id}" );
 		}
 
-		public static void LogProcesses( string text, IEnumerable<IProcess> processes ) {
+		public static void LogProcesses( string text, IEnumerable<ISMBehavior> processes ) {
 			Log.Debug( $"{text} :\n" + string.Join( "\n",
 				processes.Select( p => {
 					var name = p._hierarchy._owner != null ? p._hierarchy._owner.name : null;
@@ -248,71 +246,71 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-	public abstract class BaseB : BaseProcess {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+	public abstract class BaseB : SMBehavior {
+		public override SMTaskType _type => SMTaskType.DontWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 		static int s_count = 0;
 		public int _id;
 		public BaseB() => _id = s_count++;
 		public override void Create() {}
 	}
 	public class B1 : BaseB {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+		public override SMTaskType _type => SMTaskType.DontWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class B2 : BaseB {
-		public override ProcessBody.Type _type => ProcessBody.Type.Work;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+		public override SMTaskType _type => SMTaskType.Work;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class B3 : BaseB {
-		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class B4 : BaseB {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.DontWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 	public class B5 : BaseB {
-		public override ProcessBody.Type _type => ProcessBody.Type.Work;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.Work;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 	public class B6 : BaseB {
-		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 
 
 
-	public abstract class BaseM : MonoBehaviourProcess {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+	public abstract class BaseM : SMMonoBehaviour {
+		public override SMTaskType _type => SMTaskType.DontWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 		static int s_count = 0;
 		public int _id;
 		public BaseM() => _id = s_count++;
 		public override void Create() {}
 	}
 	public class M1 : BaseM {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+		public override SMTaskType _type => SMTaskType.DontWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class M2 : BaseM {
-		public override ProcessBody.Type _type => ProcessBody.Type.Work;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+		public override SMTaskType _type => SMTaskType.Work;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class M3 : BaseM {
-		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class M4 : BaseM {
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.DontWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 	public class M5 : BaseM {
-		public override ProcessBody.Type _type => ProcessBody.Type.Work;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.Work;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 	public class M6 : BaseM {
-		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 }

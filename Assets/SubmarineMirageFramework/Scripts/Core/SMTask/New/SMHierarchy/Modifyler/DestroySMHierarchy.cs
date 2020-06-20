@@ -4,27 +4,28 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask.Modifyler {
 	using UnityEngine;
 	using UniRx.Async;
-	using RanState = ProcessBody.RanState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class DestroyHierarchyModifyData : HierarchyModifyData {
-		public DestroyHierarchyModifyData( ProcessHierarchy hierarchy ) : base( hierarchy ) {}
+	public class DestroySMHierarchy : SMHierarchyModifyData {
+		public DestroySMHierarchy( SMHierarchy hierarchy ) : base( hierarchy ) {}
 
 
 		protected override async UniTask Run() {
-			if ( _hierarchy._isTop ) {
-				_owner.Get( _hierarchy._type )
-					.Remove( _hierarchy );
+			if ( _hierarchy._hierarchies._hierarchies[_hierarchy._type] == _hierarchy ) {
+				var next = _hierarchy._next;
+				_hierarchy.UnLink();
+				_hierarchy._hierarchies._hierarchies[_hierarchy._type] = next;
+
 			} else {
-				var lastTop = _hierarchy._top;
-				_hierarchy.SetParent( null );
-				lastTop.SetAllData();
+				var top = _hierarchy._top;
+				_hierarchy.UnLink();
+				top.SetAllData();
 			}
 
 			await RunHierarchy();
@@ -33,7 +34,7 @@ namespace SubmarineMirage.Process.New {
 
 		public async UniTask RunHierarchy() {
 			await _hierarchy.ChangeActive( false, true );
-			await _hierarchy.RunStateEvent( RanState.Finalizing );
+			await _hierarchy.RunStateEvent( SMTaskRanState.Finalizing );
 			_hierarchy.Dispose();
 			if ( _hierarchy._owner != null )	{ Object.Destroy( _hierarchy._owner ); }
 		}

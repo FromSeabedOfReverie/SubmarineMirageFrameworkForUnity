@@ -4,26 +4,39 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
-	using UnityEngine;
-	using UniRx.Async;
-	using Utility;
+namespace SubmarineMirage.SMTask {
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class UnregisterHierarchyModifyData : HierarchyModifyData {
-		public UnregisterHierarchyModifyData( ProcessHierarchy hierarchy ) : base( hierarchy ) {}
-
-
-		protected override async UniTask Run() {
-			_owner.Get( _hierarchy._type )
-				.Remove( _hierarchy );
-			_hierarchy.Dispose();
-			if ( _hierarchy._owner != null )	{ Object.Destroy( _hierarchy._owner ); }
-
-			await UniTaskUtility.DontWait();
-		}
+	public enum SMTaskRanState {
+		None,
+		Creating,
+		Created,
+		Loading,
+		Loaded,
+		Initializing,
+		Initialized,
+		FixedUpdate,
+		Update,
+		LateUpdate,
+		Finalizing,
+		Finalized,
+	}
+	public enum SMTaskActiveState {
+		Disabled,
+		Disabling,
+		Enabled,
+		Enabling,
+	}
+	public enum SMTaskType {
+		DontWork,
+		Work,
+		FirstWork,
+	}
+	public enum SMTaskLifeSpan {
+		InScene,
+		Forever,
 	}
 }

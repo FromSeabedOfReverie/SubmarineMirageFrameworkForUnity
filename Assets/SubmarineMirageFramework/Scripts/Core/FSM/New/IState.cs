@@ -7,7 +7,7 @@
 namespace SubmarineMirage.FSM.New {
 	using System.Threading;
 	using UniRx.Async;
-	using Process.New;
+	using SMTask;
 	using Extension;
 
 
@@ -29,6 +29,6 @@ namespace SubmarineMirage.FSM.New {
 		void StopActiveAsync();
 		UniTask RunStateEvent( FiniteStateMachineRunState state );
 		UniTask ChangeActive( bool isActive );
-		UniTask RunProcessStateEvent( ProcessBody.RanState state );
+		UniTask RunProcessStateEvent( SMTaskRanState state );
 	}
 }

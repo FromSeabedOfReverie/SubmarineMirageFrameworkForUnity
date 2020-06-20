@@ -6,20 +6,20 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
 	using UniRx.Async;
-	using Process.New;
+	using SMTask;
 	using Utility;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class MonoBehaviourSingleton<T> : MonoBehaviourProcess, ISingleton
-		where T : MonoBehaviourProcess
+	public abstract class MonoBehaviourSingleton<T> : SMMonoBehaviour, ISingleton
+		where T : SMMonoBehaviour
 	{
 		protected static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
-		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 
 
 		public static T s_instance {

@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask {
 	using System.Threading;
 	using UniRx.Async;
 	using MultiEvent;
@@ -14,14 +14,14 @@ namespace SubmarineMirage.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseProcess : IProcess {
-		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
-		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+	public abstract class SMBehavior : ISMBehavior {
+		public virtual SMTaskType _type => SMTaskType.Work;
+		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
-		public ProcessHierarchy _hierarchy	{ get; set; }
-		public ProcessBody _body			{ get; protected set; }
-		public IProcess _previous	{ get; set; }
-		public IProcess _next		{ get; set; }
+		public SMHierarchy _hierarchy	{ get; set; }
+		public SMBehaviorBody _body		{ get; protected set; }
+		public ISMBehavior _previous	{ get; set; }
+		public ISMBehavior _next		{ get; set; }
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isActive		=> _body._isActive;
@@ -42,12 +42,12 @@ namespace SubmarineMirage.Process.New {
 		public MultiDisposable _disposables	=> _body._disposables;
 
 
-		protected BaseProcess() {
-			_body = new ProcessBody( this, ProcessBody.ActiveState.Enabling );
-			_hierarchy = new ProcessHierarchy( null, new IProcess[] { this }, null );
+		protected SMBehavior() {
+			_body = new SMBehaviorBody( this, SMTaskActiveState.Enabling );
+			_hierarchy = new SMHierarchy( null, new ISMBehavior[] { this }, null );
 		}
 
-		~BaseProcess() => Dispose();
+		~SMBehavior() => Dispose();
 
 		public void Dispose() => _body.Dispose();
 
@@ -61,7 +61,7 @@ namespace SubmarineMirage.Process.New {
 			=> _hierarchy.Destroy();
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state )
+		public async UniTask RunStateEvent( SMTaskRanState state )
 			=> await _body.RunStateEvent( state );
 
 

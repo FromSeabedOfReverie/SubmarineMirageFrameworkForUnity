@@ -17,15 +17,13 @@ namespace SubmarineMirage.TestProcess {
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
-	using Process.New;
+	using SMTask;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
-	using RanState = Process.New.ProcessBody.RanState;
-	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 
@@ -175,7 +173,7 @@ namespace SubmarineMirage.TestProcess {
 		");
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren1() => From( TestRunChildren1Sub() );
 		IEnumerator TestRunChildren1Sub() {
-			_process._hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => TestProcessUtility.SetEvent( p ) );
+			_process._hierarchy.GetProcessesInChildren<ISMBehavior>().ForEach( p => TestProcessUtility.SetEvent( p ) );
 			_disposables.AddLast( TestProcessUtility.SetRunKey( _process._hierarchy ) );
 			yield return RunForever();
 		}
@@ -187,7 +185,7 @@ namespace SubmarineMirage.TestProcess {
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren2() => From( TestRunChildren2Sub() );
 		IEnumerator TestRunChildren2Sub() {
-			_process._hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => TestProcessUtility.SetEvent( p ) );
+			_process._hierarchy.GetProcessesInChildren<ISMBehavior>().ForEach( p => TestProcessUtility.SetEvent( p ) );
 			_disposables.AddLast( TestProcessUtility.SetRunKey( _process._hierarchy ) );
 			yield return RunForever();
 		}
@@ -199,7 +197,7 @@ namespace SubmarineMirage.TestProcess {
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren3() => From( TestRunChildren3Sub() );
 		IEnumerator TestRunChildren3Sub() {
-			_process._hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => TestProcessUtility.SetEvent( p ) );
+			_process._hierarchy.GetProcessesInChildren<ISMBehavior>().ForEach( p => TestProcessUtility.SetEvent( p ) );
 			_disposables.AddLast( TestProcessUtility.SetRunKey( _process._hierarchy ) );
 			yield return RunForever();
 		}
@@ -246,7 +244,7 @@ namespace SubmarineMirage.TestProcess {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRunByActiveState1() => From( TestRunByActiveState1Sub() );
 		IEnumerator TestRunByActiveState1Sub() {
-			_process._hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => TestProcessUtility.SetEvent( p ) );
+			_process._hierarchy.GetProcessesInChildren<ISMBehavior>().ForEach( p => TestProcessUtility.SetEvent( p ) );
 			_disposables.AddLast(
 				TestProcessUtility.SetRunKey( _process._hierarchy ),
 				TestProcessUtility.SetChangeActiveKey( _process._hierarchy._children.First() )
@@ -263,7 +261,7 @@ namespace SubmarineMirage.TestProcess {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRunByActiveState2() => From( TestRunByActiveState2Sub() );
 		IEnumerator TestRunByActiveState2Sub() {
-			_process._hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => TestProcessUtility.SetEvent( p ) );
+			_process._hierarchy.GetProcessesInChildren<ISMBehavior>().ForEach( p => TestProcessUtility.SetEvent( p ) );
 			_disposables.AddLast(
 				TestProcessUtility.SetRunKey( _process._hierarchy ),
 				TestProcessUtility.SetChangeActiveKey( _process._hierarchy._children.First() )
@@ -280,7 +278,7 @@ namespace SubmarineMirage.TestProcess {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRunByActiveState3() => From( TestRunByActiveState3Sub() );
 		IEnumerator TestRunByActiveState3Sub() {
-			_process._hierarchy.GetProcessesInChildren<IProcess>().ForEach( p => TestProcessUtility.SetEvent( p ) );
+			_process._hierarchy.GetProcessesInChildren<ISMBehavior>().ForEach( p => TestProcessUtility.SetEvent( p ) );
 			_disposables.AddLast(
 				TestProcessUtility.SetRunKey( _process._hierarchy ),
 				TestProcessUtility.SetChangeActiveKey( _process._hierarchy._children.First() )

@@ -13,7 +13,7 @@ namespace SubmarineMirage.Main.New {
 	using DG.Tweening;
 	using UniRx;
 	using UniRx.Async;
-	using Process.New;
+	using SMTask;
 	using MultiEvent;
 	using Singleton.New;
 	using FSM.New;

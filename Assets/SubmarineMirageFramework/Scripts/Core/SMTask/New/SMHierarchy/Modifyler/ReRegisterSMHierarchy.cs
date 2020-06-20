@@ -4,23 +4,22 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask.Modifyler {
 	using UniRx.Async;
 	using Scene;
 	using Utility;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
-	using Type = ProcessBody.Type;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ReRegisterHierarchyModifyData : HierarchyModifyData {
-		Type _lastType;
+	public class ReRegisterSMHierarchy : SMHierarchyModifyData {
+		SMTaskType _lastType;
 		BaseScene _lastScene;
 
 
-		public ReRegisterHierarchyModifyData( ProcessHierarchy hierarchy, Type lastType, BaseScene lastScene )
+		public ReRegisterSMHierarchy( SMHierarchy hierarchy, SMTaskType lastType, BaseScene lastScene )
 			: base( hierarchy )
 		{
 			_lastType = lastType;

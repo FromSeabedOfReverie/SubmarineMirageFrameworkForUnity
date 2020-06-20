@@ -15,14 +15,12 @@ namespace SubmarineMirage.TestProcess {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using UniRx.Async;
-	using Process.New;
+	using SMTask;
 	using Extension;
 	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
-	using RanState = Process.New.ProcessBody.RanState;
-	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 
@@ -31,7 +29,7 @@ namespace SubmarineMirage.TestProcess {
 
 
 	public class TestBaseProcess : Test {
-		BaseProcess _process;
+		SMBehavior _process;
 		Text _text;
 
 
@@ -64,8 +62,8 @@ namespace SubmarineMirage.TestProcess {
 
 		[UnityTest]
 		public IEnumerator TestRunErrorState() => From( async () => {
-			var errorRuns = new RanState[] {
-				RanState.None, RanState.Created, RanState.Loaded, RanState.Initialized, RanState.Finalized,
+			var errorRuns = new SMTaskRanState[] {
+				SMTaskRanState.None, SMTaskRanState.Created, SMTaskRanState.Loaded, SMTaskRanState.Initialized, SMTaskRanState.Finalized,
 			};
 			foreach ( var state in errorRuns ) {
 				try						{ await _process.RunStateEvent( state ); }
@@ -76,9 +74,9 @@ namespace SubmarineMirage.TestProcess {
 
 		[UnityTest]
 		public IEnumerator TestRunStateEvent() => From( async () => {
-			var states = new RanState[] {
-				RanState.Creating, RanState.Loading, RanState.Initializing, RanState.FixedUpdate,
-				RanState.Update, RanState.LateUpdate, RanState.Finalizing,
+			var states = new SMTaskRanState[] {
+				SMTaskRanState.Creating, SMTaskRanState.Loading, SMTaskRanState.Initializing, SMTaskRanState.FixedUpdate,
+				SMTaskRanState.Update, SMTaskRanState.LateUpdate, SMTaskRanState.Finalizing,
 			};
 			foreach( var run in states ) {
 				Log.Debug( $"request : {run}" );
@@ -130,31 +128,31 @@ namespace SubmarineMirage.TestProcess {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
-					_process.RunStateEvent( RanState.Creating ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Creating ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
 					Log.Warning( "key down Loading" );
-					_process.RunStateEvent( RanState.Loading ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Loading ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
 					Log.Warning( "key down Initializing" );
-					_process.RunStateEvent( RanState.Initializing ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Initializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
 					Log.Warning( "key down FixedUpdate" );
-					_process.RunStateEvent( RanState.FixedUpdate ).Forget();
+					_process.RunStateEvent( SMTaskRanState.FixedUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
 					Log.Warning( "key down Update" );
-					_process.RunStateEvent( RanState.Update ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Update ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
 					Log.Warning( "key down LateUpdate" );
-					_process.RunStateEvent( RanState.LateUpdate ).Forget();
+					_process.RunStateEvent( SMTaskRanState.LateUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
 					Log.Warning( "key down Finalizing" );
-					_process.RunStateEvent( RanState.Finalizing ).Forget();
+					_process.RunStateEvent( SMTaskRanState.Finalizing ).Forget();
 				} )
 			);
 			_disposables.AddLast(
@@ -184,9 +182,9 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-		public class TestProcess : BaseProcess {
-			public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-			public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public class TestProcess : SMBehavior {
+			public override SMTaskType _type => SMTaskType.FirstWork;
+			public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 
 			public override void Create() {
 				Log.Debug( "Create()" );

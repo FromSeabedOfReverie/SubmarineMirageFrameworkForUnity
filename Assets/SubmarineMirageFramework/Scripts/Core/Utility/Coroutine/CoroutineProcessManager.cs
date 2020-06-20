@@ -8,7 +8,7 @@ namespace SubmarineMirage.Utility {
 	using System.Collections.Generic;
 	using UniRx;
 	using KoganeUnityLib;
-	using Process.New;
+	using SMTask;
 	using Singleton.New;
 	using Debug;
 	using Extension;
@@ -23,7 +23,7 @@ namespace SubmarineMirage.Utility {
 		/// 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>処理の型</summary>
-		public override ProcessBody.Type _type => ProcessBody.Type.DontWork;
+		public override SMTaskType _type => SMTaskType.DontWork;
 		/// <summary>全コルーチン処理一覧</summary>
 		readonly List<CoroutineProcess> _coroutines = new List<CoroutineProcess>();
 		///------------------------------------------------------------------------------------------------

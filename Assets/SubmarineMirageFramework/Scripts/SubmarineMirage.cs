@@ -9,7 +9,7 @@ namespace SubmarineMirage.Main.New {
 	using System.Threading;
 	using System.Threading.Tasks;
 	using UniRx.Async;
-	using Process.New;
+	using SMTask;
 	using Singleton.New;
 	using MultiEvent;
 	using Scene;
@@ -33,7 +33,7 @@ namespace SubmarineMirage.Main.New {
 			} );
 			_disposables.AddLast( _createTestEvent );
 			_disposables.AddLast( () => {
-				ProcessRunner.DisposeInstance();
+				SMTaskRunner.DisposeInstance();
 				SceneManager.DisposeInstance();
 			} );
 		}
@@ -48,12 +48,12 @@ namespace SubmarineMirage.Main.New {
 
 			SceneManager.CreateInstance();
 			MonoBehaviourSingletonManager.CreateInstance();
-			ProcessRunner.CreateInstance();
+			SMTaskRunner.CreateInstance();
 
 			await UniTaskUtility.WaitWhile( _canceler.Token, () => !_isRegisterCreateTestEvent );
 			await _createTestEvent.Run( _canceler.Token );
 
-			await ProcessRunner.s_instance.Create( () => registerProcessesEvent() );
+			await SMTaskRunner.s_instance.Create( () => registerProcessesEvent() );
 
 			_isInitialized = true;
 		}

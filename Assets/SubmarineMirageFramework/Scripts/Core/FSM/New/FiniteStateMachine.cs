@@ -13,10 +13,10 @@ namespace SubmarineMirage.FSM.New {
 	using UniRx.Async;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using SMTask;
 	using Extension;
 	using Utility;
 	using RunState = FiniteStateMachineRunState;
-	using RanState = Process.New.ProcessBody.RanState;
 
 
 	// TODO : コメント追加、整頓
@@ -67,13 +67,13 @@ namespace SubmarineMirage.FSM.New {
 						.Select( pair => pair.Value )
 						.Select( state => {
 							state.Set( _owner );
-							return state.RunProcessStateEvent( RanState.Loading );
+							return state.RunProcessStateEvent( SMTaskRanState.Loading );
 						} )
 				);
 			} );
 			_initializeEvent.AddLast( _registerEventName, async cancel => {
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Initializing ) )
+					_states.Select( pair => pair.Value.RunProcessStateEvent( SMTaskRanState.Initializing ) )
 				);
 				_isInitialized = true;
 				var state = _startState ?? _states.First().Value.GetType();
@@ -82,18 +82,18 @@ namespace SubmarineMirage.FSM.New {
 			_finalizeEvent.AddFirst( _registerEventName, async cancel => {
 				await ChangeState( null );
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( RanState.Finalizing ) )
+					_states.Select( pair => pair.Value.RunProcessStateEvent( SMTaskRanState.Finalizing ) )
 				);
 			} );
 
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( RanState.FixedUpdate ).Forget()
+				_state?.RunProcessStateEvent( SMTaskRanState.FixedUpdate ).Forget()
 			);
 			_updateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( RanState.Update ).Forget()
+				_state?.RunProcessStateEvent( SMTaskRanState.Update ).Forget()
 			);
 			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( RanState.LateUpdate ).Forget()
+				_state?.RunProcessStateEvent( SMTaskRanState.LateUpdate ).Forget()
 			);
 
 			_enableEvent.AddLast( _registerEventName, async cancel => {
@@ -104,7 +104,7 @@ namespace SubmarineMirage.FSM.New {
 			} );
 			_disableEvent.AddFirst( _registerEventName, async cancel => {
 				await UniTaskUtility.WaitWhile(
-					cancel, () => _isChangingState && _owner._body._ranState != RanState.Finalizing );
+					cancel, () => _isChangingState && _owner._body._ranState != SMTaskRanState.Finalizing );
 				if ( _state != null ) {
 					await _state.ChangeActive( false );
 				}
@@ -132,19 +132,19 @@ namespace SubmarineMirage.FSM.New {
 
 		public async UniTask ChangeState( Type state ) {
 			switch ( _owner._body._ranState ) {
-				case RanState.None:
-				case RanState.Creating:
-				case RanState.Created:
-				case RanState.Loading:
-				case RanState.Loaded:
+				case SMTaskRanState.None:
+				case SMTaskRanState.Creating:
+				case SMTaskRanState.Created:
+				case SMTaskRanState.Loading:
+				case SMTaskRanState.Loaded:
 					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
-				case RanState.Initializing:
+				case SMTaskRanState.Initializing:
 					if ( _isInitialized )	{ break; }
 					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
-				case RanState.Finalizing:
+				case SMTaskRanState.Finalizing:
 					if ( state == null )	{ break; }
 					throw new InvalidOperationException( $"終了後の呼び出し : {_owner._body._ranState}" );
-				case RanState.Finalized:
+				case SMTaskRanState.Finalized:
 					throw new InvalidOperationException( $"終了後の呼び出し : {_owner._body._ranState}" );
 			}
 			if ( state != null && !_states.ContainsKey( state ) ) {
@@ -174,7 +174,7 @@ namespace SubmarineMirage.FSM.New {
 				await _state.RunStateEvent( RunState.Exiting );
 			}
 
-			if ( _owner._body._ranState == RanState.Finalizing ) {
+			if ( _owner._body._ranState == SMTaskRanState.Finalizing ) {
 				_nextState = null;
 			}
 			_state = _nextState;
@@ -186,7 +186,7 @@ namespace SubmarineMirage.FSM.New {
 			}
 
 			await _state.RunStateEvent( RunState.Entering );
-			if ( _owner._body._ranState == RanState.Finalizing ) {
+			if ( _owner._body._ranState == SMTaskRanState.Finalizing ) {
 				_nextState = null;
 				_isRequestNextState = true;
 			}
@@ -194,7 +194,7 @@ namespace SubmarineMirage.FSM.New {
 			if ( _owner._isActive && !_isRequestNextState )	{
 				await _state.ChangeActive( true );
 			}
-			if ( _owner._body._ranState == RanState.Finalizing ) {
+			if ( _owner._body._ranState == SMTaskRanState.Finalizing ) {
 				_nextState = null;
 				_isRequestNextState = true;
 			}

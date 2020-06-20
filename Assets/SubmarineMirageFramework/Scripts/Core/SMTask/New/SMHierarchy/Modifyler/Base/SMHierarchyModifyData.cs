@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
-	using System.Linq;
+namespace SubmarineMirage.SMTask.Modifyler {
 	using UniRx.Async;
 	using Extension;
 
@@ -13,14 +12,13 @@ namespace SubmarineMirage.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class HierarchyModifyData {
-		public ProcessHierarchyManager _owner;
-		public HierarchyModifyler _modifyler;
-		public ProcessHierarchy _hierarchy;
-		public bool _isRunning	{ get; private set; }
+	public abstract class SMHierarchyModifyData {
+		public SMHierarchyModifyler _owner;
+		public SMHierarchy _hierarchy;
+		bool _isRunning;
 
 
-		public HierarchyModifyData( ProcessHierarchy hierarchy ) {
+		public SMHierarchyModifyData( SMHierarchy hierarchy ) {
 			_hierarchy = hierarchy;
 //			Debug.Log.Debug( $"{this.GetAboutName()}( {_hierarchy} )" );
 		}
@@ -29,7 +27,6 @@ namespace SubmarineMirage.Process.New {
 		public async UniTask RunTop() {
 			_isRunning = true;
 			await Run();
-			_modifyler._runningData.Remove( this );
 			_isRunning = false;
 		}
 
@@ -37,6 +34,6 @@ namespace SubmarineMirage.Process.New {
 
 
 		public override string ToString()
-			=> $"{this.GetAboutName()}( {_owner._owner.GetAboutName()}, {_hierarchy._processes.First().GetAboutName()} )";
+			=> $"{this.GetAboutName()}( {_hierarchy._process.GetAboutName()} )";
 	}
 }

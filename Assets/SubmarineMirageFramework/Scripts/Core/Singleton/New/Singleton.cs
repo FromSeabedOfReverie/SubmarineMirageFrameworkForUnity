@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
 	using UniRx.Async;
-	using Process.New;
+	using SMTask;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -15,13 +15,13 @@ namespace SubmarineMirage.Singleton.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class Singleton<T> : BaseProcess, ISingleton
-		where T : BaseProcess, new()
+	public abstract class Singleton<T> : SMBehavior, ISingleton
+		where T : SMBehavior, new()
 	{
 		static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
-		public override ProcessBody.Type _type => ProcessBody.Type.FirstWork;
-		public override ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.Forever;
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 
 
 		public static T s_instance {

@@ -12,12 +12,10 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 	using UniRx.Async;
 	using KoganeUnityLib;
-	using Process.New;
 	using FSM.New;
 	using Utility;
 	using Debug;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
-	using LifeSpan = Process.New.ProcessBody.LifeSpan;
 
 
 	// TODO : コメント追加、整頓

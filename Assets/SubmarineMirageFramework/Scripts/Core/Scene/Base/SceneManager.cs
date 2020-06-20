@@ -10,10 +10,9 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
-	using Process.New;
+	using SMTask;
 	using FSM.New;
 	using Singleton.New;
-	using Type = Process.New.ProcessBody.Type;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 	using Debug;
 
@@ -51,20 +50,20 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public TProcess GetProcess<TProcess, TScene>( Type? bodyType = null )
-			where TProcess : class, IProcess
+		public TProcess GetProcess<TProcess, TScene>( SMTaskType? bodyType = null )
+			where TProcess : class, ISMBehavior
 			where TScene : BaseScene
 		{
 			return _fsm.GetAllScene()
 				.FirstOrDefault( s => s is TScene )
 				?._hierarchies.GetProcess<TProcess>( bodyType );
 		}
-		public T GetProcess<T>( Type? bodyType = null ) where T : IProcess {
+		public T GetProcess<T>( SMTaskType? bodyType = null ) where T : ISMBehavior {
 			return _fsm.GetAllScene()
 				.Select( s => s._hierarchies.GetProcess<T>( bodyType ) )
 				.FirstOrDefault( p => p != null );
 		}
-		public IProcess GetProcess( System.Type type, System.Type sceneType = null, Type? bodyType = null ) {
+		public ISMBehavior GetProcess( System.Type type, System.Type sceneType = null, SMTaskType? bodyType = null ) {
 			if ( sceneType != null ) {
 				return _fsm.GetAllScene()
 					.FirstOrDefault( s => s.GetType() == sceneType )
@@ -76,20 +75,20 @@ namespace SubmarineMirage.Scene {
 			}
 		}
 
-		public IEnumerable<TProcess> GetProcesses<TProcess, TScene>( Type? bodyType = null )
-			where TProcess : class, IProcess
+		public IEnumerable<TProcess> GetProcesses<TProcess, TScene>( SMTaskType? bodyType = null )
+			where TProcess : class, ISMBehavior
 			where TScene : BaseScene
 		{
 			return _fsm.GetAllScene()
 				.FirstOrDefault( s => s is TScene )
 				?._hierarchies.GetProcesses<TProcess>( bodyType );
 		}
-		public IEnumerable<T> GetProcesses<T>( Type? bodyType = null ) where T : IProcess {
+		public IEnumerable<T> GetProcesses<T>( SMTaskType? bodyType = null ) where T : ISMBehavior {
 			return _fsm.GetAllScene()
 				.SelectMany( s => s._hierarchies.GetProcesses<T>( bodyType ) );
 		}
-		public IEnumerable<IProcess> GetProcesses( System.Type type, System.Type sceneType = null,
-													Type? bodyType = null
+		public IEnumerable<ISMBehavior> GetProcesses( System.Type type, System.Type sceneType = null,
+													SMTaskType? bodyType = null
 		) {
 			if ( sceneType != null ) {
 				return _fsm.GetAllScene()

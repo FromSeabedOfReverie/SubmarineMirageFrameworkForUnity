@@ -4,7 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask {
+	using System;
 	using System.Linq;
 	using System.Threading;
 	using System.Collections.Generic;
@@ -17,14 +18,14 @@ namespace SubmarineMirage.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class MonoBehaviourProcess : MonoBehaviourExtension, IProcess {
-		public virtual ProcessBody.Type _type => ProcessBody.Type.Work;
-		public virtual ProcessBody.LifeSpan _lifeSpan => ProcessBody.LifeSpan.InScene;
+	public abstract class SMMonoBehaviour : MonoBehaviourExtension, ISMBehavior {
+		public virtual SMTaskType _type => SMTaskType.Work;
+		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
-		public ProcessHierarchy _hierarchy	{ get; set; }
-		public ProcessBody _body			{ get; private set; }
-		public IProcess _previous	{ get; set; }
-		public IProcess _next		{ get; set; }
+		public SMHierarchy _hierarchy	{ get; set; }
+		public SMBehaviorBody _body		{ get; private set; }
+		public ISMBehavior _previous	{ get; set; }
+		public ISMBehavior _next		{ get; set; }
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isActive		=> _body._isActive;
@@ -46,9 +47,9 @@ namespace SubmarineMirage.Process.New {
 
 
 		public void Constructor() {
-			_body = new ProcessBody(
+			_body = new SMBehaviorBody(
 				this,
-				isActiveAndEnabled ? ProcessBody.ActiveState.Enabling : ProcessBody.ActiveState.Disabling
+				isActiveAndEnabled ? SMTaskActiveState.Enabling : SMTaskActiveState.Disabling
 			);
 		}
 
@@ -67,58 +68,58 @@ namespace SubmarineMirage.Process.New {
 
 
 
-		public T GetProcess<T>() where T : MonoBehaviourProcess
+		public T GetProcess<T>() where T : SMMonoBehaviour
 			=> _hierarchy.GetProcess<T>();
 
-		public MonoBehaviourProcess GetProcess( System.Type type )
-			=> (MonoBehaviourProcess)_hierarchy.GetProcess( type );
+		public SMMonoBehaviour GetProcess( Type type )
+			=> (SMMonoBehaviour)_hierarchy.GetProcess( type );
 
 
-		public IEnumerable<T> GetProcesses<T>() where T : MonoBehaviourProcess
+		public IEnumerable<T> GetProcesses<T>() where T : SMMonoBehaviour
 			=> _hierarchy.GetProcesses<T>();
 
-		public IEnumerable<MonoBehaviourProcess> GetProcesses( System.Type type ) {
+		public IEnumerable<SMMonoBehaviour> GetProcesses( Type type ) {
 			return _hierarchy.GetProcesses( type )
-				.Select( p => (MonoBehaviourProcess)p );
+				.Select( p => (SMMonoBehaviour)p );
 		}
 
 
-		public T GetProcessInParent<T>() where T : MonoBehaviourProcess
+		public T GetProcessInParent<T>() where T : SMMonoBehaviour
 			=> _hierarchy.GetProcessInParent<T>();
 
-		public MonoBehaviourProcess GetProcessInParent( System.Type type )
-			=> (MonoBehaviourProcess)_hierarchy.GetProcessInParent( type );
+		public SMMonoBehaviour GetProcessInParent( Type type )
+			=> (SMMonoBehaviour)_hierarchy.GetProcessInParent( type );
 
 
-		public IEnumerable<T> GetProcessesInParent<T>() where T : MonoBehaviourProcess
+		public IEnumerable<T> GetProcessesInParent<T>() where T : SMMonoBehaviour
 			=> _hierarchy.GetProcessesInParent<T>();
 
-		public IEnumerable<MonoBehaviourProcess> GetProcessesInParent( System.Type type ) {
+		public IEnumerable<SMMonoBehaviour> GetProcessesInParent( Type type ) {
 			return _hierarchy.GetProcessesInParent( type )
-				.Select( p => (MonoBehaviourProcess)p );
+				.Select( p => (SMMonoBehaviour)p );
 		}
 
 
-		public T GetProcessInChildren<T>() where T : MonoBehaviourProcess
+		public T GetProcessInChildren<T>() where T : SMMonoBehaviour
 			=> _hierarchy.GetProcessInChildren<T>();
 
-		public MonoBehaviourProcess GetProcessInChildren( System.Type type )
-			=> (MonoBehaviourProcess)_hierarchy.GetProcessInChildren( type );
+		public SMMonoBehaviour GetProcessInChildren( Type type )
+			=> (SMMonoBehaviour)_hierarchy.GetProcessInChildren( type );
 
 
-		public IEnumerable<T> GetProcessesInChildren<T>() where T : MonoBehaviourProcess
+		public IEnumerable<T> GetProcessesInChildren<T>() where T : SMMonoBehaviour
 			=> _hierarchy.GetProcessesInChildren<T>();
 
-		public IEnumerable<MonoBehaviourProcess> GetProcessesInChildren( System.Type type ) {
+		public IEnumerable<SMMonoBehaviour> GetProcessesInChildren( Type type ) {
 			return _hierarchy.GetProcessesInChildren( type )
-				.Select( p => (MonoBehaviourProcess)p );
+				.Select( p => (SMMonoBehaviour)p );
 		}
 
 
-		public T AddProcess<T>() where T : MonoBehaviourProcess
+		public T AddProcess<T>() where T : SMMonoBehaviour
 			=> _hierarchy.AddProcess<T>();
 
-		public MonoBehaviourProcess AddProcess( System.Type type )
+		public SMMonoBehaviour AddProcess( Type type )
 			=> _hierarchy.AddProcess( type );
 
 
@@ -131,7 +132,7 @@ namespace SubmarineMirage.Process.New {
 
 
 
-		public async UniTask RunStateEvent( ProcessBody.RanState state )
+		public async UniTask RunStateEvent( SMTaskRanState state )
 			=> await _body.RunStateEvent( state );
 
 

@@ -4,49 +4,45 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask.Modifyler {
 	using UniRx.Async;
 	using Utility;
-	using Type = ProcessBody.Type;
-	using LifeSpan = ProcessBody.LifeSpan;
-	using RanState = ProcessBody.RanState;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class RegisterHierarchyModifyData : HierarchyModifyData {
-		public RegisterHierarchyModifyData( ProcessHierarchy hierarchy ) : base( hierarchy ) {}
+	public class RegisterSMHierarchy : SMHierarchyModifyData {
+		public RegisterSMHierarchy( SMHierarchy hierarchy ) : base( hierarchy ) {}
 
 
 		protected override async UniTask Run() {
-			if ( _hierarchy._lifeSpan == LifeSpan.Forever && _hierarchy._owner != null ) {
+			if ( _hierarchy._lifeSpan == SMTaskLifeSpan.Forever && _hierarchy._owner != null ) {
 				UnitySceneManager.MoveGameObjectToScene( _hierarchy._owner, _hierarchy._scene._scene );
 //				Debug.Log.Debug( $"MoveGameObjectToScene : {_hierarchy._owner} {_hierarchy._scene._scene}" );
 			} else {
 //				Debug.Log.Debug( "Dont MoveGameObjectToScene" );
 			}
-			_owner.Get( _hierarchy._type )
-				.Add( _hierarchy );
 
+			_hierarchy._hierarchies.Add( _hierarchy );
 			await RunHierarchy();
 		}
 
 
 		public async UniTask RunHierarchy() {
 			switch ( _hierarchy._type ) {
-				case Type.DontWork:
-					await UniTaskUtility.Yield( _owner._activeAsyncCancel );
-					await _hierarchy.RunStateEvent( RanState.Creating );
+				case SMTaskType.DontWork:
+					await UniTaskUtility.Yield( _hierarchy._asyncCancel );
+					await _hierarchy.RunStateEvent( SMTaskRanState.Creating );
 					return;
-				case Type.Work:
-				case Type.FirstWork:
-					if ( _owner._isEnter ) {
-						await UniTaskUtility.Yield( _owner._activeAsyncCancel );
-						await _hierarchy.RunStateEvent( RanState.Creating );
-						await _hierarchy.RunStateEvent( RanState.Loading );
-						await _hierarchy.RunStateEvent( RanState.Initializing );
+				case SMTaskType.Work:
+				case SMTaskType.FirstWork:
+					if ( _hierarchy._hierarchies._isEnter ) {
+						await UniTaskUtility.Yield( _hierarchy._asyncCancel );
+						await _hierarchy.RunStateEvent( SMTaskRanState.Creating );
+						await _hierarchy.RunStateEvent( SMTaskRanState.Loading );
+						await _hierarchy.RunStateEvent( SMTaskRanState.Initializing );
 						await _hierarchy.RunActiveEvent();
 					}
 					return;

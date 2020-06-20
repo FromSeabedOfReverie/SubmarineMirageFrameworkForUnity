@@ -12,7 +12,7 @@ namespace SubmarineMirage.Scene {
 	using UniRx.Async;
 	using DG.Tweening;
 	using KoganeUnityLib;
-	using Process.New;
+	using SMTask;
 	using FSM.New;
 	using Audio;
 	using Extension;
@@ -29,14 +29,14 @@ namespace SubmarineMirage.Scene {
 		protected string registerKey	{ get; private set; }
 
 		public Scene _scene	{ get; protected set; }
-		public ProcessHierarchyManager _hierarchies	{ get; private set; }
+		public SMHierarchyManager _hierarchies	{ get; private set; }
 
 
 		public BaseScene() {
 			_name = this.GetAboutName().RemoveAtLast( "Scene" );
 			registerKey = nameof( BaseScene );
 			ResetScene();
-			_hierarchies = new ProcessHierarchyManager( this );
+			_hierarchies = new SMHierarchyManager( this );
 			_disposables.AddLast( _hierarchies );
 
 			_enterEvent.AddFirst( registerKey, async cancel => {

@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using UnityEngine;
 	using UniRx.Async;
@@ -15,19 +15,19 @@ namespace SubmarineMirage.Process.New {
 	// TODO : コメント追加、整頓
 
 
-	public class ChangeParentHierarchyModifyData : HierarchyModifyData {
+	public class ChangeParentSMHierarchy : SMHierarchyModifyData {
 		Transform _parent;
 		bool _isWorldPositionStays;
 
 
-		public ChangeParentHierarchyModifyData( ProcessHierarchy hierarchy, Transform parent,
+		public ChangeParentSMHierarchy( SMHierarchy hierarchy, Transform parent,
 												bool isWorldPositionStays
 		) : base( hierarchy )
 		{
 			_parent = parent;
 			_isWorldPositionStays = isWorldPositionStays;
 			if ( hierarchy._owner == null ) {
-				throw new NotSupportedException( $"{nameof(BaseProcess)}._hierarchyの、親変更不可 :\n{hierarchy}" );
+				throw new NotSupportedException( $"{nameof(SMBehavior)}._hierarchyの、親変更不可 :\n{hierarchy}" );
 			}
 		}
 
@@ -40,7 +40,7 @@ namespace SubmarineMirage.Process.New {
 					.Remove( _hierarchy );
 			}
 			_hierarchy.SetParent(
-				_hierarchy._owner.GetComponentInParentUntilOneHierarchy<MonoBehaviourProcess>( true )
+				_hierarchy._owner.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
 					?._hierarchy
 			);
 			_hierarchy.SetTop();

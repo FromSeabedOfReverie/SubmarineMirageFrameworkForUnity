@@ -16,15 +16,13 @@ namespace SubmarineMirage.TestProcess {
 	using UniRx;
 	using UniRx.Async;
 	using KoganeUnityLib;
-	using Process.New;
+	using SMTask;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
-	using RanState = Process.New.ProcessBody.RanState;
-	using ActiveState = Process.New.ProcessBody.ActiveState;
 
 
 
@@ -33,13 +31,13 @@ namespace SubmarineMirage.TestProcess {
 
 
 	public class TestProcessRunner : Test {
-		ProcessRunner _process;
+		SMTaskRunner _process;
 		Text _text;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_process = ProcessRunner.s_instance;
+			_process = SMTaskRunner.s_instance;
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );

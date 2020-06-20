@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -20,14 +20,12 @@ namespace SubmarineMirage.Process.New {
 	using Extension;
 	using Utility;
 	using Debug;
-	using Type = ProcessBody.Type;
-	using RanState = ProcessBody.RanState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ProcessRunner : MonoBehaviourSingleton<ProcessRunner> {
+	public class SMTaskRunner : MonoBehaviourSingleton<SMTaskRunner> {
 		public ForeverScene _foreverScene => SceneManager.s_instance._fsm._foreverScene;
 		public BaseScene _currentScene => SceneManager.s_instance._fsm._scene;
 		public bool _isEnterInForever	=> _foreverScene._hierarchies._isEnter;
@@ -40,10 +38,10 @@ namespace SubmarineMirage.Process.New {
 		new public static void CreateInstance() {
 			if ( s_isCreated )	{ return; }
 
-			s_instanceObject = FindObjectOfType<ProcessRunner>();
+			s_instanceObject = FindObjectOfType<SMTaskRunner>();
 			if ( s_isCreated )	{ return; }
 
-			s_instanceObject = MonoBehaviourSingletonManager.s_instance.AddComponent<ProcessRunner>();
+			s_instanceObject = MonoBehaviourSingletonManager.s_instance.AddComponent<SMTaskRunner>();
 // TODO : 多分使わないので、未設定でもエラーにならない
 //			s_instanceObject._hierarchy = MonoBehaviourSingletonManager.s_instance._hierarchy;
 			s_instanceObject.Constructor();
@@ -61,34 +59,34 @@ namespace SubmarineMirage.Process.New {
 // TODO : シーン読込後に、テストオブジェクトを作成してしまう
 				await _foreverScene.RunStateEvent( FiniteStateMachineRunState.Entering );
 // TODO : デバッグ用、暫定
-				await SceneManager.s_instance.RunStateEvent( RanState.Creating );
-				await SceneManager.s_instance.RunStateEvent( RanState.Loading );
-				await SceneManager.s_instance.RunStateEvent( RanState.Initializing );
+				await SceneManager.s_instance.RunStateEvent(SMTaskRanState.Creating );
+				await SceneManager.s_instance.RunStateEvent(SMTaskRanState.Loading );
+				await SceneManager.s_instance.RunStateEvent(SMTaskRanState.Initializing );
 				await SceneManager.s_instance.RunActiveEvent();
 			} );
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				_foreverScene._hierarchies.RunAllStateEvents( Type.FirstWork, RanState.FixedUpdate ).Forget();
-				_foreverScene._hierarchies.RunAllStateEvents( Type.Work, RanState.FixedUpdate ).Forget();
+				_foreverScene._hierarchies.RunAllStateEvents(SMTaskType.FirstWork, SMTaskRanState.FixedUpdate ).Forget();
+				_foreverScene._hierarchies.RunAllStateEvents(SMTaskType.Work, SMTaskRanState.FixedUpdate ).Forget();
 
-				_currentScene._hierarchies.RunAllStateEvents( Type.FirstWork, RanState.FixedUpdate ).Forget();
-				_currentScene._hierarchies.RunAllStateEvents( Type.Work, RanState.FixedUpdate ).Forget();
+				_currentScene._hierarchies.RunAllStateEvents(SMTaskType.FirstWork, SMTaskRanState.FixedUpdate ).Forget();
+				_currentScene._hierarchies.RunAllStateEvents(SMTaskType.Work, SMTaskRanState.FixedUpdate ).Forget();
 			} );
 
 			_updateEvent.AddLast().Subscribe( _ => {
-				_foreverScene._hierarchies.RunAllStateEvents( Type.FirstWork, RanState.Update ).Forget();
-				_foreverScene._hierarchies.RunAllStateEvents( Type.Work, RanState.Update ).Forget();
+				_foreverScene._hierarchies.RunAllStateEvents(SMTaskType.FirstWork, SMTaskRanState.Update ).Forget();
+				_foreverScene._hierarchies.RunAllStateEvents(SMTaskType.Work, SMTaskRanState.Update ).Forget();
 
-				_currentScene._hierarchies.RunAllStateEvents( Type.FirstWork, RanState.Update ).Forget();
-				_currentScene._hierarchies.RunAllStateEvents( Type.Work, RanState.Update ).Forget();
+				_currentScene._hierarchies.RunAllStateEvents(SMTaskType.FirstWork, SMTaskRanState.Update ).Forget();
+				_currentScene._hierarchies.RunAllStateEvents(SMTaskType.Work, SMTaskRanState.Update ).Forget();
 			} );
 
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				_foreverScene._hierarchies.RunAllStateEvents( Type.FirstWork, RanState.LateUpdate ).Forget();
-				_foreverScene._hierarchies.RunAllStateEvents( Type.Work, RanState.LateUpdate ).Forget();
+				_foreverScene._hierarchies.RunAllStateEvents(SMTaskType.FirstWork, SMTaskRanState.LateUpdate ).Forget();
+				_foreverScene._hierarchies.RunAllStateEvents(SMTaskType.Work, SMTaskRanState.LateUpdate ).Forget();
 
-				_currentScene._hierarchies.RunAllStateEvents( Type.FirstWork, RanState.LateUpdate ).Forget();
-				_currentScene._hierarchies.RunAllStateEvents( Type.Work, RanState.LateUpdate ).Forget();
+				_currentScene._hierarchies.RunAllStateEvents(SMTaskType.FirstWork, SMTaskRanState.LateUpdate ).Forget();
+				_currentScene._hierarchies.RunAllStateEvents(SMTaskType.Work, SMTaskRanState.LateUpdate ).Forget();
 			} );
 
 			_finalizeEvent.AddLast( async cancel => {
@@ -98,9 +96,9 @@ namespace SubmarineMirage.Process.New {
 
 /*
 			_disposables.AddFirst(
-				Observable.EveryFixedUpdate().Subscribe(	_ => RunStateEvent( RanState.FixedUpdate ).Forget() ),
-				Observable.EveryUpdate().Subscribe(			_ => RunStateEvent( RanState.Update ).Forget() ),
-				Observable.EveryLateUpdate().Subscribe(		_ => RunStateEvent( RanState.LateUpdate ).Forget() )
+				Observable.EveryFixedUpdate().Subscribe(	_ => RunStateEvent( SMTaskRanState.FixedUpdate ).Forget() ),
+				Observable.EveryUpdate().Subscribe(			_ => RunStateEvent( SMTaskRanState.Update ).Forget() ),
+				Observable.EveryLateUpdate().Subscribe(		_ => RunStateEvent( SMTaskRanState.LateUpdate ).Forget() )
 			);
 */
 
@@ -126,10 +124,10 @@ namespace SubmarineMirage.Process.New {
 
 
 		async UniTask RunForeverHierarchies() {
-			await RunStateEvent( RanState.Creating );
-			await RunStateEvent( RanState.Loading );
+			await RunStateEvent(SMTaskRanState.Creating );
+			await RunStateEvent(SMTaskRanState.Loading );
 //			return;
-			await RunStateEvent( RanState.Initializing );
+			await RunStateEvent(SMTaskRanState.Initializing );
 			await RunActiveEvent();
 			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );
 		}
@@ -137,7 +135,7 @@ namespace SubmarineMirage.Process.New {
 		async UniTask EndForeverHierarchies() {
 			await _currentScene._fsm.ChangeScene( null );
 			await ChangeActive( false );
-			await RunStateEvent( RanState.Finalizing );
+			await RunStateEvent(SMTaskRanState.Finalizing );
 			Log.Debug( $"{this.GetAboutName()} : 破棄完了", Log.Tag.Process );
 		}
 	}

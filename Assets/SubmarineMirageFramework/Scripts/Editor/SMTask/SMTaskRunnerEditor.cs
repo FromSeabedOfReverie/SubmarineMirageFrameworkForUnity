@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Editor.EditorProcess {
+namespace SubmarineMirage.Editor.EditorSMTask {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -15,21 +15,19 @@ namespace SubmarineMirage.Editor.EditorProcess {
 	using KoganeUnityLib;
 	using Singleton.New;
 	using MultiEvent;
-	using Process.New;
+	using SMTask;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
-	using Type = Process.New.ProcessBody.Type;
-	using RanState = Process.New.ProcessBody.RanState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	[CustomEditor( typeof( ProcessRunner ) )]
-	public class ProcessRunnerEditor : Editor {
-		ProcessRunner _instance;
+	[CustomEditor( typeof( SMTaskRunner ) )]
+	public class SMTaskRunnerEditor : Editor {
+		SMTaskRunner _instance;
 		Vector2 _scrollPosition;
 		string _focusedText = string.Empty;
 
@@ -40,7 +38,7 @@ namespace SubmarineMirage.Editor.EditorProcess {
 			if ( target == null )				{ return; }
 			if ( !SceneManager.s_isCreated )	{ return; }
 
-			_instance = (ProcessRunner)target;
+			_instance = (SMTaskRunner)target;
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
 			ShowAllHierarchies();
@@ -70,7 +68,7 @@ namespace SubmarineMirage.Editor.EditorProcess {
 			EditorGUILayout.Space();
 		}
 
-		void ShowHierarchy( ProcessHierarchy hierarchy ) {
+		void ShowHierarchy( SMHierarchy hierarchy ) {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( hierarchy.ToString() );

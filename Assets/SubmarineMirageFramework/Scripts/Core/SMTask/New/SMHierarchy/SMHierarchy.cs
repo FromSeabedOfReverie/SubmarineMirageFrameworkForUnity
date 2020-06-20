@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestProcess
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
 	using System.Threading;
@@ -14,48 +14,50 @@ namespace SubmarineMirage.Process.New {
 	using UniRx.Async;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using Modifyler;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
-	using Type = ProcessBody.Type;
-	using LifeSpan = ProcessBody.LifeSpan;
-	using RanState = ProcessBody.RanState;
-	using ActiveState = ProcessBody.ActiveState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ProcessHierarchy : IDisposableExtension {
-		public Type _type			{ get; private set; }
-		public LifeSpan _lifeSpan	{ get; private set; }
+	public class SMHierarchy : IDisposableExtension {
+		public SMTaskType _type			{ get; private set; }
+		public SMTaskLifeSpan _lifeSpan	{ get; private set; }
 		public BaseScene _scene		{ get; private set; }
-		public ProcessHierarchyManager _hierarchies => _scene?._hierarchies;
+		public SMHierarchyManager _hierarchies => _scene?._hierarchies;
 
 		public GameObject _owner	{ get; private set; }
-		public IProcess _process	{ get; private set; }
-		public ProcessHierarchy _previous	{ get; private set; }
-		public ProcessHierarchy _next		{ get; private set; }
-		public ProcessHierarchy _parent		{ get; private set; }
-		public ProcessHierarchy _child		{ get; private set; }
-		public ProcessHierarchy _top		{ get; private set; }
+		public SMHierarchyModifyler _modifyler	{ get; private set; }
+
+		public ISMBehavior _process		{ get; private set; }
+		public SMHierarchy _previous	{ get; private set; }
+		public SMHierarchy _next		{ get; private set; }
+		public SMHierarchy _parent		{ get; private set; }
+		public SMHierarchy _child		{ get; private set; }
+		public SMHierarchy _top		{ get; private set; }
 
 		public bool _isTop => _top == this;
 // TODO : ロックは不要なので消す
 		int _isRunningCount;
 
 		readonly CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
-		CancellationToken _asyncCancel => _asyncCanceler.Token;
+		public CancellationToken _asyncCancel => _asyncCanceler.Token;
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public ProcessHierarchy( GameObject owner, IEnumerable<IProcess> processes, ProcessHierarchy parent ) {
+		public SMHierarchy( GameObject owner, IEnumerable<ISMBehavior> processes, SMHierarchy parent ) {
 #if TestProcess
 			Log.Debug( $"start : {processes.FirstOrDefault().GetAboutName()}.{this}" );
 #endif
 			_owner = owner;
+
+			_modifyler = new SMHierarchyModifyler( this );
+			_disposables.AddLast( _modifyler );
 
 			SetProcesses( processes );
 			SetParent( parent );
@@ -75,11 +77,11 @@ namespace SubmarineMirage.Process.New {
 #endif
 		}
 
-		~ProcessHierarchy() => Dispose();
+		~SMHierarchy() => Dispose();
 
 		public void Dispose() => _disposables.Dispose();
 
-		void UnLink() {
+		public void UnLink() {
 			if ( _parent?._child == this )	{ _parent._child = _next; }
 			_parent = null;
 
@@ -91,12 +93,12 @@ namespace SubmarineMirage.Process.New {
 
 
 
-		void SetProcesses( IEnumerable<IProcess> processes ) {
+		void SetProcesses( IEnumerable<ISMBehavior> processes ) {
 #if TestProcess
 			Log.Debug( $"start {nameof( SetProcesses )} : {this}" );
 #endif
 			_process = processes.First();
-			IProcess last = null;
+			ISMBehavior last = null;
 			processes.ForEach( p => {
 				if ( last != null ) {
 					last._next = p;
@@ -105,14 +107,14 @@ namespace SubmarineMirage.Process.New {
 				last = p;
 
 				p._hierarchy = this;
-				if ( _owner != null )	{ ( (MonoBehaviourProcess)p ).Constructor(); }
+				if ( _owner != null )	{ ( (SMMonoBehaviour)p ).Constructor(); }
 			} );
 #if TestProcess
 			Log.Debug( $"end {nameof( SetProcesses )} : {this}" );
 #endif
 		}
 
-		public void SetParent( ProcessHierarchy parent ) {
+		public void SetParent( SMHierarchy parent ) {
 			if ( _owner == null )	{ return; }
 #if TestProcess
 			Log.Debug( $"start {nameof( SetParent )} : {this}" );
@@ -137,9 +139,9 @@ namespace SubmarineMirage.Process.New {
 				var children = Enumerable.Empty<Transform>();
 				currents.ForEach( t => {
 					foreach ( Transform child in t ) {
-						var ps = child.GetComponents<MonoBehaviourProcess>();
+						var ps = child.GetComponents<SMMonoBehaviour>();
 						if ( !ps.IsEmpty() ) {
-							new ProcessHierarchy( child.gameObject, ps, this );
+							new SMHierarchy( child.gameObject, ps, this );
 						} else {
 							children.Concat( child );
 						}
@@ -178,16 +180,16 @@ namespace SubmarineMirage.Process.New {
 			);
 #endif
 			_top._type = (
-				allProcesses.Any( p => p._type == Type.FirstWork )	? Type.FirstWork :
-				allProcesses.Any( p => p._type == Type.Work )		? Type.Work
-																	: Type.DontWork
+				allProcesses.Any( p => p._type == SMTaskType.FirstWork )	? SMTaskType.FirstWork :
+				allProcesses.Any( p => p._type == SMTaskType.Work )		? SMTaskType.Work
+																	: SMTaskType.DontWork
 			);
-			_top._lifeSpan = allProcesses.Any( p => p._lifeSpan == LifeSpan.Forever ) ?
-				LifeSpan.Forever : LifeSpan.InScene;
+			_top._lifeSpan = allProcesses.Any( p => p._lifeSpan == SMTaskLifeSpan.Forever ) ?
+				SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
 			_top._scene = (
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				!SceneManager.s_isCreated			? null :
-				_top._lifeSpan == LifeSpan.Forever	? SceneManager.s_instance._fsm._foreverScene :
+				_top._lifeSpan == SMTaskLifeSpan.Forever	? SceneManager.s_instance._fsm._foreverScene :
 				_top._owner != null					? SceneManager.s_instance._fsm.Get( _top._owner.scene ) :
 				SceneManager.s_instance._fsm._scene != null
 													? SceneManager.s_instance._fsm._scene
@@ -223,44 +225,44 @@ namespace SubmarineMirage.Process.New {
 		}
 
 
-		public ProcessHierarchy GetFirst() {
+		public SMHierarchy GetFirst() {
 			var first = _parent?._child;
 			if ( first != null )	{ return first; }
 
-			ProcessHierarchy current = null;
+			SMHierarchy current = null;
 			for ( current = this; current._previous != null; current = current._previous )	{}
 			return current;
 		}
-		public ProcessHierarchy GetLast() {
-			ProcessHierarchy current = null;
+		public SMHierarchy GetLast() {
+			SMHierarchy current = null;
 			for ( current = this; current._next != null; current = current._next )	{}
 			return current;
 		}
-		public ProcessHierarchy GetLastChild() {
-			ProcessHierarchy current = null;
+		public SMHierarchy GetLastChild() {
+			SMHierarchy current = null;
 			for ( current = _child; current?._next != null; current = current._next )	{}
 			return current;
 		}
-		public IEnumerable<ProcessHierarchy> GetBrothers() {
+		public IEnumerable<SMHierarchy> GetBrothers() {
 			for ( var current = GetFirst(); current != null; current = current._next )	{
 				yield return current;
 			}
 		}
-		public IEnumerable<ProcessHierarchy> GetAllParents() {
+		public IEnumerable<SMHierarchy> GetAllParents() {
 			for ( var current = this; current != null; current = current._parent ) {
 				yield return current;
 			}
 		}
-		public IEnumerable<ProcessHierarchy> GetChildren() {
+		public IEnumerable<SMHierarchy> GetChildren() {
 			for ( var current = _child; current != null; current = current._next ) {
 				yield return current;
 			}
 		}
-		public IEnumerable<ProcessHierarchy> GetAllChildren() {
-			var currents = Enumerable.Empty<ProcessHierarchy>()
+		public IEnumerable<SMHierarchy> GetAllChildren() {
+			var currents = Enumerable.Empty<SMHierarchy>()
 				.Concat( this );
 			while ( !currents.IsEmpty() ) {
-				var children = Enumerable.Empty<ProcessHierarchy>();
+				var children = Enumerable.Empty<SMHierarchy>();
 				foreach ( var h in currents ) {
 					yield return  h;
 					children.Concat( h.GetChildren() );
@@ -270,75 +272,75 @@ namespace SubmarineMirage.Process.New {
 		}
 
 
-		public T GetProcess<T>() where T : IProcess
+		public T GetProcess<T>() where T : ISMBehavior
 			=> (T)GetProcesses().FirstOrDefault( p => p is T );
 
-		public IProcess GetProcess( System.Type type )
+		public ISMBehavior GetProcess( Type type )
 			=> GetProcesses().FirstOrDefault( p => p.GetType() == type );
 
-		public IProcess GetProcessAtLast() {
-			IProcess current = null;
+		public ISMBehavior GetProcessAtLast() {
+			ISMBehavior current = null;
 			for ( current = _process; current._next != null; current = current._next )	{}
 			return current;
 		}
-		public IEnumerable<IProcess> GetProcesses() {
+		public IEnumerable<ISMBehavior> GetProcesses() {
 			for ( var current = _process; current != null; current = current._next ) {
 				yield return current;
 			}
 		}
-		public IEnumerable<T> GetProcesses<T>() where T : IProcess {
+		public IEnumerable<T> GetProcesses<T>() where T : ISMBehavior {
 			return GetProcesses()
 				.Where( p => p is T )
 				.Select( p => (T)p );
 		}
-		public IEnumerable<IProcess> GetProcesses( System.Type type ) {
+		public IEnumerable<ISMBehavior> GetProcesses( Type type ) {
 			return GetProcesses()
 				.Where( p => p.GetType() == type );
 		}
 
-		public T GetProcessInParent<T>() where T : IProcess {
+		public T GetProcessInParent<T>() where T : ISMBehavior {
 			return GetAllParents()
 				.Select( h => h.GetProcess<T>() )
 				.FirstOrDefault( p => p != null );
 		}
-		public IProcess GetProcessInParent( System.Type type ) {
+		public ISMBehavior GetProcessInParent( Type type ) {
 			return GetAllParents()
 				.Select( h => h.GetProcess( type ) )
 				.FirstOrDefault( p => p != null );
 		}
 
-		public IEnumerable<T> GetProcessesInParent<T>() where T : IProcess {
+		public IEnumerable<T> GetProcessesInParent<T>() where T : ISMBehavior {
 			return GetAllParents()
 				.SelectMany( h => h.GetProcesses<T>() );
 		}
-		public IEnumerable<IProcess> GetProcessesInParent( System.Type type ) {
+		public IEnumerable<ISMBehavior> GetProcessesInParent( Type type ) {
 			return GetAllParents()
 				.SelectMany( h => h.GetProcesses( type ) );
 		}
 
-		public T GetProcessInChildren<T>() where T : IProcess {
+		public T GetProcessInChildren<T>() where T : ISMBehavior {
 			return GetAllChildren()
 				.Select( h => h.GetProcess<T>() )
 				.FirstOrDefault( p => p != null );
 		}
-		public IProcess GetProcessInChildren( System.Type type ) {
+		public ISMBehavior GetProcessInChildren( Type type ) {
 			return GetAllChildren()
 				.Select( h => h.GetProcess( type ) )
 				.FirstOrDefault( p => p != null );
 		}
 
-		public IEnumerable<T> GetProcessesInChildren<T>() where T : IProcess {
+		public IEnumerable<T> GetProcessesInChildren<T>() where T : ISMBehavior {
 			return GetAllChildren()
 				.SelectMany( h => h.GetProcesses<T>() );
 		}
-		public IEnumerable<IProcess> GetProcessesInChildren( System.Type type ) {
+		public IEnumerable<ISMBehavior> GetProcessesInChildren( Type type ) {
 			return GetAllChildren()
 				.SelectMany( h => h.GetProcesses( type ) );
 		}
 
 
 
-		void Add( ProcessHierarchy hierarchy ) {
+		public void Add( SMHierarchy hierarchy ) {
 			hierarchy.UnLink();
 
 			var last = GetLast();
@@ -346,7 +348,7 @@ namespace SubmarineMirage.Process.New {
 			hierarchy._previous = last;
 			last._next = hierarchy;
 		}
-		void AddChild( ProcessHierarchy hierarchy ) {
+		void AddChild( SMHierarchy hierarchy ) {
 			hierarchy.UnLink();
 
 			hierarchy._parent = this;
@@ -359,10 +361,10 @@ namespace SubmarineMirage.Process.New {
 			}
 		}
 
-		public T AddProcess<T>() where T : MonoBehaviourProcess
+		public T AddProcess<T>() where T : SMMonoBehaviour
 			=> _hierarchies.AddProcess<T>( this );
 
-		public MonoBehaviourProcess AddProcess( System.Type type )
+		public SMMonoBehaviour AddProcess( Type type )
 			=> _hierarchies.AddProcess( this, type );
 
 
@@ -374,27 +376,27 @@ namespace SubmarineMirage.Process.New {
 
 
 
-		public async UniTask RunStateEvent( RanState state ) {
+		public async UniTask RunStateEvent( SMTaskRanState state ) {
 			if ( _isRunningCount > 0 ) {
 				switch ( state ) {
-					case RanState.Creating:
+					case SMTaskRanState.Creating:
 						break;
-					case RanState.Loading:
-					case RanState.Initializing:
+					case SMTaskRanState.Loading:
+					case SMTaskRanState.Initializing:
 						await UniTaskUtility.WaitWhile( _asyncCancel, () => _isRunningCount > 0 );
 						break;
-					case RanState.FixedUpdate:
-					case RanState.Update:
-					case RanState.LateUpdate:
+					case SMTaskRanState.FixedUpdate:
+					case SMTaskRanState.Update:
+					case SMTaskRanState.LateUpdate:
 						return;
-					case RanState.Finalizing:
+					case SMTaskRanState.Finalizing:
 						break;
 				}
 			}
 
 			using ( var events = new MultiAsyncEvent() ) {
 				switch ( _type ) {
-					case Type.FirstWork:
+					case SMTaskType.FirstWork:
 						foreach ( var p in GetProcesses() ) {
 							events.AddLast( async _ => {
 								try										{ await p.RunStateEvent( state ); }
@@ -408,7 +410,7 @@ namespace SubmarineMirage.Process.New {
 						} );
 						break;
 
-					case Type.Work:
+					case SMTaskType.Work:
 						events.AddLast( async _ => await UniTask.WhenAll(
 							GetProcesses().Select( async p => {
 								try										{ await p.RunStateEvent( state ); }
@@ -420,8 +422,8 @@ namespace SubmarineMirage.Process.New {
 						) );
 						break;
 
-					case Type.DontWork:
-						if ( state != RanState.Creating )	{ break; }
+					case SMTaskType.DontWork:
+						if ( state != SMTaskRanState.Creating )	{ break; }
 						events.AddLast( async _ => await UniTask.WhenAll(
 							GetProcesses().Select( async p => {
 								try										{ await p.RunStateEvent( state ); }
@@ -433,7 +435,7 @@ namespace SubmarineMirage.Process.New {
 						) );
 						break;
 				}
-				if ( state == RanState.Finalizing )	{ events.Reverse(); }
+				if ( state == SMTaskRanState.Finalizing )	{ events.Reverse(); }
 				try {
 					_isRunningCount++;
 					await events.Run( _asyncCancel );
@@ -458,7 +460,7 @@ namespace SubmarineMirage.Process.New {
 
 			using ( var events = new MultiAsyncEvent() ) {
 				var isCanChangeActive = false;
-				if ( isChangeOwner && _owner != null && _type != Type.DontWork ) {
+				if ( isChangeOwner && _owner != null && _type != SMTaskType.DontWork ) {
 					events.AddLast( async _ => {
 // TODO : Disable時でも、Activeにしてしまうが、Managerの方で呼ばないはず、確認する
 						_owner.SetActive( isActive );
@@ -474,7 +476,7 @@ namespace SubmarineMirage.Process.New {
 				}
 
 				switch ( _type ) {
-					case Type.FirstWork:
+					case SMTaskType.FirstWork:
 						foreach ( var p in GetProcesses() ) {
 							events.AddLast( async _ => {
 								if ( !isCanChangeActive )	{ return; }
@@ -490,7 +492,7 @@ namespace SubmarineMirage.Process.New {
 						} );
 						break;
 
-					case Type.Work:
+					case SMTaskType.Work:
 						events.AddLast( async _ => {
 							if ( !isCanChangeActive )	{ return; }
 							await UniTask.WhenAll(
@@ -530,7 +532,7 @@ namespace SubmarineMirage.Process.New {
 
 			using ( var events = new MultiAsyncEvent() ) {
 				switch ( _type ) {
-					case Type.FirstWork:
+					case SMTaskType.FirstWork:
 						foreach ( var p in GetProcesses() ) {
 							events.AddLast( async _ => {
 								try										{ await p.RunActiveEvent(); }
@@ -544,7 +546,7 @@ namespace SubmarineMirage.Process.New {
 						} );
 						break;
 
-					case Type.Work:
+					case SMTaskType.Work:
 						events.AddLast( async _ => await UniTask.WhenAll(
 							GetProcesses().Select( async p => {
 								try										{ await p.RunActiveEvent(); }
@@ -580,9 +582,9 @@ namespace SubmarineMirage.Process.New {
 					+ $"{p._body._ranState}, {p._body._activeState}, {p._body._nextActiveState} )\n"
 			);
 
-			new KeyValuePair<string, ProcessHierarchy>[] {
-				new KeyValuePair<string, ProcessHierarchy>( $"{nameof( _top )}", _top ),
-				new KeyValuePair<string, ProcessHierarchy>( $"{nameof( _parent )}", _parent ),
+			new KeyValuePair<string, SMHierarchy>[] {
+				new KeyValuePair<string, SMHierarchy>( $"{nameof( _top )}", _top ),
+				new KeyValuePair<string, SMHierarchy>( $"{nameof( _parent )}", _parent ),
 			}
 			.ForEach( pair => {
 				var s = (

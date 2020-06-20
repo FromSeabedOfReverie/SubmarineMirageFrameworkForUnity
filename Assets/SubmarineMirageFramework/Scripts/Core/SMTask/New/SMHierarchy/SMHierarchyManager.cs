@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
 	using System.Threading;
@@ -18,18 +18,15 @@ namespace SubmarineMirage.Process.New {
 	using Extension;
 	using Utility;
 	using Debug;
-	using Type = ProcessBody.Type;
-	using RanState = ProcessBody.RanState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ProcessHierarchyManager : IDisposableExtension {
+	public class SMHierarchyManager : IDisposableExtension {
 		public BaseScene _owner	{ get; private set; }
-		public readonly Dictionary<Type, ProcessHierarchy> _hierarchies
-			= new Dictionary<Type, ProcessHierarchy>();
-		public HierarchyModifyler _modifyler	{ get; private set; }
+		public readonly Dictionary<SMTaskType, SMHierarchy> _hierarchies
+			= new Dictionary<SMTaskType, SMHierarchy>();
 		public bool _isEnter	{ get; private set; }
 
 		public CancellationToken _activeAsyncCancel => _owner._activeAsyncCancel;
@@ -37,32 +34,37 @@ namespace SubmarineMirage.Process.New {
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public ProcessHierarchyManager( BaseScene owner ) {
+		public SMHierarchyManager( BaseScene owner ) {
 			_owner = owner;
 
-			EnumUtils.GetValues<Type>().ForEach( t => _hierarchies[t] = null );
+			EnumUtils.GetValues<SMTaskType>().ForEach( t => _hierarchies[t] = null );
 			_disposables.AddLast( () => {
 				_hierarchies
 					.SelectMany( pair => pair.Value?.GetBrothers() )
 					.ForEach( h => h?.Dispose() );
 				_hierarchies.Clear();
 			} );
-
-			_modifyler = new HierarchyModifyler( this );
-			_disposables.AddLast( _modifyler );
 		}
 
 		public void Dispose() => _disposables.Dispose();
 
-		~ProcessHierarchyManager() => Dispose();
+		~SMHierarchyManager() => Dispose();
 
 
 
+		public void Add( SMHierarchy hierarchy ) {
+			var last = GetLast( hierarchy._type );
+			if ( last != null )	{ last.Add( hierarchy ); }
+			else				{ _hierarchies[hierarchy._type] = hierarchy; }
+		}
 
+		public SMHierarchy GetLast( SMTaskType type ) {
+			return _hierarchies.GetOrDefault( type )?.GetLast() ?? null;
+		}
 
-		public IEnumerable<ProcessHierarchy> Get( Type? type = null, bool isReverse = false ) {
+		public IEnumerable<SMHierarchy> Get( SMTaskType? type = null, bool isReverse = false ) {
 			var result = (
-				type.HasValue	? _hierarchies[type.Value]?.GetBrothers() ?? Enumerable.Empty<ProcessHierarchy>()
+				type.HasValue	? _hierarchies[type.Value]?.GetBrothers() ?? Enumerable.Empty<SMHierarchy>()
 								: _hierarchies
 									.Where( pair => pair.Value != null )
 									.SelectMany( pair => pair.Value.GetBrothers() )
@@ -98,157 +100,150 @@ namespace SubmarineMirage.Process.New {
 		}
 
 
-		public T GetProcess<T>( Type? type = null ) where T : IProcess {
+		public T GetProcess<T>( SMTaskType? type = null ) where T : ISMBehavior {
 			return Get( type )
 				.Select( h => h.GetProcessInChildren<T>() )
 				.FirstOrDefault( p => p != null );
 		}
-		public IProcess GetProcess( System.Type systemType, Type? type = null ) {
+		public ISMBehavior GetProcess( Type systemType, SMTaskType? type = null ) {
 			return Get( type )
 				.Select( h => h.GetProcessInChildren( systemType ) )
 				.FirstOrDefault( p => p != null );
 		}
 
-		public IEnumerable<T> GetProcesses<T>( Type? type = null ) where T : IProcess {
+		public IEnumerable<T> GetProcesses<T>( SMTaskType? type = null ) where T : ISMBehavior {
 			return Get( type )
 				.SelectMany( h => h.GetProcessesInChildren<T>() );
 		}
-		public IEnumerable<IProcess> GetProcesses( System.Type systemType, Type? type = null ) {
+		public IEnumerable<ISMBehavior> GetProcesses( Type systemType, SMTaskType? type = null ) {
 			return Get( type )
 				.SelectMany( h => h.GetProcessesInChildren( systemType ) );
 		}
 
 
-		public void Register( ProcessHierarchy top )
-			=> _modifyler.Register( new RegisterHierarchyModifyData( top ) );
+		public void Register( SMHierarchy top )
+			=> _modifyler.Register( new RegisterSMHierarchy( top ) );
 
-		public void ReRegister( ProcessHierarchy top, Type lastType, BaseScene lastScene )
-			=> _modifyler.Register( new ReRegisterHierarchyModifyData( top, lastType, lastScene ) );
+		public void ReRegister( SMHierarchy top, SMTaskType lastType, BaseScene lastScene )
+			=> _modifyler.Register( new ReRegisterSMHierarchy( top, lastType, lastScene ) );
 
-		public void Unregister( ProcessHierarchy top )
-			=> _modifyler.Register( new UnregisterHierarchyModifyData( top ) );
+		public void Unregister( SMHierarchy top )
+			=> _modifyler.Register( new UnregisterSMHierarchy( top ) );
 
 
-		public T AddProcess<T>( ProcessHierarchy hierarchy ) where T : MonoBehaviourProcess {
+		public T AddProcess<T>( SMHierarchy hierarchy ) where T : SMMonoBehaviour {
 			if ( hierarchy._owner == null ) {
 				throw new NotSupportedException(
-					$"{nameof(BaseProcess)}._hierarchyに、追加不可 :\n{hierarchy}" );
+					$"{nameof(SMBehavior)}._hierarchyに、追加不可 :\n{hierarchy}" );
 			}
 			var p = hierarchy._owner.AddComponent<T>();
-			_modifyler.Register( new AddHierarchyModifyData( hierarchy, p ) );
+			_modifyler.Register( new AddSMHierarchy( hierarchy, p ) );
 			return p;
 		}
-		public MonoBehaviourProcess AddProcess( ProcessHierarchy hierarchy, System.Type type ) {
+		public SMMonoBehaviour AddProcess( SMHierarchy hierarchy, Type type ) {
 			if ( hierarchy._owner == null ) {
 				throw new NotSupportedException(
-					$"{nameof(BaseProcess)}._hierarchyに、追加不可 :\n{hierarchy}" );
+					$"{nameof(SMBehavior)}._hierarchyに、追加不可 :\n{hierarchy}" );
 			}
-			var p = (MonoBehaviourProcess)hierarchy._owner.AddComponent( type );
-			_modifyler.Register( new AddHierarchyModifyData( hierarchy, p ) );
+			var p = (SMMonoBehaviour)hierarchy._owner.AddComponent( type );
+			_modifyler.Register( new AddSMHierarchy( hierarchy, p ) );
 			return p;
 		}
 
 
-		public void Destroy( ProcessHierarchy top )
-			=> _modifyler.Register( new DestroyHierarchyModifyData( top ) );
+		public void Destroy( SMHierarchy top )
+			=> _modifyler.Register( new DestroySMHierarchy( top ) );
 
-		public void ChangeParent( ProcessHierarchy hierarchy, Transform parent, bool isWorldPositionStays )
+		public void ChangeParent( SMHierarchy hierarchy, Transform parent, bool isWorldPositionStays )
 			=> _modifyler.Register(
-				new ChangeParentHierarchyModifyData( hierarchy, parent, isWorldPositionStays )
+				new ChangeParentSMHierarchy( hierarchy, parent, isWorldPositionStays )
 			);
 
 
 
 
 
-		public async UniTask RunAllStateEvents( Type type, RanState state ) {
-			_modifyler._isLock.Value = true;
-			var hs = Get( type, type == Type.FirstWork && state == RanState.Finalizing );
+		public async UniTask RunAllStateEvents( SMTaskType type, SMTaskRanState state ) {
+			var hs = Get( type, type == SMTaskType.FirstWork && state == SMTaskRanState.Finalizing );
 			switch ( type ) {
-				case Type.FirstWork:
+				case SMTaskType.FirstWork:
 					foreach ( var h in hs ) {
 						await h.RunStateEvent( state );
 					}
 					break;
 
-				case Type.Work:
+				case SMTaskType.Work:
 					await UniTask.WhenAll(
 						hs.Select( h => h.RunStateEvent( state ) )
 					);
 					break;
 			}
-			_modifyler._isLock.Value = false;
 		}
 
-		public async UniTask ChangeAllActives( Type type, bool isActive ) {
-			_modifyler._isLock.Value = true;
-			var hs = Get( type, type == Type.FirstWork && !isActive );
+		public async UniTask ChangeAllActives( SMTaskType type, bool isActive ) {
+			var hs = Get( type, type == SMTaskType.FirstWork && !isActive );
 			switch ( type ) {
-				case Type.FirstWork:
+				case SMTaskType.FirstWork:
 					foreach ( var h in hs ) {
 						await h.ChangeActive( isActive, true );
 					}
 					break;
 
-				case Type.Work:
+				case SMTaskType.Work:
 					await UniTask.WhenAll(
 						hs.Select( h => h.ChangeActive( isActive, true ) )
 					);
 					break;
 			}
-			_modifyler._isLock.Value = false;
 		}
 
-		public async UniTask RunAllActiveEvents( Type type ) {
-			_modifyler._isLock.Value = true;
+		public async UniTask RunAllActiveEvents( SMTaskType type ) {
 			var hs = Get( type );
 			switch ( type ) {
-				case Type.FirstWork:
+				case SMTaskType.FirstWork:
 					foreach ( var h in hs ) {
 						await h.RunActiveEvent();
 					}
 					break;
 
-				case Type.Work:
+				case SMTaskType.Work:
 					await UniTask.WhenAll(
 						hs.Select( h => h.RunActiveEvent() )
 					);
 					break;
 			}
-			_modifyler._isLock.Value = false;
 		}
 
 
 		public async UniTask Enter() {
 			await Load();
-//			Log.Debug( $"end Load : {_owner.GetAboutName()} {_modifyler._isLock.Value}" );
 //			Log.Debug( _modifyler );
 //			await UniTaskUtility.Yield( _activeAsyncCancel );
 //			await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => !Input.GetKeyDown( KeyCode.Return ) );
 			_isEnter = true;
 			return;
-			await RunAllStateEvents( Type.FirstWork, RanState.Creating );
-			await RunAllStateEvents( Type.FirstWork, RanState.Loading );
-			await RunAllStateEvents( Type.FirstWork, RanState.Initializing );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Creating );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Loading );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Initializing );
 
-			await RunAllStateEvents( Type.Work, RanState.Creating );
-			await RunAllStateEvents( Type.Work, RanState.Loading );
-			await RunAllStateEvents( Type.Work, RanState.Initializing );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Creating );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Loading );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Initializing );
 
-			await RunAllActiveEvents( Type.FirstWork );
-			await RunAllActiveEvents( Type.Work );
+			await RunAllActiveEvents( SMTaskType.FirstWork );
+			await RunAllActiveEvents( SMTaskType.Work );
 		}
 
 		public async UniTask Exit() {
-			await ChangeAllActives( Type.Work, false );
-			await ChangeAllActives( Type.FirstWork, false );
+			await ChangeAllActives( SMTaskType.Work, false );
+			await ChangeAllActives( SMTaskType.FirstWork, false );
 
-			await RunAllStateEvents( Type.Work, RanState.Finalizing );
-			await RunAllStateEvents( Type.FirstWork, RanState.Finalizing );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Finalizing );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Finalizing );
 
-			Get( Type.Work ).ForEach( h => h.Dispose() );
-			Get( Type.FirstWork ).ForEach( h => h.Dispose() );
-			Get( Type.DontWork ).ForEach( h => h.Dispose() );
+			Get( SMTaskType.Work ).ForEach( h => h.Dispose() );
+			Get( SMTaskType.FirstWork ).ForEach( h => h.Dispose() );
+			Get( SMTaskType.DontWork ).ForEach( h => h.Dispose() );
 
 			_hierarchies.ForEach( pair => _hierarchies[pair.Key] = null );
 
@@ -264,9 +259,9 @@ namespace SubmarineMirage.Process.New {
 			while ( !currents.IsEmpty() ) {
 				var children = Enumerable.Empty<Transform>();
 				foreach ( var t in currents ) {
-					var ps = t.GetComponents<MonoBehaviourProcess>();
+					var ps = t.GetComponents<SMMonoBehaviour>();
 					if ( !ps.IsEmpty() ) {
-						new ProcessHierarchy( t.gameObject, ps, null );
+						new SMHierarchy( t.gameObject, ps, null );
 						await UniTaskUtility.Yield( _activeAsyncCancel );
 					} else {
 						foreach ( Transform child in t ) {

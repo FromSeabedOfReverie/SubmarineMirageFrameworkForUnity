@@ -4,27 +4,25 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Process.New {
+namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using UniRx.Async;
 	using Utility;
-	using Type = ProcessBody.Type;
-	using RanState = ProcessBody.RanState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class AddHierarchyModifyData : HierarchyModifyData {
-		MonoBehaviourProcess _process;
+	public class AddSMHierarchy : SMHierarchyModifyData {
+		SMMonoBehaviour _process;
 
 
-		public AddHierarchyModifyData( ProcessHierarchy hierarchy, MonoBehaviourProcess process )
+		public AddSMHierarchy( SMHierarchy hierarchy, SMMonoBehaviour process )
 			: base( hierarchy )
 		{
 			_process = process;
 			if ( hierarchy._owner == null ) {
-				throw new NotSupportedException( $"{nameof(BaseProcess)}._hierarchyに、追加不可 :\n{hierarchy}" );
+				throw new NotSupportedException( $"{nameof(SMBehavior)}._hierarchyに、追加不可 :\n{hierarchy}" );
 			}
 		}
 
@@ -42,17 +40,17 @@ namespace SubmarineMirage.Process.New {
 			_process.Constructor();
 
 			switch ( _hierarchy._type ) {
-				case Type.DontWork:
+				case SMTaskType.DontWork:
 					await UniTaskUtility.Yield( _process._activeAsyncCancel );
-					await _process.RunStateEvent( RanState.Creating );
+					await _process.RunStateEvent( SMTaskRanState.Creating );
 					return;
-				case Type.Work:
-				case Type.FirstWork:
+				case SMTaskType.Work:
+				case SMTaskType.FirstWork:
 					if ( _owner._isEnter ) {
 						await UniTaskUtility.Yield( _process._activeAsyncCancel );
-						await _process.RunStateEvent( RanState.Creating );
-						await _process.RunStateEvent( RanState.Loading );
-						await _process.RunStateEvent( RanState.Initializing );
+						await _process.RunStateEvent( SMTaskRanState.Creating );
+						await _process.RunStateEvent( SMTaskRanState.Loading );
+						await _process.RunStateEvent( SMTaskRanState.Initializing );
 						await _process.RunActiveEvent();
 					}
 					return;
