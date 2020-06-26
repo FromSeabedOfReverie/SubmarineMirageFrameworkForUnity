@@ -70,7 +70,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static MultiDisposable SetRunKey( SMHierarchy hierarchy ) {
+		public static MultiDisposable SetRunKey( SMObject hierarchy ) {
 			var disposables = new MultiDisposable();
 
 			disposables.AddLast(
@@ -137,7 +137,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static MultiDisposable SetChangeActiveKey( SMHierarchy hierarchy ) {
+		public static MultiDisposable SetChangeActiveKey( SMObject hierarchy ) {
 			var disposables = new MultiDisposable();
 
 			disposables.AddLast(
@@ -200,7 +200,7 @@ namespace SubmarineMirage.TestProcess {
 		}
 
 
-		public static void LogHierarchy( string text, SMHierarchy hierarchy ) {
+		public static void LogHierarchy( string text, SMObject hierarchy ) {
 			if ( hierarchy == null ) {
 				Log.Debug( $"{text} : null" );
 				return;
@@ -211,7 +211,7 @@ namespace SubmarineMirage.TestProcess {
 			) + $" : {name}" );
 		}
 
-		public static void LogHierarchies( string text, IEnumerable<SMHierarchy> hierarchies ) {
+		public static void LogHierarchies( string text, IEnumerable<SMObject> hierarchies ) {
 			Log.Debug( $"{text} :\n" + string.Join( "\n",
 				hierarchies.Select( h => {
 					var name = h._owner != null ? h._owner.name : null;
@@ -228,7 +228,7 @@ namespace SubmarineMirage.TestProcess {
 				Log.Debug( $"{text} : null" );
 				return;
 			}
-			var name = process._hierarchy._owner != null ? process._hierarchy._owner.name : null;
+			var name = process._object._owner != null ? process._object._owner.name : null;
 			var id = ( process as BaseM )?._id ?? ( process as BaseB )?._id;
 			Log.Debug( $"{text} : {process.GetAboutName()}, {name}, processID : {id}" );
 		}
@@ -236,7 +236,7 @@ namespace SubmarineMirage.TestProcess {
 		public static void LogProcesses( string text, IEnumerable<ISMBehavior> processes ) {
 			Log.Debug( $"{text} :\n" + string.Join( "\n",
 				processes.Select( p => {
-					var name = p._hierarchy._owner != null ? p._hierarchy._owner.name : null;
+					var name = p._object._owner != null ? p._object._owner.name : null;
 					var id = ( p as BaseM )?._id ?? ( p as BaseB )?._id;
 					return $"{p.GetAboutName()}, {name}, processID : {id}";
 				} )

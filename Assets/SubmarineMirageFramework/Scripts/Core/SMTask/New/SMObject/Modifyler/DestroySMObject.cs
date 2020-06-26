@@ -12,31 +12,31 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	// TODO : コメント追加、整頓
 
 
-	public class DestroySMHierarchy : SMHierarchyModifyData {
-		public DestroySMHierarchy( SMHierarchy hierarchy ) : base( hierarchy ) {}
+	public class DestroySMObject : SMObjectModifyData {
+		public DestroySMObject( SMObject smObject ) : base( smObject ) {}
 
 
 		protected override async UniTask Run() {
-			if ( _hierarchy._hierarchies._hierarchies[_hierarchy._type] == _hierarchy ) {
-				var next = _hierarchy._next;
-				_hierarchy.UnLink();
-				_hierarchy._hierarchies._hierarchies[_hierarchy._type] = next;
+			if ( _object._objects._objects[_object._type] == _object ) {
+				var next = _object._next;
+				_object.UnLink();
+				_object._objects._objects[_object._type] = next;
 
 			} else {
-				var top = _hierarchy._top;
-				_hierarchy.UnLink();
+				var top = _object._top;
+				_object.UnLink();
 				top.SetAllData();
 			}
 
-			await RunHierarchy();
+			await RunObject();
 		}
 
 
-		public async UniTask RunHierarchy() {
-			await _hierarchy.ChangeActive( false, true );
-			await _hierarchy.RunStateEvent( SMTaskRanState.Finalizing );
-			_hierarchy.Dispose();
-			if ( _hierarchy._owner != null )	{ Object.Destroy( _hierarchy._owner ); }
+		public async UniTask RunObject() {
+			await _object.ChangeActive( false, true );
+			await _object.RunStateEvent( SMTaskRanState.Finalizing );
+			_object.Dispose();
+			if ( _object._owner != null )	{ Object.Destroy( _object._owner ); }
 		}
 	}
 }

@@ -36,7 +36,7 @@ namespace SubmarineMirage.Singleton.New {
 			s_instanceObject = FindObjectOfType<T>();
 			if ( s_isCreated )	{ return; }
 
-			s_instanceObject = MonoBehaviourSingletonManager.s_instance.CreateProcess<T>();
+			s_instanceObject = MonoBehaviourSingletonManager.s_instance.CreateBehaviour<T>();
 		}
 
 

@@ -32,7 +32,7 @@ namespace SubmarineMirage.TestUtility {
 			var go = Object.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ =>
-				_text.text = CoroutineProcessManager.s_instance.ToString()
+				_text.text = CoroutineTaskManager.s_instance.ToString()
 			) );
 		}
 
@@ -40,7 +40,7 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest]
 		[Timeout(int.MaxValue)]
 		public IEnumerator TestDontRegisterCoroutine() => From( async () => {
-			var c = new CoroutineProcess(
+			var c = new CoroutineTask(
 				TestCoroutineBody( 0 ), () => Log.Debug( $"onCompleted : {0}" ), false, false );
 
 			_disposables.AddLast(
@@ -65,7 +65,7 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest]
 		[Timeout(int.MaxValue)]
 		public IEnumerator TestAutoCoroutine() => From( async () => {
-			var c = new CoroutineProcess(
+			var c = new CoroutineTask(
 				TestCoroutineBody( 0 ), () => Log.Debug( $"onCompleted : {0}" ), true, true );
 
 			_disposables.AddLast(
@@ -90,7 +90,7 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest]
 		[Timeout(int.MaxValue)]
 		public IEnumerator TestCoroutine() => From( async () => {
-			var c = new CoroutineProcess(
+			var c = new CoroutineTask(
 				TestCoroutineBody( 0 ), () => Log.Debug( $"onCompleted : {0}" ), false, true );
 
 			_disposables.AddLast(
@@ -115,15 +115,15 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest]
 		[Timeout(int.MaxValue)]
 		public IEnumerator TestCoroutineManager() => From( async () => {
-			var coroutines = new List<CoroutineProcess>();
-			CoroutineProcess coroutine = null;
+			var coroutines = new List<CoroutineTask>();
+			CoroutineTask coroutine = null;
 			int maxID = 0;
 
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Create" );
 					var id = maxID++;
-					var c = new CoroutineProcess(
+					var c = new CoroutineTask(
 						TestCoroutineBody( id ), () => Log.Debug( $"onCompleted : {id}" ), false, true );
 					coroutines.Add( c );
 					c.Play();

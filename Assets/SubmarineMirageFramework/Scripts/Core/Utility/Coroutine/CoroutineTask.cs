@@ -13,11 +13,11 @@ namespace SubmarineMirage.Utility {
 	using Extension;
 	///====================================================================================================
 	/// <summary>
-	/// ■ コルーチン処理のクラス
+	/// ■ コルーチンの仕事クラス
 	///		UniRXを用いたコルーチンのラッパーで、処理を監視する。
 	/// </summary>
 	///====================================================================================================
-	public class CoroutineProcess : CustomYieldInstruction, IDisposableExtension {
+	public class CoroutineTask : CustomYieldInstruction, IDisposableExtension {
 		///------------------------------------------------------------------------------------------------
 		/// 要素
 		///------------------------------------------------------------------------------------------------
@@ -40,8 +40,8 @@ namespace SubmarineMirage.Utility {
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public CoroutineProcess( IEnumerator coroutine, Action onCompleted = null,
-									bool isPlay = true, bool isRegister = false )
+		public CoroutineTask( IEnumerator coroutine, Action onCompleted = null,
+								bool isPlay = true, bool isRegister = false )
 		{
 			_coroutine = coroutine;
 			_onCompleted = onCompleted;
@@ -50,13 +50,13 @@ namespace SubmarineMirage.Utility {
 
 			_disposables.AddLast( () => {
 				_isRunning = false;
-				if ( _isRegister )	{ CoroutineProcessManager.s_instance.UnRegister( this ); }
+				if ( _isRegister )	{ CoroutineTaskManager.s_instance.UnRegister( this ); }
 			} );
 		}
 		/// <summary>
 		/// ● デストラクタ
 		/// </summary>
-		~CoroutineProcess() => Dispose();
+		~CoroutineTask() => Dispose();
 		/// <summary>
 		/// ● 解放
 		/// </summary>
@@ -71,7 +71,7 @@ namespace SubmarineMirage.Utility {
 			CheckDisposeError();
 			if ( _isRunning )	{ return; }
 
-			if ( _isRegister )	{ CoroutineProcessManager.s_instance.Register( this ); }
+			if ( _isRegister )	{ CoroutineTaskManager.s_instance.Register( this ); }
 			var isDontWait = false;
 			_disposables.AddFirst( "Coroutine",
 				Observable.FromCoroutine( () => _coroutine )
@@ -96,7 +96,7 @@ namespace SubmarineMirage.Utility {
 			if ( !_isRunning )	{ return; }
 			_isRunning = false;
 			
-			if ( _isRegister )	{ CoroutineProcessManager.s_instance.UnRegister( this ); }
+			if ( _isRegister )	{ CoroutineTaskManager.s_instance.UnRegister( this ); }
 			_disposables.Remove( "Coroutine" );
 		}
 /*
@@ -127,6 +127,7 @@ namespace SubmarineMirage.Utility {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public override string ToString()
-			=> $"{this.GetAboutName()}( _isRegister : {_isRegister}, _isRunning : {_isRunning} )";
+			=> $"{this.GetAboutName()}( {nameof( _isRegister )} : {_isRegister}, "
+				+ $"{nameof( _isRunning )} : {_isRunning} )";
 	}
 }

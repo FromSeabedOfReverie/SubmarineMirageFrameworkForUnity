@@ -40,7 +40,7 @@ namespace SubmarineMirage.Main.New {
 
 
 // TODO : もっと良い開始名を考える
-		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerProcessesEvent )
+		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerBehavioursEvent )
 		{
 			await Task.Delay( 1, _canceler.Token );
 
@@ -53,7 +53,7 @@ namespace SubmarineMirage.Main.New {
 			await UniTaskUtility.WaitWhile( _canceler.Token, () => !_isRegisterCreateTestEvent );
 			await _createTestEvent.Run( _canceler.Token );
 
-			await SMTaskRunner.s_instance.Create( () => registerProcessesEvent() );
+			await SMTaskRunner.s_instance.Create( () => registerBehavioursEvent() );
 
 			_isInitialized = true;
 		}

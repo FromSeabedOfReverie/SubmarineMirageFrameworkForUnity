@@ -34,13 +34,13 @@ namespace SubmarineMirage.TestProcess {
 			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _process._hierarchy == null ) {
+				if ( _process._object == null ) {
 					_text.text = string.Empty;
 					return;
 				}
-				var p = _process._hierarchy._processes.FirstOrDefault();
+				var p = _process._object._processes.FirstOrDefault();
 				_text.text =
-					$"{_process._hierarchy}\n"
+					$"{_process._object}\n"
 					+ $"{p.GetAboutName()}(\n"
 					+ $"    _isInitialized : {p._isInitialized}\n"
 					+ $"    _isActive : {p._isActive}\n"

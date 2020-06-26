@@ -15,10 +15,10 @@ namespace SubmarineMirage.Scene {
 		public ForeverScene() {
 			_scene = UnitySceneManager.CreateScene( _name );
 
-			_enterEvent.Remove( registerKey );
-			_enterEvent.AddFirst( registerKey, async cancel => await _hierarchies.Enter() );
-			_exitEvent.Remove( registerKey );
-			_exitEvent.AddFirst( registerKey, async cancel => await _hierarchies.Exit() );
+			_enterEvent.Remove( _registerKey );
+			_enterEvent.AddFirst( _registerKey, async cancel => await _objects.Enter() );
+			_exitEvent.Remove( _registerKey );
+			_exitEvent.AddFirst( _registerKey, async cancel => await _objects.Exit() );
 		}
 	}
 }

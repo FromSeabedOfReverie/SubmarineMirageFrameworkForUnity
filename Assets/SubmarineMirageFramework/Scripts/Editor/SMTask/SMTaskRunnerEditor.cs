@@ -41,7 +41,7 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 			_instance = (SMTaskRunner)target;
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
-			ShowAllHierarchies();
+			ShowAllObjects();
 			EditorGUILayout.EndScrollView();
 			ShowDetail();
 
@@ -52,35 +52,35 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 		}
 
 
-		void ShowAllHierarchies() {
+		void ShowAllObjects() {
 			SceneManager.s_instance._fsm.GetAllScene().ForEach( scene => {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
-				EditorGUILayout.LabelField( $"_isLock : {scene._hierarchies._modifyler._isLock.Value}" );
+				EditorGUILayout.LabelField( $"_isLock : {scene._objects._modifyler._isLock.Value}" );
 
-				scene._hierarchies._hierarchies.ForEach( pair => {
+				scene._objects._objects.ForEach( pair => {
 					ShowHeading2( pair.Key.ToString() );
-					scene._hierarchies.Get( pair.Key ).ForEach( h => ShowHierarchy( h ) );
+					scene._objects.Get( pair.Key ).ForEach( o => ShowObject( o ) );
 				} );
 				EditorGUI.indentLevel--;
 			} );
 			EditorGUILayout.Space();
 		}
 
-		void ShowHierarchy( SMHierarchy hierarchy ) {
+		void ShowObject( SMObject smObject ) {
 			EditorGUI.indentLevel++;
 
-			GUI.SetNextControlName( hierarchy.ToString() );
-			var p = hierarchy._process;
+			GUI.SetNextControlName( smObject.ToString() );
+			var p = smObject._behavior;
 			var a = p._isActive ? "◯" : "×";
-			var g = hierarchy._owner != null ? $"( {hierarchy._owner.name} )" : "";
+			var g = smObject._owner != null ? $"( {smObject._owner.name} )" : "";
 			EditorGUILayout.SelectableLabel(
 				$"{a} {p.GetAboutName()}{g}( {p._body._ranState} )",
 				GUILayout.Height( 16 )
 			);
 
-			hierarchy.GetChildren().ForEach( child => ShowHierarchy( child ) );
+			smObject.GetChildren().ForEach( child => ShowObject( child ) );
 
 			EditorGUI.indentLevel--;
 		}

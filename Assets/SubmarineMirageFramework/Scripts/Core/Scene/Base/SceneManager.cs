@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
+	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
@@ -32,7 +33,7 @@ namespace SubmarineMirage.Scene {
 			s_instance._fsm = new SceneStateMachine( s_instance );
 			s_instance._fsm._foreverScene.Set( s_instance );
 			s_instance._disposables.AddFirst( s_instance._fsm );
-			s_instance._hierarchy.SetAllData();
+			s_instance._object.SetAllData();
 		}
 
 		public override void Create() {}
@@ -50,53 +51,51 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public TProcess GetProcess<TProcess, TScene>( SMTaskType? bodyType = null )
-			where TProcess : class, ISMBehavior
+		public TBehavior GetBehaviour<TBehavior, TScene>( SMTaskType? bodyType = null )
+			where TBehavior : class, ISMBehavior
 			where TScene : BaseScene
-		{
-			return _fsm.GetAllScene()
+			=> _fsm.GetAllScene()
 				.FirstOrDefault( s => s is TScene )
-				?._hierarchies.GetProcess<TProcess>( bodyType );
-		}
-		public T GetProcess<T>( SMTaskType? bodyType = null ) where T : ISMBehavior {
-			return _fsm.GetAllScene()
-				.Select( s => s._hierarchies.GetProcess<T>( bodyType ) )
-				.FirstOrDefault( p => p != null );
-		}
-		public ISMBehavior GetProcess( System.Type type, System.Type sceneType = null, SMTaskType? bodyType = null ) {
+				?._objects.GetBehaviour<TBehavior>( bodyType );
+
+		public T GetBehaviour<T>( SMTaskType? bodyType = null ) where T : ISMBehavior
+			=> _fsm.GetAllScene()
+				.Select( s => s._objects.GetBehaviour<T>( bodyType ) )
+				.FirstOrDefault( b => b != null );
+
+		public ISMBehavior GetBehaviour( Type type, Type sceneType = null, SMTaskType? bodyType = null ) {
 			if ( sceneType != null ) {
 				return _fsm.GetAllScene()
 					.FirstOrDefault( s => s.GetType() == sceneType )
-					?._hierarchies.GetProcess( type, bodyType );
+					?._objects.GetBehaviour( type, bodyType );
 			} else {
 				return _fsm.GetAllScene()
-					.Select( s => s._hierarchies.GetProcess( type, bodyType ) )
-					.FirstOrDefault( p => p != null );
+					.Select( s => s._objects.GetBehaviour( type, bodyType ) )
+					.FirstOrDefault( b => b != null );
 			}
 		}
 
-		public IEnumerable<TProcess> GetProcesses<TProcess, TScene>( SMTaskType? bodyType = null )
-			where TProcess : class, ISMBehavior
+		public IEnumerable<TBehavior> GetBehaviours<TBehavior, TScene>( SMTaskType? bodyType = null )
+			where TBehavior : class, ISMBehavior
 			where TScene : BaseScene
-		{
-			return _fsm.GetAllScene()
+			=> _fsm.GetAllScene()
 				.FirstOrDefault( s => s is TScene )
-				?._hierarchies.GetProcesses<TProcess>( bodyType );
-		}
-		public IEnumerable<T> GetProcesses<T>( SMTaskType? bodyType = null ) where T : ISMBehavior {
-			return _fsm.GetAllScene()
-				.SelectMany( s => s._hierarchies.GetProcesses<T>( bodyType ) );
-		}
-		public IEnumerable<ISMBehavior> GetProcesses( System.Type type, System.Type sceneType = null,
-													SMTaskType? bodyType = null
+				?._objects.GetBehaviours<TBehavior>( bodyType );
+
+		public IEnumerable<T> GetBehaviours<T>( SMTaskType? bodyType = null ) where T : ISMBehavior
+			=> _fsm.GetAllScene()
+				.SelectMany( s => s._objects.GetBehaviours<T>( bodyType ) );
+
+		public IEnumerable<ISMBehavior> GetBehaviours( Type type, Type sceneType = null,
+														SMTaskType? bodyType = null
 		) {
 			if ( sceneType != null ) {
 				return _fsm.GetAllScene()
 					.FirstOrDefault( s => s.GetType() == sceneType )
-					?._hierarchies.GetProcesses( type, bodyType );
+					?._objects.GetBehaviours( type, bodyType );
 			} else {
 				return _fsm.GetAllScene()
-					.SelectMany( s => s._hierarchies.GetProcesses( type, bodyType ) );
+					.SelectMany( s => s._objects.GetBehaviours( type, bodyType ) );
 			}
 		}
 	}

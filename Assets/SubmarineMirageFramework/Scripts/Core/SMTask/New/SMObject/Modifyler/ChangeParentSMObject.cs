@@ -15,37 +15,37 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	// TODO : コメント追加、整頓
 
 
-	public class ChangeParentSMHierarchy : SMHierarchyModifyData {
+	public class ChangeParentSMObject : SMObjectModifyData {
 		Transform _parent;
 		bool _isWorldPositionStays;
 
 
-		public ChangeParentSMHierarchy( SMHierarchy hierarchy, Transform parent,
-												bool isWorldPositionStays
-		) : base( hierarchy )
+		public ChangeParentSMObject( SMObject smObject, Transform parent, bool isWorldPositionStays )
+			: base( smObject )
 		{
 			_parent = parent;
 			_isWorldPositionStays = isWorldPositionStays;
-			if ( hierarchy._owner == null ) {
-				throw new NotSupportedException( $"{nameof(SMBehavior)}._hierarchyの、親変更不可 :\n{hierarchy}" );
+			if ( smObject._owner == null ) {
+				throw new NotSupportedException(
+					$"{nameof(SMBehavior)}.{nameof( _object )}の、親変更不可 :\n{smObject}" );
 			}
 		}
 
 
 		protected override async UniTask Run() {
-			_hierarchy._owner.transform.SetParent( _parent, _isWorldPositionStays );
+			_object._owner.transform.SetParent( _parent, _isWorldPositionStays );
 
-			if ( _hierarchy._isTop ) {
-				_owner.Get( _hierarchy._type )
-					.Remove( _hierarchy );
+			if ( _object._isTop ) {
+				_owner.Get( _object._type )
+					.Remove( _object );
 			}
-			_hierarchy.SetParent(
-				_hierarchy._owner.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
-					?._hierarchy
+			_object.SetParent(
+				_object._owner.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
+					?._object
 			);
-			_hierarchy.SetTop();
+			_object.SetTop();
 
-			if ( _hierarchy._parent?._owner.activeInHierarchy ?? false ) {
+			if ( _object._parent?._owner.activeInHierarchy ?? false ) {
 				// TODO : 親の活動状態と、変更してきた子の活動状態が異なる場合、子の活動状態を、親に合わせる
 			}
 

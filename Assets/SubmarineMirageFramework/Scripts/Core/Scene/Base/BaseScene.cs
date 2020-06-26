@@ -25,21 +25,21 @@ namespace SubmarineMirage.Scene {
 
 
 	public abstract class BaseScene : State<SceneStateMachine, SceneManager> {
-		public string _name	{ get; protected set; }
-		protected string registerKey	{ get; private set; }
+		public string _name				{ get; protected set; }
+		protected string _registerKey	{ get; private set; }
 
 		public Scene _scene	{ get; protected set; }
-		public SMHierarchyManager _hierarchies	{ get; private set; }
+		public SMObjectManager _objects	{ get; private set; }
 
 
 		public BaseScene() {
 			_name = this.GetAboutName().RemoveAtLast( "Scene" );
-			registerKey = nameof( BaseScene );
+			_registerKey = nameof( BaseScene );
 			ResetScene();
-			_hierarchies = new SMHierarchyManager( this );
-			_disposables.AddLast( _hierarchies );
+			_objects = new SMObjectManager( this );
+			_disposables.AddLast( _objects );
 
-			_enterEvent.AddFirst( registerKey, async cancel => {
+			_enterEvent.AddFirst( _registerKey, async cancel => {
 				if ( _fsm._isSkipLoadForFirstScene ) {
 					_fsm._isSkipLoadForFirstScene = false;
 				} else {
@@ -48,11 +48,11 @@ namespace SubmarineMirage.Scene {
 				}
 				ResetScene();
 				UnitySceneManager.SetActiveScene( _scene );
-				await _hierarchies.Enter();
+				await _objects.Enter();
 			} );
 
-			_exitEvent.AddFirst( registerKey, async cancel => {
-				await _hierarchies.Exit();
+			_exitEvent.AddFirst( _registerKey, async cancel => {
+				await _objects.Exit();
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
 //				DOTween.KillAll();
 //				GameAudioManager.s_instance.StopAll();

@@ -14,41 +14,39 @@ namespace SubmarineMirage.Utility {
 	// TODO : コメント追加、整頓
 
 
-	public static class ProcessUtility {
-		static SMHierarchy InstantiateHierarchy( GameObject instance ) {
-			var ps = instance.GetComponents<SMMonoBehaviour>();
+	public static class SMObjectUtility {
+		static SMObject InstantiateObject( GameObject instance ) {
+			var bs = instance.GetComponents<SMMonoBehaviour>();
 			var parent = instance.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
-				?._hierarchy;
-			return new SMHierarchy( instance.gameObject, ps, parent );
+				?._object;
+			return new SMObject( instance.gameObject, bs, parent );
 		}
 
-		public static SMHierarchy Instantiate( GameObject original, Transform parent,
-													bool isWorldPositionStays
-		) {
+		public static SMObject Instantiate( GameObject original, Transform parent, bool isWorldPositionStays ) {
 			var go = UnityObject.Instantiate( original, parent, isWorldPositionStays );
-			return InstantiateHierarchy( go );
+			return InstantiateObject( go );
 		}
 
-		public static SMHierarchy Instantiate( GameObject original, Transform parent ) {
+		public static SMObject Instantiate( GameObject original, Transform parent ) {
 			var go = UnityObject.Instantiate( original, parent );
-			return InstantiateHierarchy( go );
+			return InstantiateObject( go );
 		}
 
-		public static SMHierarchy Instantiate( GameObject original, Vector3 position, Quaternion rotation,
-													Transform parent
+		public static SMObject Instantiate( GameObject original, Vector3 position, Quaternion rotation,
+											Transform parent
 		) {
 			var go = UnityObject.Instantiate( original, position, rotation, parent );
-			return InstantiateHierarchy( go );
+			return InstantiateObject( go );
 		}
 
-		public static SMHierarchy Instantiate( GameObject original, Vector3 position, Quaternion rotation ) {
+		public static SMObject Instantiate( GameObject original, Vector3 position, Quaternion rotation ) {
 			var go = UnityObject.Instantiate( original, position, rotation );
-			return InstantiateHierarchy( go );
+			return InstantiateObject( go );
 		}
 
-		public static SMHierarchy Instantiate( GameObject original ) {
+		public static SMObject Instantiate( GameObject original ) {
 			var go = UnityObject.Instantiate( original );
-			return InstantiateHierarchy( go );
+			return InstantiateObject( go );
 		}
 	}
 }

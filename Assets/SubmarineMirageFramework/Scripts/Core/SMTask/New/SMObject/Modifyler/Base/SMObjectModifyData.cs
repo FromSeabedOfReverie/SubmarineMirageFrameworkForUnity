@@ -6,26 +6,25 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
 	using UniRx.Async;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ChangeActiveSMHierarchy : SMHierarchyModifyData {
-		bool _isActive;
-		bool _isChangeOwner;
+	public abstract class SMObjectModifyData {
+		public SMObject _object;
 
 
-		public ChangeActiveSMHierarchy( SMHierarchy hierarchy, bool isActive, bool isChangeOwner )
-			: base( hierarchy )
-		{
-			_isActive = isActive;
-			_isChangeOwner = isChangeOwner;
+		public SMObjectModifyData( SMObject smObject ) {
+			_object = smObject;
+//			Debug.Log.Debug( $"{this.GetAboutName()}( {_object} )" );
 		}
 
+		public abstract UniTask Run();
 
-		protected override async UniTask Run() {
-			await _hierarchy.ChangeActive( _isActive, _isChangeOwner );
-		}
+
+		public override string ToString()
+			=> $"{this.GetAboutName()}( {_object._behavior.GetAboutName()} )";
 	}
 }

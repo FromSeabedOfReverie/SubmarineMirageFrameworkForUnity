@@ -17,11 +17,11 @@ namespace SubmarineMirage.Utility {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 開始
-		///		CoroutineProcessクラスを簡単に呼べる。
+		///		コルーチンの仕事クラスを簡単に呼べる。
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static CoroutineProcess Start( IEnumerator coroutine, Action onCompleted = null ) {
-			return new CoroutineProcess( coroutine, onCompleted, true, true );
+		public static CoroutineTask Start( IEnumerator coroutine, Action onCompleted = null ) {
+			return new CoroutineTask( coroutine, onCompleted, true, true );
 		}
 	}
 }

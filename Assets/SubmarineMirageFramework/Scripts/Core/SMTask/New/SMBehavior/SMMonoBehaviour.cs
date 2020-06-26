@@ -22,7 +22,7 @@ namespace SubmarineMirage.SMTask {
 		public virtual SMTaskType _type => SMTaskType.Work;
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
-		public SMHierarchy _hierarchy	{ get; set; }
+		public SMObject _object			{ get; set; }
 		public SMBehaviorBody _body		{ get; private set; }
 		public ISMBehavior _previous	{ get; set; }
 		public ISMBehavior _next		{ get; set; }
@@ -66,68 +66,63 @@ namespace SubmarineMirage.SMTask {
 		public void StopActiveAsync() => _body.StopActiveAsync();
 
 
+		public T GetBehaviour<T>() where T : SMMonoBehaviour
+			=> _object.GetBehaviour<T>();
+
+		public SMMonoBehaviour GetBehaviour( Type type )
+			=> (SMMonoBehaviour)_object.GetBehaviour( type );
 
 
-		public T GetProcess<T>() where T : SMMonoBehaviour
-			=> _hierarchy.GetProcess<T>();
+		public IEnumerable<T> GetBehaviours<T>() where T : SMMonoBehaviour
+			=> _object.GetBehaviours<T>();
 
-		public SMMonoBehaviour GetProcess( Type type )
-			=> (SMMonoBehaviour)_hierarchy.GetProcess( type );
-
-
-		public IEnumerable<T> GetProcesses<T>() where T : SMMonoBehaviour
-			=> _hierarchy.GetProcesses<T>();
-
-		public IEnumerable<SMMonoBehaviour> GetProcesses( Type type ) {
-			return _hierarchy.GetProcesses( type )
-				.Select( p => (SMMonoBehaviour)p );
-		}
+		public IEnumerable<SMMonoBehaviour> GetBehaviours( Type type )
+			=> _object.GetBehaviours( type )
+				.Select( b => (SMMonoBehaviour)b );
 
 
-		public T GetProcessInParent<T>() where T : SMMonoBehaviour
-			=> _hierarchy.GetProcessInParent<T>();
+		public T GetBehaviourInParent<T>() where T : SMMonoBehaviour
+			=> _object.GetBehaviourInParent<T>();
 
-		public SMMonoBehaviour GetProcessInParent( Type type )
-			=> (SMMonoBehaviour)_hierarchy.GetProcessInParent( type );
-
-
-		public IEnumerable<T> GetProcessesInParent<T>() where T : SMMonoBehaviour
-			=> _hierarchy.GetProcessesInParent<T>();
-
-		public IEnumerable<SMMonoBehaviour> GetProcessesInParent( Type type ) {
-			return _hierarchy.GetProcessesInParent( type )
-				.Select( p => (SMMonoBehaviour)p );
-		}
+		public SMMonoBehaviour GetBehaviourInParent( Type type )
+			=> (SMMonoBehaviour)_object.GetBehaviourInParent( type );
 
 
-		public T GetProcessInChildren<T>() where T : SMMonoBehaviour
-			=> _hierarchy.GetProcessInChildren<T>();
+		public IEnumerable<T> GetBehavioursInParent<T>() where T : SMMonoBehaviour
+			=> _object.GetBehavioursInParent<T>();
 
-		public SMMonoBehaviour GetProcessInChildren( Type type )
-			=> (SMMonoBehaviour)_hierarchy.GetProcessInChildren( type );
-
-
-		public IEnumerable<T> GetProcessesInChildren<T>() where T : SMMonoBehaviour
-			=> _hierarchy.GetProcessesInChildren<T>();
-
-		public IEnumerable<SMMonoBehaviour> GetProcessesInChildren( Type type ) {
-			return _hierarchy.GetProcessesInChildren( type )
-				.Select( p => (SMMonoBehaviour)p );
-		}
+		public IEnumerable<SMMonoBehaviour> GetBehavioursInParent( Type type )
+			=> _object.GetBehavioursInParent( type )
+				.Select( b => (SMMonoBehaviour)b );
 
 
-		public T AddProcess<T>() where T : SMMonoBehaviour
-			=> _hierarchy.AddProcess<T>();
+		public T GetBehaviourInChildren<T>() where T : SMMonoBehaviour
+			=> _object.GetBehaviourInChildren<T>();
 
-		public SMMonoBehaviour AddProcess( Type type )
-			=> _hierarchy.AddProcess( type );
+		public SMMonoBehaviour GetBehaviourInChildren( Type type )
+			=> (SMMonoBehaviour)_object.GetBehaviourInChildren( type );
 
 
-		public void DestroyHierarchy()
-			=> _hierarchy.Destroy();
+		public IEnumerable<T> GetBehavioursInChildren<T>() where T : SMMonoBehaviour
+			=> _object.GetBehavioursInChildren<T>();
+
+		public IEnumerable<SMMonoBehaviour> GetBehavioursInChildren( Type type )
+			=> _object.GetBehavioursInChildren( type )
+				.Select( b => (SMMonoBehaviour)b );
+
+
+		public T AddBehaviour<T>() where T : SMMonoBehaviour
+			=> _object.AddBehaviour<T>();
+
+		public SMMonoBehaviour AddBehaviour( Type type )
+			=> _object.AddBehaviour( type );
+
+
+		public void DestroyObject()
+			=> _object.Destroy();
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays )
-			=> _hierarchy.ChangeParent( parent, isWorldPositionStays );
+			=> _object.ChangeParent( parent, isWorldPositionStays );
 
 
 
@@ -144,7 +139,7 @@ namespace SubmarineMirage.SMTask {
 
 
 		public override string ToString()
-			=> $"{this.GetAboutName()}( {_type}, {_lifeSpan}, {_hierarchy._owner} )";
+			=> $"{this.GetAboutName()}( {_type}, {_lifeSpan}, {_object._owner} )";
 
 
 #if DEVELOP

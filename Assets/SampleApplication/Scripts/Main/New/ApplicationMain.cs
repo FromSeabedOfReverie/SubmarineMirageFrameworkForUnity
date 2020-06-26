@@ -49,7 +49,7 @@ namespace SubmarineMirage.Main.New {
 		}
 
 
-		static async UniTask RegisterProcesses() {
+		static async UniTask RegisterBehaviours() {
 			new Log();
 
 			await UniTaskUtility.DontWait();
@@ -58,6 +58,6 @@ namespace SubmarineMirage.Main.New {
 
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static async void Main()
-			=> await SubmarineMirage.s_instance.TakeOff( InitializePlugin, RegisterProcesses );
+			=> await SubmarineMirage.s_instance.TakeOff( InitializePlugin, RegisterBehaviours );
 	}
 }

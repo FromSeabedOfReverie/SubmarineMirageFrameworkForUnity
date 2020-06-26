@@ -14,25 +14,25 @@ namespace SubmarineMirage.Utility {
 	using Extension;
 	///====================================================================================================
 	/// <summary>
-	/// ■ コルーチン処理の管理クラス
-	///		コルーチン処理を一括管理し、監視する。
+	/// ■ コルーチン仕事の管理クラス
+	///		コルーチン仕事を一括管理し、監視する。
 	/// </summary>
 	///====================================================================================================
-	public class CoroutineProcessManager : Singleton<CoroutineProcessManager> {
+	public class CoroutineTaskManager : Singleton<CoroutineTaskManager> {
 		///------------------------------------------------------------------------------------------------
 		/// 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>処理の型</summary>
 		public override SMTaskType _type => SMTaskType.DontWork;
 		/// <summary>全コルーチン処理一覧</summary>
-		readonly List<CoroutineProcess> _coroutines = new List<CoroutineProcess>();
+		readonly List<CoroutineTask> _coroutines = new List<CoroutineTask>();
 		///------------------------------------------------------------------------------------------------
 		/// 生成
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public CoroutineProcessManager() {
+		public CoroutineTaskManager() {
 			_disposables.AddLast( _coroutines );
 			_disposables.AddLast( () => _coroutines.Clear() );
 		}
@@ -42,9 +42,9 @@ namespace SubmarineMirage.Utility {
 		public override void Create() {
 #if DEVELOP && false
 			// デバッグ表示を設定
-			ProcessRunner.s_instance._updateEvent.AddLast().Subscribe( _ => {
+			SMTaskRunner.s_instance._updateEvent.AddLast().Subscribe( _ => {
 				DebugDisplay.s_instance.Add( $"{this.GetAboutName()}" );
-				_coroutines.ForEach( p => DebugDisplay.s_instance.Add( $"\t{p.GetAboutName()}" ) );
+				_coroutines.ForEach( t => DebugDisplay.s_instance.Add( $"\t{t.GetAboutName()}" ) );
 			} );
 #endif
 		}
@@ -54,11 +54,11 @@ namespace SubmarineMirage.Utility {
 		/// <summary>
 		/// ● 登録
 		/// </summary>
-		public void Register( CoroutineProcess process ) => _coroutines.Add( process );
+		public void Register( CoroutineTask task ) => _coroutines.Add( task );
 		/// <summary>
 		/// ● 登録解除
 		/// </summary>
-		public void UnRegister( CoroutineProcess process ) => _coroutines.Remove( process );
+		public void UnRegister( CoroutineTask task ) => _coroutines.Remove( task );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 文字列に変換

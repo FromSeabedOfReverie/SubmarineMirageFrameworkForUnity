@@ -18,7 +18,7 @@ namespace SubmarineMirage.SMTask {
 		public virtual SMTaskType _type => SMTaskType.Work;
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
-		public SMHierarchy _hierarchy	{ get; set; }
+		public SMObject _object			{ get; set; }
 		public SMBehaviorBody _body		{ get; protected set; }
 		public ISMBehavior _previous	{ get; set; }
 		public ISMBehavior _next		{ get; set; }
@@ -44,7 +44,7 @@ namespace SubmarineMirage.SMTask {
 
 		protected SMBehavior() {
 			_body = new SMBehaviorBody( this, SMTaskActiveState.Enabling );
-			_hierarchy = new SMHierarchy( null, new ISMBehavior[] { this }, null );
+			_object = new SMObject( null, new ISMBehavior[] { this }, null );
 		}
 
 		~SMBehavior() => Dispose();
@@ -57,8 +57,7 @@ namespace SubmarineMirage.SMTask {
 		public void StopActiveAsync() => _body.StopActiveAsync();
 
 
-		public void DestroyHierarchy()
-			=> _hierarchy.Destroy();
+		public void DestroyObject() => _object.Destroy();
 
 
 		public async UniTask RunStateEvent( SMTaskRanState state )

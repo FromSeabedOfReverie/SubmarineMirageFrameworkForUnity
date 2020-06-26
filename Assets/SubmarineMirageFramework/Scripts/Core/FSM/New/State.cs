@@ -159,10 +159,10 @@ namespace SubmarineMirage.FSM.New {
 			if ( !_nextActiveState.HasValue )	{ return; }
 
 			var cancel = (
-				_fsm._isChangingState						? _fsm._changeStateAsyncCancel :
+				_fsm._isChangingState							? _fsm._changeStateAsyncCancel :
 				_nextActiveState == SMTaskActiveState.Enabling	? _owner._activeAsyncCancel :
 				_nextActiveState == SMTaskActiveState.Disabling	? _owner._inActiveAsyncCancel
-															: default
+																: default
 			);
 
 			switch ( _nextActiveState ) {
@@ -170,7 +170,8 @@ namespace SubmarineMirage.FSM.New {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Enabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Enabling );
+							await UniTaskUtility.WaitWhile(
+								cancel, () => _activeState == SMTaskActiveState.Enabling );
 							return;
 
 						case SMTaskActiveState.Enabled:
@@ -178,7 +179,8 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case SMTaskActiveState.Disabling:
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Disabling );
+							await UniTaskUtility.WaitWhile(
+								cancel, () => _activeState == SMTaskActiveState.Disabling );
 							await RunActiveEvent();
 							return;
 
@@ -201,7 +203,8 @@ namespace SubmarineMirage.FSM.New {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Disabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Disabling );
+							await UniTaskUtility.WaitWhile(
+								cancel, () => _activeState == SMTaskActiveState.Disabling );
 							return;
 
 						case SMTaskActiveState.Disabled:
@@ -209,7 +212,8 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case SMTaskActiveState.Enabling:
-							await UniTaskUtility.WaitWhile( cancel, () => _activeState == SMTaskActiveState.Enabling );
+							await UniTaskUtility.WaitWhile(
+								cancel, () => _activeState == SMTaskActiveState.Enabling );
 							await RunActiveEvent();
 							return;
 
@@ -234,7 +238,7 @@ namespace SubmarineMirage.FSM.New {
 		}
 
 
-		public async UniTask RunProcessStateEvent( SMTaskRanState state ) {
+		public async UniTask RunBehaviourStateEvent( SMTaskRanState state ) {
 			switch ( state ) {
 				case SMTaskRanState.Loading:
 					await _loadEvent.Run( _owner._activeAsyncCancel );

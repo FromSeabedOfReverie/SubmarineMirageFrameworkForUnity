@@ -24,8 +24,8 @@ namespace SubmarineMirage.Debug {
 		public enum Tag {
 			/// <summary>通常のデバッグ記録</summary>
 			None,
-			/// <summary>処理のデバッグ記録</summary>
-			Process,
+			/// <summary>仕事のデバッグ記録</summary>
+			SMTask,
 			/// <summary>シングルトンのデバッグ記録</summary>
 			Singleton,
 			/// <summary>有限状態機械のデバッグ記録</summary>
@@ -77,7 +77,7 @@ namespace SubmarineMirage.Debug {
 
 
 #if false
-			Log.Debug( Tag.Process,			Tag.Process );
+			Log.Debug( Tag.SMTask,			Tag.SMTask );
 			Log.Debug( Tag.Singleton,		Tag.Singleton );
 			Log.Debug( Tag.FSM,				Tag.FSM );
 			Log.Debug( Tag.Build,			Tag.Build );

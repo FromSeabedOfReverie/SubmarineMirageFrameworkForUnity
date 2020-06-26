@@ -102,7 +102,7 @@ namespace SubmarineMirage.Process {
 			await Load();
 			await Initialize();
 
-			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.Process );
+			Log.Debug( $"{this.GetAboutName()} : 初期化完了", Log.Tag.SMTask );
 
 /*
 			_updateEvent

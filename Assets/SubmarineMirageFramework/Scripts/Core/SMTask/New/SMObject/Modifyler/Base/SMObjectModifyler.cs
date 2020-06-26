@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
+	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
@@ -12,34 +13,34 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Extension;
+	using Utility;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SMHierarchyModifyler : IDisposableExtension {
-		public SMHierarchy _owner	{ get; private set; }
-		readonly Queue<SMHierarchyModifyData> _data = new Queue<SMHierarchyModifyData>();
+	public class SMObjectModifyler : IDisposableExtension {
+		public SMObject _owner	{ get; private set; }
+		readonly Queue<SMObjectModifyData> _data = new Queue<SMObjectModifyData>();
 		public bool _isRunning	{ get; private set; }
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public SMHierarchyModifyler( SMHierarchy owner ) {
+		public SMObjectModifyler( SMObject owner ) {
 			_owner = owner;
 
 			_disposables.AddLast( () => {
-				_data.ForEach( d => d._hierarchy.Dispose() );
+				_data.ForEach( d => d._object.Dispose() );
 				_data.Clear();
 			} );
 		}
 
-		~SMHierarchyModifyler() => Dispose();
+		~SMObjectModifyler() => Dispose();
 
 		public void Dispose() => _disposables.Dispose();
 
 
-		public void Register( SMHierarchyModifyData data ) {
-			data._owner = this;
+		public void Register( SMObjectModifyData data ) {
 			_data.Enqueue( data );
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
@@ -51,11 +52,13 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			_isRunning = true;
 			while ( !_data.IsEmpty() ) {
 				var d = _data.Dequeue();
-				await d.RunTop();
+				await d.Run();
 			}
 			_isRunning = false;
 		}
 
+		public async UniTask WaitRunning()
+			=> await UniTaskUtility.WaitWhile( _owner._asyncCancel, () => _isRunning );
 
 		public override string ToString() {
 			var result = $"{this.GetAboutName()}(\n"

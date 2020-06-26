@@ -27,9 +27,9 @@ namespace SubmarineMirage.Singleton.New {
 			var tag = TagManager.Name.Singletons.ToString();
 			var go = GameObject.FindWithTag( tag );
 			if ( go != null ) {
-				var p = go.GetComponent<MonoBehaviourSingletonManager>();
-				if ( p != null ) {
-					s_instanceObject = p;
+				var b = go.GetComponent<MonoBehaviourSingletonManager>();
+				if ( b != null ) {
+					s_instanceObject = b;
 				}
 			}
 			if ( s_isCreated )	{ return; }
@@ -37,19 +37,19 @@ namespace SubmarineMirage.Singleton.New {
 			go = new GameObject( tag );
 			go.tag = tag;
 			s_instanceObject = go.AddComponent<MonoBehaviourSingletonManager>();
-			new SMHierarchy( go, new ISMBehavior[] { s_instanceObject }, null );
+			new SMObject( go, new ISMBehavior[] { s_instanceObject }, null );
 
 			Log.Debug( $"作成（GameObject） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
 		}
 
 
-		public T CreateProcess<T>() where T : SMMonoBehaviour {
-			var process = _hierarchy.GetProcess<T>();
-			if ( process != null )	{ return process; }
+		public T CreateBehaviour<T>() where T : SMMonoBehaviour {
+			var b = _object.GetBehaviour<T>();
+			if ( b != null )	{ return b; }
 
-			process = _hierarchy.AddProcess<T>();
-			Log.Debug( $"作成（Component） : {process.GetAboutName()}", Log.Tag.Singleton );
-			return process;
+			b = _object.AddBehaviour<T>();
+			Log.Debug( $"作成（{nameof( SMTask )}） : {b.GetAboutName()}", Log.Tag.Singleton );
+			return b;
 		}
 
 

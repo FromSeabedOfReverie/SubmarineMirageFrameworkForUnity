@@ -18,7 +18,7 @@ namespace SubmarineMirage.SMTask {
 		SMTaskType _type			{ get; }
 		SMTaskLifeSpan _lifeSpan	{ get; }
 
-		SMHierarchy _hierarchy	{ get; set; }
+		SMObject _object		{ get; set; }
 		SMBehaviorBody _body	{ get; }
 		ISMBehavior _previous	{ get; set; }
 		ISMBehavior _next		{ get; set; }

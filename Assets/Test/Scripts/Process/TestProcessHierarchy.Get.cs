@@ -51,9 +51,9 @@ namespace SubmarineMirage.TestProcess {
 		IEnumerator TestGetHierarchiesSub() {
 			Log.Debug( "TestGetHierarchiesSub" );
 
-			var top = SceneManager.s_instance.GetProcess<M1>()._hierarchy;
-			var center = SceneManager.s_instance.GetProcess<M3>()._hierarchy;
-			var bottom = SceneManager.s_instance.GetProcess<M5>()._hierarchy;
+			var top = SceneManager.s_instance.GetBehaviour<M1>()._object;
+			var center = SceneManager.s_instance.GetBehaviour<M3>()._object;
+			var bottom = SceneManager.s_instance.GetBehaviour<M5>()._object;
 			TestProcessUtility.LogHierarchy( "top", top );
 			TestProcessUtility.LogHierarchy( "center", center );
 			TestProcessUtility.LogHierarchy( "bottom", bottom );
@@ -83,22 +83,22 @@ namespace SubmarineMirage.TestProcess {
 		IEnumerator TestGetProcessSub() {
 			Log.Debug( "TestGetProcessSub" );
 
-			var top = SceneManager.s_instance.GetProcess<M1>()._hierarchy;
+			var top = SceneManager.s_instance.GetBehaviour<M1>()._object;
 			TestProcessUtility.LogHierarchy( "top", top );
 
-			TestProcessUtility.LogProcess( "top.GetProcess<M1>",	top.GetProcess<M1>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( M1 )",	top.GetProcess( typeof( M1 ) ) );
-			TestProcessUtility.LogProcess( "top.GetProcess<M2>",	top.GetProcess<M2>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( M2 )",	top.GetProcess( typeof( M2 ) ) );
-			TestProcessUtility.LogProcess( "top.GetProcess<M3>",	top.GetProcess<M3>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( M3 )",	top.GetProcess( typeof( M3 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<M1>",	top.GetBehaviour<M1>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( M1 )",	top.GetBehaviour( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<M2>",	top.GetBehaviour<M2>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( M2 )",	top.GetBehaviour( typeof( M2 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<M3>",	top.GetBehaviour<M3>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( M3 )",	top.GetBehaviour( typeof( M3 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcesses<M1>",	top.GetProcesses<M1>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( M1 )",	top.GetProcesses( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "top.GetProcesses<M2>",	top.GetProcesses<M2>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( M2 )",	top.GetProcesses( typeof( M2 ) ) );
-			TestProcessUtility.LogProcesses( "top.GetProcesses<M3>",	top.GetProcesses<M3>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( M3 )",	top.GetProcesses( typeof( M3 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<M1>",	top.GetBehaviours<M1>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( M1 )",	top.GetBehaviours( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<M2>",	top.GetBehaviours<M2>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( M2 )",	top.GetBehaviours( typeof( M2 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<M3>",	top.GetBehaviours<M3>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( M3 )",	top.GetBehaviours( typeof( M3 ) ) );
 
 			while ( true )	{ yield return null; }
 		}
@@ -120,69 +120,69 @@ namespace SubmarineMirage.TestProcess {
 		IEnumerator TestGetHierarchyProcessSub() {
 			Log.Debug( "TestGetHierarchyProcessSub" );
 
-			var top = SceneManager.s_instance.GetProcess<M1>()._hierarchy;
-			var center = SceneManager.s_instance.GetProcess<M3>()._hierarchy;
-			var bottom = SceneManager.s_instance.GetProcess<M5>()._hierarchy;
+			var top = SceneManager.s_instance.GetBehaviour<M1>()._object;
+			var center = SceneManager.s_instance.GetBehaviour<M3>()._object;
+			var bottom = SceneManager.s_instance.GetBehaviour<M5>()._object;
 			TestProcessUtility.LogHierarchy( "top", top );
 			TestProcessUtility.LogHierarchy( "center", center );
 			TestProcessUtility.LogHierarchy( "bottom", bottom );
 
-			TestProcessUtility.LogProcess( "top.GetProcessInParent<M1>",		top.GetProcessInParent<M1>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInParent( M1 )",		top.GetProcessInParent( typeof( M1 ) ) );
-			TestProcessUtility.LogProcess( "center.GetProcessInParent<M1>",		center.GetProcessInParent<M1>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInParent( M1 )",	center.GetProcessInParent( typeof( M1 ) ) );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInParent<M1>",		bottom.GetProcessInParent<M1>() );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInParent( M1 )",	bottom.GetProcessInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent<M1>",		top.GetBehaviourInParent<M1>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent( M1 )",		top.GetBehaviourInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent<M1>",		center.GetBehaviourInParent<M1>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent( M1 )",	center.GetBehaviourInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInParent<M1>",		bottom.GetBehaviourInParent<M1>() );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInParent( M1 )",	bottom.GetBehaviourInParent( typeof( M1 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<M1>",		top.GetProcessesInParent<M1>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( M1 )",		top.GetProcessesInParent( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M1>",		center.GetProcessesInParent<M1>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M1 )",	center.GetProcessesInParent( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent<M1>",		bottom.GetProcessesInParent<M1>() );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent( M1 )",	bottom.GetProcessesInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<M1>",		top.GetBehavioursInParent<M1>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( M1 )",		top.GetBehavioursInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M1>",		center.GetBehavioursInParent<M1>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M1 )",	center.GetBehavioursInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent<M1>",		bottom.GetBehavioursInParent<M1>() );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent( M1 )",	bottom.GetBehavioursInParent( typeof( M1 ) ) );
 
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren<M1>",			top.GetProcessInChildren<M1>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren( M1 )",		top.GetProcessInChildren( typeof( M1 ) ) );
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M1>",		center.GetProcessInChildren<M1>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M1 )",		center.GetProcessInChildren( typeof( M1 ) ) );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren<M1>",		bottom.GetProcessInChildren<M1>() );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren( M1 )",		bottom.GetProcessInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren<M1>",			top.GetBehaviourInChildren<M1>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren( M1 )",		top.GetBehaviourInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M1>",		center.GetBehaviourInChildren<M1>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M1 )",		center.GetBehaviourInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren<M1>",		bottom.GetBehaviourInChildren<M1>() );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren( M1 )",		bottom.GetBehaviourInChildren( typeof( M1 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<M1>",		top.GetProcessesInChildren<M1>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( M1 )",	top.GetProcessesInChildren( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M1>",	center.GetProcessesInChildren<M1>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M1 )",	center.GetProcessesInChildren( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren<M1>",	bottom.GetProcessesInChildren<M1>() );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren( M1 )",	bottom.GetProcessesInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<M1>",		top.GetBehavioursInChildren<M1>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( M1 )",	top.GetBehavioursInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M1>",	center.GetBehavioursInChildren<M1>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M1 )",	center.GetBehavioursInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren<M1>",	bottom.GetBehavioursInChildren<M1>() );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren( M1 )",	bottom.GetBehavioursInChildren( typeof( M1 ) ) );
 
 
-			TestProcessUtility.LogProcess( "top.GetProcessInParent<M4>",		top.GetProcessInParent<M4>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInParent( M4 )",		top.GetProcessInParent( typeof( M4 ) ) );
-			TestProcessUtility.LogProcess( "center.GetProcessInParent<M4>",		center.GetProcessInParent<M4>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInParent( M4 )",	center.GetProcessInParent( typeof( M4 ) ) );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInParent<M4>",		bottom.GetProcessInParent<M4>() );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInParent( M4 )",	bottom.GetProcessInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent<M4>",		top.GetBehaviourInParent<M4>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent( M4 )",		top.GetBehaviourInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent<M4>",		center.GetBehaviourInParent<M4>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent( M4 )",	center.GetBehaviourInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInParent<M4>",		bottom.GetBehaviourInParent<M4>() );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInParent( M4 )",	bottom.GetBehaviourInParent( typeof( M4 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<M4>",		top.GetProcessesInParent<M4>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( M4 )",		top.GetProcessesInParent( typeof( M4 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M4>",		center.GetProcessesInParent<M4>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M4 )",	center.GetProcessesInParent( typeof( M4 ) ) );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent<M4>",		bottom.GetProcessesInParent<M4>() );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent( M4 )",	bottom.GetProcessesInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<M4>",		top.GetBehavioursInParent<M4>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( M4 )",		top.GetBehavioursInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M4>",		center.GetBehavioursInParent<M4>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M4 )",	center.GetBehavioursInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent<M4>",		bottom.GetBehavioursInParent<M4>() );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInParent( M4 )",	bottom.GetBehavioursInParent( typeof( M4 ) ) );
 
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren<M4>",		top.GetProcessInChildren<M4>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren( M4 )",	top.GetProcessInChildren( typeof( M4 ) ) );
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M4>",	center.GetProcessInChildren<M4>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M4 )",	center.GetProcessInChildren( typeof( M4 ) ) );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren<M4>",	bottom.GetProcessInChildren<M4>() );
-			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren( M4 )",	bottom.GetProcessInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren<M4>",		top.GetBehaviourInChildren<M4>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren( M4 )",	top.GetBehaviourInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M4>",	center.GetBehaviourInChildren<M4>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M4 )",	center.GetBehaviourInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren<M4>",	bottom.GetBehaviourInChildren<M4>() );
+			TestProcessUtility.LogProcess( "bottom.GetProcessInChildren( M4 )",	bottom.GetBehaviourInChildren( typeof( M4 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<M4>",		top.GetProcessesInChildren<M4>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( M4 )",	top.GetProcessesInChildren( typeof( M4 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M4>",	center.GetProcessesInChildren<M4>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M4 )",	center.GetProcessesInChildren( typeof( M4 ) ) );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren<M4>",	bottom.GetProcessesInChildren<M4>() );
-			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren( M4 )",	bottom.GetProcessesInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<M4>",		top.GetBehavioursInChildren<M4>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( M4 )",	top.GetBehavioursInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M4>",	center.GetBehavioursInChildren<M4>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M4 )",	center.GetBehavioursInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren<M4>",	bottom.GetBehavioursInChildren<M4>() );
+			TestProcessUtility.LogProcesses( "bottom.GetProcessesInChildren( M4 )",	bottom.GetBehavioursInChildren( typeof( M4 ) ) );
 
 			while ( true )	{ yield return null; }
 		}
@@ -200,44 +200,44 @@ namespace SubmarineMirage.TestProcess {
 		IEnumerator TestGetInMonoBehaviourProcessSub() {
 			Log.Debug( "TestGetInMonoBehaviourProcessSub" );
 
-			var top = SceneManager.s_instance.GetProcess<M1>();
-			var center = SceneManager.s_instance.GetProcess<M3>();
-			TestProcessUtility.LogHierarchy( "top", top._hierarchy );
-			TestProcessUtility.LogHierarchy( "center", center._hierarchy );
+			var top = SceneManager.s_instance.GetBehaviour<M1>();
+			var center = SceneManager.s_instance.GetBehaviour<M3>();
+			TestProcessUtility.LogHierarchy( "top", top._object );
+			TestProcessUtility.LogHierarchy( "center", center._object );
 
-			TestProcessUtility.LogProcess( "top.GetProcess<M1>",	top.GetProcess<M1>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( M1 )",	top.GetProcess( typeof( M1 ) ) );
-			TestProcessUtility.LogProcess( "top.GetProcess<M2>",	top.GetProcess<M2>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( M2 )",	top.GetProcess( typeof( M2 ) ) );
-			TestProcessUtility.LogProcess( "top.GetProcess<M3>",	top.GetProcess<M3>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( M3 )",	top.GetProcess( typeof( M3 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<M1>",	top.GetBehaviour<M1>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( M1 )",	top.GetBehaviour( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<M2>",	top.GetBehaviour<M2>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( M2 )",	top.GetBehaviour( typeof( M2 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<M3>",	top.GetBehaviour<M3>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( M3 )",	top.GetBehaviour( typeof( M3 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcesses<M1>",	top.GetProcesses<M1>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( M1 )",	top.GetProcesses( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "top.GetProcesses<M2>",	top.GetProcesses<M2>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( M2 )",	top.GetProcesses( typeof( M2 ) ) );
-			TestProcessUtility.LogProcesses( "top.GetProcesses<M3>",	top.GetProcesses<M3>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( M3 )",	top.GetProcesses( typeof( M3 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<M1>",	top.GetBehaviours<M1>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( M1 )",	top.GetBehaviours( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<M2>",	top.GetBehaviours<M2>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( M2 )",	top.GetBehaviours( typeof( M2 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<M3>",	top.GetBehaviours<M3>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( M3 )",	top.GetBehaviours( typeof( M3 ) ) );
 
-			TestProcessUtility.LogProcess( "center.GetProcessInParent<M1>",			center.GetProcessInParent<M1>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInParent( M1 )",		center.GetProcessInParent( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M1>",		center.GetProcessesInParent<M1>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M1 )",	center.GetProcessesInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent<M1>",			center.GetBehaviourInParent<M1>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent( M1 )",		center.GetBehaviourInParent( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M1>",		center.GetBehavioursInParent<M1>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M1 )",	center.GetBehavioursInParent( typeof( M1 ) ) );
 
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M1>",		center.GetProcessInChildren<M1>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M1 )",		center.GetProcessInChildren( typeof( M1 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M1>",	center.GetProcessesInChildren<M1>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M1 )",	center.GetProcessesInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M1>",		center.GetBehaviourInChildren<M1>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M1 )",		center.GetBehaviourInChildren( typeof( M1 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M1>",	center.GetBehavioursInChildren<M1>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M1 )",	center.GetBehavioursInChildren( typeof( M1 ) ) );
 
-			TestProcessUtility.LogProcess( "center.GetProcessInParent<M4>",			center.GetProcessInParent<M4>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInParent( M4 )",		center.GetProcessInParent( typeof( M4 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M4>",		center.GetProcessesInParent<M4>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M4 )",	center.GetProcessesInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent<M4>",			center.GetBehaviourInParent<M4>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInParent( M4 )",		center.GetBehaviourInParent( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent<M4>",		center.GetBehavioursInParent<M4>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInParent( M4 )",	center.GetBehavioursInParent( typeof( M4 ) ) );
 
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M4>",		center.GetProcessInChildren<M4>() );
-			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M4 )",		center.GetProcessInChildren( typeof( M4 ) ) );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M4>",	center.GetProcessesInChildren<M4>() );
-			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M4 )",	center.GetProcessesInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren<M4>",		center.GetBehaviourInChildren<M4>() );
+			TestProcessUtility.LogProcess( "center.GetProcessInChildren( M4 )",		center.GetBehaviourInChildren( typeof( M4 ) ) );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren<M4>",	center.GetBehavioursInChildren<M4>() );
+			TestProcessUtility.LogProcesses( "center.GetProcessesInChildren( M4 )",	center.GetBehavioursInChildren( typeof( M4 ) ) );
 
 			while ( true )	{ yield return null; }
 		}
@@ -257,41 +257,41 @@ namespace SubmarineMirage.TestProcess {
 		IEnumerator TestGetBaseProcessSub() {
 			Log.Debug( "TestGetBaseProcessSub" );
 
-			var top = SceneManager.s_instance.GetProcess<B1>()._hierarchy;
+			var top = SceneManager.s_instance.GetBehaviour<B1>()._object;
 			TestProcessUtility.LogHierarchy( "top", top );
 
 			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInChildren",	top.GetAllChildren() );
 			TestProcessUtility.LogHierarchies( "top.GetHierarchiesInParent",	top.GetAllParents() );
 			
-			TestProcessUtility.LogProcess( "top.GetProcess<B1>",	top.GetProcess<B1>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( B1 )",	top.GetProcess( typeof( B1 ) ) );
-			TestProcessUtility.LogProcess( "top.GetProcess<B2>",	top.GetProcess<B2>() );
-			TestProcessUtility.LogProcess( "top.GetProcess( B2 )",	top.GetProcess( typeof( B2 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<B1>",	top.GetBehaviour<B1>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( B1 )",	top.GetBehaviour( typeof( B1 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcess<B2>",	top.GetBehaviour<B2>() );
+			TestProcessUtility.LogProcess( "top.GetProcess( B2 )",	top.GetBehaviour( typeof( B2 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcesses<B1>",	top.GetProcesses<B1>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( B1 )",	top.GetProcesses( typeof( B1 ) ) );
-			TestProcessUtility.LogProcesses( "top.GetProcesses<B2>",	top.GetProcesses<B2>() );
-			TestProcessUtility.LogProcesses( "top.GetProcesses( B2 )",	top.GetProcesses( typeof( B2 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<B1>",	top.GetBehaviours<B1>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( B1 )",	top.GetBehaviours( typeof( B1 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcesses<B2>",	top.GetBehaviours<B2>() );
+			TestProcessUtility.LogProcesses( "top.GetProcesses( B2 )",	top.GetBehaviours( typeof( B2 ) ) );
 
-			TestProcessUtility.LogProcess( "top.GetProcessInParent<B1>",	top.GetProcessInParent<B1>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInParent( B1 )",	top.GetProcessInParent( typeof( B1 ) ) );
-			TestProcessUtility.LogProcess( "top.GetProcessInParent<B2>",	top.GetProcessInParent<B2>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInParent( B2 )",	top.GetProcessInParent( typeof( B2 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent<B1>",	top.GetBehaviourInParent<B1>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent( B1 )",	top.GetBehaviourInParent( typeof( B1 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent<B2>",	top.GetBehaviourInParent<B2>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInParent( B2 )",	top.GetBehaviourInParent( typeof( B2 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<B1>",	top.GetProcessesInParent<B1>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( B1 )",	top.GetProcessesInParent( typeof( B1 ) ) );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<B2>",	top.GetProcessesInParent<B2>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( B2 )",	top.GetProcessesInParent( typeof( B2 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<B1>",	top.GetBehavioursInParent<B1>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( B1 )",	top.GetBehavioursInParent( typeof( B1 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent<B2>",	top.GetBehavioursInParent<B2>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInParent( B2 )",	top.GetBehavioursInParent( typeof( B2 ) ) );
 
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren<B1>",		top.GetProcessInChildren<B1>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren( B1 )",	top.GetProcessInChildren( typeof( B1 ) ) );
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren<B2>",		top.GetProcessInChildren<B2>() );
-			TestProcessUtility.LogProcess( "top.GetProcessInChildren( B2 )",	top.GetProcessInChildren( typeof( B2 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren<B1>",		top.GetBehaviourInChildren<B1>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren( B1 )",	top.GetBehaviourInChildren( typeof( B1 ) ) );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren<B2>",		top.GetBehaviourInChildren<B2>() );
+			TestProcessUtility.LogProcess( "top.GetProcessInChildren( B2 )",	top.GetBehaviourInChildren( typeof( B2 ) ) );
 
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<B1>",		top.GetProcessesInChildren<B1>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( B1 )",	top.GetProcessesInChildren( typeof( B1 ) ) );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<B2>",		top.GetProcessesInChildren<B2>() );
-			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( B2 )",	top.GetProcessesInChildren( typeof( B2 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<B1>",		top.GetBehavioursInChildren<B1>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( B1 )",	top.GetBehavioursInChildren( typeof( B1 ) ) );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren<B2>",		top.GetBehavioursInChildren<B2>() );
+			TestProcessUtility.LogProcesses( "top.GetProcessesInChildren( B2 )",	top.GetBehavioursInChildren( typeof( B2 ) ) );
 
 			while ( true )	{ yield return null; }
 		}

@@ -13,15 +13,15 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	// TODO : コメント追加、整頓
 
 
-	public class UnregisterSMHierarchy : SMHierarchyModifyData {
-		public UnregisterSMHierarchy( SMHierarchy hierarchy ) : base( hierarchy ) {}
+	public class UnregisterSMObject : SMObjectModifyData {
+		public UnregisterSMObject( SMObject smObject ) : base( smObject ) {}
 
 
 		protected override async UniTask Run() {
-			_owner.Get( _hierarchy._type )
-				.Remove( _hierarchy );
-			_hierarchy.Dispose();
-			if ( _hierarchy._owner != null )	{ Object.Destroy( _hierarchy._owner ); }
+			_owner.Get( _object._type )
+				.Remove( _object );
+			_object.Dispose();
+			if ( _object._owner != null )	{ Object.Destroy( _object._owner ); }
 
 			await UniTaskUtility.DontWait();
 		}

@@ -82,7 +82,7 @@ namespace SubmarineMirage.Main {
 
 			await DebugManager.WaitForCreation();
 
-			await CoroutineProcessManager.WaitForCreation();
+			await CoroutineTaskManager.WaitForCreation();
 			await InputManager.WaitForCreation();
 			await NetworkManager.WaitForCreation();
 			await TimeManager.WaitForCreation();

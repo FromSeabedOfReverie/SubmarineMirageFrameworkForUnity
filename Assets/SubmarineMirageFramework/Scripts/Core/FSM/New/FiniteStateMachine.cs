@@ -67,13 +67,13 @@ namespace SubmarineMirage.FSM.New {
 						.Select( pair => pair.Value )
 						.Select( state => {
 							state.Set( _owner );
-							return state.RunProcessStateEvent( SMTaskRanState.Loading );
+							return state.RunBehaviourStateEvent( SMTaskRanState.Loading );
 						} )
 				);
 			} );
 			_initializeEvent.AddLast( _registerEventName, async cancel => {
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( SMTaskRanState.Initializing ) )
+					_states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Initializing ) )
 				);
 				_isInitialized = true;
 				var state = _startState ?? _states.First().Value.GetType();
@@ -82,18 +82,18 @@ namespace SubmarineMirage.FSM.New {
 			_finalizeEvent.AddFirst( _registerEventName, async cancel => {
 				await ChangeState( null );
 				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunProcessStateEvent( SMTaskRanState.Finalizing ) )
+					_states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Finalizing ) )
 				);
 			} );
 
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( SMTaskRanState.FixedUpdate ).Forget()
+				_state?.RunBehaviourStateEvent( SMTaskRanState.FixedUpdate ).Forget()
 			);
 			_updateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( SMTaskRanState.Update ).Forget()
+				_state?.RunBehaviourStateEvent( SMTaskRanState.Update ).Forget()
 			);
 			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
-				_state?.RunProcessStateEvent( SMTaskRanState.LateUpdate ).Forget()
+				_state?.RunBehaviourStateEvent( SMTaskRanState.LateUpdate ).Forget()
 			);
 
 			_enableEvent.AddLast( _registerEventName, async cancel => {
@@ -215,12 +215,12 @@ namespace SubmarineMirage.FSM.New {
 
 		public override string ToString() {
 			var result = $"{this.GetAboutName()}(\n"
-				+ $"    _owner : {_owner.GetAboutName()}\n"
-				+ $"    _registerEventName : {_registerEventName}\n"
-				+ $"    _state : {_state}\n"
-				+ $"    _nextState : {_nextState}\n"
-				+ $"    _isRequestNextState : {_isRequestNextState}\n"
-				+ $"    _states : \n";
+				+ $"    {nameof( _owner )} : {_owner.GetAboutName()}\n"
+				+ $"    {nameof( _registerEventName )} : {_registerEventName}\n"
+				+ $"    {nameof( _state )} : {_state}\n"
+				+ $"    {nameof( _nextState )} : {_nextState}\n"
+				+ $"    {nameof( _isRequestNextState )} : {_isRequestNextState}\n"
+				+ $"    {nameof( _states )} : \n";
 			_states.ForEach( pair => result += $"        {pair.Value}\n" );
 			result += ")";
 			return result;
