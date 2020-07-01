@@ -18,14 +18,14 @@ namespace SubmarineMirage.SMTask {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMMonoBehaviour : MonoBehaviourExtension, ISMBehavior {
+	public abstract class SMMonoBehaviour : MonoBehaviourExtension, ISMBehaviour {
 		public virtual SMTaskType _type => SMTaskType.Work;
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
 		public SMObject _object			{ get; set; }
-		public SMBehaviorBody _body		{ get; private set; }
-		public ISMBehavior _previous	{ get; set; }
-		public ISMBehavior _next		{ get; set; }
+		public SMBehaviourBody _body		{ get; private set; }
+		public ISMBehaviour _previous	{ get; set; }
+		public ISMBehaviour _next		{ get; set; }
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isActive		=> _body._isActive;
@@ -47,7 +47,7 @@ namespace SubmarineMirage.SMTask {
 
 
 		public void Constructor() {
-			_body = new SMBehaviorBody(
+			_body = new SMBehaviourBody(
 				this,
 				isActiveAndEnabled ? SMTaskActiveState.Enabling : SMTaskActiveState.Disabling
 			);
@@ -109,6 +109,8 @@ namespace SubmarineMirage.SMTask {
 		public IEnumerable<SMMonoBehaviour> GetBehavioursInChildren( Type type )
 			=> _object.GetBehavioursInChildren( type )
 				.Select( b => (SMMonoBehaviour)b );
+
+
 
 
 		public T AddBehaviour<T>() where T : SMMonoBehaviour

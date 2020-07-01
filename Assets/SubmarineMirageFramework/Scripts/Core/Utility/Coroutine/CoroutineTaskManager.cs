@@ -58,7 +58,7 @@ namespace SubmarineMirage.Utility {
 		/// <summary>
 		/// ● 登録解除
 		/// </summary>
-		public void UnRegister( CoroutineTask task ) => _coroutines.Remove( task );
+		public void Unregister( CoroutineTask task ) => _coroutines.Remove( task );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 文字列に変換

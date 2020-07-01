@@ -14,14 +14,14 @@ namespace SubmarineMirage.SMTask {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMBehavior : ISMBehavior {
+	public abstract class SMBehaviour : ISMBehaviour {
 		public virtual SMTaskType _type => SMTaskType.Work;
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
 		public SMObject _object			{ get; set; }
-		public SMBehaviorBody _body		{ get; protected set; }
-		public ISMBehavior _previous	{ get; set; }
-		public ISMBehavior _next		{ get; set; }
+		public SMBehaviourBody _body		{ get; protected set; }
+		public ISMBehaviour _previous	{ get; set; }
+		public ISMBehaviour _next		{ get; set; }
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isActive		=> _body._isActive;
@@ -42,12 +42,12 @@ namespace SubmarineMirage.SMTask {
 		public MultiDisposable _disposables	=> _body._disposables;
 
 
-		protected SMBehavior() {
-			_body = new SMBehaviorBody( this, SMTaskActiveState.Enabling );
-			_object = new SMObject( null, new ISMBehavior[] { this }, null );
+		protected SMBehaviour() {
+			_body = new SMBehaviourBody( this, SMTaskActiveState.Enabling );
+			_object = new SMObject( null, new ISMBehaviour[] { this }, null );
 		}
 
-		~SMBehavior() => Dispose();
+		~SMBehaviour() => Dispose();
 
 		public void Dispose() => _body.Dispose();
 

@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
+	using System;
 	using UniRx.Async;
 	using Utility;
 	using Debug;
@@ -15,7 +16,16 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class RegisterSMObject : SMObjectModifyData {
-		public RegisterSMObject( SMObject smObject ) : base( smObject ) {}
+		public RegisterSMObject( SMObject smObject ) : base( smObject ) {
+			if ( !_object._isTop ) {
+				throw new NotSupportedException(
+					$"最上階の{nameof( SMObject )}で無い為、登録不可 :\n{_object}" );
+			}
+		}
+
+		public override void Cancel() {
+			_object.Dispose();
+		}
 
 
 		public override async UniTask Run() {
@@ -25,8 +35,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			} else {
 //				Log.Debug( "Dont MoveGameObjectToScene" );
 			}
-
-			_object._objects.Add( _object );
+			RegisterObject();
 
 			await SetRunObject();
 		}

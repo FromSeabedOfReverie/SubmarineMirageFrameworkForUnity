@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
@@ -21,7 +20,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public class SMObjectModifyler : IDisposableExtension {
 		public SMObject _owner	{ get; private set; }
-		readonly Queue<SMObjectModifyData> _data = new Queue<SMObjectModifyData>();
+		public Queue<SMObjectModifyData> _data = new Queue<SMObjectModifyData>();
 		public bool _isRunning	{ get; private set; }
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
@@ -30,7 +29,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			_owner = owner;
 
 			_disposables.AddLast( () => {
-				_data.ForEach( d => d._object.Dispose() );
+				_data.ForEach( d => d.Cancel() );
 				_data.Clear();
 			} );
 		}

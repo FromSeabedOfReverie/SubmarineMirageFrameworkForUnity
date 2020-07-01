@@ -15,7 +15,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class RunActiveSMObject : SMObjectModifyData {
-		public RunActiveSMObject( SMObject smObject ) : base( smObject )	{}
+		public RunActiveSMObject( SMObject smObject ) : base( smObject ) {}
+
+		public override void Cancel() {}
 
 
 		public override async UniTask Run() {

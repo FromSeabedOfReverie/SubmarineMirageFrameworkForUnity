@@ -81,7 +81,7 @@ public abstract class GameState : State<SceneManager, GameManager> {
 		if ( _fsm._state is OverGameState )	{ return false; }
 		var isOver = _fsm._ais
 			.Where( ai => ai is Player )
-			.All( p => p._fsm._isDeath );
+			.All( ai => ai._fsm._isDeath );
 		if ( isOver ) {
 			_fsm.ChangeState<OverGameState>();
 		}

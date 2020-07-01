@@ -34,6 +34,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			}
 		}
 
+		public override void Cancel() {}
+
 
 		public override async UniTask Run() {
 			switch ( _state ) {

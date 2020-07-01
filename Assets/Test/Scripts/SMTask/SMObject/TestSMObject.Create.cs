@@ -4,13 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestProcess {
+namespace SubmarineMirage.TestSMTask {
 	using System.Linq;
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
 	using SMTask;
 	using Extension;
+	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
@@ -21,9 +22,9 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-	public partial class TestProcessHierarchy : Test {
+	public partial class TestSMObject : Test {
 		Text _text;
-		ISMBehavior _process;
+		ISMBehaviour _behaviour;
 
 
 		protected override void Create() {
@@ -34,19 +35,19 @@ namespace SubmarineMirage.TestProcess {
 			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _process._object == null ) {
+				if ( _behaviour._object == null ) {
 					_text.text = string.Empty;
 					return;
 				}
-				var p = _process._object._processes.FirstOrDefault();
+				var b = _behaviour._object._behaviour;
 				_text.text =
-					$"{_process._object}\n"
-					+ $"{p.GetAboutName()}(\n"
-					+ $"    _isInitialized : {p._isInitialized}\n"
-					+ $"    _isActive : {p._isActive}\n"
-					+ $"    _ranState : {p._body._ranState}\n"
-					+ $"    _activeState : {p._body._activeState}\n"
-					+ $"    next : {p._body._nextActiveState}\n"
+					$"{_behaviour._object}\n"
+					+ $"{b.GetAboutName()}(\n"
+					+ $"    {nameof( b._isInitialized )} : {b._isInitialized}\n"
+					+ $"    {nameof( b._isActive )} : {b._isActive}\n"
+					+ $"    {nameof( b._body._ranState )} : {b._body._ranState}\n"
+					+ $"    {nameof( b._body._activeState )} : {b._body._activeState}\n"
+					+ $"    next : {b._body._nextActiveState}\n"
 					+ $")\n";
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
@@ -56,13 +57,13 @@ namespace SubmarineMirage.TestProcess {
 				switch ( _testName ) {
 					case nameof( TestVariable ):					CreateTestVariable();					break;
 					case nameof( TestMultiVariable ):				CreateTestMultiVariable();				break;
-					case nameof( TestHierarchy ):					CreateTestHierarchy();					break;
+					case nameof( TestObject ):						CreateTestObject();						break;
 
-					case nameof( TestGetHierarchies ):				CreateTestGetHierarchies();				break;
-					case nameof( TestGetProcess ):					CreateTestGetProcess();					break;
-					case nameof( TestGetHierarchyProcess ):			CreateTestGetHierarchyProcess();		break;
-					case nameof( TestGetInMonoBehaviourProcess ):	CreateTestGetInMonoBehaviourProcess();	break;
-					case nameof( TestGetBaseProcess ):				CreateTestGetBaseProcess();				break;
+					case nameof( TestGetObjects ):				CreateTestGetObjects();				break;
+					case nameof( TestGetBehaviour ):					CreateTestGetBehaviour();					break;
+					case nameof( TestGetObjectBehaviour ):			CreateTestGetObjectBehaviour();		break;
+					case nameof( TestGetInSMMonoBehaviour ):	CreateTestGetInSMMonoBehaviour();	break;
+					case nameof( TestGetSMBehaviour ):				CreateTestGetSMBehaviour();				break;
 
 					case nameof( TestRunB1 ):						CreateTestRunB1();						break;
 					case nameof( TestRunB2 ):						CreateTestRunB2();						break;
@@ -84,6 +85,8 @@ namespace SubmarineMirage.TestProcess {
 					case nameof( TestRunByActiveState3 ):			CreateTestRunByActiveState3();			break;
 				}
 				Log.Debug( $"end Create{_testName}" );
+
+				await UniTaskUtility.DontWait();
 			} );
 		}
 	}

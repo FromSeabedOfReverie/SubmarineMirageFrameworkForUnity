@@ -88,7 +88,7 @@ namespace SubmarineMirage.Data.Save {
 		/// ● 登録解除
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public void UnRegister( string path ) {
+		public void Unregister( string path ) {
 			_textureData.Remove( path );
 			_audioData.Remove( path );
 			_textData.Remove( path );

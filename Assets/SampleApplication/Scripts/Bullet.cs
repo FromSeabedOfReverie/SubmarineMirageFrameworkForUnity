@@ -135,7 +135,7 @@ public class DeathBulletState : BulletState {
 	///		Process管理クラスの登録を解除し、終了処理を呼び出して貰う。
 	/// </summary>
 	public override IEnumerator OnEnter() {
-		CoreProcessManager.s_instance.UnRegister( _owner );
+		CoreProcessManager.s_instance.Unregister( _owner );
 		yield break;
 	}
 }

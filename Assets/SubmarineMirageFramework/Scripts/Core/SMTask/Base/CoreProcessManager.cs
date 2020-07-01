@@ -200,7 +200,7 @@ namespace SubmarineMirage.Process {
 
 				// 登録処理を終了
 				foreach ( var p in _processes ) {
-					UnRegister( p );
+					Unregister( p );
 				}
 				await CheckDeleteProcesses();
 			};
@@ -270,7 +270,7 @@ namespace SubmarineMirage.Process {
 		/// <summary>
 		/// ● 登録解除
 		/// </summary>
-		public void UnRegister( IProcess process ) {
+		public void Unregister( IProcess process ) {
 			_deleteProcesses.Add( process );
 		}
 		///------------------------------------------------------------------------------------------------
@@ -323,7 +323,7 @@ namespace SubmarineMirage.Process {
 		async UniTask CheckDeleteProcessesForScene() {
 			foreach ( var p in _processes ) {
 				if ( p._isInSceneOnly ) {
-					UnRegister( p );
+					Unregister( p );
 				}
 			}
 			await UniTask.WaitUntil( () => _deleteProcesses.Count == 0 );

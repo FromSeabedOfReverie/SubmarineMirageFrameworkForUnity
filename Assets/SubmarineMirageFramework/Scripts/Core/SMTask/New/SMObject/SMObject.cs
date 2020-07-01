@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMObject
+#define TestSMObject
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -25,20 +25,20 @@ namespace SubmarineMirage.SMTask {
 
 
 	public class SMObject : IDisposableExtension {
-		public SMTaskType _type			{ get; private set; }
-		public SMTaskLifeSpan _lifeSpan	{ get; private set; }
-		public BaseScene _scene			{ get; private set; }
+		public SMTaskType _type;
+		public SMTaskLifeSpan _lifeSpan;
+		public BaseScene _scene;
 		public SMObjectManager _objects => _scene?._objects;
 
 		public GameObject _owner		{ get; private set; }
 		public SMObjectModifyler _modifyler	{ get; private set; }
 
-		public ISMBehavior _behavior	{ get; private set; }
-		public SMObject _previous		{ get; private set; }
-		public SMObject _next			{ get; private set; }
-		public SMObject _parent			{ get; private set; }
-		public SMObject _child			{ get; private set; }
-		public SMObject _top			{ get; private set; }
+		public ISMBehaviour _behaviour	{ get; private set; }
+		public SMObject _previous;
+		public SMObject _next;
+		public SMObject _parent;
+		public SMObject _child;
+		public SMObject _top;
 
 		public bool _isTop => _top == this;
 
@@ -48,7 +48,7 @@ namespace SubmarineMirage.SMTask {
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public SMObject( GameObject owner, IEnumerable<ISMBehavior> behaviours, SMObject parent ) {
+		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent ) {
 #if TestSMObject
 			Log.Debug( $"start : {behaviours.FirstOrDefault().GetAboutName()}.{this}" );
 #endif
@@ -57,10 +57,10 @@ namespace SubmarineMirage.SMTask {
 			_modifyler = new SMObjectModifyler( this );
 			_disposables.AddLast( _modifyler );
 
-			SetBehaviours( behaviours );
-			SetParent( parent );
-			SetChildren();
-			if ( _parent == null )	{ SetTop(); }
+			SetupBehaviours( behaviours );
+			SetupParent( parent );
+			SetupChildren();
+			SetupTop();
 
 			_disposables.AddLast( () => GetBehaviours().ForEach( b => b.Dispose() ) );
 			_disposables.AddLast( () => GetChildren().ForEach( o => o.Dispose() ) );
@@ -68,10 +68,10 @@ namespace SubmarineMirage.SMTask {
 				_asyncCanceler.Cancel();
 				_asyncCanceler.Dispose();
 			} );
-			_disposables.AddLast( () => UnLink() );
+			_disposables.AddLast( () => SMObjectModifyData.UnLinkObject( this ) );
 			
 #if TestSMObject
-			Log.Debug( $"end : {_behavior.GetAboutName()}.{this}" );
+			Log.Debug( $"end : {_behaviour.GetAboutName()}.{this}" );
 #endif
 		}
 
@@ -79,24 +79,14 @@ namespace SubmarineMirage.SMTask {
 
 		public void Dispose() => _disposables.Dispose();
 
-		public void UnLink() {
-			if ( _parent?._child == this )	{ _parent._child = _next; }
-			_parent = null;
-
-			if ( _previous != null )	{ _previous._next = _next; }
-			if ( _next != null )		{ _next._previous = _previous; }
-			_previous = null;
-			_next = null;
-		}
 
 
-
-		void SetBehaviours( IEnumerable<ISMBehavior> behaviours ) {
+		void SetupBehaviours( IEnumerable<ISMBehaviour> behaviours ) {
 #if TestSMObject
-			Log.Debug( $"start {nameof( SetBehaviours )} : {this}" );
+			Log.Debug( $"start {nameof( SetupBehaviours )} : {this}" );
 #endif
-			_behavior = behaviours.First();
-			ISMBehavior last = null;
+			_behaviour = behaviours.First();
+			ISMBehaviour last = null;
 			behaviours.ForEach( b => {
 				if ( last != null ) {
 					last._next = b;
@@ -108,28 +98,25 @@ namespace SubmarineMirage.SMTask {
 				if ( _owner != null )	{ ( (SMMonoBehaviour)b ).Constructor(); }
 			} );
 #if TestSMObject
-			Log.Debug( $"end {nameof( SetBehaviours )} : {this}" );
+			Log.Debug( $"end {nameof( SetupBehaviours )} : {this}" );
 #endif
 		}
 
-		public void SetParent( SMObject parent ) {
+		void SetupParent( SMObject parent ) {
 			if ( _owner == null )	{ return; }
 #if TestSMObject
-			Log.Debug( $"start {nameof( SetParent )} : {this}" );
+			Log.Debug( $"start {nameof( SetupParent )} : {this}" );
 #endif
-			if ( parent != null )	{ parent.AddChild( this ); }
-			else					{ Add( this ); }
+			if ( parent != null )	{ SMObjectModifyData.AddChildObject( parent, this ); }
 #if TestSMObject
-			Log.Debug( $"end {nameof( SetParent )} : {this}" );
+			Log.Debug( $"end {nameof( SetupParent )} : {this}" );
 #endif
 		}
 
-		void SetChildren() {
-			GetAllChildren();
-
+		void SetupChildren() {
 			if ( _owner == null )	{ return; }
 #if TestSMObject
-			Log.Debug( $"start {nameof( SetChildren )} : {this}" );
+			Log.Debug( $"start {nameof( SetupChildren )} : {this}" );
 #endif
 			var currents = Enumerable.Empty<Transform>()
 				.Concat( _owner.transform );
@@ -148,79 +135,14 @@ namespace SubmarineMirage.SMTask {
 				currents = children;
 			}
 #if TestSMObject
-			Log.Debug( $"end {nameof( SetChildren )} : {this}" );
+			Log.Debug( $"end {nameof( SetupChildren )} : {this}" );
 #endif
 		}
 
-		public void SetTop() {
-#if TestSMObject
-			Log.Debug( $"start {nameof( SetTop )} : {this}" );
-#endif
-			for ( _top = this; _top._parent != null; _top = _top._parent )	{}
-			SetAllData();
-#if TestSMObject
-			Log.Debug( $"end {nameof( SetTop )} : {this}" );
-#endif
+		void SetupTop() {
+			if ( _parent == null )	{ SMObjectModifyData.SetTopObject( this ); }
 		}
 
-		public void SetAllData() {
-#if TestSMObject
-			Log.Debug( $"start {nameof( SetAllData )} : {this}" );
-#endif
-			var lastType = _top._type;
-			var lastScene = _top._scene;
-			var allObjects = _top.GetAllChildren();
-			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
-#if TestSMObject
-			Log.Debug(
-				$"{nameof( allBehaviours )} : \n"
-					+ $"{string.Join( ", ", allBehaviours.Select( b => b.GetAboutName() ) )}"
-			);
-#endif
-			_top._type = (
-				allBehaviours.Any( b => b._type == SMTaskType.FirstWork )	? SMTaskType.FirstWork :
-				allBehaviours.Any( b => b._type == SMTaskType.Work )		? SMTaskType.Work
-																			: SMTaskType.DontWork
-			);
-			_top._lifeSpan = allBehaviours.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever ) ?
-				SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
-			_top._scene = (
-				// SceneManager作成時の場合、循環参照になる為、設定出来ない
-				!SceneManager.s_isCreated					? null :
-				_top._lifeSpan == SMTaskLifeSpan.Forever	? SceneManager.s_instance._fsm._foreverScene :
-				_top._owner != null						? SceneManager.s_instance._fsm.Get( _top._owner.scene ) :
-				SceneManager.s_instance._fsm._scene != null
-															? SceneManager.s_instance._fsm._scene
-															: SceneManager.s_instance._fsm._startScene
-			);
-
-			allObjects.ForEach( o => {
-				o._top = _top;
-				o._type = _top._type;
-				o._lifeSpan = _top._lifeSpan;
-				o._scene = _top._scene;
-			} );
-
-			if ( lastScene == null ) {
-#if TestSMObject
-				Log.Debug( $"Register : {_top}" );
-#endif
-				// SceneManager作成時の場合、循環参照になる為、設定出来ない
-				if ( _objects != null ) { _top.Register(); }
-			} else if ( _top._type != lastType || _top._scene != lastScene ) {
-#if TestSMObject
-				Log.Debug( $"ReRegister : {_top}" );
-#endif
-				_top.ReRegister( lastType, lastScene );
-			} else {
-#if TestSMObject
-				Log.Debug( $"DontRegister : {_top}" );
-#endif
-			}
-#if TestSMObject
-			Log.Debug( $"end {nameof( SetAllData )} : {this}" );
-#endif
-		}
 
 
 		public SMObject GetFirst() {
@@ -270,116 +192,83 @@ namespace SubmarineMirage.SMTask {
 		}
 
 
-		public T GetBehaviour<T>() where T : ISMBehavior
+		public T GetBehaviour<T>() where T : ISMBehaviour
 			=> (T)GetBehaviours()
 				.FirstOrDefault( b => b is T );
 
-		public ISMBehavior GetBehaviour( Type type )
+		public ISMBehaviour GetBehaviour( Type type )
 			=> GetBehaviours()
 				.FirstOrDefault( b => b.GetType() == type );
 
-		public ISMBehavior GetBehaviourAtLast() {
-			ISMBehavior current = null;
-			for ( current = _behavior; current._next != null; current = current._next )	{}
+		public ISMBehaviour GetBehaviourAtLast() {
+			ISMBehaviour current = null;
+			for ( current = _behaviour; current._next != null; current = current._next )	{}
 			return current;
 		}
 
-		public IEnumerable<ISMBehavior> GetBehaviours() {
-			for ( var current = _behavior; current != null; current = current._next ) {
+		public IEnumerable<ISMBehaviour> GetBehaviours() {
+			for ( var current = _behaviour; current != null; current = current._next ) {
 				yield return current;
 			}
 		}
-		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehavior
+		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
 			=> GetBehaviours()
 				.Where( b => b is T )
 				.Select( b => (T)b );
 
-		public IEnumerable<ISMBehavior> GetBehaviours( Type type )
+		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
 			=> GetBehaviours()
 				.Where( b => b.GetType() == type );
 
-		public T GetBehaviourInParent<T>() where T : ISMBehavior
+		public T GetBehaviourInParent<T>() where T : ISMBehaviour
 			=> GetAllParents()
 				.Select( o => o.GetBehaviour<T>() )
 				.FirstOrDefault( b => b != null );
 
-		public ISMBehavior GetBehaviourInParent( Type type )
+		public ISMBehaviour GetBehaviourInParent( Type type )
 			=> GetAllParents()
 				.Select( o => o.GetBehaviour( type ) )
 				.FirstOrDefault( b => b != null );
 
-		public IEnumerable<T> GetBehavioursInParent<T>() where T : ISMBehavior
+		public IEnumerable<T> GetBehavioursInParent<T>() where T : ISMBehaviour
 			=> GetAllParents()
 				.SelectMany( o => o.GetBehaviours<T>() );
 
-		public IEnumerable<ISMBehavior> GetBehavioursInParent( Type type )
+		public IEnumerable<ISMBehaviour> GetBehavioursInParent( Type type )
 			=> GetAllParents()
 				.SelectMany( o => o.GetBehaviours( type ) );
 
-		public T GetBehaviourInChildren<T>() where T : ISMBehavior
+		public T GetBehaviourInChildren<T>() where T : ISMBehaviour
 			=> GetAllChildren()
 				.Select( o => o.GetBehaviour<T>() )
 				.FirstOrDefault( b => b != null );
 
-		public ISMBehavior GetBehaviourInChildren( Type type )
+		public ISMBehaviour GetBehaviourInChildren( Type type )
 			=> GetAllChildren()
 				.Select( o => o.GetBehaviour( type ) )
 				.FirstOrDefault( b => b != null );
 
-		public IEnumerable<T> GetBehavioursInChildren<T>() where T : ISMBehavior
+		public IEnumerable<T> GetBehavioursInChildren<T>() where T : ISMBehaviour
 			=> GetAllChildren()
 				.SelectMany( o => o.GetBehaviours<T>() );
 
-		public IEnumerable<ISMBehavior> GetBehavioursInChildren( Type type )
+		public IEnumerable<ISMBehaviour> GetBehavioursInChildren( Type type )
 			=> GetAllChildren()
 				.SelectMany( o => o.GetBehaviours( type ) );
 
 
-
-
-		public void Add( SMObject smObject ) {
-			smObject.UnLink();
-
-			var last = GetLast();
-			smObject._parent = last._parent;
-			smObject._previous = last;
-			last._next = smObject;
-		}
-		void AddChild( SMObject smObject ) {
-			smObject.UnLink();
-
-			smObject._parent = this;
-			var last = GetLastChild();
-			if ( last != null ) {
-				smObject._previous = last;
-				last._next = smObject;
-			} else {
-				_child = smObject;
-			}
-		}
 
 		public T AddBehaviour<T>() where T : SMMonoBehaviour {
-			var data = new AddSMObject( this, typeof( T ) );
+			var data = new AddBehaviourSMObject( this, typeof( T ) );
 			_top._modifyler.Register( data );
-			return (T)data._behavior;
+			return (T)data._behaviour;
 		}
 
 		public SMMonoBehaviour AddBehaviour( Type type ) {
-			var data = new AddSMObject( this, type );
+			var data = new AddBehaviourSMObject( this, type );
 			_top._modifyler.Register( data );
-			return data._behavior;
+			return data._behaviour;
 		}
-
-
-
-		void Register()
-			=> _top._modifyler.Register( new RegisterSMObject( this ) );
-
-		void ReRegister( SMTaskType lastType, BaseScene lastScene )
-			=> _top._modifyler.Register( new ReRegisterSMObject( this, lastType, lastScene ) );
-
-		void Unregister()
-			=> _top._modifyler.Register( new UnregisterSMObject( this ) );
 
 		public void Destroy()
 			=> _top._modifyler.Register( new DestroySMObject( this ) );
@@ -411,7 +300,7 @@ namespace SubmarineMirage.SMTask {
 					pair.Value == null			? string.Empty :
 					pair.Value == this			? "this" :
 					pair.Value._owner != null	? $"{pair.Value._owner}"
-												: $"{pair.Value._behavior}"
+												: $"{pair.Value._behaviour}"
 				);
 				result += $"    {pair.Key} : {s}\n";
 			} );

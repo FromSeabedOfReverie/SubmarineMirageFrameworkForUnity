@@ -27,6 +27,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			_isChangeOwner = isChangeOwner;
 		}
 
+		public override void Cancel() {}
+
 
 		public override async UniTask Run() {
 			await ChangeActive( _object, _isActive, _isChangeOwner );

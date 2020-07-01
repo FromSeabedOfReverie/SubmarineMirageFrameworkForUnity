@@ -12,6 +12,7 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
 	using SMTask;
+	using SMTask.Modifyler;
 	using FSM.New;
 	using Singleton.New;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
@@ -33,7 +34,7 @@ namespace SubmarineMirage.Scene {
 			s_instance._fsm = new SceneStateMachine( s_instance );
 			s_instance._fsm._foreverScene.Set( s_instance );
 			s_instance._disposables.AddFirst( s_instance._fsm );
-			s_instance._object.SetAllData();
+			SMObjectModifyData.SetAllObjectData( s_instance._object._top );
 		}
 
 		public override void Create() {}
@@ -51,19 +52,19 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public TBehavior GetBehaviour<TBehavior, TScene>( SMTaskType? bodyType = null )
-			where TBehavior : class, ISMBehavior
+		public TBehaviour GetBehaviour<TBehaviour, TScene>( SMTaskType? bodyType = null )
+			where TBehaviour : class, ISMBehaviour
 			where TScene : BaseScene
 			=> _fsm.GetAllScene()
 				.FirstOrDefault( s => s is TScene )
-				?._objects.GetBehaviour<TBehavior>( bodyType );
+				?._objects.GetBehaviour<TBehaviour>( bodyType );
 
-		public T GetBehaviour<T>( SMTaskType? bodyType = null ) where T : ISMBehavior
+		public T GetBehaviour<T>( SMTaskType? bodyType = null ) where T : ISMBehaviour
 			=> _fsm.GetAllScene()
 				.Select( s => s._objects.GetBehaviour<T>( bodyType ) )
 				.FirstOrDefault( b => b != null );
 
-		public ISMBehavior GetBehaviour( Type type, Type sceneType = null, SMTaskType? bodyType = null ) {
+		public ISMBehaviour GetBehaviour( Type type, Type sceneType = null, SMTaskType? bodyType = null ) {
 			if ( sceneType != null ) {
 				return _fsm.GetAllScene()
 					.FirstOrDefault( s => s.GetType() == sceneType )
@@ -75,18 +76,18 @@ namespace SubmarineMirage.Scene {
 			}
 		}
 
-		public IEnumerable<TBehavior> GetBehaviours<TBehavior, TScene>( SMTaskType? bodyType = null )
-			where TBehavior : class, ISMBehavior
+		public IEnumerable<TBehaviour> GetBehaviours<TBehaviour, TScene>( SMTaskType? bodyType = null )
+			where TBehaviour : class, ISMBehaviour
 			where TScene : BaseScene
 			=> _fsm.GetAllScene()
 				.FirstOrDefault( s => s is TScene )
-				?._objects.GetBehaviours<TBehavior>( bodyType );
+				?._objects.GetBehaviours<TBehaviour>( bodyType );
 
-		public IEnumerable<T> GetBehaviours<T>( SMTaskType? bodyType = null ) where T : ISMBehavior
+		public IEnumerable<T> GetBehaviours<T>( SMTaskType? bodyType = null ) where T : ISMBehaviour
 			=> _fsm.GetAllScene()
 				.SelectMany( s => s._objects.GetBehaviours<T>( bodyType ) );
 
-		public IEnumerable<ISMBehavior> GetBehaviours( Type type, Type sceneType = null,
+		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, Type sceneType = null,
 														SMTaskType? bodyType = null
 		) {
 			if ( sceneType != null ) {

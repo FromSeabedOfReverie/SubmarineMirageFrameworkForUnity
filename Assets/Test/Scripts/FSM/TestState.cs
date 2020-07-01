@@ -32,37 +32,39 @@ namespace SubmarineMirage.TestFSM {
 
 	public class TestState : Test {
 		Text _text;
-		TestOwner _process;
-		BaseTestState _state => _process._fsm._state;
+		TestOwner _behaviour;
+		BaseTestState _state => _behaviour._fsm._state;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_process = new TestOwner();
+			_behaviour = new TestOwner();
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _process == null ) {
+				if ( _behaviour == null ) {
 					_text.text = string.Empty;
 					return;
 				}
 				_text.text =
-					$"_process : {_process._body._activeState}\n" +
+					$"{nameof( _behaviour )} : {_behaviour._body._activeState}\n" +
 					$"\n" +
-					$"{_process._fsm}";
+					$"{_behaviour._fsm}";
 			} ) );
 
-			_disposables.AddLast( _process );
+			_disposables.AddLast( _behaviour );
 		}
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() {
+			_disposables.AddLast( TestFSMUtility.SetRunKey( _behaviour ) );
+
 			yield return From( async () => {
-				await _process.RunStateEvent( SMTaskRanState.Creating );
+				await _behaviour.RunStateEvent( SMTaskRanState.Creating );
 			} );
 
 			_disposables.AddLast(
@@ -151,11 +153,11 @@ namespace SubmarineMirage.TestFSM {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
 					Log.Warning( "key down Owner enable" );
-					_process.ChangeActive( true ).Forget();
+					_behaviour.ChangeActive( true ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
 					Log.Warning( "key down Owner disable" );
-					_process.ChangeActive( false ).Forget();
+					_behaviour.ChangeActive( false ).Forget();
 				} )
 			);
 			_disposables.AddLast(
@@ -165,17 +167,17 @@ namespace SubmarineMirage.TestFSM {
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Delete ) ).Subscribe( _ => {
 					Log.Warning( "key down Owner StopActiveAsync" );
-					_process.StopActiveAsync();
+					_behaviour.StopActiveAsync();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.RightShift ) ).Subscribe( _ => {
 					Log.Warning( "key down Owner finalize" );
-					_process.RunStateEvent( SMTaskRanState.Finalizing ).Forget();
+					_behaviour.RunStateEvent( SMTaskRanState.Finalizing ).Forget();
 				} )
 			);
 
 			yield return From( async () => {
-				await _process.RunStateEvent( SMTaskRanState.Loading );
-				await _process.RunStateEvent( SMTaskRanState.Initializing );
+				await _behaviour.RunStateEvent( SMTaskRanState.Loading );
+				await _behaviour.RunStateEvent( SMTaskRanState.Initializing );
 			} );
 
 			while ( true )	{ yield return null; }
@@ -183,7 +185,7 @@ namespace SubmarineMirage.TestFSM {
 
 
 
-		public class TestOwner : SMBehavior, IFiniteStateMachineOwner<TestFSMManager> {
+		public class TestOwner : SMBehaviour, IFiniteStateMachineOwner<TestFSMManager> {
 			public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 			public TestFSMManager _fsm	{ get; private set; }
 

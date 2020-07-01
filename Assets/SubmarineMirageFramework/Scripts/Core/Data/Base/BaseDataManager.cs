@@ -37,7 +37,7 @@ namespace SubmarineMirage.Data {
 		/// ● 登録解除
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public virtual void UnRegister( TKey key ) {
+		public virtual void Unregister( TKey key ) {
 			_allData.Remove( key );
 		}
 		///------------------------------------------------------------------------------------------------

@@ -57,11 +57,9 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
-				EditorGUILayout.LabelField( $"_isLock : {scene._objects._modifyler._isLock.Value}" );
-
 				scene._objects._objects.ForEach( pair => {
 					ShowHeading2( pair.Key.ToString() );
-					scene._objects.Get( pair.Key ).ForEach( o => ShowObject( o ) );
+					scene._objects.GetAll( pair.Key ).ForEach( o => ShowObject( o ) );
 				} );
 				EditorGUI.indentLevel--;
 			} );
@@ -72,11 +70,11 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( smObject.ToString() );
-			var p = smObject._behavior;
-			var a = p._isActive ? "◯" : "×";
+			var b = smObject._behaviour;
+			var a = b._isActive ? "◯" : "×";
 			var g = smObject._owner != null ? $"( {smObject._owner.name} )" : "";
 			EditorGUILayout.SelectableLabel(
-				$"{a} {p.GetAboutName()}{g}( {p._body._ranState} )",
+				$"{a} {b.GetAboutName()}{g}( {b._body._ranState} )",
 				GUILayout.Height( 16 )
 			);
 

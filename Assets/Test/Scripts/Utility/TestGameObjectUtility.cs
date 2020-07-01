@@ -43,7 +43,7 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestGetComponentsInParentUntilOneHierarchy() => From( async () => {
-			var top = new GameObject( "TestMono top" );
+			var top = new GameObject( $"{nameof( TestMono )} top" );
 			top.AddComponent<TestMono>();
 //			top.SetActive( false );
 			var parent = top.transform;
@@ -53,7 +53,7 @@ namespace SubmarineMirage.TestUtility {
 			3.Times( brotherIndex => {
 				3.Times( hierarchyIndex => {
 					var go = new GameObject();
-					go.name = $"TestMono {id++}";
+					go.name = $"{nameof( TestMono )} {id++}";
 					go.SetParent( parent );
 					parent = go.transform;
 

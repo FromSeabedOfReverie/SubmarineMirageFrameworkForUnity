@@ -6,10 +6,11 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
+	using System.Linq;
+	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx.Async;
 	using Extension;
-	using Utility;
 
 
 	// TODO : コメント追加、整頓
@@ -23,33 +24,47 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public ChangeParentSMObject( SMObject smObject, Transform parent, bool isWorldPositionStays )
 			: base( smObject )
 		{
+			if ( _object._owner == null ) {
+				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、親変更不可 :\n{_object}" );
+			}
 			_parent = parent;
 			_isWorldPositionStays = isWorldPositionStays;
-			if ( smObject._owner == null ) {
-				throw new NotSupportedException(
-					$"{nameof(SMBehavior)}.{nameof( _object )}の、親変更不可 :\n{smObject}" );
-			}
 		}
 
+		public override void Cancel() {}
 
-		protected override async UniTask Run() {
+
+		public override async UniTask Run() {
 			_object._owner.transform.SetParent( _parent, _isWorldPositionStays );
 
-			if ( _object._isTop ) {
-				_owner.Get( _object._type )
-					.Remove( _object );
-			}
-			_object.SetParent(
-				_object._owner.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
-					?._object
-			);
-			_object.SetTop();
+			var top = _object._top;
+			UnLinkObject( _object );
+			if ( top != _object )	{ SetAllObjectData( top ); }
 
-			if ( _object._parent?._owner.activeInHierarchy ?? false ) {
-				// TODO : 親の活動状態と、変更してきた子の活動状態が異なる場合、子の活動状態を、親に合わせる
-			}
+			var parent = _object._owner.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
+				?._object;
+			if ( parent != null )	{ AddChildObject( parent, _object ); }
+			else					{ RegisterObject(); }
 
-			await UniTaskUtility.DontWait();
+			SetTopObject( _object );
+
+
+			var topData = top._modifyler._data
+				.Where( d => {
+					if ( d._object != _object ) {
+						return true;
+					} else {
+						_object._top._modifyler.Register( d );
+						return false;
+					}
+				} );
+			top._modifyler._data = new Queue<SMObjectModifyData>( topData );
+
+			
+			if ( _object._parent != null && _object._owner.activeSelf ) {
+				var isParentActive = _object._parent._owner.activeInHierarchy;
+				await new ChangeActiveSMObject( _object, isParentActive, false ).Run();
+			}
 		}
 	}
 }

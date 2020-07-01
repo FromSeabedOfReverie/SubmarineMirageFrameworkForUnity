@@ -50,7 +50,7 @@ namespace SubmarineMirage.Utility {
 
 			_disposables.AddLast( () => {
 				_isRunning = false;
-				if ( _isRegister )	{ CoroutineTaskManager.s_instance.UnRegister( this ); }
+				if ( _isRegister )	{ CoroutineTaskManager.s_instance.Unregister( this ); }
 			} );
 		}
 		/// <summary>
@@ -96,7 +96,7 @@ namespace SubmarineMirage.Utility {
 			if ( !_isRunning )	{ return; }
 			_isRunning = false;
 			
-			if ( _isRegister )	{ CoroutineTaskManager.s_instance.UnRegister( this ); }
+			if ( _isRegister )	{ CoroutineTaskManager.s_instance.Unregister( this ); }
 			_disposables.Remove( "Coroutine" );
 		}
 /*

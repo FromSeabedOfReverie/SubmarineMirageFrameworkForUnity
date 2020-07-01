@@ -80,7 +80,7 @@ namespace SubmarineMirage.Data.Save {
 		///------------------------------------------------------------------------------------------------
 		~CacheData() {
 			if ( PathUtility.IsURL( _path ) ) {
-				_serverCache.UnRegister( _path );
+				_serverCache.Unregister( _path );
 			}
 		}
 	}

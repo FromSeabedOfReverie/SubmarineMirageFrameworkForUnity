@@ -75,86 +75,41 @@ disable, null	→	disable	→	state
 
 	public class TestFiniteStateMachine : Test {
 		Text _text;
-		TestOwner _process;
+		TestOwner _behaviour;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_process = new TestOwner();
+			_behaviour = new TestOwner();
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _process == null ) {
+				if ( _behaviour == null ) {
 					_text.text = string.Empty;
 					return;
 				}
 				_text.text =
-					$"{_process.GetAboutName()}(\n"
-					+ $"    _isInitialized : {_process._isInitialized}\n"
-					+ $"    _isActive : {_process._isActive}\n"
-					+ $"    _ranState : {_process._body._ranState}\n"
-					+ $"    _activeState : {_process._body._activeState}\n"
-					+ $"    _nextActiveState : {_process._body._nextActiveState}\n"
+					$"{_behaviour.GetAboutName()}(\n"
+					+ $"    {nameof( _behaviour._isInitialized )} : {_behaviour._isInitialized}\n"
+					+ $"    {nameof( _behaviour._isActive )} : {_behaviour._isActive}\n"
+					+ $"    {nameof( _behaviour._body._ranState )} : {_behaviour._body._ranState}\n"
+					+ $"    {nameof( _behaviour._body._activeState )} : {_behaviour._body._activeState}\n"
+					+ $"    {nameof( _behaviour._body._nextActiveState )} : {_behaviour._body._nextActiveState}\n"
 					+ ")\n";
-				_text.text += $"{_process._fsm}";
+				_text.text += $"{_behaviour._fsm}";
 			} ) );
 
-			_disposables.AddLast( _process );
+			_disposables.AddLast( _behaviour );
 		}
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() {
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( "key down Creating" );
-					_process.RunStateEvent( SMTaskRanState.Creating ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Loading" );
-					_process.RunStateEvent( SMTaskRanState.Loading ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
-					Log.Warning( "key down Initializing" );
-					_process.RunStateEvent( SMTaskRanState.Initializing ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
-					Log.Warning( "key down FixedUpdate" );
-					_process.RunStateEvent( SMTaskRanState.FixedUpdate ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
-					Log.Warning( "key down Update" );
-					_process.RunStateEvent( SMTaskRanState.Update ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
-					Log.Warning( "key down LateUpdate" );
-					_process.RunStateEvent( SMTaskRanState.LateUpdate ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
-					Log.Warning( "key down Finalizing" );
-					_process.RunStateEvent( SMTaskRanState.Finalizing ).Forget();
-				} )
-			);
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
-					Log.Warning( "key down Enabling" );
-					_process.ChangeActive( true ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
-					Log.Warning( "key down Disabling" );
-					_process.ChangeActive( false ).Forget();
-				} )
-			);
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down delete" );
-					_process.Dispose();
-					_process = null;
-				} )
-			);
+			_disposables.AddLast( TestFSMUtility.SetRunKey( _behaviour ) );
+
 			var i = 0;
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
@@ -162,100 +117,30 @@ disable, null	→	disable	→	state
 					i = (i + 1) % 5;
 					switch ( i ) {
 						case 0:
-							Log.Debug( $"{this.GetAboutName()} change TestStateA" );
-							_process._fsm.ChangeState<TestStateA>().Forget();
+							Log.Debug( $"{this.GetAboutName()} change {nameof( TestStateA )}" );
+							_behaviour._fsm.ChangeState<TestStateA>().Forget();
 							break;
 						case 1:
-							Log.Debug( $"{this.GetAboutName()} change TestStateB" );
-							_process._fsm.ChangeState<TestStateB>().Forget();
+							Log.Debug( $"{this.GetAboutName()} change {nameof( TestStateB )}" );
+							_behaviour._fsm.ChangeState<TestStateB>().Forget();
 							break;
 						case 2:
-							Log.Debug( $"{this.GetAboutName()} change TestStateC" );
-							_process._fsm.ChangeState<TestStateC>().Forget();
+							Log.Debug( $"{this.GetAboutName()} change {nameof( TestStateC )}" );
+							_behaviour._fsm.ChangeState<TestStateC>().Forget();
 							break;
 						case 3:
 							Log.Debug( $"{this.GetAboutName()} change null" );
-							_process._fsm.ChangeState( null ).Forget();
+							_behaviour._fsm.ChangeState( null ).Forget();
 							break;
 						case 4:
 							Log.Debug( $"{this.GetAboutName()} change null to null" );
-							_process._fsm.ChangeState( null ).Forget();
+							_behaviour._fsm.ChangeState( null ).Forget();
 							break;
 					}
 				} )
 			);
 
 			while ( true )	{ yield return null; }
-		}
-
-
-
-		public class TestOwner : SMBehavior, IFiniteStateMachineOwner<TestFSMManager> {
-			public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
-			public TestFSMManager _fsm	{ get; private set; }
-
-			public override void Create() {
-				_disposables.AddFirst( _fsm = new TestFSMManager( this ) );
-			}
-		}
-
-
-
-		public class TestFSMManager : FiniteStateMachine<TestFSMManager, TestOwner, BaseTestState> {
-			public TestFSMManager( TestOwner owner ) : base(
-				owner,
-				new BaseTestState[] {
-					new TestStateA(),
-					new TestStateB(),
-					new TestStateC(),
-				}
-			) {
-			}
-		}
-
-
-
-		public abstract class BaseTestState : State<TestFSMManager, TestOwner> {
-			public BaseTestState() {
-				_loadEvent.AddLast( async cancel => await TestProcess( cancel, "_loadEvent" ) );
-				_initializeEvent.AddLast( async cancel => await TestProcess( cancel, "_initializeEvent" ) );
-				_finalizeEvent.AddLast( async cancel => await TestProcess( cancel, "_finalizeEvent" ) );
-
-				_enableEvent.AddLast( async cancel => await TestProcess( cancel, "_enableEvent" ) );
-				_disableEvent.AddLast( async cancel => await TestProcess( cancel, "_disableEvent" ) );
-
-				_enterEvent.AddLast( async cancel => await TestProcess( cancel, "_enterEvent" ) );
-				_exitEvent.AddLast( async cancel => await TestProcess( cancel, "_exitEvent" ) );
-				_updateEvent.AddLast( async cancel => await TestProcess( cancel, "_updateEvent", 5 ) );
-
-				_fixedUpdateDeltaEvent.AddLast().Subscribe( _ =>
-					Log.Debug( $"{this.GetAboutName()}._fixedUpdateDeltaEvent" ) );
-				_updateDeltaEvent.AddLast().Subscribe( _ =>
-					Log.Debug( $"{this.GetAboutName()}._updateDeltaEvent" ) );
-				_lateUpdateDeltaEvent.AddLast().Subscribe( _ =>
-					Log.Debug( $"{this.GetAboutName()}._lateUpdateDeltaEvent" ) );
-			}
-			async UniTask TestProcess( CancellationToken cancel, string functionName, int count = 2 ) {
-				for ( var i = 0; i < count; i++ ) {
-					Log.Debug( $"{this.GetAboutName()}.{functionName} : {i}" );
-					await UniTaskUtility.Delay( cancel, 1000 );
-				}
-			}
-		}
-
-		public class TestStateA : BaseTestState {
-			public TestStateA() {
-			}
-		}
-
-		public class TestStateB : BaseTestState {
-			public TestStateB() {
-			}
-		}
-
-		public class TestStateC : BaseTestState {
-			public TestStateC() {
-			}
 		}
 	}
 }

@@ -5,6 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
+	using System;
+	using System.Linq;
 	using UniRx.Async;
 	using Scene;
 	using Utility;
@@ -22,19 +24,26 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public ReRegisterSMObject( SMObject smObject, SMTaskType lastType, BaseScene lastScene )
 			: base( smObject )
 		{
+			if ( !_object._isTop ) {
+				throw new NotSupportedException(
+					$"最上階の{nameof( SMObject )}で無い為、再登録不可 :\n{_object}" );
+			}
 			_lastType = lastType;
 			_lastScene = lastScene;
 		}
+
+		public override void Cancel() {}
 
 
 		public override async UniTask Run() {
 			if ( _object._scene != _lastScene && _object._owner != null ) {
 				UnitySceneManager.MoveGameObjectToScene( _object._owner, _object._scene._scene );
 			}
-			_lastScene._objects.Get( _lastType )
-				.Remove( _object );
-			_owner.Get( _object._type )
-				.Add( _object );
+			if ( _lastScene._objects._objects[_lastType] == _object ) {
+				_lastScene._objects._objects[_lastType] = _object._next;
+			}
+			UnLinkObject( _object );
+			RegisterObject();
 
 			await UniTaskUtility.DontWait();
 		}

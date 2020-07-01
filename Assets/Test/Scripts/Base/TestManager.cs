@@ -26,6 +26,6 @@ namespace SubmarineMirage.Test {
 
 		public void Register( BaseTest test ) => _tests.Add( test );
 
-		public void UnRegister( BaseTest test ) => _tests.Remove( test );
+		public void Unregister( BaseTest test ) => _tests.Remove( test );
 	}
 }

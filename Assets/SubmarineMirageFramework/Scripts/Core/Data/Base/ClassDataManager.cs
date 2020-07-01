@@ -34,16 +34,16 @@ namespace SubmarineMirage.Data {
 		/// <summary>
 		/// ● 登録解除（クラス名）
 		/// </summary>
-		public void UnRegister<T>() {
+		public void Unregister<T>() {
 			var key = typeof( T );
-			base.UnRegister( key );
+			base.Unregister( key );
 		}
 		/// <summary>
 		/// ● 登録解除（指定情報から、クラス名鍵を推定）
 		/// </summary>
-		public void UnRegister<T>( T data ) where T : TValue {
+		public void Unregister<T>( T data ) where T : TValue {
 			var key = data.GetType();
-			base.UnRegister( key );
+			base.Unregister( key );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

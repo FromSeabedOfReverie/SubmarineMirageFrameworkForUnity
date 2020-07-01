@@ -15,8 +15,8 @@ namespace SubmarineMirage.Singleton.New {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class Singleton<T> : SMBehavior, ISingleton
-		where T : SMBehavior, new()
+	public abstract class Singleton<T> : SMBehaviour, ISingleton
+		where T : SMBehaviour, new()
 	{
 		static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;

@@ -221,7 +221,7 @@ namespace SubmarineMirage.Data.File {
 			_errorCount++;
 			Log.Error( $"読込失敗 : {path}", Log.Tag.File );
 			// キャッシュ使用中の場合、読込フラグの無を登録解除
-			if ( isUseCache )	{ _tempCache.UnRegister( path ); }
+			if ( isUseCache )	{ _tempCache.Unregister( path ); }
 			return default;
 		}
 		///------------------------------------------------------------------------------------------------

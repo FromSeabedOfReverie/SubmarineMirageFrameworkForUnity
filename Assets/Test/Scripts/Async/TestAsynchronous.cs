@@ -40,7 +40,7 @@ namespace SubmarineMirage.TestAsync {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() {
-			var go = new GameObject( "TestMono" );
+			var go = new GameObject( $"{nameof( TestMono )}" );
 			go.AddComponent<TestMono>();
 			while ( true )	{ yield return null; }
 		}

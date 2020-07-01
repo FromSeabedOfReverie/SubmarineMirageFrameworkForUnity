@@ -18,14 +18,14 @@ namespace SubmarineMirage.SMTask {
 	// TODO : コメント追加、整頓
 
 
-	public class SMBehaviorBody : IDisposableExtension {
+	public class SMBehaviourBody : IDisposableExtension {
 		public SMTaskRanState _ranState	{ get; private set; }
 		public SMTaskActiveState _activeState	{ get; private set; }
 		public SMTaskActiveState? _nextActiveState	{ get; private set; }
 		public bool _isInitialized => _ranState >= SMTaskRanState.Initialized;
 		public bool _isActive => _activeState == SMTaskActiveState.Enabled;
 
-		ISMBehavior _owner;
+		ISMBehaviour _owner;
 
 		public readonly MultiAsyncEvent _loadEvent = new MultiAsyncEvent();
 		public readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
@@ -45,7 +45,7 @@ namespace SubmarineMirage.SMTask {
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public SMBehaviorBody( ISMBehavior owner, SMTaskActiveState nextActiveState ) {
+		public SMBehaviourBody( ISMBehaviour owner, SMTaskActiveState nextActiveState ) {
 			_owner = owner;
 			_nextActiveState = nextActiveState;
 
@@ -76,7 +76,7 @@ namespace SubmarineMirage.SMTask {
 			} );
 		}
 
-		~SMBehaviorBody() => Dispose();
+		~SMBehaviourBody() => Dispose();
 
 		public void Dispose() => _disposables.Dispose();
 

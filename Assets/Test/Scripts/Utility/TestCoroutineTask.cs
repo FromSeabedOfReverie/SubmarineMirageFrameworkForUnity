@@ -18,10 +18,10 @@ namespace SubmarineMirage.TestUtility {
 	using Test;
 	///====================================================================================================
 	/// <summary>
-	/// ■ コルーチン処理の試験クラス
+	/// ■ コルーチン仕事の試験クラス
 	/// </summary>
 	///====================================================================================================
-	public class TestCoroutineProcess : Test {
+	public class TestCoroutineTask : Test {
 		Text _text;
 
 
@@ -45,15 +45,15 @@ namespace SubmarineMirage.TestUtility {
 
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
-					Log.Warning( "key down Play()" );
+					Log.Warning( $"key down {nameof( c.Play )}" );
 					c.Play();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.RightShift ) ).Subscribe( _ => {
-					Log.Warning( "key down Pause()" );
+					Log.Warning( $"key down {nameof( c.Pause )}" );
 					c.Pause();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose()" );
+					Log.Warning( $"key down {nameof( c.Dispose )}" );
 					c.Dispose();
 				} )
 			);
@@ -70,15 +70,15 @@ namespace SubmarineMirage.TestUtility {
 
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
-					Log.Warning( "key down Play()" );
+					Log.Warning( $"key down {nameof( c.Play )}" );
 					c.Play();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.RightShift ) ).Subscribe( _ => {
-					Log.Warning( "key down Pause()" );
+					Log.Warning( $"key down {nameof( c.Pause )}" );
 					c.Pause();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose()" );
+					Log.Warning( $"key down {nameof( c.Dispose )}" );
 					c.Dispose();
 				} )
 			);
@@ -95,15 +95,15 @@ namespace SubmarineMirage.TestUtility {
 
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
-					Log.Warning( "key down Play()" );
+					Log.Warning( $"key down {nameof( c.Play )}" );
 					c.Play();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.RightShift ) ).Subscribe( _ => {
-					Log.Warning( "key down Pause()" );
+					Log.Warning( $"key down {nameof( c.Pause )}" );
 					c.Pause();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose()" );
+					Log.Warning( $"key down {nameof( c.Dispose )}" );
 					c.Dispose();
 				} )
 			);
@@ -129,11 +129,11 @@ namespace SubmarineMirage.TestUtility {
 					c.Play();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Play()" );
+					Log.Warning( $"key down {nameof( coroutine.Play )}" );
 					coroutine?.Play();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
-					Log.Warning( "key down Pause()" );
+					Log.Warning( $"key down {nameof( coroutine.Pause )}" );
 					coroutine?.Pause();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha0 ) ).Subscribe( _ => {
@@ -141,7 +141,7 @@ namespace SubmarineMirage.TestUtility {
 					coroutine = coroutines.LastOrDefault();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Remove" );
+					Log.Warning( $"key down {nameof( coroutines.Remove )}" );
 					if ( coroutine != null )	{ coroutines.Remove( coroutine ); }
 				} )
 			);

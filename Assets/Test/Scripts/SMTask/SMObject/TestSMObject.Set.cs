@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestProcess {
+namespace SubmarineMirage.TestSMTask {
 	using System;
 	using System.Threading;
 	using System.Collections;
@@ -22,7 +22,7 @@ namespace SubmarineMirage.TestProcess {
 
 
 
-	public partial class TestProcessHierarchy : Test {
+	public partial class TestSMObject : Test {
 /*
 		・単体変数テスト
 		_type、_lifeSpan、_sceneが、適切に設定されるか？
@@ -48,7 +48,7 @@ namespace SubmarineMirage.TestProcess {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestVariable() => From( TestVariableSub() );
 		IEnumerator TestVariableSub() {
-			Log.Debug( "TestVariableSub" );
+			Log.Debug( $"{nameof( TestVariableSub )}" );
 			while ( true )	{ yield return null; }
 		}
 
@@ -58,9 +58,9 @@ namespace SubmarineMirage.TestProcess {
 		_type、_lifeSpan、_sceneが、適切に設定されるか？
 		_type、_lifeSpan、_sceneにより、適切に登録されるか？
 		_ownerちゃんと設定？
-		_processes、複数もちゃんと設定？
+		_behaviour、複数もちゃんと設定？
 */
-		void CreateTestMultiVariable() => TestProcessUtility.CreateMonoBehaviourProcess( @"
+		void CreateTestMultiVariable() => TestSMTaskUtility.CreateSMMonoBehaviour( @"
 			M1, M1, M1,
 			M2, M2, M2,
 			M3, M3, M3,
@@ -84,17 +84,17 @@ namespace SubmarineMirage.TestProcess {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestMultiVariable() => From( TestMultiVariableSub() );
 		IEnumerator TestMultiVariableSub() {
-			Log.Debug( "TestMultiVariableSub" );
+			Log.Debug( $"{nameof( TestMultiVariableSub )}" );
 			while ( true )	{ yield return null; }
 		}
 
 /*
 		・階層テスト
-		_top、_parent、_children、親子兄弟関係、が正しく設定されるか？
-		SetParent、SetChildren、SetProcesses、それぞれ1回だけ呼ばれる？
-		SetTop、SetAllData、親子階層含めて、1回だけ呼ばれる？
+		_top、_parent、_child、親子兄弟関係、が正しく設定されるか？
+		SetupParent、SetupChildren、SetupBehaviours、それぞれ1回だけ呼ばれる？
+		SetupTop、親子階層含めて、1回だけ呼ばれる？
 */
-		void CreateTestHierarchy() => TestProcessUtility.CreateMonoBehaviourProcess(
+		void CreateTestObject() => TestSMTaskUtility.CreateSMMonoBehaviour(
 #if false
 		@"
 			M1,
@@ -179,9 +179,9 @@ namespace SubmarineMirage.TestProcess {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestHierarchy() => From( TestHierarchySub() );
-		IEnumerator TestHierarchySub() {
-			Log.Debug( "TestHierarchySub" );
+		public IEnumerator TestObject() => From( TestObjectSub() );
+		IEnumerator TestObjectSub() {
+			Log.Debug( $"{nameof( TestObjectSub )}" );
 			while ( true )	{ yield return null; }
 		}
 	}

@@ -37,7 +37,7 @@ namespace SubmarineMirage.Singleton.New {
 			go = new GameObject( tag );
 			go.tag = tag;
 			s_instanceObject = go.AddComponent<MonoBehaviourSingletonManager>();
-			new SMObject( go, new ISMBehavior[] { s_instanceObject }, null );
+			new SMObject( go, new ISMBehaviour[] { s_instanceObject }, null );
 
 			Log.Debug( $"作成（GameObject） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
 		}

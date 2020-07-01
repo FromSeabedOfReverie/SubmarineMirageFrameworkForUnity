@@ -11,7 +11,7 @@ namespace SubmarineMirage.FSM.New {
 	// TODO : コメント追加、整頓
 
 
-	public interface IFiniteStateMachineOwner<TFSM> : ISMBehavior where TFSM : IFiniteStateMachine {
+	public interface IFiniteStateMachineOwner<TFSM> : ISMBehaviour where TFSM : IFiniteStateMachine {
 		TFSM _fsm { get; }
 	}
 }

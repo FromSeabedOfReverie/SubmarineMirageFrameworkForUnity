@@ -14,14 +14,14 @@ namespace SubmarineMirage.SMTask {
 	// TODO : コメント追加、整頓
 
 
-	public interface ISMBehavior : IDisposableExtension {
+	public interface ISMBehaviour : IDisposableExtension {
 		SMTaskType _type			{ get; }
 		SMTaskLifeSpan _lifeSpan	{ get; }
 
 		SMObject _object		{ get; set; }
-		SMBehaviorBody _body	{ get; }
-		ISMBehavior _previous	{ get; set; }
-		ISMBehavior _next		{ get; set; }
+		SMBehaviourBody _body	{ get; }
+		ISMBehaviour _previous	{ get; set; }
+		ISMBehaviour _next		{ get; set; }
 
 		bool _isInitialized	{ get; }
 		bool _isActive		{ get; }

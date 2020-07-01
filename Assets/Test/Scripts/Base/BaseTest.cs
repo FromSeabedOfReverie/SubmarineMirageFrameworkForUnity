@@ -69,7 +69,7 @@ namespace SubmarineMirage.Test {
 		protected void OnDestroy() {
 			try {
 				Dispose();
-				TestManager.s_instance.UnRegister( this );
+				TestManager.s_instance.Unregister( this );
 			} catch ( OperationCanceledException ) {
 				throw;
 			} catch ( Exception e ) {
