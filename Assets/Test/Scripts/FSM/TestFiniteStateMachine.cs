@@ -23,6 +23,7 @@ namespace SubmarineMirage.TestFSM {
 	using Utility;
 	using Debug;
 	using Test;
+	using TestSMTask;
 	using UnityObject = UnityEngine.Object;
 
 
@@ -80,7 +81,11 @@ disable, null	→	disable	→	state
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_behaviour = new TestOwner();
+			_behaviour = new TestOwner( new BaseTestState[] {
+				new TestStateA(),
+				new TestStateB(),
+				new TestStateC(),
+			} );
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
@@ -108,7 +113,7 @@ disable, null	→	disable	→	state
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() {
-			_disposables.AddLast( TestFSMUtility.SetRunKey( _behaviour ) );
+			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour ) );
 
 			var i = 0;
 			_disposables.AddLast(

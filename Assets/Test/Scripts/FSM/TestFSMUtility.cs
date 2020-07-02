@@ -21,6 +21,7 @@ namespace SubmarineMirage.TestFSM {
 	using Utility;
 	using Debug;
 	using TestSMTask;
+	using RunState = FSM.New.FiniteStateMachineRunState;
 
 
 
@@ -29,8 +30,65 @@ namespace SubmarineMirage.TestFSM {
 
 
 	public static class TestFSMUtility {
-		public static MultiDisposable SetRunKey( ISMBehaviour behaviour ) {
-			var disposables = TestSMTaskUtility.SetRunKey( behaviour );
+		public static MultiDisposable SetRunKey( BaseTestState state ) {
+			var disposables = new MultiDisposable();
+
+			disposables.AddLast(
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
+					Log.Warning( "key down Creating" );
+					state.RunBehaviourStateEvent( SMTaskRanState.Creating ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
+					Log.Warning( "key down Loading" );
+					state.RunBehaviourStateEvent( SMTaskRanState.Loading ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
+					Log.Warning( "key down Initializing" );
+					state.RunBehaviourStateEvent( SMTaskRanState.Initializing ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
+					Log.Warning( "key down FixedUpdate" );
+					state.RunBehaviourStateEvent( SMTaskRanState.FixedUpdate ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
+					Log.Warning( "key down Update" );
+					state.RunBehaviourStateEvent( SMTaskRanState.Update ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
+					Log.Warning( "key down LateUpdate" );
+					state.RunBehaviourStateEvent( SMTaskRanState.LateUpdate ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
+					Log.Warning( "key down Finalizing" );
+					state.RunBehaviourStateEvent( SMTaskRanState.Finalizing ).Forget();
+				} )
+			);
+
+			// _state.ChangeActiveは、デバッグの必要が無い
+			// _state.ChangeState、_owner.ChangeActive以外に、単体で呼ばれない為
+			// 必ず親かChangeStateから呼ばれる
+			disposables.AddLast(
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.A ) ).Subscribe( _ => {
+					Log.Warning( "key down Entering" );
+					state.RunStateEvent( RunState.Entering ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.S ) ).Subscribe( _ => {
+					Log.Warning( "key down Update" );
+					state.RunStateEvent( RunState.Update ).Forget();
+				} ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.D ) ).Subscribe( _ => {
+					Log.Warning( "key down Exiting" );
+					state.RunStateEvent( RunState.Exiting ).Forget();
+				} )
+			);
+
+			disposables.AddLast(
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
+					Log.Warning( "key down StopActiveAsync" );
+					state.StopActiveAsync();
+				} )
+			);
+
 			return disposables;
 		}
 
@@ -85,20 +143,17 @@ namespace SubmarineMirage.TestFSM {
 	public class TestOwner : SMBehaviour, IFiniteStateMachineOwner<TestFSMManager> {
 		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 		public TestFSMManager _fsm	{ get; private set; }
+		BaseTestState[] _states;
 
+		public TestOwner( BaseTestState[] states ) {
+			_states = states;
+		}
 		public override void Create() {
-			_disposables.AddFirst( _fsm = new TestFSMManager( this ) );
+			_disposables.AddFirst( _fsm = new TestFSMManager( this, _states ) );
 		}
 	}
 	public class TestFSMManager : FiniteStateMachine<TestFSMManager, TestOwner, BaseTestState> {
-		public TestFSMManager( TestOwner owner ) : base(
-			owner,
-			new BaseTestState[] {
-				new TestStateA(),
-				new TestStateB(),
-				new TestStateC(),
-			}
-		) {}
+		public TestFSMManager( TestOwner owner, BaseTestState[] states ) : base( owner, states ) {}
 	}
 
 	public abstract class BaseTestState : State<TestFSMManager, TestOwner> {
