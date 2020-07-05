@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data.Save {
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Data.File;
 	using Debug;
 	///====================================================================================================

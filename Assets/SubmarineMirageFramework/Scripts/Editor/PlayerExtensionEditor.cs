@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Editor {
 	using UnityEditor;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Main.New;
 
 

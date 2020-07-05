@@ -8,7 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-using UniRx.Async;
+using Cysharp.Threading.Tasks;
 using SubmarineMirage.Process;
 using SubmarineMirage.FSM;
 using SubmarineMirage.Audio;

@@ -7,7 +7,7 @@
 namespace SubmarineMirage.ReadMe {
 
     using System.Linq;
-    using UniRx.Async;
+    using Cysharp.Threading.Tasks;
     using SubmarineMirage.Process;
     // 実行時に、一番最初に処理されるクラス
     // Assets/SubmarineMirageFrameworkForUnity/Scripts/Main/MainProcess.csを、簡易的に記述している

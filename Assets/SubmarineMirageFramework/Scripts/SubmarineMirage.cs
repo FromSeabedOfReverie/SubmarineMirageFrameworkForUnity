@@ -8,7 +8,7 @@ namespace SubmarineMirage.Main.New {
 	using System;
 	using System.Threading;
 	using System.Threading.Tasks;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using SMTask;
 	using Singleton.New;
 	using MultiEvent;

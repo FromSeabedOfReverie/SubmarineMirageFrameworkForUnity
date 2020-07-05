@@ -11,7 +11,7 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using Utility;
 	using Debug;

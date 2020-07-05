@@ -7,7 +7,7 @@
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using System.Linq;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using Extension;
 	using Utility;

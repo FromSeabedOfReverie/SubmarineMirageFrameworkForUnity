@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Utility;
 	using Debug;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;

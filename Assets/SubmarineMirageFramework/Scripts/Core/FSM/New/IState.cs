@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.New {
 	using System.Threading;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using SMTask;
 	using Extension;
 

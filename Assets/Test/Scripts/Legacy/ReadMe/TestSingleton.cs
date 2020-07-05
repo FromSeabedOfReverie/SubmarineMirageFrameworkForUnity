@@ -9,7 +9,7 @@ namespace SubmarineMirage.ReadMe {
     using System.Linq;
     using System.Collections.Generic;
     using UniRx;
-    using UniRx.Async;
+    using Cysharp.Threading.Tasks;
     using SubmarineMirage.Singleton;
     using SubmarineMirage.Process;
     // MonoBehaviourProcessと同じようにProcessサイクルを持つ、シンプルなシングルトン

@@ -15,7 +15,7 @@ namespace SubmarineMirage.TestFSM {
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SMTask;
 	using FSM.New;

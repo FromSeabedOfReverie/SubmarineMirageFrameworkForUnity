@@ -10,7 +10,7 @@ namespace SubmarineMirage.Data.File {
 	using System.Text;
 	using UnityEngine;
 	using UnityEngine.Networking;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Save;
 	using Extension;
 	using Utility;

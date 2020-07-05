@@ -5,7 +5,7 @@
         "KoganeUnityLib",
         "SubmarineMirageFramework",
         "UniRx",
-        "UniRx.Async"
+        "UniTask"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

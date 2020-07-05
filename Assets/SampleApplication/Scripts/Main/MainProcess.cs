@@ -9,7 +9,7 @@ namespace SubmarineMirage.Main {
 	using UnityEngine;
 	using DG.Tweening;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Process;
 	using Data;
 	using Data.File;

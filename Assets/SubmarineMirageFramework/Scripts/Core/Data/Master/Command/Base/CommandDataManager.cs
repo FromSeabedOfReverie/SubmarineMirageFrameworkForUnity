@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data {
 	using System.Collections.Generic;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Debug;
 	using Extension;

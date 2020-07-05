@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton {
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Extension;
 	using Debug;
 	using Process;

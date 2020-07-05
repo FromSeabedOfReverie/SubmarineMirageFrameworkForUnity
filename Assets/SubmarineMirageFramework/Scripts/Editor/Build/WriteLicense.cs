@@ -8,7 +8,7 @@ namespace SubmarineMirage.Editor.Build {
 	using System.IO;
 	using System.Linq;
 	using UnityEngine;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Process;
 	using Extension;

@@ -10,7 +10,7 @@ namespace SubmarineMirage.Process {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Singleton;
 	using Extension;
 	using Debug;

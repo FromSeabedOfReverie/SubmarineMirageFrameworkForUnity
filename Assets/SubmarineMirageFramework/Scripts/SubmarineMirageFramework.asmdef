@@ -4,7 +4,7 @@
         "GameDevWare.Serialization",
         "KoganeUnityLib",
         "UniRx",
-        "UniRx.Async"
+        "UniTask"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

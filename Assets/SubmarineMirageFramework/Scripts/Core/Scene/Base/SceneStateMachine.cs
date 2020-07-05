@@ -10,7 +10,7 @@ namespace SubmarineMirage.Scene {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using FSM.New;
 	using Utility;

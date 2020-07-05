@@ -7,7 +7,7 @@
 namespace SubmarineMirage.Utility {
 	using UnityEngine;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Process;
 	///====================================================================================================
 	/// <summary>

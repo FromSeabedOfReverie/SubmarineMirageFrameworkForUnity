@@ -7,7 +7,7 @@
 #define TestSMObject
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Scene;
 	using Extension;

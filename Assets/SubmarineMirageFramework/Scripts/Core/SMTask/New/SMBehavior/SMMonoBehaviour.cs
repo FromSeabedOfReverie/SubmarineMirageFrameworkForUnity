@@ -10,7 +10,7 @@ namespace SubmarineMirage.SMTask {
 	using System.Threading;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using Extension;
 

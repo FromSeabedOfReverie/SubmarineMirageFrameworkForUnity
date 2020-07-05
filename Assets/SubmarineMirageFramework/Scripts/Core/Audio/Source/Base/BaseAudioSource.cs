@@ -11,7 +11,7 @@ namespace SubmarineMirage.Audio {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using DG.Tweening;
 	using DG.Tweening.Core;
 	using DG.Tweening.Plugins.Options;

@@ -9,7 +9,7 @@ namespace SubmarineMirage.Scene {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using DG.Tweening;
 	using KoganeUnityLib;
 	using SMTask;
@@ -44,7 +44,7 @@ namespace SubmarineMirage.Scene {
 					_fsm._isSkipLoadForFirstScene = false;
 				} else {
 					await UnitySceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive )
-						.ConfigureAwait( cancel );
+						.ToUniTask( cancel );
 				}
 				ResetScene();
 				UnitySceneManager.SetActiveScene( _scene );
@@ -56,7 +56,7 @@ namespace SubmarineMirage.Scene {
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
 //				DOTween.KillAll();
 //				GameAudioManager.s_instance.StopAll();
-				await UnitySceneManager.UnloadSceneAsync( _name ).ConfigureAwait( cancel );
+				await UnitySceneManager.UnloadSceneAsync( _name ).ToUniTask( cancel );
 			} );
 		}
 

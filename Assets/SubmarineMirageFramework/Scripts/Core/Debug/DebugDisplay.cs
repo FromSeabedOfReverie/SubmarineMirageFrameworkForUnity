@@ -8,7 +8,7 @@ namespace SubmarineMirage.Debug {
 	using System.Collections;
 	using UnityEngine;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Singleton;
 	using Process;
 	using Extension;

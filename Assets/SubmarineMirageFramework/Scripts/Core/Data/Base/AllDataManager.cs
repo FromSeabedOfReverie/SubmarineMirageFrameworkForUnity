@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data {
 	using System.Linq;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Singleton;
 	using Server;
 	using Save;

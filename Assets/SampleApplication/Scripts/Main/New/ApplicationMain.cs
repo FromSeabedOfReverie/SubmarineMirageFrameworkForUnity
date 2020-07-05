@@ -12,7 +12,7 @@ namespace SubmarineMirage.Main.New {
 	using UnityEngine;
 	using DG.Tweening;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using SMTask;
 	using MultiEvent;
 	using Singleton.New;

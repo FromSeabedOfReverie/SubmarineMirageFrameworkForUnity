@@ -8,7 +8,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 
 
 	// TODO : コメント追加、整頓

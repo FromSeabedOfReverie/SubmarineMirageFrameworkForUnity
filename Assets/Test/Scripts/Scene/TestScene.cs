@@ -14,7 +14,7 @@ namespace SubmarineMirage.TestScene {
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using SMTask;
 	using Scene;
 	using Extension;

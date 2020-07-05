@@ -8,7 +8,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UniRx;
-using UniRx.Async;
+using Cysharp.Threading.Tasks;
 using KoganeUnityLib;
 
 

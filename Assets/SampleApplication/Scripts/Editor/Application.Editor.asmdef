@@ -7,7 +7,7 @@
         "SubmarineMirageFramework",
         "SubmarineMirageFramework.Editor",
         "UniRx",
-        "UniRx.Async"
+        "UniTask"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

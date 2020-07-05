@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data {
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 情報の基盤インターフェース

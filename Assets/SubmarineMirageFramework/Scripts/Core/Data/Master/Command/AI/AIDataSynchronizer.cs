@@ -14,7 +14,7 @@ namespace SubmarineMirage.Data {
 	using KoganeUnityLib;
 	using State_Position = UITalk.StatePosition;
 	using UniRx;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Process;
 	using Audio;
 	using Debug;

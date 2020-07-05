@@ -11,7 +11,7 @@ namespace SubmarineMirage.TestAsync {
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
-	using UniRx.Async;
+	using Cysharp.Threading.Tasks;
 	using Extension;
 	using Debug;
 	using Test;
