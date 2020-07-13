@@ -8,10 +8,11 @@ namespace SubmarineMirage.Data.Server {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
+	using UTask;
 	using File;
 	using Save;
-	using Debug;
 	using Extension;
+	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ サーバー情報の管理クラス
@@ -89,7 +90,7 @@ namespace SubmarineMirage.Data.Server {
 		///------------------------------------------------------------------------------------------------
 		public override async UniTask Save() {
 			Log.Error( $"保存機能が無 : { GetType() }", Log.Tag.Server );
-			await UniTask.Delay( 0 );
+			await UTask.DontWait();
 		}
 	}
 }

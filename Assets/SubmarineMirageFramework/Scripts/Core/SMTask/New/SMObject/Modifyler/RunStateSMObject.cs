@@ -68,28 +68,26 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						break;
 
 					case SMTaskType.Work:
-						events.AddLast( async _ => await UniTask.WhenAll(
-							smObject.GetBehaviours().Select( async b => {
+						events.AddLast( async _ => await smObject.GetBehaviours().Select( async b => {
 								try										{ await b.RunStateEvent( state ); }
 								catch ( OperationCanceledException )	{}
 							} )
 							.Concat(
 								smObject.GetChildren().Select( o => RunStateEvent( o, state ) )
 							)
-						) );
+						);
 						break;
 
 					case SMTaskType.DontWork:
 						if ( state != SMTaskRanState.Creating )	{ break; }
-						events.AddLast( async _ => await UniTask.WhenAll(
-							smObject.GetBehaviours().Select( async b => {
+						events.AddLast( async _ => await smObject.GetBehaviours().Select( async b => {
 								try										{ await b.RunStateEvent( state ); }
 								catch ( OperationCanceledException )	{}
 							} )
 							.Concat(
 								smObject.GetChildren().Select( o => RunStateEvent( o, state ) )
 							)
-						) );
+						);
 						break;
 				}
 				if ( state == SMTaskRanState.Finalizing )	{ events.Reverse(); }

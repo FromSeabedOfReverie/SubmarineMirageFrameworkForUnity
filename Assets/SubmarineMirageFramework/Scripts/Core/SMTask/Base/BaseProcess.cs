@@ -8,6 +8,7 @@ namespace SubmarineMirage.Process {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Extension;
 	///====================================================================================================
 	/// <summary>
@@ -32,9 +33,9 @@ namespace SubmarineMirage.Process {
 		/// <summary>初期化済か？</summary>
 		public bool _isInitialized	{ get; private set; }
 		/// <summary>読込時のイベント</summary>
-		public Func<UniTask> _loadEvent			{ get; protected set; } = async () => await UniTask.Delay( 0 );
+		public Func<UniTask> _loadEvent			{ get; protected set; } = async () => await UTask.DontWait();
 		/// <summary>初期化時のイベント</summary>
-		public Func<UniTask> _initializeEvent	{ get; protected set; } = async () => await UniTask.Delay( 0 );
+		public Func<UniTask> _initializeEvent	{ get; protected set; } = async () => await UTask.DontWait();
 		/// <summary>物理更新時のイベント</summary>
 		public Subject<Unit> _fixedUpdateEvent	{ get; protected set; } = new Subject<Unit>();
 		/// <summary>更新時のイベント</summary>
@@ -42,7 +43,7 @@ namespace SubmarineMirage.Process {
 		/// <summary>遅更新時のイベント</summary>
 		public Subject<Unit> _lateUpdateEvent	{ get; protected set; } = new Subject<Unit>();
 		/// <summary>終了時のイベント</summary>
-		public Func<UniTask> _finalizeEvent		{ get; protected set; } = async () => await UniTask.Delay( 0 );
+		public Func<UniTask> _finalizeEvent		{ get; protected set; } = async () => await UTask.DontWait();
 		///------------------------------------------------------------------------------------------------
 		/// ● コンストラクタ
 		///------------------------------------------------------------------------------------------------
@@ -59,12 +60,14 @@ namespace SubmarineMirage.Process {
 			if ( !_isRegister )	{ return; }	// 未登録の場合、未処理
 
 			// 継承先のコンストラクタ終了後に、登録したいので、少し待機
-			await UniTask.Delay( 1 );
+			var c = new System.Threading.CancellationTokenSource();
+			await UTask.NextFrame( c.Token );
 
 			// 中心処理初期化後まで待機の場合、待機
 			if ( _isWaitInitializedCoreProcesses ) {
-				await UniTask.WaitUntil( () => CoreProcessManager.s_instance._isInitialized );
+				await UTask.WaitUntil( c.Token, () => CoreProcessManager.s_instance._isInitialized );
 			}
+			c.Dispose();
 
 			await CoreProcessManager.s_instance.Register( this );
 		}

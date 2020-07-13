@@ -9,6 +9,7 @@ namespace SubmarineMirage.Utility {
 	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Process;
 	///====================================================================================================
 	/// <summary>
@@ -33,12 +34,12 @@ namespace SubmarineMirage.Utility {
 
 			// ● 読込
 			_loadEvent += async () => {
-				await UniTask.Delay( 0 );
+				await UTask.DontWait();
 			};
 
 			// ● 初期化
 			_initializeEvent += async () => {
-				await UniTask.Delay( 0 );
+				await UTask.DontWait();
 			};
 
 			// ● 更新

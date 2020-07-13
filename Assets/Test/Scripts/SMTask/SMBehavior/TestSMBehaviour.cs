@@ -15,9 +15,9 @@ namespace SubmarineMirage.TestSMTask {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using SMTask;
 	using Extension;
-	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
@@ -39,7 +39,7 @@ namespace SubmarineMirage.TestSMTask {
 
 			_createEvent.AddLast( async cancel => {
 				TestSMTaskUtility.SetEvent( _behaviour );
-				await UniTaskUtility.DontWait();
+				await UTask.DontWait();
 			} );
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
@@ -94,15 +94,15 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestStopActiveAsync() => From( async () => {
-			UniTask.Void( async () => {
-				await UniTaskUtility.Delay( _asyncCancel, 3000 );
+			UTask.Void( _asyncCancel, async cancel => {
+				await UTask.Delay( cancel, 3000 );
 				Log.Debug( $"{nameof( _behaviour.StopActiveAsync )}" );
 				_behaviour.StopActiveAsync();
 			} );
 			try {
 				while ( true ) {
 					Log.Debug( "Runnning" );
-					await UniTaskUtility.Delay( _behaviour._activeAsyncCancel, 1000 );
+					await UTask.Delay( _behaviour._activeAsyncCancel, 1000 );
 				}
 			} catch ( OperationCanceledException ) {
 			}
@@ -112,15 +112,15 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestDispose() => From( async () => {
-			UniTask.Void( async () => {
-				await UniTaskUtility.Delay( _asyncCancel, 3000 );
+			UTask.Void( _asyncCancel, async cancel => {
+				await UTask.Delay( cancel, 3000 );
 				Log.Debug( $"{nameof( _behaviour.Dispose )}" );
 				_behaviour.Dispose();
 			} );
 			try {
 				while ( true ) {
 					Log.Debug( "Runnning" );
-					await UniTaskUtility.Delay( _behaviour._activeAsyncCancel, 1000 );
+					await UTask.Delay( _behaviour._activeAsyncCancel, 1000 );
 				}
 			} catch ( OperationCanceledException ) {
 			}

@@ -14,11 +14,11 @@ namespace SubmarineMirage.TestFSM {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using UTask;
 	using SMTask;
 	using SMTask.Modifyler;
 	using FSM.New;
 	using Extension;
-	using Utility;
 	using Debug;
 	using TestSMTask;
 	using RunState = FSM.New.FiniteStateMachineRunState;
@@ -103,17 +103,17 @@ namespace SubmarineMirage.TestFSM {
 
 			behaviour._loadEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
 			} );
 			behaviour._initializeEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
 			} );
 			behaviour._enableEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
 			} );
 			behaviour._fixedUpdateEvent.AddLast().Subscribe( _ => {
@@ -127,12 +127,12 @@ namespace SubmarineMirage.TestFSM {
 			} );
 			behaviour._disableEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
 			} );
 			behaviour._finalizeEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
 			} );
 		}
@@ -179,7 +179,7 @@ namespace SubmarineMirage.TestFSM {
 		async UniTask TestTask( CancellationToken cancel, string functionName, int count = 2 ) {
 			for ( var i = 0; i < count; i++ ) {
 				Log.Debug( $"{this.GetAboutName()}.{functionName} : {i}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 			}
 		}
 	}

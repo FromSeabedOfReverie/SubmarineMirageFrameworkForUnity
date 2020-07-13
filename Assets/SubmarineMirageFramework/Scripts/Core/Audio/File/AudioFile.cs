@@ -10,7 +10,7 @@ namespace SubmarineMirage.Audio {
 	using System.Threading;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using Utility;
+	using UTask;
 	using Debug;
 	///====================================================================================================
 	/// <summary>
@@ -117,7 +117,7 @@ namespace SubmarineMirage.Audio {
 			var isDone = false;
 			// TODO : アセットバンドル読込に対応させる
 			isDone = true;
-			await UniTask.WaitUntil( () => isDone, PlayerLoopTiming.Update, cancel );
+			await UTask.WaitUntil( cancel, () => isDone );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

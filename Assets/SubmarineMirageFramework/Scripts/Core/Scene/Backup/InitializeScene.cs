@@ -12,9 +12,11 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using UTask;
 	using Data;
 	using Data.Server;
 	using Data.Save;
+	using Utility;
 	using Debug;
 	///====================================================================================================
 	/// <summary>
@@ -61,16 +63,18 @@ namespace SubmarineMirage.Scene {
 			// このタイミングで、生成初期化しないと、失敗を取得できない
 
 			// 課金初期化完了、待機状態まで待機
-			await UniTask.WaitUntil( () => GamePurchaseManager.s_instance._isInitialized );
-			await UniTask.WaitUntil( () => !GamePurchaseManager.s_instance._isProcessing );
-			Log.Debug( "システム全体初期化 : 課金初期化完了", Log.Tag.Process );
+			var c = new System.Threading.CancellationTokenSource();
+			await UTask.WaitUntil( c.Token, () => GamePurchaseManager.s_instance._isInitialized );
+			await UTask.WaitUntil( c.Token, () => !GamePurchaseManager.s_instance._isProcessing );
+			Log.Debug( "システム全体初期化 : 課金初期化完了", Log.Tag.SMTask );
 		
 			// 広告初期化終了まで待機
-			await UniTask.WaitUntil( () => GameAdvertisementManager.s_instance._isInitialized );
-			Log.Debug( "システム全体初期化 : 広告初期化完了", Log.Tag.Process );
+			await UTask.WaitUntil( c.Token, () => GameAdvertisementManager.s_instance._isInitialized );
+			Log.Debug( "システム全体初期化 : 広告初期化完了", Log.Tag.SMTask );
 
 			// システム情報窓が閉じるまで待機
-			await UniTask.WaitUntil( () => !_uiSystemInfo.is_play() );
+			await UTask.WaitUntil( c.Token, () => !_uiSystemInfo.is_play() );
+			c.Dispose();
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
@@ -92,12 +96,13 @@ namespace SubmarineMirage.Scene {
 				SystemInfoData.Type.ApplicationUpdateNotice,
 				() => isEnd = true
 			);
+			var c = new System.Threading.CancellationTokenSource();
 			// ダウンロード通知が終了するまで待機
-			await UniTask.WaitUntil( () => isEnd );
+			await UTask.WaitUntil( c.Token, () => isEnd );
 
 #if !UNITY_EDITOR
 			// ちょっと待機後、Web表示
-			await UniTask.Delay( 500 );
+			await UTask.Delay( c.Token, 500 );
 			Application.OpenURL( _applications.Get()._url );
 #endif
 		}

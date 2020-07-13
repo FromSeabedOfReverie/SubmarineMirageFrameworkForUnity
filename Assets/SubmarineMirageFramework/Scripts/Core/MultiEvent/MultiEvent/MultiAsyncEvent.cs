@@ -31,7 +31,7 @@ namespace SubmarineMirage.MultiEvent {
 		public async UniTask Run( CancellationToken cancel ) {
 			CheckDisposeError();
 
-			var linkedCanceler = _canceler.Token.Add( cancel );
+			var linkedCanceler = _canceler.Token.Link( cancel );
 			_isLock = true;
 			try {
 				foreach ( var pair in _events ) {

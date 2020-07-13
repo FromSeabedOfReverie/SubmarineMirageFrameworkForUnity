@@ -13,6 +13,7 @@ namespace SubmarineMirage.TestUtility {
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
+	using UTask;
 	using Utility;
 	using Debug;
 	using Test;
@@ -58,7 +59,7 @@ namespace SubmarineMirage.TestUtility {
 				} )
 			);
 
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCancel, () => true );
 		} );
 
 
@@ -83,7 +84,7 @@ namespace SubmarineMirage.TestUtility {
 				} )
 			);
 
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCancel, () => true );
 		} );
 
 
@@ -108,7 +109,7 @@ namespace SubmarineMirage.TestUtility {
 				} )
 			);
 
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCancel, () => true );
 		} );
 
 
@@ -146,7 +147,7 @@ namespace SubmarineMirage.TestUtility {
 				} )
 			);
 
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCancel, () => true );
 		} );
 
 

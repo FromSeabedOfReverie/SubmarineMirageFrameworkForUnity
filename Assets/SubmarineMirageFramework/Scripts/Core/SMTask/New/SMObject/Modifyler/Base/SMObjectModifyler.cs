@@ -11,8 +11,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using UTask;
 	using Extension;
-	using Utility;
 
 
 	// TODO : コメント追加、整頓
@@ -57,7 +57,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 		public async UniTask WaitRunning()
-			=> await UniTaskUtility.WaitWhile( _owner._asyncCancel, () => _isRunning );
+			=> await UTask.WaitWhile( _owner._asyncCancel, () => _isRunning );
 
 		public override string ToString() {
 			var result = $"{this.GetAboutName()}(\n"

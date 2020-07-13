@@ -13,11 +13,11 @@ namespace SubmarineMirage.Main.New {
 	using DG.Tweening;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using SMTask;
 	using MultiEvent;
+	using UTask;
+	using SMTask;
 	using Singleton.New;
 	using FSM.New;
-	using Utility;
 	using Debug;
 	using UnityObject = UnityEngine.Object;
 
@@ -45,19 +45,32 @@ namespace SubmarineMirage.Main.New {
 			UnityObject.DontDestroyOnLoad( go );
 #endif
 
-			await UniTaskUtility.DontWait();
+			await UTask.DontWait();
 		}
 
 
 		static async UniTask RegisterBehaviours() {
 			new Log();
 
-			await UniTaskUtility.DontWait();
+			await UTask.DontWait();
 		}
 
 
+//		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
+//		static async void Main()
+//			=> await SubmarineMirage.s_instance.TakeOff( InitializePlugin, RegisterBehaviours );
+
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
-		static async void Main()
-			=> await SubmarineMirage.s_instance.TakeOff( InitializePlugin, RegisterBehaviours );
+		static async void Main() {
+			await Task.Delay( 1 );
+			await InitializePlugin();
+			var c = new CancellationTokenSource();
+			await UTask.WaitWhile(
+				c.Token, () => !SubmarineMirage.s_instance._isRegisterCreateTestEvent );
+			await SubmarineMirage.s_instance._createTestEvent.Run( c.Token );
+			SubmarineMirage.s_instance._isInitialized = true;
+			c.Cancel();
+			c.Dispose();
+		}
 	}
 }

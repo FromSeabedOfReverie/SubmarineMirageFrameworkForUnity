@@ -13,7 +13,7 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
-	using Utility;
+	using UTask;
 	using Debug;
 	using Test;
 
@@ -38,17 +38,17 @@ namespace SubmarineMirage.TestMultiEvent {
 
 			_events.AddLast( "b", async cancel => {
 				Log.Debug( "b start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( "b end" );
 			} );
 			_events.AddLast( "c", async cancel => {
 				Log.Debug( "c start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( "c end" );
 			} );
 			_events.AddFirst( "a", async cancel => {
 				Log.Debug( "a start" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( "a end" );
 			} );
 			Log.Debug( _events );
@@ -69,7 +69,7 @@ namespace SubmarineMirage.TestMultiEvent {
 					var i = count++;
 					_events.AddLast( $"{i}", async cancel => {
 						Log.Debug( $"{i} start" );
-						await UniTaskUtility.Delay( cancel, 1000 );
+						await UTask.Delay( cancel, 1000 );
 						Log.Debug( $"{i} end" );
 					} );
 					Log.Debug( _events );
@@ -92,9 +92,9 @@ namespace SubmarineMirage.TestMultiEvent {
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
 					Log.Warning( "key down Run" );
-					UniTask.Void( async () => {
+					UTask.Void( _asyncCancel, async cancel => {
 						Log.Debug( _events );
-						await _events.Run( _asyncCancel );
+						await _events.Run( cancel );
 						Log.Debug( _events );
 					} );
 				} )

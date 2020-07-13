@@ -72,31 +72,29 @@ namespace SubmarineMirage.Data.Save {
 			var isUpdate = _setting._data._version != Application.version;
 
 			// 全情報を非同期読込
-			await UniTask.WhenAll(
-				_allData.Select( async ( data, i ) => {
-					var name = string.Format( FILE_NAME_FORMAT, i );
-					data = await _loader.Load<PlayData>( name );
+			await _allData.Select( async ( data, i ) => {
+				var name = string.Format( FILE_NAME_FORMAT, i );
+				data = await _loader.Load<PlayData>( name );
 
-					// 存在しない場合、新規作成
-					if ( data == null ) {
-						data = new PlayData();
-//						Log.Debug( "データが存在しない為、初期化生成", Log.Tag.Data );
+				// 存在しない場合、新規作成
+				if ( data == null ) {
+					data = new PlayData();
+//					Log.Debug( "データが存在しない為、初期化生成", Log.Tag.Data );
 
-					// 更新対応
-					} else if ( isUpdate ) {
-						// TODO : 本当は、更新対応した方が良いが、省略
-						data = new PlayData();
-//						Log.Debug( "データが古い為、初期化生成", Log.Tag.Data );
+				// 更新対応
+				} else if ( isUpdate ) {
+					// TODO : 本当は、更新対応した方が良いが、省略
+					data = new PlayData();
+//					Log.Debug( "データが古い為、初期化生成", Log.Tag.Data );
 
-					// 読み込み成功
-					} else {
-//						Log.Debug( "読み込み成功", Log.Tag.Data );
-					}
+				// 読み込み成功
+				} else {
+//					Log.Debug( "読み込み成功", Log.Tag.Data );
+				}
 
-					await data.Load();
-					_allData[i] = data;
-				} )
-			);
+				await data.Load();
+				_allData[i] = data;
+			} );
 			// 現在情報を読込
 			await LoadCurrentData();
 

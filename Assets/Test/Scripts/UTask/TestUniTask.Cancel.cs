@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestAsync {
+namespace SubmarineMirage.TestUTask {
 	using System;
 	using System.Threading;
 	using System.Collections;
@@ -21,20 +21,17 @@ namespace SubmarineMirage.TestAsync {
 	// 非同期停止の試験を行う
 
 
-	public class TestAsynchronousCancel : Test {
+	public partial class TestUniTask : Test {
 		int _id;
 		TestLoader _loader = new TestLoader();
-		CancellationTokenSource _cancel = new CancellationTokenSource();
+		CancellationTokenSource _canceler = new CancellationTokenSource();
 
-
-		protected override void Create() {
-			Application.targetFrameRate = 30;
-		}
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() {
+		public IEnumerator TestCancel() => From( TestCancelSub() );
+		IEnumerator TestCancelSub() {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
 					Play().Forget( e => {
@@ -55,24 +52,24 @@ namespace SubmarineMirage.TestAsync {
 
 
 		async UniTask Play() {
-			_cancel.Cancel();
-			_cancel = new CancellationTokenSource();
-			_id = _cancel.GetHashCode();
+			_canceler.Cancel();
+			_canceler = new CancellationTokenSource();
+			_id = _canceler.GetHashCode();
 
 			Log.Debug( $"Play Start : {_id}" );
-			await _loader.Load( _cancel );
-			await UniTask.Delay( TimeSpan.FromSeconds( 10 ), false, PlayerLoopTiming.Update, _cancel.Token );
+			await _loader.Load( _canceler );
+			await UniTask.Delay( TimeSpan.FromSeconds( 10 ), false, PlayerLoopTiming.Update, _canceler.Token );
 			Log.Debug( $"Play End : {_id}" );
 		}
 
 
 		async UniTask Stop() {
-			_cancel.Cancel();
-			_cancel = new CancellationTokenSource();
-			_id = _cancel.GetHashCode();
+			_canceler.Cancel();
+			_canceler = new CancellationTokenSource();
+			_id = _canceler.GetHashCode();
 
 			Log.Debug( $"Stop Start : {_id}" );
-			await UniTask.Delay( TimeSpan.FromSeconds( 10 ), false, PlayerLoopTiming.Update, _cancel.Token );
+			await UniTask.Delay( TimeSpan.FromSeconds( 10 ), false, PlayerLoopTiming.Update, _canceler.Token );
 			_loader.Unload();
 			Log.Debug( $"Stop End : {_id}" );
 		}

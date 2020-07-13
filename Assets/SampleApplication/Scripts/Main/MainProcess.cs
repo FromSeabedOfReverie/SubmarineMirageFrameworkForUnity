@@ -10,6 +10,7 @@ namespace SubmarineMirage.Main {
 	using DG.Tweening;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Process;
 	using Data;
 	using Data.File;
@@ -36,9 +37,11 @@ namespace SubmarineMirage.Main {
 		///------------------------------------------------------------------------------------------------
 //		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static async void Main() {
+			var c = new System.Threading.CancellationTokenSource();
 			// UniRxも同名指定子で、最初期実行関数を指定している為、UniRx初期化まで待機
-			await Task.Delay( 1 );
-//			await UniTask.Delay( 1 );	// 当関数は毎回実行順序が変わり、UniRx未初期化の場合、エラー
+			await Task.Delay( 0 );
+//			await UTask.NextFrame( c.Token );	// 当関数は毎回実行順序が変わり、UniRx未初期化の場合、エラー
+			c.Dispose();
 
 
 			// 中心処理管理クラスを初期化
@@ -68,7 +71,7 @@ namespace SubmarineMirage.Main {
 			Object.DontDestroyOnLoad( go );
 #endif
 
-			await UniTask.Delay( 0 );
+			await UTask.DontWait();
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
@@ -96,10 +99,12 @@ namespace SubmarineMirage.Main {
 			await DebugDisplay.WaitForCreation();
 #endif
 
+			var c = new System.Threading.CancellationTokenSource();
 			// 登録は、継承先コンストラクタ実行後になるよう、1ミリ秒遅延させた為、全遅延登録完了まで待機が必要
 			// 指定時間間隔が短過ぎる為か、Delay( 10 )でもDelay( 1 )より早く実行される為、
 			// 念の為、次のフレームまで待機させた
-			await UniTask.DelayFrame( 1 );
+			await UTask.NextFrame( c.Token );
+			c.Dispose();
 		}
 	}
 }

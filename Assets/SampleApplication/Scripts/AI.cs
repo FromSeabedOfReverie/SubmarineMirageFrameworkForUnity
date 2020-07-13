@@ -5,14 +5,15 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using Cysharp.Threading.Tasks;
+using SubmarineMirage.UTask;
 using SubmarineMirage.Process;
 using SubmarineMirage.FSM;
 using SubmarineMirage.Audio;
-using System.Collections;
 
 
 
@@ -32,14 +33,14 @@ public abstract class AI : MonoBehaviourProcess, IFiniteStateMachineOwner<AIStat
 			SceneManager.s_instance._fsm._ais.Add( this );
 			await GameAudioManager.s_instance._voice.Load( GameAudioManager.Voice.TestRidicule );
 			await GameAudioManager.s_instance._voice.Load( GameAudioManager.Voice.TestScream );
-			await UniTask.Delay( 0 );
+			await UTask.DontWait();
 		};
 		// ● 初期化
 		_initializeEvent += async () => {
 			_fsm._enemies = SceneManager.s_instance._fsm._ais
 				.Where( ai => ai.GetType() != GetType() )
 				.ToList();
-			await UniTask.Delay( 0 );
+			await UTask.DontWait();
 		};
 	}
 }

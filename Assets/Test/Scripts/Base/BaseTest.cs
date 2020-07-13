@@ -14,8 +14,8 @@ namespace SubmarineMirage.Test {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Main.New;
+	using UTask;
 	using Editor;
-	using Utility;
 	using Debug;
 
 
@@ -81,8 +81,8 @@ namespace SubmarineMirage.Test {
 		public abstract void Dispose();
 
 
-		protected IEnumerator From( Func<UniTask> task ) => UniTask.ToCoroutine( async () => {
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => !_isInitialized );
+		protected IEnumerator From( Func<UniTask> task ) => UTask.ToCoroutine( async () => {
+			await UTask.WaitWhile( _asyncCancel, () => !_isInitialized );
 			try {
 				await task.Invoke();
 			} catch ( OperationCanceledException ) {

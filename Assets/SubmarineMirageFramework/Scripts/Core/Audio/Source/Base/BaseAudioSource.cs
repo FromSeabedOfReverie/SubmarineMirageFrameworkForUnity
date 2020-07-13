@@ -16,8 +16,9 @@ namespace SubmarineMirage.Audio {
 	using DG.Tweening.Core;
 	using DG.Tweening.Plugins.Options;
 	using KoganeUnityLib;
-	using Debug;
+	using UTask;
 	using Extension;
+	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 音源管理の基盤クラス
@@ -278,7 +279,7 @@ namespace SubmarineMirage.Audio {
 			// 再生状態へ
 			_state = State.Play;
 			// 再生完了まで待機
-			await UniTask.WaitUntil( () => !IsPlayingSource(), PlayerLoopTiming.Update, cancel );
+			await UTask.WaitUntil( cancel, () => !IsPlayingSource() );
 			// 停止
 			StopSource( _runningName.Value );
 			UnloadStopAudio();	// 停止中の音を全削除
@@ -393,7 +394,7 @@ namespace SubmarineMirage.Audio {
 				// 停止処理例外を無視
 				try {
 					// フェードを待機
-					await UniTask.WaitUntil( () => isDone, PlayerLoopTiming.Update, cancel );
+					await UTask.WaitUntil( cancel, () => isDone );
 				} catch ( OperationCanceledException ) {}
 
 				volumePercentSequence.Kill();	// killったら、作り直さないと可笑しくなる

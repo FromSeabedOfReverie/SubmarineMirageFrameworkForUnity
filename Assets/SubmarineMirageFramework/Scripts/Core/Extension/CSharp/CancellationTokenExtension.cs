@@ -12,7 +12,7 @@ namespace SubmarineMirage.Extension {
 
 
 	public static class CancellationTokenExtension {
-		public static CancellationTokenSource Add( this CancellationToken a, CancellationToken b ) {
+		public static CancellationTokenSource Link( this CancellationToken a, CancellationToken b ) {
 			return CancellationTokenSource.CreateLinkedTokenSource( a, b );
 		}
 	}

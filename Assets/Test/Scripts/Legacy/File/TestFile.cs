@@ -12,11 +12,12 @@ namespace SubmarineMirage.Test {
 	using UnityEngine.UI;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Data.File;
+	using UTask;
 	using Process;
-	using Extension;
 	using Data;
+	using Data.File;
 	using Data.Save;
+	using Extension;
 	using Debug;
 	///====================================================================================================
 	/// <summary>
@@ -58,7 +59,7 @@ namespace SubmarineMirage.Test {
 //				await LoadExternalFile();
 //				await LoadExternalFile();
 
-				await UniTask.Delay( 0 );
+				await UTask.DontWait();
 			};
 		}
 
@@ -67,10 +68,12 @@ namespace SubmarineMirage.Test {
 			await _play.SaveCurrentData();
 			await _setting.Save();
 
+			var c = new System.Threading.CancellationTokenSource();
 			foreach ( var pair in _cache._data._textureData) {
 				ShowImage( pair.Value._rawData.ToSprite() );
-				await UniTask.Delay( 2000 );
+				await UTask.Delay( c.Token, 2000 );
 			}
+			c.Dispose();
 		}
 
 

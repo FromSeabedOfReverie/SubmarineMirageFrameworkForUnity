@@ -4,11 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage {
+namespace SubmarineMirage.UI {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Singleton;
 	///====================================================================================================
 	/// <summary>
@@ -55,7 +56,7 @@ namespace SubmarineMirage {
 				_rate = 1;
 				ChangeState( State.Out );
 
-				await UniTask.Delay( 0 );
+				await UTask.DontWait();
 			};
 
 

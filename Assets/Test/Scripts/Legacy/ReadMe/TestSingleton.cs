@@ -10,8 +10,9 @@ namespace SubmarineMirage.ReadMe {
     using System.Collections.Generic;
     using UniRx;
     using Cysharp.Threading.Tasks;
-    using SubmarineMirage.Singleton;
+	using SubmarineMirage.UTask;
     using SubmarineMirage.Process;
+    using SubmarineMirage.Singleton;
     // MonoBehaviourProcessと同じようにProcessサイクルを持つ、シンプルなシングルトン
     public class TestSingleton : Singleton<TestSingleton> {
         // 試験データの一覧
@@ -20,7 +21,7 @@ namespace SubmarineMirage.ReadMe {
         public TestSingleton() {
             _loadEvent += async () => {
                 _data.Add( "TestData" );
-                await UniTask.Delay( 0 );
+                await UTask.DontWait();
             };
         }
     }
@@ -34,7 +35,7 @@ namespace SubmarineMirage.ReadMe {
             var i = TestSingleton.s_instance;
             _initializeEvent += async () => {
                 _data = TestSingleton.s_instance._data.FirstOrDefault();
-                await UniTask.Delay( 0 );
+                await UTask.DontWait();
             };
         }
     }

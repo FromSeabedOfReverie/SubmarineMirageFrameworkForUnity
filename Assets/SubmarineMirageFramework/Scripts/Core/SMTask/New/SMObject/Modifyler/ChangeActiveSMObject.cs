@@ -9,8 +9,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
+	using UTask;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -49,14 +49,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					events.AddLast( async _ => {
 // TODO : Disable時でも、Activeにしてしまうが、Managerの方で呼ばないはず、確認する
 						smObject._owner.SetActive( isActive );
-						await UniTaskUtility.DontWait();
+						await UTask.DontWait();
 						Log.Debug( $"{smObject._owner.GetAboutName()}.SetActive : {isActive}" );
 					} );
 				}
 				if ( isActive ) {
 					events.AddLast( async _ => {
 						isCanChangeActive = IsCanChangeActive( smObject, isChangeOwner );
-						await UniTaskUtility.DontWait();
+						await UTask.DontWait();
 					} );
 				}
 
@@ -80,16 +80,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					case SMTaskType.Work:
 						events.AddLast( async _ => {
 							if ( !isCanChangeActive )	{ return; }
-							await UniTask.WhenAll(
-								smObject.GetBehaviours().Select( async b => {
+							await smObject.GetBehaviours().Select( async b => {
 									try										{ await b.ChangeActive( isActive ); }
 									catch ( OperationCanceledException )	{}
 								} )
 								.Concat(
 									smObject.GetChildren()
 										.Select( o => ChangeActive( o, isActive, false ) )
-								)
-							);
+								);
 						} );
 						break;
 				}
@@ -97,7 +95,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				if ( !isActive ) {
 					events.AddLast( async _ => {
 						isCanChangeActive = IsCanChangeActive( smObject, isChangeOwner );
-						await UniTaskUtility.DontWait();
+						await UTask.DontWait();
 					} );
 					events.Reverse();
 				}

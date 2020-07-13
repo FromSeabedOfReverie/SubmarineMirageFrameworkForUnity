@@ -44,15 +44,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						break;
 
 					case SMTaskType.Work:
-						events.AddLast( async _ => await UniTask.WhenAll(
-							smObject.GetBehaviours().Select( async b => {
+						events.AddLast( async _ => await smObject.GetBehaviours().Select( async b => {
 								try										{ await b.RunActiveEvent(); }
 								catch ( OperationCanceledException )	{}
 							} )
 							.Concat(
 								smObject.GetChildren().Select( o => RunActiveEvent( o ) )
 							)
-						) );
+						);
 						break;
 				}
 				await events.Run( smObject._asyncCancel );

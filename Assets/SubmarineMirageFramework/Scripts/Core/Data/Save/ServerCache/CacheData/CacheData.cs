@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Data.Save {
 	using System;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Utility;
 	///====================================================================================================
 	/// <summary>
@@ -53,7 +54,9 @@ namespace SubmarineMirage.Data.Save {
 		async UniTask RegisterServerCache() {
 			if ( !PathUtility.IsURL( _path ) )	{ return; }
 
-			await UniTask.WaitUntil( () => _data != null );	// 読込後に再登録される為、最初はnullとなる
+			var c = new System.Threading.CancellationTokenSource();
+			await UTask.WaitUntil( c.Token, () => _data != null );	// 読込後に再登録される為、最初はnullとなる
+			c.Dispose();
 			_serverCache.Register( this );
 		}
 		///------------------------------------------------------------------------------------------------

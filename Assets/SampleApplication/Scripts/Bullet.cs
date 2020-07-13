@@ -9,6 +9,7 @@ using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
+using SubmarineMirage.UTask;
 using SubmarineMirage.Process;
 using SubmarineMirage.FSM;
 using SubmarineMirage.Extension;
@@ -35,7 +36,7 @@ public class Bullet : MonoBehaviourProcess, IFiniteStateMachineOwner<BulletState
 		};
 		// ● 終了
 		_finalizeEvent += async () => {
-			await UniTask.Delay( 0 );
+			await UTask.DontWait();
 			Destroy( gameObject );
 		};
 	}

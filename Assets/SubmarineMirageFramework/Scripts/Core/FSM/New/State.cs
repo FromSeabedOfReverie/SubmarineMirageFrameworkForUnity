@@ -10,9 +10,9 @@ namespace SubmarineMirage.FSM.New {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
+	using UTask;
 	using SMTask;
 	using Extension;
-	using Utility;
 	using RunState = FiniteStateMachineRunState;
 
 
@@ -88,7 +88,7 @@ namespace SubmarineMirage.FSM.New {
 		public void StopActiveAsync() {
 			_disposables.Remove( "_activeAsyncCanceler" );
 			using ( var canceler = new CancellationTokenSource() ) {
-				_activeAsyncCanceler = canceler.Token.Add( _owner._activeAsyncCancel );
+				_activeAsyncCanceler = canceler.Token.Link( _owner._activeAsyncCancel );
 			}
 			SetActiveAsyncCancelerDisposable();
 		}
@@ -170,7 +170,7 @@ namespace SubmarineMirage.FSM.New {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Enabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								cancel, () => _activeState == SMTaskActiveState.Enabling );
 							return;
 
@@ -179,7 +179,7 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case SMTaskActiveState.Disabling:
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								cancel, () => _activeState == SMTaskActiveState.Disabling );
 							await RunActiveEvent();
 							return;
@@ -203,7 +203,7 @@ namespace SubmarineMirage.FSM.New {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Disabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								cancel, () => _activeState == SMTaskActiveState.Disabling );
 							return;
 
@@ -212,7 +212,7 @@ namespace SubmarineMirage.FSM.New {
 							return;
 
 						case SMTaskActiveState.Enabling:
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								cancel, () => _activeState == SMTaskActiveState.Enabling );
 							await RunActiveEvent();
 							return;

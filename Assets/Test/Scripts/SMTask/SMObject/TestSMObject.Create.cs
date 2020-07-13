@@ -9,9 +9,9 @@ namespace SubmarineMirage.TestSMTask {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
+	using UTask;
 	using SMTask;
 	using Extension;
-	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
@@ -86,7 +86,7 @@ namespace SubmarineMirage.TestSMTask {
 				}
 				Log.Debug( $"end Create{_testName}" );
 
-				await UniTaskUtility.DontWait();
+				await UTask.DontWait();
 			} );
 		}
 	}

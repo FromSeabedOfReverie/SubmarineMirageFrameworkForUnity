@@ -11,6 +11,7 @@ namespace SubmarineMirage.Data.File {
 	using UnityEngine;
 	using UnityEngine.Networking;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Save;
 	using Extension;
 	using Utility;
@@ -80,7 +81,7 @@ namespace SubmarineMirage.Data.File {
 				// 強制キャッシュ読込
 				data = await Load<T>( Type.Server, path, true, async () => {
 					// 強制キャッシュ読込失敗の場合、無取得
-					await UniTask.Delay( 0 );
+					await UTask.DontWait();
 					return null;
 				} );
 			}
@@ -190,7 +191,9 @@ namespace SubmarineMirage.Data.File {
 					var temp = _tempCache.Get( path );
 					if ( temp != null ) {
 						// 既に読込要求済の場合、読込まで待機（無登録中は、読込中フラグ）
-						await UniTask.WaitUntil( () => temp.Get() != null );
+						var c = new System.Threading.CancellationTokenSource();
+						await UTask.WaitUntil( c.Token, () => temp.Get() != null );
+						c.Dispose();
 						Log.Debug( $"キャッシュ読込成功 : {temp.Get()}\n{path}", Log.Tag.File );
 						return (T)temp.Get();
 					}

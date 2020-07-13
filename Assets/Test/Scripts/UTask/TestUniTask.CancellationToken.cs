@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestAsync {
+namespace SubmarineMirage.TestUTask {
 	using System;
 	using System.Linq;
 	using System.Threading;
@@ -16,8 +16,8 @@ namespace SubmarineMirage.TestAsync {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using UTask;
 	using Extension;
-	using Utility;
 	using Debug;
 	using Test;
 
@@ -25,11 +25,7 @@ namespace SubmarineMirage.TestAsync {
 	// 停止識別子の試験
 
 
-	public class TestCancellationToken : Test {
-		protected override void Create() {
-			Application.targetFrameRate = 30;
-		}
-
+	public partial class TestUniTask : Test {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
@@ -46,7 +42,7 @@ namespace SubmarineMirage.TestAsync {
 				Log.Debug( "-----------------" );
 				cancelers.Add( new CancellationTokenSource() );
 				cancelers.Add( new CancellationTokenSource() );
-				cancelers.Add( cancelers[0].Token.Add( cancelers[1].Token ) );
+				cancelers.Add( cancelers[0].Token.Link( cancelers[1].Token ) );
 				cancelers.ForEach( ( c, i ) => c.Token.Register( () => Log.Debug( $"callback {i}" ) ) );
 			} );
 			var logEvent = new Action<string>( logText => Log.Debug(
@@ -85,17 +81,17 @@ namespace SubmarineMirage.TestAsync {
 			UniTask.Void( async () => {
 				while ( true ) {
 					Log.Debug( "waiting" );
-					await UniTaskUtility.Delay( cancelers[2].Token, 200 );
+					await UTask.Delay( cancelers[2].Token, 200 );
 				}
 			} );
-			await UniTaskUtility.Delay( _asyncCancel, 1000 );
+			await UTask.Delay( _asyncCancel, 1000 );
 			cancelers[0].Dispose();
 			cancelers[1].Dispose();
 			cancelers.RemoveRange( 0, 2 );
 			cancelers[0].Cancel();
 			logEvent( $"0, 1番目を削除、2番目をキャンセル" );
 
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCancel, () => true );
 		} );
 	}
 }

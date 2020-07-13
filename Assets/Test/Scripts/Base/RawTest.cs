@@ -10,7 +10,7 @@ namespace SubmarineMirage.Test {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Main.New;
-	using Utility;
+	using UTask;
 
 
 	// TODO : コメント追加、整頓
@@ -43,10 +43,10 @@ namespace SubmarineMirage.Test {
 				await _createEvent.Invoke( _asyncCancel );
 			}
 
-			UniTask.Void( async () => {
-				await UniTaskUtility.WaitWhile( _asyncCancel, () => !SubmarineMirage.s_instance._isInitialized );
+			UTask.Void( _asyncCancel, async cancel => {
+				await UTask.WaitWhile( cancel, () => !SubmarineMirage.s_instance._isInitialized );
 				if ( _initializeEvent != null ) {
-					await _initializeEvent.Invoke( _asyncCancel );
+					await _initializeEvent.Invoke( cancel );
 				}
 				_isInitialized = true;
 			} );

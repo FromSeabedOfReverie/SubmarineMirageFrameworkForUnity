@@ -15,8 +15,10 @@ namespace SubmarineMirage.Data {
 	using State_Position = UITalk.StatePosition;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Process;
 	using Audio;
+	using Utility;
 	using Debug;
 	using Command = AIData.Command;
 	///====================================================================================================
@@ -65,7 +67,7 @@ namespace SubmarineMirage.Data {
 
 				SetAIFile( _fileName );
 				s_allSynchronizer.Add( this );
-				await UniTask.Delay( 0 );
+				await UTask.DontWait();
 			};
 
 

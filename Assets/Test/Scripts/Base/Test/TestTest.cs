@@ -9,7 +9,7 @@ namespace SubmarineMirage.Test {
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using Utility;
+	using UTask;
 	using Debug;
 
 
@@ -21,12 +21,12 @@ namespace SubmarineMirage.Test {
 			Log.Debug( "Create" );
 			_createEvent.AddLast( async cancel => {
 				Log.Debug( "start _createEvent" );
-				await UniTaskUtility.Delay( _asyncCancel, 1000 );
+				await UTask.Delay( _asyncCancel, 1000 );
 				Log.Debug( "end _createEvent" );
 			} );
 			_initializeEvent.AddLast( async cancel => {
 				Log.Debug( "start _initializeEvent" );
-				await UniTaskUtility.Delay( _asyncCancel, 1000 );
+				await UTask.Delay( _asyncCancel, 1000 );
 				Log.Debug( "end _initializeEvent" );
 			} );
 			_finalizeEvent.AddLast().Subscribe( _ => Log.Debug( "_finalizeEvent" ) );
@@ -37,7 +37,7 @@ namespace SubmarineMirage.Test {
 		[UnityTest]
 		public IEnumerator Test() => From( async () => {
 			Log.Debug( " Test" );
-			await UniTaskUtility.DontWait();
+			await UTask.DontWait();
 		} );
 	}
 }

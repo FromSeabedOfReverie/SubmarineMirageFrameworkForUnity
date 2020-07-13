@@ -10,8 +10,8 @@ namespace SubmarineMirage.SMTask {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using UTask;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -107,7 +107,7 @@ namespace SubmarineMirage.SMTask {
 							_ranState = SMTaskRanState.Creating;
 							try {
 // TODO : awaitが不要な事を、FSM等実装後に確認後、状態をCreateのみに、修正
-//								await UniTaskUtility.Yield( _activeAsyncCancel );
+//								await UTask.NextFrame( _activeAsyncCancel );
 								_owner.Create();
 							} catch {
 								_ranState = SMTaskRanState.None;
@@ -237,7 +237,7 @@ namespace SubmarineMirage.SMTask {
 					StopActiveAsync();
 					if ( _ranState != SMTaskRanState.Finalizing )	{ lastRanState = _ranState; }
 					// 非同期停止時に、catchで状態が変わる為、1フレーム待機
-					await UniTaskUtility.Yield( _inActiveAsyncCancel );
+					await UTask.NextFrame( _inActiveAsyncCancel );
 					_ranState = SMTaskRanState.Finalizing;
 					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 					switch ( lastRanState ) {
@@ -287,7 +287,7 @@ namespace SubmarineMirage.SMTask {
 				case SMTaskRanState.Loading:
 				case SMTaskRanState.Initializing:
 					var lastRanState = _ranState;
-					await UniTaskUtility.WaitWhile( _activeAsyncCancel, () => _ranState == lastRanState );
+					await UTask.WaitWhile( _activeAsyncCancel, () => _ranState == lastRanState );
 					await RunActiveEvent();
 					return;
 
@@ -316,7 +316,7 @@ namespace SubmarineMirage.SMTask {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Enabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								_activeAsyncCancel, () => _activeState == SMTaskActiveState.Enabling );
 							return;
 
@@ -325,7 +325,7 @@ namespace SubmarineMirage.SMTask {
 							return;
 
 						case SMTaskActiveState.Disabling:
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								_activeAsyncCancel, () => _activeState == SMTaskActiveState.Disabling );
 							await RunActiveEvent();
 							return;
@@ -359,7 +359,7 @@ namespace SubmarineMirage.SMTask {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Disabling:
 							_nextActiveState = null;
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								_inActiveAsyncCancel, () => _activeState == SMTaskActiveState.Disabling );
 							return;
 
@@ -368,7 +368,7 @@ namespace SubmarineMirage.SMTask {
 							return;
 
 						case SMTaskActiveState.Enabling:
-							await UniTaskUtility.WaitWhile(
+							await UTask.WaitWhile(
 								_inActiveAsyncCancel, () => _activeState == SMTaskActiveState.Enabling );
 							await RunActiveEvent();
 							return;

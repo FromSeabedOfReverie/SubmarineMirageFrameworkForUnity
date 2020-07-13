@@ -13,6 +13,7 @@ namespace SubmarineMirage.Extension {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using UTask;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 入力の管理クラス
@@ -192,9 +193,7 @@ namespace SubmarineMirage.Extension {
 		///------------------------------------------------------------------------------------------------
 		public InputManager() {
 			// ● 初期化
-			_initializeEvent += async () => {
-				await UniTask.Delay( 0 );
-			};
+			_initializeEvent += async () => await UTask.DontWait();
 
 			RegisterEventForUnityInput();		// Unity入力のイベント関数登録
 			RegisterEventForMoveRange();		// 移動範囲のイベント関数登録

@@ -7,7 +7,7 @@
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Utility;
+	using UTask;
 	using UnityObject = UnityEngine.Object;
 
 
@@ -29,7 +29,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			_object.Dispose();
 			if ( _object._owner != null )	{ UnityObject.Destroy( _object._owner ); }
 
-			await UniTaskUtility.DontWait();
+			await UTask.DontWait();
 		}
 	}
 }

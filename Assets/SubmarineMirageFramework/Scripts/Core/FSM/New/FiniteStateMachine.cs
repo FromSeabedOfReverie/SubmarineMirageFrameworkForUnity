@@ -13,9 +13,9 @@ namespace SubmarineMirage.FSM.New {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using UTask;
 	using SMTask;
 	using Extension;
-	using Utility;
 	using RunState = FiniteStateMachineRunState;
 
 
@@ -62,28 +62,22 @@ namespace SubmarineMirage.FSM.New {
 			_startState = startState;
 
 			_loadEvent.AddLast( _registerEventName, async cancel => {
-				await UniTask.WhenAll(
-					_states
-						.Select( pair => pair.Value )
-						.Select( state => {
-							state.Set( _owner );
-							return state.RunBehaviourStateEvent( SMTaskRanState.Loading );
-						} )
-				);
+				await _states
+					.Select( pair => pair.Value )
+					.Select( state => {
+						state.Set( _owner );
+						return state.RunBehaviourStateEvent( SMTaskRanState.Loading );
+					} );
 			} );
 			_initializeEvent.AddLast( _registerEventName, async cancel => {
-				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Initializing ) )
-				);
+				await _states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Initializing ) );
 				_isInitialized = true;
 				var state = _startState ?? _states.First().Value.GetType();
 				await ChangeState( state );
 			} );
 			_finalizeEvent.AddFirst( _registerEventName, async cancel => {
 				await ChangeState( null );
-				await UniTask.WhenAll(
-					_states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Finalizing ) )
-				);
+				await _states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Finalizing ) );
 			} );
 
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
@@ -97,13 +91,13 @@ namespace SubmarineMirage.FSM.New {
 			);
 
 			_enableEvent.AddLast( _registerEventName, async cancel => {
-				await UniTaskUtility.WaitWhile( cancel, () => _isChangingState );
+				await UTask.WaitWhile( cancel, () => _isChangingState );
 				if ( _state != null ) {
 					await _state.ChangeActive( true );
 				}
 			} );
 			_disableEvent.AddFirst( _registerEventName, async cancel => {
-				await UniTaskUtility.WaitWhile(
+				await UTask.WaitWhile(
 					cancel, () => _isChangingState && _owner._body._ranState != SMTaskRanState.Finalizing );
 				if ( _state != null ) {
 					await _state.ChangeActive( false );
@@ -159,7 +153,7 @@ namespace SubmarineMirage.FSM.New {
 			_isRequestNextState = true;
 
 			if ( _isChangingState ) {
-				await UniTaskUtility.WaitWhile( _changeStateAsyncCancel, () => _isChangingState );
+				await UTask.WaitWhile( _changeStateAsyncCancel, () => _isChangingState );
 				return;
 			}
 			await RunChangeState();

@@ -7,7 +7,7 @@
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Utility;
+	using UTask;
 	using Debug;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
@@ -45,7 +45,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			switch ( _object._type ) {
 				case SMTaskType.DontWork:
 					// 生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-					await UniTaskUtility.Yield( _object._asyncCancel );
+					await UTask.NextFrame( _object._asyncCancel );
 					_object._top._modifyler.Register(
 						new RunStateSMObject( _object, SMTaskRanState.Creating ) );
 					return;
@@ -53,7 +53,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				case SMTaskType.FirstWork:
 					if ( _object._objects._isEnter ) {
 						// 生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-						await UniTaskUtility.Yield( _object._asyncCancel );
+						await UTask.NextFrame( _object._asyncCancel );
 						_object._top._modifyler.Register(
 							new RunStateSMObject( _object, SMTaskRanState.Creating ) );
 						_object._top._modifyler.Register(

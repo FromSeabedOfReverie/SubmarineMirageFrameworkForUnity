@@ -6,9 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton {
 	using Cysharp.Threading.Tasks;
+	using UTask;
+	using Process;
 	using Extension;
 	using Debug;
-	using Process;
 	///====================================================================================================
 	/// <summary>
 	/// ■ シングルトンのクラス
@@ -62,7 +63,9 @@ namespace SubmarineMirage.Singleton {
 
 			// BaseProcess内部の登録時に、Delay(1)をForget()で行っており、登録順がランダムになる為、
 			// ここで念の為、もう1ミリ秒待機させる
-			await UniTask.Delay( 1 );
+			var c = new System.Threading.CancellationTokenSource();
+			await UTask.NextFrame( c.Token );
+			c.Dispose();
 		}
 	}
 }

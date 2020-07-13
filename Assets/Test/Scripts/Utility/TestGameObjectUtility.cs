@@ -14,8 +14,8 @@ namespace SubmarineMirage.TestUtility {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using UTask;
 	using Extension;
-	using Utility;
 	using Debug;
 	using Test;
 
@@ -36,7 +36,7 @@ namespace SubmarineMirage.TestUtility {
 			new GameObject( "New" );
 			var gos = SceneManager.GetActiveScene().GetRootGameObjects();
 			gos.ForEach( go => Log.Debug( go ) );
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCancel, () => true );
 		} );
 
 
@@ -69,7 +69,7 @@ namespace SubmarineMirage.TestUtility {
 			var ts = topChild.GetComponentsInParentUntilOneHierarchy<TestMono>( true );
 			ts.ForEach( testHoge => Log.Debug( testHoge.gameObject.name ) );
 
-			await UniTaskUtility.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCancel, () => true );
 		} );
 
 

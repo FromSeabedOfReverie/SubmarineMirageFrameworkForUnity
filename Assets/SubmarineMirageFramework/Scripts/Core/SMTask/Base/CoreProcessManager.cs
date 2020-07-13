@@ -11,6 +11,7 @@ namespace SubmarineMirage.Process {
 	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Singleton;
 	using Extension;
 	using Debug;
@@ -313,7 +314,7 @@ namespace SubmarineMirage.Process {
 
 
 			// 全終了まで待機
-			await UniTask.WhenAll( tasks );
+			await tasks;
 			_isProcessDeleting = false;	// 削除中ロックを解除
 		}
 		/// <summary>
@@ -326,8 +327,9 @@ namespace SubmarineMirage.Process {
 					Unregister( p );
 				}
 			}
-			await UniTask.WaitUntil( () => _deleteProcesses.Count == 0 );
-			await UniTask.WaitUntil( () => !_isProcessDeleting );
+			var c = new System.Threading.CancellationTokenSource();
+			await UTask.WaitUntil( c.Token, () => _deleteProcesses.Count == 0 );
+			await UTask.WaitUntil( c.Token, () => !_isProcessDeleting );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

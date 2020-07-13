@@ -13,10 +13,10 @@ namespace SubmarineMirage.TestSMTask {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using UTask;
 	using SMTask;
 	using SMTask.Modifyler;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -224,17 +224,17 @@ namespace SubmarineMirage.TestSMTask {
 
 			behaviour._loadEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
 			} );
 			behaviour._initializeEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
 			} );
 			behaviour._enableEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
 			} );
 			behaviour._fixedUpdateEvent.AddLast().Subscribe( _ => {
@@ -248,12 +248,12 @@ namespace SubmarineMirage.TestSMTask {
 			} );
 			behaviour._disableEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
 			} );
 			behaviour._finalizeEvent.AddLast( async cancel => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
-				await UniTaskUtility.Delay( cancel, 1000 );
+				await UTask.Delay( cancel, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
 			} );
 		}

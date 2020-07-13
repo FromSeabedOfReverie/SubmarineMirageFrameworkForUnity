@@ -65,15 +65,13 @@ namespace SubmarineMirage.Editor.Build {
 //				Log.Debug( fileNames.ToDeepString() );
 
 				// 書類の読込、ライセンス記述、保存
-				await UniTask.WhenAll(
-					fileNames.Select( async path => {
-						var fileText = await FileManager.s_instance._fileLoader.LoadExternal<string>( path );
-						// ※ BOM付きだった場合、BOMが行中に含まれてしまう、要修正
-						fileText = LICENSE_TEXT + fileText;
-//						Log.Debug( fileText );
-						await FileManager.s_instance._fileLoader.SaveExternal( path, fileText );
-					} )
-				);
+				await fileNames.Select( async path => {
+					var fileText = await FileManager.s_instance._fileLoader.LoadExternal<string>( path );
+					// ※ BOM付きだった場合、BOMが行中に含まれてしまう、要修正
+					fileText = LICENSE_TEXT + fileText;
+//					Log.Debug( fileText );
+					await FileManager.s_instance._fileLoader.SaveExternal( path, fileText );
+				} );
 			};
 		}
 	}

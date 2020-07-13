@@ -7,7 +7,7 @@
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Utility;
+	using UTask;
 	using UnityObject = UnityEngine.Object;
 
 
@@ -48,13 +48,13 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 			switch ( _object._type ) {
 				case SMTaskType.DontWork:
-					await UniTaskUtility.Yield( _behaviour._activeAsyncCancel );
+					await UTask.NextFrame( _behaviour._activeAsyncCancel );
 					await _behaviour.RunStateEvent( SMTaskRanState.Creating );
 					return;
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
 					if ( _object._objects._isEnter ) {
-						await UniTaskUtility.Yield( _behaviour._activeAsyncCancel );
+						await UTask.NextFrame( _behaviour._activeAsyncCancel );
 						await _behaviour.RunStateEvent( SMTaskRanState.Creating );
 						await _behaviour.RunStateEvent( SMTaskRanState.Loading );
 						await _behaviour.RunStateEvent( SMTaskRanState.Initializing );

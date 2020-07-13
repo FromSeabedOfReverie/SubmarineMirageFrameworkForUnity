@@ -8,8 +8,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Scene;
-	using Utility;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
 
@@ -45,7 +45,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			UnLinkObject( _object );
 			RegisterObject();
 
-			await UniTaskUtility.DontWait();
+			await UTask.DontWait();
 		}
 	}
 }

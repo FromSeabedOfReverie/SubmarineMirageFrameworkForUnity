@@ -102,12 +102,10 @@ namespace SubmarineMirage.Data.Save {
 			FileManager.s_instance.DeletePath( folder );
 
 			// 写真をJPG形式で非同期保存
-			await UniTask.WhenAll(
-				_pictureRawData.Select( ( data, i ) => {
-					var path = Path.Combine( SUB_PATH, string.Format( PICTURE_NAME_FORMAT, i + 1 ) );
-					return _loader.SaveExternal( path, data._data );
-				} )
-			);
+			await _pictureRawData.Select( ( data, i ) => {
+				var path = Path.Combine( SUB_PATH, string.Format( PICTURE_NAME_FORMAT, i + 1 ) );
+				return _loader.SaveExternal( path, data._data );
+			} );
 
 			await base.Save();
 

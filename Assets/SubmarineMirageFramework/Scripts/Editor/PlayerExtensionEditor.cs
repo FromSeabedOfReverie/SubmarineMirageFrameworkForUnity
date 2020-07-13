@@ -5,9 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Editor {
+	using System.Threading;
 	using UnityEditor;
 	using Cysharp.Threading.Tasks;
 	using Main.New;
+	using UTask;
 
 
 	// TODO : コメント追加、整頓
@@ -60,12 +62,14 @@ namespace SubmarineMirage.Editor {
 				EditorApplication.isPlaying = true;
 
 			} else {
-				UniTask.Void( async () => {
+				var canceler = new CancellationTokenSource();
+				UTask.Void( canceler.Token, async cancel => {
 					SubmarineMirage.DisposeInstance();
 					if ( PlayerExtensionEditorManager.instance._playType != PlayType.Test ) {
-						await UniTask.Yield();
+						await UTask.NextFrame( cancel );
 					}
 					EditorApplication.isPlaying = false;
+					canceler.Dispose();
 				} );
 			}
 		}

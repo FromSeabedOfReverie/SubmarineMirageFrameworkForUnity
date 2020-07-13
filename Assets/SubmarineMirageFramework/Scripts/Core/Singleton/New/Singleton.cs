@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton.New {
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using SMTask;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -42,7 +42,7 @@ namespace SubmarineMirage.Singleton.New {
 		public static async UniTask WaitForCreation() {
 // TODO : 登録順が担保できれば、不要
 			var i = s_instance;
-			await UniTaskUtility.Yield( s_instance._activeAsyncCancel );
+			await UTask.NextFrame( s_instance._activeAsyncCancel );
 		}
 
 

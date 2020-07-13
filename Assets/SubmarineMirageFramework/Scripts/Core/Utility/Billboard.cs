@@ -8,6 +8,7 @@ namespace SubmarineMirage.Utility {
 	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Process;
 	///====================================================================================================
 	/// <summary>
@@ -25,7 +26,7 @@ namespace SubmarineMirage.Utility {
 		public Billboard() {
 			// ● 初期化
 			_initializeEvent += async () => {
-				await UniTask.Delay( 0 );
+				await UTask.DontWait();
 			};
 
 			// ● 更新

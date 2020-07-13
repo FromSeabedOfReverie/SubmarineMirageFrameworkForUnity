@@ -8,6 +8,7 @@ namespace SubmarineMirage.Process {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Extension;
 	///====================================================================================================
 	/// <summary>
@@ -32,9 +33,9 @@ namespace SubmarineMirage.Process {
 		/// <summary>初期化済か？</summary>
 		public bool _isInitialized	{ get; private set; }
 		/// <summary>読込時のイベント</summary>
-		public Func<UniTask> _loadEvent			{ get; protected set; } = async () => await UniTask.Delay( 0 );
+		public Func<UniTask> _loadEvent			{ get; protected set; } = async () => await UTask.DontWait();
 		/// <summary>初期化時のイベント</summary>
-		public Func<UniTask> _initializeEvent	{ get; protected set; } = async () => await UniTask.Delay( 0 );
+		public Func<UniTask> _initializeEvent	{ get; protected set; } = async () => await UTask.DontWait();
 		/// <summary>物理更新時のイベント</summary>
 		protected Subject<Unit> _fixedUpdateEvent	= new Subject<Unit>();
 		/// <summary>更新時のイベント</summary>
@@ -42,7 +43,7 @@ namespace SubmarineMirage.Process {
 		/// <summary>遅更新時のイベント</summary>
 		protected Subject<Unit> _lateUpdateEvent	= new Subject<Unit>();
 		/// <summary>終了時のイベント</summary>
-		public Func<UniTask> _finalizeEvent		{ get; protected set; } = async () => await UniTask.Delay( 0 );
+		public Func<UniTask> _finalizeEvent		{ get; protected set; } = async () => await UTask.DontWait();
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ（疑似的）
@@ -125,7 +126,9 @@ namespace SubmarineMirage.Process {
 
 			// 中心処理初期化後まで待機の場合、待機
 			if ( _isWaitInitializedCoreProcesses ) {
-				await UniTask.WaitUntil( () => CoreProcessManager.s_instance._isInitialized );
+				var c = new System.Threading.CancellationTokenSource();
+				await UTask.WaitUntil( c.Token, () => CoreProcessManager.s_instance._isInitialized );
+				c.Dispose();
 			}
 
 			Constructor();	// 疑似コンストラクタ実行

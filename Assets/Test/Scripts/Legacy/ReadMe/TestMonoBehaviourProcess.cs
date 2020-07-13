@@ -8,6 +8,7 @@ namespace SubmarineMirage.ReadMe {
 
     using UniRx;
     using Cysharp.Threading.Tasks;
+	using SubmarineMirage.UTask;
     using SubmarineMirage.Process;
     // MonoBehaviourProcessは、処理順序に規則を持たせたMonoBehaviour
     // UniRxで無理矢理組むような、リアクティブスパゲッティを防止できる
@@ -19,13 +20,13 @@ namespace SubmarineMirage.ReadMe {
             // 各種管理クラスの初期化後、最初に管理クラスから呼ばれる
             _loadEvent += async () => {
                 // AssetBundle、ServerData等、自身で完結する非同期処理を記述
-                await UniTask.Delay( 0 );
+                await UTask.DontWait();
             };
             // 初期化処理を設定
             // _loadEvent実行後、管理クラスから呼ばれる
             _initializeEvent += async () => {
                 // 他オブジェクトの要素、管理クラスの要素等、読込済の他者の取得処理を記述
-                await UniTask.Delay( 0 );
+                await UTask.DontWait();
             };
             // 更新処理を設定
             // _initializeEvent実行後、管理クラスから毎フレーム呼ばれる
@@ -36,7 +37,7 @@ namespace SubmarineMirage.ReadMe {
             // 破棄直前に管理クラスから呼ばれる
             _finalizeEvent += async () => {
                 // 破棄が必要な、非同期処理を記述
-                await UniTask.Delay( 0 );
+                await UTask.DontWait();
             };
         }
     }
