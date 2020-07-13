@@ -8,7 +8,7 @@ namespace SubmarineMirage {
 	using System.Diagnostics;
 	using UnityEngine;
 	using UniRx;
-	using Singleton.New;
+	using Singleton;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 時間の管理クラス

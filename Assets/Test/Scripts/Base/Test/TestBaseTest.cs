@@ -10,7 +10,7 @@ namespace SubmarineMirage.Test {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using Cysharp.Threading.Tasks;
-	using Main.New;
+	using Main;
 	using UTask;
 	using Debug;
 

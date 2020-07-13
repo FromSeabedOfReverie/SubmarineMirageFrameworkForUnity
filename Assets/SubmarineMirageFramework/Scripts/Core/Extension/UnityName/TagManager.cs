@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
+	using SMTask;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 付箋の管理クラス
@@ -44,14 +45,13 @@ namespace SubmarineMirage.Extension {
 			Ground,
 		}
 
-		/// <summary>登録するか？</summary>
-		public override bool _isRegister => false;
+		/// <summary>処理の型</summary>
+		public override SMTaskType _type => SMTaskType.DontWork;
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● コンストラクタ
+		/// ● 作成
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public TagManager() {
-		}
+		public override void Create() {}
 	}
 }

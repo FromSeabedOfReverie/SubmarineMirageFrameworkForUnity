@@ -9,6 +9,7 @@ namespace SubmarineMirage.Extension {
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
+	using SMTask;
 	using Singleton;
 	///====================================================================================================
 	/// <summary>
@@ -17,7 +18,7 @@ namespace SubmarineMirage.Extension {
 	/// </summary>
 	///====================================================================================================
 	public abstract class UnityName<TManager, TName> : Singleton<TManager>
-		where TManager : new()
+		where TManager : SMBehaviour, new()
 		where TName : Enum
 	{
 		///------------------------------------------------------------------------------------------------

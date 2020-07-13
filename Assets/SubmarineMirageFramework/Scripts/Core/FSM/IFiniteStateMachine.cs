@@ -5,13 +5,32 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
-	///====================================================================================================
-	/// <summary>
-	/// ■ 有限状態機械のインタフェース
-	///----------------------------------------------------------------------------------------------------
-	///		State要素に渡す際、ジェネリッククラスだと安定しない為、基盤インタフェースを作成。
-	/// </summary>
-	///====================================================================================================
-	public interface IFiniteStateMachine {
+	using System;
+	using System.Threading;
+	using Cysharp.Threading.Tasks;
+	using MultiEvent;
+	using Extension;
+
+
+	// TODO : コメント追加、整頓
+
+
+	public interface IFiniteStateMachine : IDisposableExtension {
+		bool _isActive				{ get; }
+		string _registerEventName	{ get; }
+		bool _isChangingState		{ get; }
+
+		MultiAsyncEvent _loadEvent			{ get; }
+		MultiAsyncEvent _initializeEvent	{ get; }
+		MultiAsyncEvent _enableEvent		{ get; }
+		MultiSubject _fixedUpdateEvent		{ get; }
+		MultiSubject _updateEvent			{ get; }
+		MultiSubject _lateUpdateEvent		{ get; }
+		MultiAsyncEvent _disableEvent		{ get; }
+		MultiAsyncEvent _finalizeEvent		{ get; }
+
+		CancellationToken _changeStateAsyncCancel	{ get; }
+
+		UniTask ChangeState( Type state );
 	}
 }

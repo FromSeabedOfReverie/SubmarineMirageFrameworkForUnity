@@ -13,7 +13,7 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Singleton.New;
+	using Singleton;
 	using MultiEvent;
 	using SMTask;
 	using Scene;

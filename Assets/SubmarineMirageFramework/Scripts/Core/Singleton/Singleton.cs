@@ -7,65 +7,49 @@
 namespace SubmarineMirage.Singleton {
 	using Cysharp.Threading.Tasks;
 	using UTask;
-	using Process;
+	using SMTask;
 	using Extension;
 	using Debug;
-	///====================================================================================================
-	/// <summary>
-	/// ■ シングルトンのクラス
-	///----------------------------------------------------------------------------------------------------
-	///		シングルトンで更新が必要な物の更新をサポートする。
-	/// </summary>
-	///====================================================================================================
-	public class Singleton<T> : BaseProcess where T : new() {
-		///------------------------------------------------------------------------------------------------
-		/// ● 要素
-		///------------------------------------------------------------------------------------------------
-		/// <summary>シングルトン</summary>
-		static T s_instanceObject;
 
-		/// <summary>作成済か？</summary>
+
+	// TODO : コメント追加、整頓
+
+
+	public abstract class Singleton<T> : SMBehaviour, ISingleton
+		where T : SMBehaviour, new()
+	{
+		static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
-		/// <summary>場面内だけ存在するか？</summary>
-		public override bool _isInSceneOnly => false;
-		/// <summary>中心処理初期化後まで待機するか？</summary>
-		public override bool _isWaitInitializedCoreProcesses => false;
-		///------------------------------------------------------------------------------------------------
-		/// ● アクセサ
-		///------------------------------------------------------------------------------------------------
-		/// <summary>シングルトン取得</summary>
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
+
+
 		public static T s_instance {
 			get {
-				if ( !s_isCreated )	{ Create(); }
+				if ( !s_isCreated )	{ CreateInstance(); }
 				return s_instanceObject;
 			}
 		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 作成
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		protected static void Create() {
-			if ( s_isCreated )	{ return; }
 
+
+		protected static void CreateInstance() {
+			if ( s_isCreated )	{ return; }
 			s_instanceObject = new T();
 			Log.Debug( $"作成 : { s_instanceObject.GetAboutName() }", Log.Tag.Singleton );
 		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 作成登録を待機
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static async UniTask WaitForCreation() {
-			// 既に作成済の場合を考慮
-			// そもそも作成済の場合は、この関数を呼ばなくても良い
-			var i = s_instance;
 
-			// BaseProcess内部の登録時に、Delay(1)をForget()で行っており、登録順がランダムになる為、
-			// ここで念の為、もう1ミリ秒待機させる
-			var c = new System.Threading.CancellationTokenSource();
-			await UTask.NextFrame( c.Token );
-			c.Dispose();
+
+		public static async UniTask WaitForCreation() {
+// TODO : 登録順が担保できれば、不要
+			var i = s_instance;
+			await UTask.NextFrame( s_instance._activeAsyncCancel );
+		}
+
+
+		public static void DisposeInstance() {
+			if ( !s_isCreated )	{ return; }
+			s_instanceObject.Dispose();
+			s_instanceObject = null;
 		}
 	}
 }

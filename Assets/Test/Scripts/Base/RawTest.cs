@@ -9,7 +9,7 @@ namespace SubmarineMirage.Test {
 	using System.Threading;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using Main.New;
+	using Main;
 	using UTask;
 
 

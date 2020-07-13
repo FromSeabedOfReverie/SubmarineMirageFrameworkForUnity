@@ -8,7 +8,7 @@ namespace SubmarineMirage.Editor {
 	using System.Threading;
 	using UnityEditor;
 	using Cysharp.Threading.Tasks;
-	using Main.New;
+	using Main;
 	using UTask;
 
 

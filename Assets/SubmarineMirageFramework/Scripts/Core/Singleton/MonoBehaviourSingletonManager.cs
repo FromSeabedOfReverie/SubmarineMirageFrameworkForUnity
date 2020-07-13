@@ -6,52 +6,53 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton {
 	using UnityEngine;
+	using SMTask;
 	using Extension;
-	using Process;
 	using Debug;
-	///====================================================================================================
-	/// <summary>
-	/// ■ MonoBehaviourシングルトンの管理クラス
-	///----------------------------------------------------------------------------------------------------
-	///		MonoBehaviourSingletonを管理し、親オブジェクト処理を行う。
-	/// </summary>
-	///====================================================================================================
-	public class MonoBehaviourSingletonManager : Singleton<MonoBehaviourSingletonManager> {
-		///------------------------------------------------------------------------------------------------
-		/// ● 要素
-		///------------------------------------------------------------------------------------------------
-		/// <summary>登録するか？</summary>
-		public override bool _isRegister => false;
-		/// <summary>親</summary>
-		static GameObject s_parent;
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 作成（ゲーム物）
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		void CreateGameObject() {
-			if ( s_parent != null )	{ return; }
 
-			var tag = TagManager.s_instance.Get( TagManager.Name.Singletons );
-			s_parent = GameObject.FindWithTag( tag );
-			if ( s_parent != null )	{ return; }
 
-			s_parent = new GameObject( tag );
-			s_parent.tag = tag;
-			Object.DontDestroyOnLoad( s_parent );
+	// TODO : コメント追加、整頓
 
-			Log.Debug( $"作成（GameObject） : { this.GetAboutName() }", Log.Tag.Singleton );
+
+	public class MonoBehaviourSingletonManager : MonoBehaviourSingleton<MonoBehaviourSingletonManager> {
+		public override SMTaskType _type => SMTaskType.DontWork;
+
+
+		new public static void CreateInstance() {
+			if ( s_isCreated )	{ return; }
+
+			s_instanceObject = FindObjectOfType<MonoBehaviourSingletonManager>();
+			if ( s_isCreated )	{ return; }
+
+			var tag = TagManager.Name.Singletons.ToString();
+			var go = GameObject.FindWithTag( tag );
+			if ( go != null ) {
+				var b = go.GetComponent<MonoBehaviourSingletonManager>();
+				if ( b != null ) {
+					s_instanceObject = b;
+				}
+			}
+			if ( s_isCreated )	{ return; }
+
+			go = new GameObject( tag );
+			go.tag = tag;
+			s_instanceObject = go.AddComponent<MonoBehaviourSingletonManager>();
+			new SMObject( go, new ISMBehaviour[] { s_instanceObject }, null );
+
+			Log.Debug( $"作成（GameObject） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
 		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 作成（部品）
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public T CreateComponent<T>() where T : MonoBehaviourProcess {
-			CreateGameObject();
-			var component = s_parent.AddComponent<T>();
-			Log.Debug( $"作成（MonoBehaviour） : { component.GetAboutName() }", Log.Tag.Singleton );
-			return component;
+
+
+		public T CreateBehaviour<T>() where T : SMMonoBehaviour {
+			var b = _object.GetBehaviour<T>();
+			if ( b != null )	{ return b; }
+
+			b = _object.AddBehaviour<T>();
+			Log.Debug( $"作成（{nameof( SMTask )}） : {b.GetAboutName()}", Log.Tag.Singleton );
+			return b;
 		}
+
+
+		public override void Create() {}
 	}
 }

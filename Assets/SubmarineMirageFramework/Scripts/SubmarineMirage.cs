@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Main.New {
+namespace SubmarineMirage.Main {
 	using System;
 	using System.Threading;
 	using System.Threading.Tasks;
@@ -12,7 +12,7 @@ namespace SubmarineMirage.Main.New {
 	using MultiEvent;
 	using UTask;
 	using SMTask;
-	using Singleton.New;
+	using Singleton;
 	using Scene;
 
 

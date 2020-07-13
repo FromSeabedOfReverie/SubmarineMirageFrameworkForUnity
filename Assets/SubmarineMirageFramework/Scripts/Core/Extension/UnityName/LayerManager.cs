@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
+	using SMTask;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 層の管理クラス
@@ -36,8 +37,9 @@ namespace SubmarineMirage.Extension {
 			DistantView,
 		}
 
-		/// <summary>登録するか？</summary>
-		public override bool _isRegister => false;
+		/// <summary>処理の型</summary>
+		public override SMTaskType _type => SMTaskType.DontWork;
+
 		/// <summary>AIの視界遮断マスク</summary>
 		public int _aiSightObstructMask	=> LayerMask.GetMask( Get( Name.Ground ) );
 		/// <summary>カメラ遮断マスク</summary>
@@ -48,11 +50,10 @@ namespace SubmarineMirage.Extension {
 		public int _waterMask			=> LayerMask.GetMask( Get( Name.Water ) );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● コンストラクタ
+		/// ● 作成
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public LayerManager() {
-		}
+		public override void Create() {}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● レイヤー番号を取得

@@ -5,21 +5,20 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton {
-	using Cysharp.Threading.Tasks;
-	using UTask;
-	using SMTask;
+	using MultiEvent;
+	using Extension;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class MonoBehaviourSingleton<T> : SMMonoBehaviour, ISingleton
-		where T : SMMonoBehaviour
+	public abstract class RawSingleton<T> : ISingleton, IDisposableExtension
+		where T : class, ISingleton, IDisposableExtension, new()
 	{
-		protected static T s_instanceObject;
+		static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
-		public override SMTaskType _type => SMTaskType.FirstWork;
-		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
+		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public static T s_instance {
@@ -32,25 +31,20 @@ namespace SubmarineMirage.Singleton {
 
 		protected static void CreateInstance() {
 			if ( s_isCreated )	{ return; }
-
-			s_instanceObject = FindObjectOfType<T>();
-			if ( s_isCreated )	{ return; }
-
-			s_instanceObject = MonoBehaviourSingletonManager.s_instance.CreateBehaviour<T>();
+			s_instanceObject = new T();
+			Log.Debug( $"作成 : { s_instanceObject.GetAboutName() }", Log.Tag.Singleton );
+			s_instanceObject._disposables.AddLast(
+				() => Log.Debug( $"Dispose : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton ) );
 		}
-
-
-		public static async UniTask WaitForCreation() {
-// TODO : 登録順が担保できれば、不要
-			var i = s_instance;
-			await UTask.NextFrame( s_instance._activeAsyncCancel );
-		}
-
 
 		public static void DisposeInstance() {
 			if ( !s_isCreated )	{ return; }
 			s_instanceObject.Dispose();
 			s_instanceObject = null;
 		}
+
+		public void Dispose() => _disposables.Dispose();
+
+		~RawSingleton() => Dispose();
 	}
 }

@@ -14,8 +14,7 @@ namespace SubmarineMirage.Scene {
 	using KoganeUnityLib;
 	using UTask;
 	using SMTask;
-	using FSM.New;
-	using Audio;
+	using FSM;
 	using Extension;
 	using Utility;
 	using Debug;
