@@ -21,67 +21,66 @@ namespace SubmarineMirage.Test {
 	public class TestBaseTest : BaseTest {
 		protected override async UniTask AwakeSub() {
 			Create();
-			UTask.Void( _asyncCancel, async cancel => {
-				await UTask.WaitWhile( cancel, () => !SubmarineMirage.s_instance._isInitialized );
+			UTask.Void( async () => {
+				await UTask.WaitWhile( _asyncCanceler, () => !SubmarineMirage.s_instance._isInitialized );
 				_isInitialized = true;
 			} );
 			await UTask.DontWait();
 		}
 
-		protected override void Create() => Log.Debug( "Create" );
+		protected override void Create() => Log.Debug( $"{nameof( Create )}" );
 
 		public override void Dispose() {
-			_asyncCanceler.Cancel();
 			_asyncCanceler.Dispose();
-			Log.Debug( "Dispose" );
+			Log.Debug( $"{nameof( Dispose )}" );
 		}
 
 
 		[UnityTest]
 		public IEnumerator TestTask() => From( async () => {
-			Log.Debug( "start TestTask" );
-			await UTask.Delay( _asyncCancel, 1000 );
-			Log.Debug( "end TestTask" );
+			Log.Debug( $"{nameof( TestTask )} : start" );
+			await UTask.Delay( _asyncCanceler, 1000 );
+			Log.Debug( $"{nameof( TestTask )} : end" );
 		} );
 
 		[UnityTest]
 		public IEnumerator TestCoroutine() => From( TestCoroutineSub() );
 		IEnumerator TestCoroutineSub() {
-			Log.Debug( "start TestCoroutine" );
+			Log.Debug( $"{nameof( TestCoroutine )} : start" );
 			yield return new WaitForSeconds( 1 );
-			Log.Debug( "end TestCoroutine" );
+			Log.Debug( $"{nameof( TestCoroutine )} : end" );
 		}
 
 
 		[UnityTest]
 		public IEnumerator TestCancelTask() => From( async () => {
-			Log.Debug( "start TestCancelTask" );
-			UTask.Void( _asyncCancel, async cancel => {
-				await UTask.Delay( cancel, 1000 );
+			Log.Debug( $"{nameof( TestCancelTask )} : start" );
+			UTask.Void( async () => {
+				await UTask.Delay( _asyncCanceler, 1000 );
 				_asyncCanceler.Cancel();
 			} );
-			await UTask.WaitWhile( _asyncCancel, () => true );
-			Log.Debug( "end TestCancelTask" );
+			await UTask.WaitWhile( _asyncCanceler, () => true );
+			Log.Debug( $"{nameof( TestCancelTask )} : end" );
 		} );
 
 		[UnityTest]
 		public IEnumerator TestCancelCoroutine() => From( TestCancelCoroutineSub() );
 		IEnumerator TestCancelCoroutineSub() {
-			Log.Debug( "start TestCancelCoroutine" );
-			UTask.Void( _asyncCancel, async cancel => {
-				await UTask.Delay( cancel, 1000 );
+			Log.Debug( $"{nameof( TestCancelCoroutine )} : start" );
+			UTask.Void( async () => {
+				await UTask.Delay( _asyncCanceler, 1000 );
 				_asyncCanceler.Cancel();
 			} );
 			while ( true )	{ yield return null; }
-			Log.Debug( "end TestCancelCoroutine" );
+			Log.Debug( $"{nameof( TestCancelCoroutine )} : end" );
 		}
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestDisposeTask() => From( async () => {
-			Log.Debug( "TestDisposeTask" );
-			await UTask.WaitWhile( _asyncCancel, () => true );
+			Log.Debug( $"{nameof( TestDisposeTask )}" );
+			await UTask.WaitWhile( _asyncCanceler, () => true );
 			// エディタ停止ボタンは、解放されない為、F5ボタンの拡張停止を使う
 		} );
 
@@ -89,7 +88,7 @@ namespace SubmarineMirage.Test {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestDisposeCoroutine() => From( TestDisposeCoroutineSub() );
 		IEnumerator TestDisposeCoroutineSub() {
-			Log.Debug( "TestDisposeCoroutine" );
+			Log.Debug( $"{nameof( TestDisposeCoroutine )}" );
 			while ( true )	{ yield return null; }
 			// エディタ停止ボタンは、解放されない為、F5ボタンの拡張停止を使う
 		}

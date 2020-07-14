@@ -42,7 +42,7 @@ namespace SubmarineMirage.Singleton {
 		public static async UniTask WaitForCreation() {
 // TODO : 登録順が担保できれば、不要
 			var i = s_instance;
-			await UTask.NextFrame( s_instance._activeAsyncCancel );
+			await UTask.NextFrame( s_instance._activeAsyncCanceler );
 		}
 
 

@@ -31,7 +31,7 @@ namespace SubmarineMirage.TestUTask {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestEmpty() => From( async () => {
 			Log.Debug( 1 );
-			UTask.Void( _asyncCancel, async c => {
+			UTask.Void( _asyncCanceler, async c => {
 				Log.Debug( 2 );
 				await UTask.Empty;
 				Log.Debug( 3 );
@@ -46,7 +46,7 @@ namespace SubmarineMirage.TestUTask {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestDontWait() => From( async () => {
 			Log.Debug( 1 );
-			UTask.Void( _asyncCancel, async c => {
+			UTask.Void( _asyncCanceler, async c => {
 				Log.Debug( 2 );
 				await UTask.DontWait();
 				Log.Debug( 3 );
@@ -112,7 +112,7 @@ namespace SubmarineMirage.TestUTask {
 			Log.Debug( 1 );
 			var t = new Func<UniTask>( async () => {
 				Log.Debug( 2 );
-				await UTask.Delay( _asyncCancel, 1000 );
+				await UTask.Delay( _asyncCanceler, 1000 );
 				Log.Debug( 3 );
 			} );
 			Log.Debug( 4 );

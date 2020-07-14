@@ -88,7 +88,7 @@ namespace SubmarineMirage.FSM {
 		public void StopActiveAsync() {
 			_disposables.Remove( "_activeAsyncCanceler" );
 			using ( var canceler = new CancellationTokenSource() ) {
-				_activeAsyncCanceler = canceler.Token.Link( _owner._activeAsyncCancel );
+				_activeAsyncCanceler = canceler.Token.Link( _owner._activeAsyncCanceler );
 			}
 			SetActiveAsyncCancelerDisposable();
 		}
@@ -160,8 +160,8 @@ namespace SubmarineMirage.FSM {
 
 			var cancel = (
 				_fsm._isChangingState							? _fsm._changeStateAsyncCancel :
-				_nextActiveState == SMTaskActiveState.Enabling	? _owner._activeAsyncCancel :
-				_nextActiveState == SMTaskActiveState.Disabling	? _owner._inActiveAsyncCancel
+				_nextActiveState == SMTaskActiveState.Enabling	? _owner._activeAsyncCanceler :
+				_nextActiveState == SMTaskActiveState.Disabling	? _owner._inActiveAsyncCanceler
 																: default
 			);
 
@@ -241,11 +241,11 @@ namespace SubmarineMirage.FSM {
 		public async UniTask RunBehaviourStateEvent( SMTaskRanState state ) {
 			switch ( state ) {
 				case SMTaskRanState.Loading:
-					await _loadEvent.Run( _owner._activeAsyncCancel );
+					await _loadEvent.Run( _owner._activeAsyncCanceler );
 					return;
 
 				case SMTaskRanState.Initializing:
-					await _initializeEvent.Run( _owner._activeAsyncCancel );
+					await _initializeEvent.Run( _owner._activeAsyncCanceler );
 					return;
 
 				case SMTaskRanState.FixedUpdate:
@@ -280,7 +280,7 @@ namespace SubmarineMirage.FSM {
 					return;
 
 				case SMTaskRanState.Finalizing:
-					await _finalizeEvent.Run( _owner._inActiveAsyncCancel );
+					await _finalizeEvent.Run( _owner._inActiveAsyncCanceler );
 					return;
 
 				case SMTaskRanState.None:

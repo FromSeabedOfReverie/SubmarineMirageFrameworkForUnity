@@ -101,7 +101,7 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestStopActiveAsync() => From( async () => {
-			UTask.Void( _asyncCancel, async cancel => {
+			UTask.Void( _asyncCanceler, async cancel => {
 				await UTask.Delay( cancel, 3000 );
 				Log.Debug( $"{nameof( _behaviour.StopActiveAsync )}" );
 				_behaviour.StopActiveAsync();
@@ -119,7 +119,7 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestDispose() => From( async () => {
-			UTask.Void( _asyncCancel, async cancel => {
+			UTask.Void( _asyncCanceler, async cancel => {
 				await UTask.Delay( cancel, 3000 );
 				Log.Debug( $"{nameof( _behaviour.Dispose )}" );
 				_behaviour.Dispose();

@@ -7,11 +7,11 @@
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
-	using System.Threading;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
+	using UTask;
 	using Extension;
 
 
@@ -23,7 +23,7 @@ namespace SubmarineMirage.SMTask {
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
 		public SMObject _object			{ get; set; }
-		public SMBehaviourBody _body		{ get; private set; }
+		public SMBehaviourBody _body	{ get; private set; }
 		public ISMBehaviour _previous	{ get; set; }
 		public ISMBehaviour _next		{ get; set; }
 
@@ -39,9 +39,8 @@ namespace SubmarineMirage.SMTask {
 		public MultiAsyncEvent _disableEvent	=> _body._disableEvent;
 		public MultiAsyncEvent _finalizeEvent	=> _body._finalizeEvent;
 
-		public MultiSubject _activeAsyncCancelEvent		=> _body._activeAsyncCancelEvent;
-		public CancellationToken _activeAsyncCancel		=> _body._activeAsyncCancel;
-		public CancellationToken _inActiveAsyncCancel	=> _body._inActiveAsyncCancel;
+		public UTaskCanceler _activeAsyncCanceler	=> _body._activeAsyncCanceler;
+		public UTaskCanceler _inActiveAsyncCanceler	=> _body._inActiveAsyncCanceler;
 
 		public MultiDisposable _disposables	=> _body._disposables;
 

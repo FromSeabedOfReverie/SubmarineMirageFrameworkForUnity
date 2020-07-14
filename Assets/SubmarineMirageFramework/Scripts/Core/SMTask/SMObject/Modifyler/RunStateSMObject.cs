@@ -91,7 +91,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						break;
 				}
 				if ( state == SMTaskRanState.Finalizing )	{ events.Reverse(); }
-				await events.Run( smObject._asyncCancel );
+				await events.Run( smObject._asyncCanceler );
 			}
 		}
 	}

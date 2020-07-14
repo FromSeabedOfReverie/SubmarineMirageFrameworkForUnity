@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Test {
 	using System;
-	using System.Threading;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Main;
@@ -17,8 +16,8 @@ namespace SubmarineMirage.Test {
 
 
 	public abstract class RawTest : BaseTest {
-		protected Func<CancellationToken, UniTask> _createEvent;
-		protected Func<CancellationToken, UniTask> _initializeEvent;
+		protected Func<UTaskCanceler, UniTask> _createEvent;
+		protected Func<UTaskCanceler, UniTask> _initializeEvent;
 		protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
 		protected readonly CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -27,10 +26,7 @@ namespace SubmarineMirage.Test {
 			_disposables.Add( Disposable.Create( () => {
 				_finalizeEvent.OnNext( Unit.Default );
 			} ) );
-			_disposables.Add( Disposable.Create( () => {
-				_asyncCanceler.Cancel();
-				_asyncCanceler.Dispose();
-			} ) );
+			_disposables.Add( _asyncCanceler );
 			_disposables.Add( Disposable.Create( () => {
 				_createEvent = null;
 				_initializeEvent = null;
@@ -40,13 +36,13 @@ namespace SubmarineMirage.Test {
 
 			Create();
 			if ( _createEvent != null ) {
-				await _createEvent.Invoke( _asyncCancel );
+				await _createEvent.Invoke( _asyncCanceler );
 			}
 
-			UTask.Void( _asyncCancel, async cancel => {
-				await UTask.WaitWhile( cancel, () => !SubmarineMirage.s_instance._isInitialized );
+			UTask.Void( async () => {
+				await UTask.WaitWhile( _asyncCanceler, () => !SubmarineMirage.s_instance._isInitialized );
 				if ( _initializeEvent != null ) {
-					await _initializeEvent.Invoke( cancel );
+					await _initializeEvent.Invoke( _asyncCanceler );
 				}
 				_isInitialized = true;
 			} );
@@ -55,10 +51,6 @@ namespace SubmarineMirage.Test {
 		public override void Dispose() => _disposables.Dispose();
 
 
-		protected void StopAsync() {
-			_asyncCanceler.Cancel();
-			_asyncCanceler.Dispose();
-			_asyncCanceler = new CancellationTokenSource();
-		}
+		protected void StopAsync() => _asyncCanceler.Cancel();
 	}
 }

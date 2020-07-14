@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.UTask {
 	using System;
-	using System.Threading;
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
@@ -63,28 +62,25 @@ namespace SubmarineMirage.UTask {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Void( CancellationToken cancellationToken,
-									Func<CancellationToken, UniTaskVoid> asyncAction
-		) => UniTask.Void( asyncAction, cancellationToken );
+		public static void Void( Func<UniTaskVoid> asyncAction )
+			=> UniTask.Void( asyncAction );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Action Action( CancellationToken cancellationToken,
-										Func<CancellationToken, UniTaskVoid> asyncAction
-		) => UniTask.Action( asyncAction, cancellationToken );
+		public static Action Action( Func<UniTaskVoid> asyncAction )
+			=> UniTask.Action( asyncAction );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UnityAction UnityAction( CancellationToken cancellationToken,
-												Func<CancellationToken, UniTaskVoid> asyncAction
-		) => UniTask.UnityAction( asyncAction, cancellationToken );
+		public static UnityAction UnityAction( Func<UniTaskVoid> asyncAction )
+			=> UniTask.UnityAction( asyncAction );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Never( CancellationToken cancellationToken )
-			=> UniTask.Never( cancellationToken );
+		public static UniTask Never( UTaskCanceler canceler )
+			=> UniTask.Never( canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<T> Never<T>( CancellationToken cancellationToken )
-			=> UniTask.Never<T>( cancellationToken );
+		public static UniTask<T> Never<T>( UTaskCanceler canceler )
+			=> UniTask.Never<T>( canceler.ToToken() );
 
 
 		// 引数が無いのが、高速らしい
@@ -92,148 +88,141 @@ namespace SubmarineMirage.UTask {
 		public static Cysharp.Threading.Tasks.YieldAwaitable Yield() => UniTask.Yield();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Yield( CancellationToken cancellationToken,
-										PlayerLoopTiming timing = PlayerLoopTiming.Update
-		) => UniTask.Yield( timing, cancellationToken );
+		public static UniTask Yield( UTaskCanceler canceler, PlayerLoopTiming timing = PlayerLoopTiming.Update )
+			=> UniTask.Yield( timing, canceler.ToToken() );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask NextFrame( CancellationToken cancellationToken,
+		public static UniTask NextFrame( UTaskCanceler canceler,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
-		) => UniTask.NextFrame( timing, cancellationToken );
+		) => UniTask.NextFrame( timing, canceler.ToToken() );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitForEndOfFrame( CancellationToken cancellationToken )
-			=> UniTask.WaitForEndOfFrame( cancellationToken );
+		public static UniTask WaitForEndOfFrame( UTaskCanceler canceler )
+			=> UniTask.WaitForEndOfFrame( canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitForFixedUpdate( CancellationToken cancellationToken )
-			=> UniTask.WaitForFixedUpdate( cancellationToken );
+		public static UniTask WaitForFixedUpdate( UTaskCanceler canceler )
+			=> UniTask.WaitForFixedUpdate( canceler.ToToken() );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( CancellationToken cancellationToken, int millisecondsDelay,
-										bool ignoreTimeScale = false,
+		public static UniTask Delay( UTaskCanceler canceler, int millisecondsDelay, bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( millisecondsDelay == 0 )	{ return Empty; }
-			return UniTask.Delay( millisecondsDelay, ignoreTimeScale, delayTiming, cancellationToken );
+			return UniTask.Delay( millisecondsDelay, ignoreTimeScale, delayTiming, canceler.ToToken() );
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( CancellationToken cancellationToken, TimeSpan delayTimeSpan,
-										bool ignoreTimeScale = false,
+		public static UniTask Delay( UTaskCanceler canceler, TimeSpan delayTimeSpan, bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( delayTimeSpan == TimeSpan.Zero )	{ return Empty; }
-			return UniTask.Delay( delayTimeSpan, ignoreTimeScale, delayTiming, cancellationToken );
+			return UniTask.Delay( delayTimeSpan, ignoreTimeScale, delayTiming, canceler.ToToken() );
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( CancellationToken cancellationToken, int millisecondsDelay,
-										DelayType delayType,
+		public static UniTask Delay( UTaskCanceler canceler, int millisecondsDelay, DelayType delayType,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( millisecondsDelay == 0 )	{ return Empty; }
-			return UniTask.Delay( millisecondsDelay, delayType, delayTiming, cancellationToken );
+			return UniTask.Delay( millisecondsDelay, delayType, delayTiming, canceler.ToToken() );
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( CancellationToken cancellationToken, TimeSpan delayTimeSpan,
-										DelayType delayType,
+		public static UniTask Delay( UTaskCanceler canceler, TimeSpan delayTimeSpan, DelayType delayType,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( delayTimeSpan == TimeSpan.Zero )	{ return Empty; }
-			return UniTask.Delay( delayTimeSpan, delayType, delayTiming, cancellationToken );
+			return UniTask.Delay( delayTimeSpan, delayType, delayTiming, canceler.ToToken() );
 		}
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask DelayFrame( CancellationToken cancellationToken, int delayFrameCount,
+		public static UniTask DelayFrame( UTaskCanceler canceler, int delayFrameCount,
 											PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( delayFrameCount == 0 )	{ return Empty; }
-			return UniTask.DelayFrame( delayFrameCount, delayTiming, cancellationToken );
+			return UniTask.DelayFrame( delayFrameCount, delayTiming, canceler.ToToken() );
 		}
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitWhile( CancellationToken cancellationToken, Func<bool> predicate,
+		public static UniTask WaitWhile( UTaskCanceler canceler, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
 			if ( !predicate() )	{ return Empty; }
-			return UniTask.WaitWhile( predicate, timing, cancellationToken );
+			return UniTask.WaitWhile( predicate, timing, canceler.ToToken() );
 		}
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitUntil( CancellationToken cancellationToken, Func<bool> predicate,
+		public static UniTask WaitUntil( UTaskCanceler canceler, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
 			if ( predicate() )	{ return Empty; }
-			return UniTask.WaitUntil( predicate, timing, cancellationToken );
+			return UniTask.WaitUntil( predicate, timing, canceler.ToToken() );
 		}
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<U> WaitUntilValueChanged<T, U>( CancellationToken cancellationToken,
-																T target, Func<T, U> monitorFunction,
+		public static UniTask<U> WaitUntilValueChanged<T, U>( UTaskCanceler canceler, T target,
+																Func<T, U> monitorFunction,
 													PlayerLoopTiming monitorTiming = PlayerLoopTiming.Update,
 																IEqualityComparer<U> equalityComparer = null
 		) where T : class
 			=> UniTask.WaitUntilValueChanged(
-				target, monitorFunction, monitorTiming, equalityComparer, cancellationToken
+				target, monitorFunction, monitorTiming, equalityComparer, canceler.ToToken()
 			);
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitUntilCanceled( CancellationToken cancellationToken,
+		public static UniTask WaitUntilCanceled( UTaskCanceler canceler,
 													PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
-			if ( cancellationToken.IsCancellationRequested )	{ return Empty; }
-			return UniTask.WaitUntilCanceled( cancellationToken, timing );
+			if ( canceler.ToToken().IsCancellationRequested )	{ return Empty; }
+			return UniTask.WaitUntilCanceled( canceler.ToToken(), timing );
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask FromCanceled( CancellationToken cancellationToken ) {
-			if ( cancellationToken.IsCancellationRequested )	{ return Empty; }
-			return UniTask.FromCanceled( cancellationToken );
+		public static UniTask FromCanceled( UTaskCanceler canceler ) {
+			if ( canceler.ToToken().IsCancellationRequested )	{ return Empty; }
+			return UniTask.FromCanceled( canceler.ToToken() );
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<T> FromCanceled<T>( CancellationToken cancellationToken ) {
-			if ( cancellationToken.IsCancellationRequested )	{ return new UniTask<T>(); }
-			return UniTask.FromCanceled<T>( cancellationToken );
+		public static UniTask<T> FromCanceled<T>( UTaskCanceler canceler ) {
+			if ( canceler.ToToken().IsCancellationRequested )	{ return new UniTask<T>(); }
+			return UniTask.FromCanceled<T>( canceler.ToToken() );
 		}
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask ToUniTask( this AsyncOperation asyncOperation,
-											CancellationToken cancellationToken,
+		public static UniTask ToUniTask( this AsyncOperation asyncOperation, UTaskCanceler canceler,
 											IProgress<float> progress = null,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
-		) => asyncOperation.ToUniTask( progress, timing, cancellationToken );
+		) => asyncOperation.ToUniTask( progress, timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static UniTask<UnityEngine.Object> ToUniTask( this ResourceRequest asyncOperation,
-																CancellationToken cancellationToken,
+																UTaskCanceler canceler,
 																IProgress<float> progress = null,
 															PlayerLoopTiming timing = PlayerLoopTiming.Update
-		) => asyncOperation.ToUniTask( progress, timing, cancellationToken );
+		) => asyncOperation.ToUniTask( progress, timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static UniTask<UnityWebRequest> ToUniTask( this UnityWebRequestAsyncOperation asyncOperation,
-															CancellationToken cancellationToken,
+															UTaskCanceler canceler,
 															IProgress<float> progress = null,
 															PlayerLoopTiming timing = PlayerLoopTiming.Update
-		) => asyncOperation.ToUniTask( progress, timing, cancellationToken );
+		) => asyncOperation.ToUniTask( progress, timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask ToUniTask( this IEnumerator enumerator,
-											CancellationToken cancellationToken,
+		public static UniTask ToUniTask( this IEnumerator enumerator, UTaskCanceler canceler,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
-		) => enumerator.ToUniTask( timing, cancellationToken );
+		) => enumerator.ToUniTask( timing, canceler.ToToken() );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

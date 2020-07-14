@@ -53,7 +53,7 @@ namespace SubmarineMirage.TestMultiEvent {
 			} );
 			Log.Debug( _events );
 
-			await _events.Run( _asyncCancel );
+			await _events.Run( _asyncCanceler );
 		} );
 
 
@@ -92,7 +92,7 @@ namespace SubmarineMirage.TestMultiEvent {
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
 					Log.Warning( "key down Run" );
-					UTask.Void( _asyncCancel, async cancel => {
+					UTask.Void( _asyncCanceler, async cancel => {
 						Log.Debug( _events );
 						await _events.Run( cancel );
 						Log.Debug( _events );

@@ -8,6 +8,7 @@
 namespace SubmarineMirage.UTask {
 	using System.Threading;
 	using System.Collections.Generic;
+	using System.Runtime.CompilerServices;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
@@ -84,8 +85,10 @@ namespace SubmarineMirage.UTask {
 		}
 
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CancellationToken ToToken() => _canceler.Token;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ( UniTask, CancellationTokenRegistration ) ToUniTask() => _canceler.Token.ToUniTask();
 
 		public override string ToString() => string.Join( "\n",

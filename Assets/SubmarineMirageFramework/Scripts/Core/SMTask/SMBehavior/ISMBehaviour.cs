@@ -5,9 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask {
-	using System.Threading;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
+	using UTask;
 	using Extension;
 
 
@@ -35,9 +35,8 @@ namespace SubmarineMirage.SMTask {
 		MultiAsyncEvent _disableEvent		{ get; }
 		MultiAsyncEvent _finalizeEvent		{ get; }
 
-		MultiSubject _activeAsyncCancelEvent	{ get; }
-		CancellationToken _activeAsyncCancel	{ get; }
-		CancellationToken _inActiveAsyncCancel	{ get; }
+		UTaskCanceler _activeAsyncCanceler		{ get; }
+		UTaskCanceler _inActiveAsyncCanceler	{ get; }
 
 		void Create();
 		void StopActiveAsync();

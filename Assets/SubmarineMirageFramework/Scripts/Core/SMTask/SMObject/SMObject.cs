@@ -8,16 +8,15 @@
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
-	using System.Threading;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
+	using UTask;
 	using Modifyler;
 	using Scene;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -42,15 +41,14 @@ namespace SubmarineMirage.SMTask {
 
 		public bool _isTop => _top == this;
 
-		readonly CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
-		public CancellationToken _asyncCancel => _asyncCanceler.Token;
+		public readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent ) {
 #if TestSMObject
-			Log.Debug( $"start : {behaviours.FirstOrDefault().GetAboutName()}.{this}" );
+			Log.Debug( $"{behaviours.FirstOrDefault().GetAboutName()}.{this} : start" );
 #endif
 			_owner = owner;
 
@@ -64,14 +62,11 @@ namespace SubmarineMirage.SMTask {
 
 			_disposables.AddLast( () => GetBehaviours().ForEach( b => b.Dispose() ) );
 			_disposables.AddLast( () => GetChildren().ForEach( o => o.Dispose() ) );
-			_disposables.AddLast( () => {
-				_asyncCanceler.Cancel();
-				_asyncCanceler.Dispose();
-			} );
+			_disposables.AddLast( _asyncCanceler );
 			_disposables.AddLast( () => SMObjectModifyData.UnLinkObject( this ) );
 			
 #if TestSMObject
-			Log.Debug( $"end : {_behaviour.GetAboutName()}.{this}" );
+			Log.Debug( $"{_behaviour.GetAboutName()}.{this} : end" );
 #endif
 		}
 
@@ -83,7 +78,7 @@ namespace SubmarineMirage.SMTask {
 
 		void SetupBehaviours( IEnumerable<ISMBehaviour> behaviours ) {
 #if TestSMObject
-			Log.Debug( $"start {nameof( SetupBehaviours )} : {this}" );
+			Log.Debug( $"{nameof( SetupBehaviours )} : {this} : start" );
 #endif
 			_behaviour = behaviours.First();
 			ISMBehaviour last = null;
@@ -98,25 +93,25 @@ namespace SubmarineMirage.SMTask {
 				if ( _owner != null )	{ ( (SMMonoBehaviour)b ).Constructor(); }
 			} );
 #if TestSMObject
-			Log.Debug( $"end {nameof( SetupBehaviours )} : {this}" );
+			Log.Debug( $"{nameof( SetupBehaviours )} : {this} : end" );
 #endif
 		}
 
 		void SetupParent( SMObject parent ) {
 			if ( _owner == null )	{ return; }
 #if TestSMObject
-			Log.Debug( $"start {nameof( SetupParent )} : {this}" );
+			Log.Debug( $"{nameof( SetupParent )} : {this} : start" );
 #endif
 			if ( parent != null )	{ SMObjectModifyData.AddChildObject( parent, this ); }
 #if TestSMObject
-			Log.Debug( $"end {nameof( SetupParent )} : {this}" );
+			Log.Debug( $"{nameof( SetupParent )} : {this} : end" );
 #endif
 		}
 
 		void SetupChildren() {
 			if ( _owner == null )	{ return; }
 #if TestSMObject
-			Log.Debug( $"start {nameof( SetupChildren )} : {this}" );
+			Log.Debug( $"{nameof( SetupChildren )} : {this} : start" );
 #endif
 			var currents = Enumerable.Empty<Transform>()
 				.Concat( _owner.transform );
@@ -135,7 +130,7 @@ namespace SubmarineMirage.SMTask {
 				currents = children;
 			}
 #if TestSMObject
-			Log.Debug( $"end {nameof( SetupChildren )} : {this}" );
+			Log.Debug( $"{nameof( SetupChildren )} : {this} : end" );
 #endif
 		}
 

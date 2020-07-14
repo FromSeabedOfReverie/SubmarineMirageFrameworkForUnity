@@ -94,7 +94,7 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestStopActiveAsync() => From( async () => {
-			UTask.Void( _asyncCancel, async cancel => {
+			UTask.Void( _asyncCanceler, async cancel => {
 				await UTask.Delay( cancel, 3000 );
 				Log.Debug( $"{nameof( _behaviour.StopActiveAsync )}" );
 				_behaviour.StopActiveAsync();
@@ -102,7 +102,7 @@ namespace SubmarineMirage.TestSMTask {
 			try {
 				while ( true ) {
 					Log.Debug( "Runnning" );
-					await UTask.Delay( _behaviour._activeAsyncCancel, 1000 );
+					await UTask.Delay( _behaviour._activeAsyncCanceler, 1000 );
 				}
 			} catch ( OperationCanceledException ) {
 			}
@@ -112,7 +112,7 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestDispose() => From( async () => {
-			UTask.Void( _asyncCancel, async cancel => {
+			UTask.Void( _asyncCanceler, async cancel => {
 				await UTask.Delay( cancel, 3000 );
 				Log.Debug( $"{nameof( _behaviour.Dispose )}" );
 				_behaviour.Dispose();
@@ -120,7 +120,7 @@ namespace SubmarineMirage.TestSMTask {
 			try {
 				while ( true ) {
 					Log.Debug( "Runnning" );
-					await UTask.Delay( _behaviour._activeAsyncCancel, 1000 );
+					await UTask.Delay( _behaviour._activeAsyncCanceler, 1000 );
 				}
 			} catch ( OperationCanceledException ) {
 			}

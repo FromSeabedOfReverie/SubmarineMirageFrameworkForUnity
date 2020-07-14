@@ -84,14 +84,14 @@ namespace SubmarineMirage.TestUTask {
 					await UTask.Delay( cancelers[2].Token, 200 );
 				}
 			} );
-			await UTask.Delay( _asyncCancel, 1000 );
+			await UTask.Delay( _asyncCanceler, 1000 );
 			cancelers[0].Dispose();
 			cancelers[1].Dispose();
 			cancelers.RemoveRange( 0, 2 );
 			cancelers[0].Cancel();
 			logEvent( $"0, 1番目を削除、2番目をキャンセル" );
 
-			await UTask.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCanceler, () => true );
 		} );
 	}
 }

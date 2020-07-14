@@ -6,40 +6,36 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System;
-	using System.Threading;
 	using Cysharp.Threading.Tasks;
-	using Extension;
+	using UTask;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class MultiAsyncEvent : BaseMultiEvent< Func<CancellationToken, UniTask> > {
-		readonly CancellationTokenSource _canceler = new CancellationTokenSource();
+	public class MultiAsyncEvent : BaseMultiEvent< Func<UTaskCanceler, UniTask> > {
+		UTaskCanceler _canceler;
 
 
 		public MultiAsyncEvent() {
-			_disposables.AddFirst( () => {
-				_canceler.Cancel();
-				_canceler.Dispose();
-			} );
+			_disposables.AddFirst( () => _canceler?.Dispose() );
 		}
 
-		public override void OnRemove( Func<CancellationToken, UniTask> function ) {}
+		public override void OnRemove( Func<UTaskCanceler, UniTask> function ) {}
 
 
-		public async UniTask Run( CancellationToken cancel ) {
+		public async UniTask Run( UTaskCanceler canceler ) {
 			CheckDisposeError();
 
-			var linkedCanceler = _canceler.Token.Link( cancel );
+			_canceler = canceler;
 			_isLock = true;
 			try {
 				foreach ( var pair in _events ) {
-					await pair.Value.Invoke( linkedCanceler.Token );
+					await pair.Value.Invoke( _canceler );
 				}
 			} finally {
 				_isLock = false;
-				linkedCanceler.Dispose();
+				_canceler = null;
 			}
 		}
 	}

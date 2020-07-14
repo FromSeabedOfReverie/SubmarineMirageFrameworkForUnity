@@ -18,25 +18,29 @@ namespace SubmarineMirage.Test {
 
 	public class TestRawTest : RawTest {
 		protected override void Create() {
-			Log.Debug( "Create" );
-			_createEvent += async cancel => {
-				Log.Debug( "start _createEvent" );
-				await UTask.Delay( _asyncCancel, 1000 );
-				Log.Debug( "end _createEvent" );
+			Log.Debug( $"{nameof( Create )}" );
+
+			_createEvent += async canceler => {
+				Log.Debug( $"{nameof( _createEvent )} : start" );
+				await UTask.Delay( canceler, 1000 );
+				Log.Debug( $"{nameof( _createEvent )} : end" );
 			};
-			_initializeEvent += async cancel => {
-				Log.Debug( "start _initializeEvent" );
-				await UTask.Delay( _asyncCancel, 1000 );
-				Log.Debug( "end _initializeEvent" );
+
+			_initializeEvent += async canceler => {
+				Log.Debug( $"{nameof( _initializeEvent )} : start" );
+				await UTask.Delay( canceler, 1000 );
+				Log.Debug( $"{nameof( _initializeEvent )} : end" );
 			};
-			_finalizeEvent.Subscribe( _ => Log.Debug( "_finalizeEvent" ) );
-			_disposables.Add( Disposable.Create( () => Log.Debug( "Dispose" ) ) );
+
+			_finalizeEvent.Subscribe( _ => Log.Debug( $"{nameof( _finalizeEvent )}" ) );
+
+			_disposables.Add( Disposable.Create( () => Log.Debug( $"{nameof( Dispose )}" ) ) );
 		}
 
 
 		[UnityTest]
 		public IEnumerator Test() => From( async () => {
-			Log.Debug( " Test" );
+			Log.Debug( $"{nameof( Test )}" );
 			await UTask.DontWait();
 		} );
 	}

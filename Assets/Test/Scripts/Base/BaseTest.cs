@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Test {
 	using System;
-	using System.Threading;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;
@@ -25,8 +24,7 @@ namespace SubmarineMirage.Test {
 	public abstract class BaseTest : IPrebuildSetup, IDisposable {
 		protected string _testName => TestContext.CurrentContext.Test.Name;
 		protected bool _isInitialized;
-		protected CancellationTokenSource _asyncCanceler = new CancellationTokenSource();
-		protected CancellationToken _asyncCancel => _asyncCanceler.Token;
+		protected readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
 
 
 		public void Setup() {
@@ -82,7 +80,7 @@ namespace SubmarineMirage.Test {
 
 
 		protected IEnumerator From( Func<UniTask> task ) => UTask.ToCoroutine( async () => {
-			await UTask.WaitWhile( _asyncCancel, () => !_isInitialized );
+			await UTask.WaitWhile( _asyncCanceler, () => !_isInitialized );
 			try {
 				await task.Invoke();
 			} catch ( OperationCanceledException ) {
@@ -97,7 +95,7 @@ namespace SubmarineMirage.Test {
 			while ( !_isInitialized )	{ yield return null; }
 
 			var isRunning = true;
-			_asyncCancel.Register( () => isRunning = false );
+			_asyncCanceler._cancelEvent.AddLast().Subscribe( _ => isRunning = false );
 
 			var disposable = Observable.FromCoroutine( () => coroutine )
 				.DoOnError( e => {

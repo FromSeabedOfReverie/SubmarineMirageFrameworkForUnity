@@ -31,12 +31,12 @@ namespace SubmarineMirage.TestUtility {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestGetRootGameObjects() => From( async () => {
 			await SceneManager.LoadSceneAsync( "TestChange1", LoadSceneMode.Additive )
-				.ToUniTask( _asyncCancel );
+				.ToUniTask( _asyncCanceler );
 			SceneManager.SetActiveScene( SceneManager.GetSceneByName( "TestChange1" ) );
 			new GameObject( "New" );
 			var gos = SceneManager.GetActiveScene().GetRootGameObjects();
 			gos.ForEach( go => Log.Debug( go ) );
-			await UTask.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCanceler, () => true );
 		} );
 
 
@@ -69,7 +69,7 @@ namespace SubmarineMirage.TestUtility {
 			var ts = topChild.GetComponentsInParentUntilOneHierarchy<TestMono>( true );
 			ts.ForEach( testHoge => Log.Debug( testHoge.gameObject.name ) );
 
-			await UTask.WaitWhile( _asyncCancel, () => true );
+			await UTask.WaitWhile( _asyncCanceler, () => true );
 		} );
 
 

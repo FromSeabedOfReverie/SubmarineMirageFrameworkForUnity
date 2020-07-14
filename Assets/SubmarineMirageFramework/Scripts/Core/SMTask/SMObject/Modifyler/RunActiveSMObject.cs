@@ -54,7 +54,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						);
 						break;
 				}
-				await events.Run( smObject._asyncCancel );
+				await events.Run( smObject._asyncCanceler );
 			}
 		}
 	}

@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Test {
-	using System.Threading;
 	using Cysharp.Threading.Tasks;
 	using Main;
 	using MultiEvent;
@@ -23,8 +22,8 @@ namespace SubmarineMirage.Test {
 
 
 		protected override async UniTask AwakeSub() {
+			_disposables.AddLast( _asyncCanceler );
 			_disposables.AddLast( () => _finalizeEvent.Run() );
-			SetAsyncCancelerDisposable();
 			_disposables.AddLast(
 				_createEvent,
 				_initializeEvent,
@@ -32,29 +31,17 @@ namespace SubmarineMirage.Test {
 			);
 
 			Create();
-			await _createEvent.Run( _asyncCancel );
+			await _createEvent.Run( _asyncCanceler );
 
-			UTask.Void( _asyncCancel, async cancel => {
-				await UTask.WaitWhile( cancel, () => !SubmarineMirage.s_instance._isInitialized );
-				await _initializeEvent.Run( cancel );
+			UTask.Void( async () => {
+				await UTask.WaitWhile( _asyncCanceler, () => !SubmarineMirage.s_instance._isInitialized );
+				await _initializeEvent.Run( _asyncCanceler );
 				_isInitialized = true;
-			} );
-		}
-
-		void SetAsyncCancelerDisposable() {
-			_disposables.AddFirst( "_asyncCanceler", () => {
-				_asyncCanceler.Cancel();
-				_asyncCanceler.Dispose();
 			} );
 		}
 
 		public override void Dispose() => _disposables.Dispose();
 
-
-		protected void StopAsync() {
-			_disposables.Remove( "_asyncCanceler" );
-			_asyncCanceler = new CancellationTokenSource();
-			SetAsyncCancelerDisposable();
-		}
+		protected void StopAsync() => _asyncCanceler.Cancel();
 	}
 }

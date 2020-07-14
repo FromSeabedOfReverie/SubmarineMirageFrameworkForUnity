@@ -4,11 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
-	using System.Threading;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using MultiEvent;
 	using UTask;
 	using Extension;
@@ -36,11 +35,8 @@ namespace SubmarineMirage.SMTask {
 		public readonly MultiAsyncEvent _disableEvent = new MultiAsyncEvent();
 		public readonly MultiAsyncEvent _finalizeEvent = new MultiAsyncEvent();
 
-		public readonly MultiSubject _activeAsyncCancelEvent = new MultiSubject();
-		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
-		CancellationTokenSource _inActiveAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _inActiveAsyncCancel => _inActiveAsyncCanceler.Token;
+		public readonly UTaskCanceler _activeAsyncCanceler = new UTaskCanceler();
+		public readonly UTaskCanceler _inActiveAsyncCanceler = new UTaskCanceler();
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
@@ -49,11 +45,10 @@ namespace SubmarineMirage.SMTask {
 			_owner = owner;
 			_nextActiveState = nextActiveState;
 
-			SetActiveAsyncCancelerDisposable();
-			_disposables.AddLast( () => {
-				_inActiveAsyncCanceler.Cancel();
-				_inActiveAsyncCanceler.Dispose();
-			} );
+			_disposables.AddLast(
+				_activeAsyncCanceler,
+				_inActiveAsyncCanceler
+			);
 			_disposables.AddLast(
 				_loadEvent,
 				_initializeEvent,
@@ -62,18 +57,14 @@ namespace SubmarineMirage.SMTask {
 				_updateEvent,
 				_lateUpdateEvent,
 				_disableEvent,
-				_finalizeEvent,
-				_activeAsyncCancelEvent
+				_finalizeEvent
 			);
 			_disposables.AddLast( () => UnLink() );
-			_disposables.AddLast( () => Log.Debug( $"Dispose Body : {_owner.GetAboutName()}" ) );
-		}
-
-		void SetActiveAsyncCancelerDisposable() {
-			_disposables.AddFirst( "_activeAsyncCanceler", () => {
-				_activeAsyncCanceler.Cancel();
-				_activeAsyncCanceler.Dispose();
-			} );
+#if TestSMTask
+			_disposables.AddLast( () =>
+				Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( Dispose )} : {_owner.GetAboutName()}" )
+			);
+#endif
 		}
 
 		~SMBehaviourBody() => Dispose();
@@ -88,13 +79,7 @@ namespace SubmarineMirage.SMTask {
 		}
 
 
-
-		public void StopActiveAsync() {
-			_disposables.Remove( "_activeAsyncCanceler" );
-			_activeAsyncCanceler = new CancellationTokenSource();
-			SetActiveAsyncCancelerDisposable();
-			_activeAsyncCancelEvent.Run();
-		}
+		public void StopActiveAsync() => _activeAsyncCanceler.Cancel();
 
 
 		public async UniTask RunStateEvent( SMTaskRanState state ) {
@@ -107,7 +92,7 @@ namespace SubmarineMirage.SMTask {
 							_ranState = SMTaskRanState.Creating;
 							try {
 // TODO : awaitが不要な事を、FSM等実装後に確認後、状態をCreateのみに、修正
-//								await UTask.NextFrame( _activeAsyncCancel );
+//								await UTask.NextFrame( _activeAsyncCanceler );
 								_owner.Create();
 							} catch {
 								_ranState = SMTaskRanState.None;
@@ -127,7 +112,7 @@ namespace SubmarineMirage.SMTask {
 							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_ranState = SMTaskRanState.Loading;
 							try {
-								await _loadEvent.Run( _activeAsyncCancel );
+								await _loadEvent.Run( _activeAsyncCanceler );
 							} catch {
 								_ranState = SMTaskRanState.Created;
 								throw;
@@ -146,7 +131,7 @@ namespace SubmarineMirage.SMTask {
 							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 							_ranState = SMTaskRanState.Initializing;
 							try {
-								await _initializeEvent.Run( _activeAsyncCancel );
+								await _initializeEvent.Run( _activeAsyncCanceler );
 							} catch {
 								_ranState = SMTaskRanState.Loaded;
 								throw;
@@ -237,7 +222,7 @@ namespace SubmarineMirage.SMTask {
 					StopActiveAsync();
 					if ( _ranState != SMTaskRanState.Finalizing )	{ lastRanState = _ranState; }
 					// 非同期停止時に、catchで状態が変わる為、1フレーム待機
-					await UTask.NextFrame( _inActiveAsyncCancel );
+					await UTask.NextFrame( _inActiveAsyncCanceler );
 					_ranState = SMTaskRanState.Finalizing;
 					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
 					switch ( lastRanState ) {
@@ -249,7 +234,7 @@ namespace SubmarineMirage.SMTask {
 						case SMTaskRanState.Update:
 						case SMTaskRanState.LateUpdate:
 							try {
-								await _finalizeEvent.Run( _inActiveAsyncCancel );
+								await _finalizeEvent.Run( _inActiveAsyncCanceler );
 							} catch {
 								_ranState = lastRanState;
 								throw;
@@ -287,7 +272,7 @@ namespace SubmarineMirage.SMTask {
 				case SMTaskRanState.Loading:
 				case SMTaskRanState.Initializing:
 					var lastRanState = _ranState;
-					await UTask.WaitWhile( _activeAsyncCancel, () => _ranState == lastRanState );
+					await UTask.WaitWhile( _activeAsyncCanceler, () => _ranState == lastRanState );
 					await RunActiveEvent();
 					return;
 
@@ -317,7 +302,7 @@ namespace SubmarineMirage.SMTask {
 						case SMTaskActiveState.Enabling:
 							_nextActiveState = null;
 							await UTask.WaitWhile(
-								_activeAsyncCancel, () => _activeState == SMTaskActiveState.Enabling );
+								_activeAsyncCanceler, () => _activeState == SMTaskActiveState.Enabling );
 							return;
 
 						case SMTaskActiveState.Enabled:
@@ -326,7 +311,7 @@ namespace SubmarineMirage.SMTask {
 
 						case SMTaskActiveState.Disabling:
 							await UTask.WaitWhile(
-								_activeAsyncCancel, () => _activeState == SMTaskActiveState.Disabling );
+								_activeAsyncCanceler, () => _activeState == SMTaskActiveState.Disabling );
 							await RunActiveEvent();
 							return;
 
@@ -344,7 +329,7 @@ namespace SubmarineMirage.SMTask {
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Enabling;
 							try {
-								await _enableEvent.Run( _activeAsyncCancel );
+								await _enableEvent.Run( _activeAsyncCanceler );
 							} catch {
 								_activeState = SMTaskActiveState.Disabled;
 								throw;
@@ -360,7 +345,7 @@ namespace SubmarineMirage.SMTask {
 						case SMTaskActiveState.Disabling:
 							_nextActiveState = null;
 							await UTask.WaitWhile(
-								_inActiveAsyncCancel, () => _activeState == SMTaskActiveState.Disabling );
+								_inActiveAsyncCanceler, () => _activeState == SMTaskActiveState.Disabling );
 							return;
 
 						case SMTaskActiveState.Disabled:
@@ -369,7 +354,7 @@ namespace SubmarineMirage.SMTask {
 
 						case SMTaskActiveState.Enabling:
 							await UTask.WaitWhile(
-								_inActiveAsyncCancel, () => _activeState == SMTaskActiveState.Enabling );
+								_inActiveAsyncCanceler, () => _activeState == SMTaskActiveState.Enabling );
 							await RunActiveEvent();
 							return;
 
@@ -380,7 +365,7 @@ namespace SubmarineMirage.SMTask {
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Disabling;
 							try {
-								await _disableEvent.Run( _inActiveAsyncCancel );
+								await _disableEvent.Run( _inActiveAsyncCanceler );
 							} catch {
 								_activeState = SMTaskActiveState.Enabled;
 								throw;
