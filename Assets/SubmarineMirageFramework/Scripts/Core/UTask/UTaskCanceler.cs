@@ -4,15 +4,15 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestUTask
 namespace SubmarineMirage.UTask {
-	using System.Linq;
 	using System.Threading;
-	using System.Collections;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Extension;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -29,10 +29,7 @@ namespace SubmarineMirage.UTask {
 
 
 		public UTaskCanceler() {
-			_disposables.AddLast( () => {
-				_canceler.Cancel();
-				_canceler.Dispose();
-			} );
+			_disposables.AddLast( () => Cancel( false ) );
 			_disposables.AddLast( _cancelEvent );
 			_disposables.AddLast( () => {
 				if ( _parent != null ) {
@@ -44,6 +41,9 @@ namespace SubmarineMirage.UTask {
 					_children.Clear();
 				}
 			} );
+#if TestUTask
+			_disposables.AddLast( () => Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( Dispose )}\n{this}" ) );
+#endif
 		}
 
 		~UTaskCanceler() => Dispose();
@@ -51,13 +51,20 @@ namespace SubmarineMirage.UTask {
 		public void Dispose() => _disposables.Dispose();
 
 
-		public void Cancel() {
+		public void Cancel( bool isReCreate = true ) {
+#if TestUTask
+			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( Cancel )}\n{this}" );
+#endif
 			_canceler.Cancel();
 			_canceler.Dispose();
-			_canceler = new CancellationTokenSource();
-
+			if ( isReCreate )	{ _canceler = new CancellationTokenSource(); }
+#if TestUTask
+			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( _cancelEvent.Run )}\n{this}" );
+#endif
 			_cancelEvent.Run();
-
+#if TestUTask
+			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( _children )}.{nameof( Cancel )}\n{this}" );
+#endif
 			_children.ForEach( c => c.Cancel() );
 		}
 
@@ -66,6 +73,13 @@ namespace SubmarineMirage.UTask {
 			var child = new UTaskCanceler();
 			child._parent = this;
 			_children.Add( child );
+#if TestUTask
+			Log.Debug( string.Join( "\n",
+				$"{nameof( UTaskCanceler )}.{nameof( CreateChild )}",
+				$"this : {this}",
+				$"{nameof( child )} : {child}"
+			) );
+#endif
 			return child;
 		}
 
@@ -77,7 +91,7 @@ namespace SubmarineMirage.UTask {
 		public override string ToString() => string.Join( "\n",
 			$"{nameof( UTaskCanceler )}(",
 			$"    {nameof( _cancelEvent )} : {_cancelEvent}",
-			$"    {nameof( _parent )} : {_parent != null}",
+			$"    {nameof( _parent )} : {( _parent != null ? 1 : 0 )}",
 			$"    {nameof( _children )} : {_children.Count}",
 			$")"
 		);
