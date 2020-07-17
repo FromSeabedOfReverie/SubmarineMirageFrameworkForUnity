@@ -5,25 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestSMTask {
-	using System;
-	using System.Linq;
-	using System.Threading;
 	using System.Collections;
-	using System.Collections.Generic;
 	using NUnit.Framework;
-	using UnityEngine;
-	using UnityEngine.UI;
 	using UnityEngine.TestTools;
-	using UniRx;
-	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SMTask;
-	using Scene;
-	using Extension;
-	using Utility;
 	using Debug;
 	using Test;
-	using UnityObject = UnityEngine.Object;
 
 
 

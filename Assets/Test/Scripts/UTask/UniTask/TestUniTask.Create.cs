@@ -5,16 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestUTask {
-	using System;
 	using System.Linq;
 	using System.Collections;
-	using System.Collections.Generic;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using Extension;
 	using Debug;
 	using Test;
@@ -97,7 +94,7 @@ namespace SubmarineMirage.TestUTask {
 			await Enumerable
 				.Range( 0, 10 )
 				.Select( _ => new TestAsyncObject() )
-				.Select( async a => await a.Initialize() );
+				.Select( a => a.Initialize() );
 
 			Log.Debug( $"{nameof( TestLinq )} : end" );
 		} );

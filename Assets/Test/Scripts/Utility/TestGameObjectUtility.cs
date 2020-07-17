@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestUtility {
 	using System.Collections;
-	using System.Threading;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.SceneManagement;

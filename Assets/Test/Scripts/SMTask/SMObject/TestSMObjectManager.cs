@@ -5,9 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestSMTask {
-	using System;
 	using System.Linq;
-	using System.Threading;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;
@@ -16,10 +14,8 @@ namespace SubmarineMirage.TestSMTask {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using SMTask;
 	using Scene;
 	using Extension;
-	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
@@ -108,15 +104,15 @@ namespace SubmarineMirage.TestSMTask {
 					i = (i + 1) % 2;
 					switch ( i ) {
 						case 0:
-							Log.Debug( $"{this.GetAboutName()} change TestChange1Scene" );
+							Log.Debug( $"{this.GetAboutName()} change {nameof( TestChange1Scene )}" );
 							_behaviour._fsm.ChangeScene<TestChange1Scene>().Forget();
 							break;
 						case 1:
-							Log.Debug( $"{this.GetAboutName()} change TestChange2Scene" );
+							Log.Debug( $"{this.GetAboutName()} change {nameof( TestChange2Scene )}" );
 							_behaviour._fsm.ChangeScene<TestChange2Scene>().Forget();
 							break;
 						case 2:
-							Log.Debug( $"{this.GetAboutName()} change UnknownScene" );
+							Log.Debug( $"{this.GetAboutName()} change {nameof( UnknownScene )}" );
 							_behaviour._fsm.ChangeScene<UnknownScene>().Forget();
 							break;
 					}

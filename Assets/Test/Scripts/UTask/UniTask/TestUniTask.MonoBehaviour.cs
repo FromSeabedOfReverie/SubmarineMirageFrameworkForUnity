@@ -6,15 +6,11 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestUTask {
 	using System;
-	using System.Linq;
 	using System.Collections;
-	using System.Collections.Generic;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
-	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using Extension;
 	using Debug;
 	using Test;
@@ -35,7 +31,6 @@ namespace SubmarineMirage.TestUTask {
 	/// </summary>
 	///====================================================================================================
 	public partial class TestUniTask : Test {
-
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestMonoBehaviour() => From( TestMonoBehaviourSub() );

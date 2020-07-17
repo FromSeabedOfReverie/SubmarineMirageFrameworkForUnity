@@ -45,7 +45,7 @@ namespace SubmarineMirage.Test {
 		protected void Awake() {
 			SubmarineMirage.s_instance._disposables.AddLast( () => TestManager.DisposeInstance() );
 			TestManager.s_instance.Register( this );
-			SubmarineMirage.s_instance._createTestEvent.AddLast( async cancel => {
+			SubmarineMirage.s_instance._createTestEvent.AddLast( async canceler => {
 				try {
 					await AwakeSub();
 				} catch ( OperationCanceledException ) {

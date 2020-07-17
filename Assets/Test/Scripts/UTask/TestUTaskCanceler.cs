@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestUTask {
 	using System;
-	using System.Threading;
 	using System.Diagnostics;
 	using System.Collections;
 	using NUnit.Framework;
@@ -40,6 +39,26 @@ namespace SubmarineMirage.TestUTask {
 				UTask.Void( async () => {
 					await UTask.Delay( _asyncCanceler, 500 );
 					Log.Debug( $"停止{_index}" );
+					canceler.Cancel( false );
+				} );
+				try {
+					Log.Debug( $"{name}トークン、待機開始{i}" );
+					StartMeasure();
+					await UTask.Delay( runCanceler, 2000 );
+					Log.Debug( $"{name}トークン、待機終了{i} : {StopMeasure()}" );
+				} catch ( OperationCanceledException ) {}
+				await UTask.Delay( _asyncCanceler, 500 );
+				_index++;
+			}
+			Log.Debug( "キャンセラーを再作成" );
+			canceler.Cancel();
+		}
+
+		async UniTask TestCancelReCreate( UTaskCanceler canceler, UTaskCanceler runCanceler, string name ) {
+			for ( var i = 0; i < 2; i++ ) {
+				UTask.Void( async () => {
+					await UTask.Delay( _asyncCanceler, 500 );
+					Log.Debug( $"停止{_index}" );
 					canceler.Cancel();
 				} );
 				try {
@@ -48,6 +67,7 @@ namespace SubmarineMirage.TestUTask {
 					await UTask.Delay( runCanceler, 2000 );
 					Log.Debug( $"{name}トークン、待機終了{i} : {StopMeasure()}" );
 				} catch ( OperationCanceledException ) {}
+				await UTask.Delay( _asyncCanceler, 500 );
 				_index++;
 			}
 		}
@@ -113,9 +133,13 @@ namespace SubmarineMirage.TestUTask {
 			Log.Debug( "・リンクテスト" );
 			Log.Debug( canceler );
 
-			Log.Debug( "・停止リロードテスト" );
+			Log.Debug( "・停止テスト" );
 			_index = 0;
 			await TestCancel( canceler, canceler, "" );
+
+			Log.Debug( "・停止リロードテスト" );
+			_index = 0;
+			await TestCancelReCreate( canceler, canceler, "" );
 
 			Log.Debug( "・削除テスト" );
 			canceler.Dispose();
@@ -145,13 +169,13 @@ namespace SubmarineMirage.TestUTask {
 
 			Log.Debug( "・親停止リロードテスト" );
 			_index = 0;
-			await TestCancel( parent, parent, "親" );
-			await TestCancel( parent, child, "子" );
+			await TestCancelReCreate( parent, parent, "親" );
+			await TestCancelReCreate( parent, child, "子" );
 
 			Log.Debug( "・子停止リロードテスト" );
 			_index = 0;
-			await TestCancel( child, parent, "親" );
-			await TestCancel( child, child, "子" );
+			await TestCancelReCreate( child, parent, "親" );
+			await TestCancelReCreate( child, child, "子" );
 
 			Log.Debug( "・親から削除テスト" );
 			await TestDelete2( parent, child, "親", "子" );
@@ -191,15 +215,15 @@ namespace SubmarineMirage.TestUTask {
 
 			Log.Debug( "・親停止リロードテスト" );
 			_index = 0;
-			await TestCancel( parent, parent, "親" );
-			await TestCancel( parent, child1, "子1" );
-			await TestCancel( parent, child2, "子2" );
+			await TestCancelReCreate( parent, parent, "親" );
+			await TestCancelReCreate( parent, child1, "子1" );
+			await TestCancelReCreate( parent, child2, "子2" );
 
 			Log.Debug( "・子1停止リロードテスト" );
 			_index = 0;
-			await TestCancel( child1, parent, "親" );
-			await TestCancel( child1, child1, "子1" );
-			await TestCancel( child1, child2, "子2" );
+			await TestCancelReCreate( child1, parent, "親" );
+			await TestCancelReCreate( child1, child1, "子1" );
+			await TestCancelReCreate( child1, child2, "子2" );
 
 			Log.Debug( "・親から削除テスト" );
 			await TestDelete3( parent, child1, child2, "親", "子1", "子2" );
@@ -242,21 +266,21 @@ namespace SubmarineMirage.TestUTask {
 
 			Log.Debug( "・祖停止リロードテスト" );
 			_index = 0;
-			await TestCancel( grandparent, grandparent, "祖" );
-			await TestCancel( grandparent, parent, "親" );
-			await TestCancel( grandparent, child, "子" );
+			await TestCancelReCreate( grandparent, grandparent, "祖" );
+			await TestCancelReCreate( grandparent, parent, "親" );
+			await TestCancelReCreate( grandparent, child, "子" );
 
 			Log.Debug( "・親停止リロードテスト" );
 			_index = 0;
-			await TestCancel( parent, grandparent, "祖" );
-			await TestCancel( parent, parent, "親" );
-			await TestCancel( parent, child, "子" );
+			await TestCancelReCreate( parent, grandparent, "祖" );
+			await TestCancelReCreate( parent, parent, "親" );
+			await TestCancelReCreate( parent, child, "子" );
 
 			Log.Debug( "・子停止リロードテスト" );
 			_index = 0;
-			await TestCancel( child, grandparent, "祖" );
-			await TestCancel( child, parent, "親" );
-			await TestCancel( child, child, "子" );
+			await TestCancelReCreate( child, grandparent, "祖" );
+			await TestCancelReCreate( child, parent, "親" );
+			await TestCancelReCreate( child, child, "子" );
 
 			Log.Debug( "・祖から削除テスト" );
 			await TestDelete3( grandparent, parent, child, "祖", "親", "子" );

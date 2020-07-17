@@ -62,7 +62,7 @@ namespace SubmarineMirage.TestSMTask {
 					parents[a.i] = go.transform;
 					
 					a.types.ForEach( t => {
-						var b = go.AddComponent( Type.GetType( $"{typeof(BaseM).Namespace}.{t}" ) );
+						var b = go.AddComponent( Type.GetType( $"{typeof( BaseM ).Namespace}.{t}" ) );
 						if ( top == null )	{ top = (ISMBehaviour)b; }
 					} );
 				} );
@@ -222,19 +222,19 @@ namespace SubmarineMirage.TestSMTask {
 									: (int?)null
 			);
 
-			behaviour._loadEvent.AddLast( async cancel => {
+			behaviour._loadEvent.AddLast( async canceler => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
 			} );
-			behaviour._initializeEvent.AddLast( async cancel => {
+			behaviour._initializeEvent.AddLast( async canceler => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
 			} );
-			behaviour._enableEvent.AddLast( async cancel => {
+			behaviour._enableEvent.AddLast( async canceler => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
 			} );
 			behaviour._fixedUpdateEvent.AddLast().Subscribe( _ => {
@@ -246,14 +246,14 @@ namespace SubmarineMirage.TestSMTask {
 			behaviour._lateUpdateEvent.AddLast().Subscribe( _ => {
 				Log.Debug( $"{name}( {id} ).{nameof( behaviour._lateUpdateEvent )}" );
 			} );
-			behaviour._disableEvent.AddLast( async cancel => {
+			behaviour._disableEvent.AddLast( async canceler => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
 			} );
-			behaviour._finalizeEvent.AddLast( async cancel => {
+			behaviour._finalizeEvent.AddLast( async canceler => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
 			} );
 		}

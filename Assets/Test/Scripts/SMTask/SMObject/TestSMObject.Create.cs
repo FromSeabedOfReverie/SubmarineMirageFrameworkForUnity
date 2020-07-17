@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestSMTask {
-	using System.Linq;
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
@@ -52,39 +51,39 @@ namespace SubmarineMirage.TestSMTask {
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
-			_createEvent.AddLast( async cancel => {
-				Log.Debug( $"start Create{_testName}" );
+			_createEvent.AddLast( async canceler => {
+				Log.Debug( $"start {nameof( Create )}{_testName}" );
 				switch ( _testName ) {
-					case nameof( TestVariable ):					CreateTestVariable();					break;
-					case nameof( TestMultiVariable ):				CreateTestMultiVariable();				break;
-					case nameof( TestObject ):						CreateTestObject();						break;
+					case nameof( TestVariable ):					CreateTestVariable();				break;
+					case nameof( TestMultiVariable ):				CreateTestMultiVariable();			break;
+					case nameof( TestObject ):						CreateTestObject();					break;
 
-					case nameof( TestGetObjects ):				CreateTestGetObjects();				break;
-					case nameof( TestGetBehaviour ):					CreateTestGetBehaviour();					break;
+					case nameof( TestGetObjects ):					CreateTestGetObjects();				break;
+					case nameof( TestGetBehaviour ):				CreateTestGetBehaviour();			break;
 					case nameof( TestGetObjectBehaviour ):			CreateTestGetObjectBehaviour();		break;
-					case nameof( TestGetInSMMonoBehaviour ):	CreateTestGetInSMMonoBehaviour();	break;
-					case nameof( TestGetSMBehaviour ):				CreateTestGetSMBehaviour();				break;
+					case nameof( TestGetInSMMonoBehaviour ):		CreateTestGetInSMMonoBehaviour();	break;
+					case nameof( TestGetSMBehaviour ):				CreateTestGetSMBehaviour();			break;
 
-					case nameof( TestRunB1 ):						CreateTestRunB1();						break;
-					case nameof( TestRunB2 ):						CreateTestRunB2();						break;
-					case nameof( TestRunB3 ):						CreateTestRunB3();						break;
-					case nameof( TestRunM1 ):						CreateTestRunM1();						break;
-					case nameof( TestRunM2 ):						CreateTestRunM2();						break;
-					case nameof( TestRunM3 ):						CreateTestRunM3();						break;
+					case nameof( TestRunB1 ):						CreateTestRunB1();					break;
+					case nameof( TestRunB2 ):						CreateTestRunB2();					break;
+					case nameof( TestRunB3 ):						CreateTestRunB3();					break;
+					case nameof( TestRunM1 ):						CreateTestRunM1();					break;
+					case nameof( TestRunM2 ):						CreateTestRunM2();					break;
+					case nameof( TestRunM3 ):						CreateTestRunM3();					break;
 
-					case nameof( TestRunBrothers1 ):				CreateTestRunBrothers1();				break;
-					case nameof( TestRunBrothers2 ):				CreateTestRunBrothers2();				break;
-					case nameof( TestRunBrothers3 ):				CreateTestRunBrothers3();				break;
+					case nameof( TestRunBrothers1 ):				CreateTestRunBrothers1();			break;
+					case nameof( TestRunBrothers2 ):				CreateTestRunBrothers2();			break;
+					case nameof( TestRunBrothers3 ):				CreateTestRunBrothers3();			break;
 
-					case nameof( TestRunChildren1 ):				CreateTestRunChildren1();				break;
-					case nameof( TestRunChildren2 ):				CreateTestRunChildren2();				break;
-					case nameof( TestRunChildren3 ):				CreateTestRunChildren3();				break;
+					case nameof( TestRunChildren1 ):				CreateTestRunChildren1();			break;
+					case nameof( TestRunChildren2 ):				CreateTestRunChildren2();			break;
+					case nameof( TestRunChildren3 ):				CreateTestRunChildren3();			break;
 
-					case nameof( TestRunByActiveState1 ):			CreateTestRunByActiveState1();			break;
-					case nameof( TestRunByActiveState2 ):			CreateTestRunByActiveState2();			break;
-					case nameof( TestRunByActiveState3 ):			CreateTestRunByActiveState3();			break;
+					case nameof( TestRunByActiveState1 ):			CreateTestRunByActiveState1();		break;
+					case nameof( TestRunByActiveState2 ):			CreateTestRunByActiveState2();		break;
+					case nameof( TestRunByActiveState3 ):			CreateTestRunByActiveState3();		break;
 				}
-				Log.Debug( $"end Create{_testName}" );
+				Log.Debug( $"end {nameof( Create )}{_testName}" );
 
 				await UTask.DontWait();
 			} );

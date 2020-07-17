@@ -5,20 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Editor.EditorSMTask {
-	using System;
-	using System.Linq;
-	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEditor;
-	using UniRx;
-	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Singleton;
-	using MultiEvent;
 	using SMTask;
 	using Scene;
 	using Extension;
-	using Utility;
 	using Debug;
 
 

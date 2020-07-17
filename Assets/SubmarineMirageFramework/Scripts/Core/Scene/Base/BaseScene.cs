@@ -5,9 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
-	using System.Linq;
-	using System.Collections.Generic;
-	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
 	using DG.Tweening;
@@ -16,7 +13,6 @@ namespace SubmarineMirage.Scene {
 	using SMTask;
 	using FSM;
 	using Extension;
-	using Utility;
 	using Debug;
 	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
@@ -39,24 +35,23 @@ namespace SubmarineMirage.Scene {
 			_objects = new SMObjectManager( this );
 			_disposables.AddLast( _objects );
 
-			_enterEvent.AddFirst( _registerKey, async cancel => {
+			_enterEvent.AddFirst( _registerKey, async canceler => {
 				if ( _fsm._isSkipLoadForFirstScene ) {
 					_fsm._isSkipLoadForFirstScene = false;
 				} else {
-					await UnitySceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive )
-						.ToUniTask( cancel );
+					await UnitySceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive ).ToUniTask( canceler );
 				}
 				ResetScene();
 				UnitySceneManager.SetActiveScene( _scene );
 				await _objects.Enter();
 			} );
 
-			_exitEvent.AddFirst( _registerKey, async cancel => {
+			_exitEvent.AddFirst( _registerKey, async canceler => {
 				await _objects.Exit();
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
 //				DOTween.KillAll();
 //				GameAudioManager.s_instance.StopAll();
-				await UnitySceneManager.UnloadSceneAsync( _name ).ToUniTask( cancel );
+				await UnitySceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 			} );
 		}
 

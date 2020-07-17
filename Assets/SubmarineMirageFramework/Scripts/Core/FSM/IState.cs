@@ -5,8 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
-	using System.Threading;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using SMTask;
 	using Extension;
 
@@ -23,7 +23,7 @@ namespace SubmarineMirage.FSM {
 
 		FiniteStateMachineRunState _runState	{ get; }
 		bool _isActive	{ get; }
-		CancellationToken _activeAsyncCancel	{ get; }
+		UTaskCanceler _activeAsyncCanceler	{ get; }
 
 		void Set( TOwner owner );
 		void StopActiveAsync();

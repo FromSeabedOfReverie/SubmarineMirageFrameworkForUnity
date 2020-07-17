@@ -8,7 +8,6 @@ namespace SubmarineMirage.FSM {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
-	using System.Threading;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
@@ -49,8 +48,7 @@ namespace SubmarineMirage.FSM {
 		public MultiAsyncEvent _disableEvent	=> _owner._disableEvent;
 		public MultiAsyncEvent _finalizeEvent	=> _owner._finalizeEvent;
 
-		CancellationTokenSource _changeStateAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _changeStateAsyncCancel => _changeStateAsyncCanceler.Token;
+		public UTaskCanceler _changeStateAsyncCanceler	{ get; private set; } = new UTaskCanceler();
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
@@ -61,7 +59,7 @@ namespace SubmarineMirage.FSM {
 			states.ForEach( s => _states[s.GetType()] = s );
 			_startState = startState;
 
-			_loadEvent.AddLast( _registerEventName, async cancel => {
+			_loadEvent.AddLast( _registerEventName, async canceler => {
 				await _states
 					.Select( pair => pair.Value )
 					.Select( state => {
@@ -69,13 +67,13 @@ namespace SubmarineMirage.FSM {
 						return state.RunBehaviourStateEvent( SMTaskRanState.Loading );
 					} );
 			} );
-			_initializeEvent.AddLast( _registerEventName, async cancel => {
+			_initializeEvent.AddLast( _registerEventName, async canceler => {
 				await _states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Initializing ) );
 				_isInitialized = true;
 				var state = _startState ?? _states.First().Value.GetType();
 				await ChangeState( state );
 			} );
-			_finalizeEvent.AddFirst( _registerEventName, async cancel => {
+			_finalizeEvent.AddFirst( _registerEventName, async canceler => {
 				await ChangeState( null );
 				await _states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRanState.Finalizing ) );
 			} );
@@ -90,24 +88,21 @@ namespace SubmarineMirage.FSM {
 				_state?.RunBehaviourStateEvent( SMTaskRanState.LateUpdate ).Forget()
 			);
 
-			_enableEvent.AddLast( _registerEventName, async cancel => {
-				await UTask.WaitWhile( cancel, () => _isChangingState );
+			_enableEvent.AddLast( _registerEventName, async canceler => {
+				await UTask.WaitWhile( canceler, () => _isChangingState );
 				if ( _state != null ) {
 					await _state.ChangeActive( true );
 				}
 			} );
-			_disableEvent.AddFirst( _registerEventName, async cancel => {
+			_disableEvent.AddFirst( _registerEventName, async canceler => {
 				await UTask.WaitWhile(
-					cancel, () => _isChangingState && _owner._body._ranState != SMTaskRanState.Finalizing );
+					canceler, () => _isChangingState && _owner._body._ranState != SMTaskRanState.Finalizing );
 				if ( _state != null ) {
 					await _state.ChangeActive( false );
 				}
 			} );
 
-			_disposables.AddFirst( () => {
-				_changeStateAsyncCanceler.Cancel();
-				_changeStateAsyncCanceler.Dispose();
-			} );
+			_disposables.AddLast( _changeStateAsyncCanceler );
 			_disposables.AddLast( () => {
 				_states.ForEach( pair => pair.Value.Dispose() );
 				_states.Clear();
@@ -153,7 +148,7 @@ namespace SubmarineMirage.FSM {
 			_isRequestNextState = true;
 
 			if ( _isChangingState ) {
-				await UTask.WaitWhile( _changeStateAsyncCancel, () => _isChangingState );
+				await UTask.WaitWhile( _changeStateAsyncCanceler, () => _isChangingState );
 				return;
 			}
 			await RunChangeState();

@@ -31,6 +31,7 @@ namespace SubmarineMirage.UTask {
 
 		public UTaskCanceler() {
 			_disposables.AddLast( () => Cancel( false ) );
+			_disposables.AddLast( () => _canceler.Dispose() );
 			_disposables.AddLast( _cancelEvent );
 			_disposables.AddLast( () => {
 				if ( _parent != null ) {
@@ -57,8 +58,10 @@ namespace SubmarineMirage.UTask {
 			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( Cancel )}\n{this}" );
 #endif
 			_canceler.Cancel();
-			_canceler.Dispose();
-			if ( isReCreate )	{ _canceler = new CancellationTokenSource(); }
+			if ( isReCreate ) {
+				_canceler.Dispose();
+				_canceler = new CancellationTokenSource();
+			}
 #if TestUTask
 			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( _cancelEvent.Run )}\n{this}" );
 #endif
@@ -66,7 +69,7 @@ namespace SubmarineMirage.UTask {
 #if TestUTask
 			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( _children )}.{nameof( Cancel )}\n{this}" );
 #endif
-			_children.ForEach( c => c.Cancel() );
+			_children.ForEach( c => c.Cancel( isReCreate ) );
 		}
 
 
@@ -93,6 +96,7 @@ namespace SubmarineMirage.UTask {
 
 		public override string ToString() => string.Join( "\n",
 			$"{nameof( UTaskCanceler )}(",
+			$"    IsCancel : {_canceler.IsCancellationRequested}",
 			$"    {nameof( _cancelEvent )} : {_cancelEvent}",
 			$"    {nameof( _parent )} : {( _parent != null ? 1 : 0 )}",
 			$"    {nameof( _children )} : {_children.Count}",

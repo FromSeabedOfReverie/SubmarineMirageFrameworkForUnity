@@ -56,10 +56,10 @@ namespace SubmarineMirage.TestUTask {
 			_canceler = new CancellationTokenSource();
 			_id = _canceler.GetHashCode();
 
-			Log.Debug( $"Play Start : {_id}" );
+			Log.Debug( $"{nameof( Play )} Start : {_id}" );
 			await _loader.Load( _canceler );
-			await UniTask.Delay( TimeSpan.FromSeconds( 10 ), false, PlayerLoopTiming.Update, _canceler.Token );
-			Log.Debug( $"Play End : {_id}" );
+			await UniTask.Delay( 10000, cancellationToken: _canceler.Token );
+			Log.Debug( $"{nameof( Play )} End : {_id}" );
 		}
 
 
@@ -68,10 +68,10 @@ namespace SubmarineMirage.TestUTask {
 			_canceler = new CancellationTokenSource();
 			_id = _canceler.GetHashCode();
 
-			Log.Debug( $"Stop Start : {_id}" );
-			await UniTask.Delay( TimeSpan.FromSeconds( 10 ), false, PlayerLoopTiming.Update, _canceler.Token );
+			Log.Debug( $"{nameof( Stop )} Start : {_id}" );
+			await UniTask.Delay( 10000, cancellationToken: _canceler.Token );
 			_loader.Unload();
-			Log.Debug( $"Stop End : {_id}" );
+			Log.Debug( $"{nameof( Stop )} End : {_id}" );
 		}
 
 
@@ -79,17 +79,17 @@ namespace SubmarineMirage.TestUTask {
 		public class TestLoader {
 			int _id;
 			public string _data;
-			CancellationTokenSource _cancel = new CancellationTokenSource();
+			CancellationTokenSource _canceler = new CancellationTokenSource();
 
 
-			public async UniTask Load( CancellationTokenSource cancel = null ) {
-				_cancel.Cancel();
-				_cancel = cancel != null ? cancel : new CancellationTokenSource();
-				_id = _cancel.GetHashCode();
-				Log.Debug( $"Load Start : {_id}" );
+			public async UniTask Load( CancellationTokenSource canceler = null ) {
+				_canceler.Cancel();
+				_canceler = canceler != null ? canceler : new CancellationTokenSource();
+				_id = _canceler.GetHashCode();
+				Log.Debug( $"{nameof( Load )} Start : {_id}" );
 
 				try {
-					if ( !_cancel.IsCancellationRequested ) {
+					if ( !_canceler.IsCancellationRequested ) {
 						await LoadSub();
 					}
 				} catch ( OperationCanceledException ) {
@@ -97,25 +97,25 @@ namespace SubmarineMirage.TestUTask {
 				}
 
 				if ( _data.IsNullOrEmpty() ) {
-					Log.Debug( $"読み込み失敗 : Cancel : {cancel.IsCancellationRequested}" );
-					throw new OperationCanceledException( _cancel.Token );
+					Log.Debug( $"読み込み失敗 : Cancel : {canceler.IsCancellationRequested}" );
+					throw new OperationCanceledException( _canceler.Token );
 				}
-				Log.Debug( $"Load End : {_id}" );
+				Log.Debug( $"{nameof( Load )} End : {_id}" );
 			}
 
 
 			async UniTask LoadSub() {
-				Log.Debug( $"LoadSub Start : {_id}" );
-				await UniTask.Delay( TimeSpan.FromSeconds( 10 ), false, PlayerLoopTiming.Update, _cancel.Token );
+				Log.Debug( $"{nameof( LoadSub )} Start : {_id}" );
+				await UniTask.Delay( 10000, cancellationToken: _canceler.Token );
 	//			throw new NullReferenceException();
 				_data = "Data";
-				Log.Debug( $"LoadSub End : {_id}" );
+				Log.Debug( $"{nameof( LoadSub )} End : {_id}" );
 			}
 
 
 			public void Unload() {
-				Log.Debug( $"Unload : {_id}" );
-				_cancel.Cancel();
+				Log.Debug( $"{nameof( Unload )} : {_id}" );
+				_canceler.Cancel();
 				_data = null;
 			}
 

@@ -6,9 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
 	using System;
-	using System.Threading;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
+	using UTask;
 	using Extension;
 
 
@@ -29,7 +29,7 @@ namespace SubmarineMirage.FSM {
 		MultiAsyncEvent _disableEvent		{ get; }
 		MultiAsyncEvent _finalizeEvent		{ get; }
 
-		CancellationToken _changeStateAsyncCancel	{ get; }
+		UTaskCanceler _changeStateAsyncCanceler	{ get; }
 
 		UniTask ChangeState( Type state );
 	}

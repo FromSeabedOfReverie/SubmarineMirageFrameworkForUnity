@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestSMTask {
 	using System;
-	using System.Threading;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;

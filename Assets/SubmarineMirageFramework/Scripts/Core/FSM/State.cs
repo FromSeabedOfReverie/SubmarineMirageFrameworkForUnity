@@ -6,8 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
 	using System;
-	using System.Threading;
-	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
@@ -43,14 +41,14 @@ namespace SubmarineMirage.FSM {
 		protected readonly MultiAsyncEvent _disableEvent = new MultiAsyncEvent();
 		protected readonly MultiAsyncEvent _finalizeEvent = new MultiAsyncEvent();
 
-		CancellationTokenSource _activeAsyncCanceler = new CancellationTokenSource();
-		public CancellationToken _activeAsyncCancel => _activeAsyncCanceler.Token;
+		public UTaskCanceler _activeAsyncCanceler	{ get; private set; } = new UTaskCanceler();
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public State() {
-			SetActiveAsyncCancelerDisposable();
+			// TODO : 代入物が変わる場合、_disposables.AddLast( _activeAsyncCanceler );で破棄できないか、確認する
+			_disposables.AddLast( () => _activeAsyncCanceler.Dispose() );
 			_disposables.AddLast(
 				_loadEvent,
 				_initializeEvent,
@@ -66,18 +64,12 @@ namespace SubmarineMirage.FSM {
 			);
 		}
 
-		void SetActiveAsyncCancelerDisposable() {
-			_disposables.AddFirst( "_activeAsyncCanceler", () => {
-				_activeAsyncCanceler.Cancel();
-				_activeAsyncCanceler.Dispose();
-			} );
-		}
-
 		public void Set( TOwner owner ) {
 			_fsm = owner._fsm;
 			_owner = owner;
-			StopActiveAsync();
-			_owner._activeAsyncCancelEvent.AddLast().Subscribe( _ => StopActiveAsync() );
+
+			_activeAsyncCanceler.Dispose();
+			_activeAsyncCanceler = _owner._activeAsyncCanceler.CreateChild();
 		}
 
 		public void Dispose() => _disposables.Dispose();
@@ -85,13 +77,7 @@ namespace SubmarineMirage.FSM {
 		~State() => Dispose();
 
 
-		public void StopActiveAsync() {
-			_disposables.Remove( "_activeAsyncCanceler" );
-			using ( var canceler = new CancellationTokenSource() ) {
-				_activeAsyncCanceler = canceler.Token.Link( _owner._activeAsyncCanceler );
-			}
-			SetActiveAsyncCancelerDisposable();
-		}
+		public void StopActiveAsync() => _activeAsyncCanceler.Cancel();
 
 
 		public async UniTask RunStateEvent( RunState state ) {
@@ -101,7 +87,7 @@ namespace SubmarineMirage.FSM {
 						case RunState.Exited:
 							_runState = RunState.Entering;
 							try {
-								await _enterEvent.Run( _fsm._changeStateAsyncCancel );
+								await _enterEvent.Run( _fsm._changeStateAsyncCanceler );
 							} catch {
 								_runState = RunState.Exited;
 								throw;
@@ -118,7 +104,7 @@ namespace SubmarineMirage.FSM {
 							_runState = RunState.BeforeUpdate;
 							if ( _owner._isActive ) {
 								_runState = RunState.Update;
-								await _updateEvent.Run( _activeAsyncCancel );
+								await _updateEvent.Run( _activeAsyncCanceler );
 							}
 							return;
 					}
@@ -132,7 +118,7 @@ namespace SubmarineMirage.FSM {
 							var lastRunState = _runState;
 							_runState = RunState.Exiting;
 							try {
-								await _exitEvent.Run( _fsm._changeStateAsyncCancel );
+								await _exitEvent.Run( _fsm._changeStateAsyncCanceler );
 							} catch {
 								_runState = lastRunState;
 								throw;
@@ -158,8 +144,8 @@ namespace SubmarineMirage.FSM {
 		async UniTask RunActiveEvent() {
 			if ( !_nextActiveState.HasValue )	{ return; }
 
-			var cancel = (
-				_fsm._isChangingState							? _fsm._changeStateAsyncCancel :
+			var canceler = (
+				_fsm._isChangingState							? _fsm._changeStateAsyncCanceler :
 				_nextActiveState == SMTaskActiveState.Enabling	? _owner._activeAsyncCanceler :
 				_nextActiveState == SMTaskActiveState.Disabling	? _owner._inActiveAsyncCanceler
 																: default
@@ -170,8 +156,7 @@ namespace SubmarineMirage.FSM {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Enabling:
 							_nextActiveState = null;
-							await UTask.WaitWhile(
-								cancel, () => _activeState == SMTaskActiveState.Enabling );
+							await UTask.WaitWhile( canceler, () => _activeState == SMTaskActiveState.Enabling );
 							return;
 
 						case SMTaskActiveState.Enabled:
@@ -179,8 +164,7 @@ namespace SubmarineMirage.FSM {
 							return;
 
 						case SMTaskActiveState.Disabling:
-							await UTask.WaitWhile(
-								cancel, () => _activeState == SMTaskActiveState.Disabling );
+							await UTask.WaitWhile( canceler, () => _activeState == SMTaskActiveState.Disabling );
 							await RunActiveEvent();
 							return;
 
@@ -188,7 +172,7 @@ namespace SubmarineMirage.FSM {
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Enabling;
 							try {
-								await _enableEvent.Run( cancel );
+								await _enableEvent.Run( canceler );
 							} catch {
 								_activeState = SMTaskActiveState.Disabled;
 								throw;
@@ -203,8 +187,7 @@ namespace SubmarineMirage.FSM {
 					switch ( _activeState ) {
 						case SMTaskActiveState.Disabling:
 							_nextActiveState = null;
-							await UTask.WaitWhile(
-								cancel, () => _activeState == SMTaskActiveState.Disabling );
+							await UTask.WaitWhile( canceler, () => _activeState == SMTaskActiveState.Disabling );
 							return;
 
 						case SMTaskActiveState.Disabled:
@@ -212,8 +195,7 @@ namespace SubmarineMirage.FSM {
 							return;
 
 						case SMTaskActiveState.Enabling:
-							await UTask.WaitWhile(
-								cancel, () => _activeState == SMTaskActiveState.Enabling );
+							await UTask.WaitWhile( canceler, () => _activeState == SMTaskActiveState.Enabling );
 							await RunActiveEvent();
 							return;
 
@@ -221,7 +203,7 @@ namespace SubmarineMirage.FSM {
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Disabling;
 							try {
-								await _disableEvent.Run( cancel );
+								await _disableEvent.Run( canceler );
 							} catch {
 								_activeState = SMTaskActiveState.Enabled;
 								throw;

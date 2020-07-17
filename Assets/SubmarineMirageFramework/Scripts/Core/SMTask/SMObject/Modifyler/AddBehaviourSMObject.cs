@@ -48,13 +48,13 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 			switch ( _object._type ) {
 				case SMTaskType.DontWork:
-					await UTask.NextFrame( _behaviour._activeAsyncCancel );
+					await UTask.NextFrame( _behaviour._activeAsyncCanceler );
 					await _behaviour.RunStateEvent( SMTaskRanState.Creating );
 					return;
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
 					if ( _object._objects._isEnter ) {
-						await UTask.NextFrame( _behaviour._activeAsyncCancel );
+						await UTask.NextFrame( _behaviour._activeAsyncCanceler );
 						await _behaviour.RunStateEvent( SMTaskRanState.Creating );
 						await _behaviour.RunStateEvent( SMTaskRanState.Loading );
 						await _behaviour.RunStateEvent( SMTaskRanState.Initializing );

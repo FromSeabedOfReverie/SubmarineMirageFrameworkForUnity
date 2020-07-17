@@ -11,7 +11,6 @@ namespace SubmarineMirage.TestUTask {
 	using System.Collections;
 	using System.Collections.Generic;
 	using NUnit.Framework;
-	using UnityEngine;
 	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
@@ -81,7 +80,7 @@ namespace SubmarineMirage.TestUTask {
 			UniTask.Void( async () => {
 				while ( true ) {
 					Log.Debug( "waiting" );
-					await UTask.Delay( cancelers[2].Token, 200 );
+					await UniTask.Delay( 200, cancellationToken: cancelers[2].Token );
 				}
 			} );
 			await UTask.Delay( _asyncCanceler, 1000 );

@@ -34,7 +34,8 @@ namespace SubmarineMirage.Singleton {
 			s_instanceObject = new T();
 			Log.Debug( $"作成 : { s_instanceObject.GetAboutName() }", Log.Tag.Singleton );
 			s_instanceObject._disposables.AddLast(
-				() => Log.Debug( $"Dispose : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton ) );
+				() => Log.Debug( $"{nameof( Dispose )} : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton )
+			);
 		}
 
 		public static void DisposeInstance() {

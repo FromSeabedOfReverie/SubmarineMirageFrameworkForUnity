@@ -5,9 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Editor {
-	using System.Threading;
 	using UnityEditor;
-	using Cysharp.Threading.Tasks;
 	using Main;
 	using UTask;
 
@@ -62,11 +60,11 @@ namespace SubmarineMirage.Editor {
 				EditorApplication.isPlaying = true;
 
 			} else {
-				var canceler = new CancellationTokenSource();
-				UTask.Void( canceler.Token, async cancel => {
+				UTask.Void( async () => {
+					var canceler = new UTaskCanceler();
 					SubmarineMirage.DisposeInstance();
 					if ( PlayerExtensionEditorManager.instance._playType != PlayType.Test ) {
-						await UTask.NextFrame( cancel );
+						await UTask.NextFrame( canceler );
 					}
 					EditorApplication.isPlaying = false;
 					canceler.Dispose();

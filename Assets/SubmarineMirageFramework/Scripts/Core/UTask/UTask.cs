@@ -37,28 +37,12 @@ namespace SubmarineMirage.UTask {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Create( Func<UniTask> factory )
-			=> UniTask.Create( factory );
+		public static Func<UniTask> Func( Func<UniTask> factory )
+			=> factory;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<T> Create<T>( Func< UniTask<T> > factory )
-			=> UniTask.Create( factory );
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Defer( Func<UniTask> factory )
-			=> UniTask.Defer( factory );
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<T> Defer<T>( Func< UniTask<T> > factory )
-			=> UniTask.Defer( factory );
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static AsyncLazy Lazy( Func<UniTask> factory )
-			=> UniTask.Lazy( factory );
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static AsyncLazy<T> Lazy<T>( Func< UniTask<T> > factory )
-			=> UniTask.Lazy( factory );
+		public static Func< UniTask<T> > Func<T>( Func< UniTask<T> > factory )
+			=> factory;
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,33 +62,15 @@ namespace SubmarineMirage.UTask {
 		public static UniTask Never( UTaskCanceler canceler )
 			=> UniTask.Never( canceler.ToToken() );
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<T> Never<T>( UTaskCanceler canceler )
-			=> UniTask.Never<T>( canceler.ToToken() );
-
-
-		// 引数が無いのが、高速らしい
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static Cysharp.Threading.Tasks.YieldAwaitable Yield() => UniTask.Yield();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static UniTask Yield( UTaskCanceler canceler, PlayerLoopTiming timing = PlayerLoopTiming.Update )
 			=> UniTask.Yield( timing, canceler.ToToken() );
 
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static UniTask NextFrame( UTaskCanceler canceler,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => UniTask.NextFrame( timing, canceler.ToToken() );
-
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitForEndOfFrame( UTaskCanceler canceler )
-			=> UniTask.WaitForEndOfFrame( canceler.ToToken() );
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitForFixedUpdate( UTaskCanceler canceler )
-			=> UniTask.WaitForFixedUpdate( canceler.ToToken() );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -184,18 +150,6 @@ namespace SubmarineMirage.UTask {
 		) {
 			if ( canceler.ToToken().IsCancellationRequested )	{ return Empty; }
 			return UniTask.WaitUntilCanceled( canceler.ToToken(), timing );
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask FromCanceled( UTaskCanceler canceler ) {
-			if ( canceler.ToToken().IsCancellationRequested )	{ return Empty; }
-			return UniTask.FromCanceled( canceler.ToToken() );
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<T> FromCanceled<T>( UTaskCanceler canceler ) {
-			if ( canceler.ToToken().IsCancellationRequested )	{ return new UniTask<T>(); }
-			return UniTask.FromCanceled<T>( canceler.ToToken() );
 		}
 
 

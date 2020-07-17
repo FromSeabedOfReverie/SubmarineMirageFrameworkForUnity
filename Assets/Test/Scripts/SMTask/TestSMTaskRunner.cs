@@ -5,21 +5,16 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestSMTask {
-	using System;
 	using System.Linq;
-	using System.Threading;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
+	using UTask;
 	using SMTask;
-	using Scene;
 	using Extension;
-	using Utility;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
@@ -76,20 +71,32 @@ namespace SubmarineMirage.TestSMTask {
 					} )
 			);
 
-			_behaviour._loadEvent.AddFirst(
-				async cancel => Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._loadEvent )}" ) );
-			_behaviour._loadEvent.AddLast(
-				async cancel => Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._loadEvent )}" ) );
+			_behaviour._loadEvent.AddFirst( async canceler => {
+				Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._loadEvent )}" );
+				await UTask.DontWait();
+			} );
+			_behaviour._loadEvent.AddLast( async canceler => {
+				Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._loadEvent )}" );
+				await UTask.DontWait();
+			} );
 
-			_behaviour._initializeEvent.AddFirst(
-				async cancel => Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._initializeEvent )}" ) );
-			_behaviour._initializeEvent.AddLast(
-				async cancel => Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._initializeEvent )}" ) );
+			_behaviour._initializeEvent.AddFirst( async canceler => {
+				Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._initializeEvent )}" );
+				await UTask.DontWait();
+			} );
+			_behaviour._initializeEvent.AddLast( async canceler => {
+				Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._initializeEvent )}" );
+				await UTask.DontWait();
+			} );
 
-			_behaviour._enableEvent.AddFirst(
-				async cancel => Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._enableEvent )}" ) );
-			_behaviour._enableEvent.AddLast(
-				async cancel => Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._enableEvent )}" ) );
+			_behaviour._enableEvent.AddFirst( async canceler => {
+				Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._enableEvent )}" );
+				await UTask.DontWait();
+			} );
+			_behaviour._enableEvent.AddLast( async canceler => {
+				Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._enableEvent )}" );
+				await UTask.DontWait();
+			} );
 
 			_behaviour._fixedUpdateEvent.AddFirst().Subscribe(
 				_ => Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._fixedUpdateEvent )}" ) );
@@ -106,15 +113,23 @@ namespace SubmarineMirage.TestSMTask {
 			_behaviour._lateUpdateEvent.AddLast().Subscribe(
 				_ => Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._lateUpdateEvent )}" ) );
 
-			_behaviour._disableEvent.AddFirst(
-				async cancel => Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._disableEvent )}" ) );
-			_behaviour._disableEvent.AddLast(
-				async cancel => Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._disableEvent )}" ) );
+			_behaviour._disableEvent.AddFirst( async canceler => {
+				Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._disableEvent )}" );
+				await UTask.DontWait();
+			} );
+			_behaviour._disableEvent.AddLast( async canceler => {
+				Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._disableEvent )}" );
+				await UTask.DontWait();
+			} );
 
-			_behaviour._finalizeEvent.AddFirst(
-				async cancel => Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._finalizeEvent )}" ) );
-			_behaviour._finalizeEvent.AddLast(
-				async cancel => Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._finalizeEvent )}" ) );
+			_behaviour._finalizeEvent.AddFirst( async canceler => {
+				Log.Debug( $"start : {this.GetAboutName()}.{nameof( _behaviour._finalizeEvent )}" );
+				await UTask.DontWait();
+			} );
+			_behaviour._finalizeEvent.AddLast( async canceler => {
+				Log.Debug( $"end : {this.GetAboutName()}.{nameof( _behaviour._finalizeEvent )}" );
+				await UTask.DontWait();
+			} );
 
 			while ( true )	{ yield return null; }
 		}

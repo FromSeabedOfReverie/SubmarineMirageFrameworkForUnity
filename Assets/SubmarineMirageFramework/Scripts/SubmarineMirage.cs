@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Main {
 	using System;
-	using System.Threading;
 	using System.Threading.Tasks;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
@@ -23,17 +22,16 @@ namespace SubmarineMirage.Main {
 		public readonly MultiAsyncEvent _createTestEvent = new MultiAsyncEvent();
 		public bool _isRegisterCreateTestEvent = true;
 
-// TODO:		public bool _isInitialized	{ get; private set; }
+// TODO : 戻す
+//		public bool _isInitialized	{ get; private set; }
+// TODO : 消す
 		public bool _isInitialized	{ get; set; }
 
-		CancellationTokenSource _canceler = new CancellationTokenSource();
+		UTaskCanceler _canceler = new UTaskCanceler();
 
 
 		public SubmarineMirage() {
-			_disposables.AddLast( () => {
-				_canceler.Cancel();
-				_canceler.Dispose();
-			} );
+			_disposables.AddLast( _canceler );
 			_disposables.AddLast( _createTestEvent );
 			_disposables.AddLast( () => {
 				SMTaskRunner.DisposeInstance();
@@ -46,7 +44,7 @@ namespace SubmarineMirage.Main {
 		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerBehavioursEvent )
 		{
 
-			await Task.Delay( 1, _canceler.Token );
+			await Task.Delay( 1, _canceler.ToToken() );
 
 			await initializePluginEvent();
 
@@ -54,8 +52,8 @@ namespace SubmarineMirage.Main {
 			MonoBehaviourSingletonManager.CreateInstance();
 			SMTaskRunner.CreateInstance();
 
-			await UTask.WaitWhile( _canceler.Token, () => !_isRegisterCreateTestEvent );
-			await _createTestEvent.Run( _canceler.Token );
+			await UTask.WaitWhile( _canceler, () => !_isRegisterCreateTestEvent );
+			await _createTestEvent.Run( _canceler );
 
 			await SMTaskRunner.s_instance.Create( () => registerBehavioursEvent() );
 

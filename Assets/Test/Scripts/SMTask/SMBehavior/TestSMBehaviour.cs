@@ -6,15 +6,12 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestSMTask {
 	using System;
-	using System.Linq;
-	using System.Threading;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using Cysharp.Threading.Tasks;
 	using UTask;
 	using SMTask;
 	using Extension;
@@ -37,7 +34,7 @@ namespace SubmarineMirage.TestSMTask {
 			Application.targetFrameRate = 30;
 			_behaviour = new B6();
 
-			_createEvent.AddLast( async cancel => {
+			_createEvent.AddLast( async canceler => {
 				TestSMTaskUtility.SetEvent( _behaviour );
 				await UTask.DontWait();
 			} );
@@ -94,8 +91,8 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestStopActiveAsync() => From( async () => {
-			UTask.Void( _asyncCanceler, async cancel => {
-				await UTask.Delay( cancel, 3000 );
+			UTask.Void( async () => {
+				await UTask.Delay( _asyncCanceler, 3000 );
 				Log.Debug( $"{nameof( _behaviour.StopActiveAsync )}" );
 				_behaviour.StopActiveAsync();
 			} );
@@ -112,8 +109,8 @@ namespace SubmarineMirage.TestSMTask {
 
 		[UnityTest]
 		public IEnumerator TestDispose() => From( async () => {
-			UTask.Void( _asyncCanceler, async cancel => {
-				await UTask.Delay( cancel, 3000 );
+			UTask.Void( async () => {
+				await UTask.Delay( _asyncCanceler, 3000 );
 				Log.Debug( $"{nameof( _behaviour.Dispose )}" );
 				_behaviour.Dispose();
 			} );

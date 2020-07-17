@@ -8,14 +8,12 @@ namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
-	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
 	using SMTask;
 	using SMTask.Modifyler;
 	using FSM;
 	using Singleton;
-	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 	using Debug;
 
 

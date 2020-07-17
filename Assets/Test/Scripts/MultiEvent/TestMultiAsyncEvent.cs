@@ -5,13 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestMultiEvent {
-	using System.Threading;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
 	using Debug;
@@ -36,19 +34,19 @@ namespace SubmarineMirage.TestMultiEvent {
 		public IEnumerator TestAdd() => From( async () => {
 			Log.Debug( _events );
 
-			_events.AddLast( "b", async cancel => {
+			_events.AddLast( "b", async canceler => {
 				Log.Debug( "b start" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( "b end" );
 			} );
-			_events.AddLast( "c", async cancel => {
+			_events.AddLast( "c", async canceler => {
 				Log.Debug( "c start" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( "c end" );
 			} );
-			_events.AddFirst( "a", async cancel => {
+			_events.AddFirst( "a", async canceler => {
 				Log.Debug( "a start" );
-				await UTask.Delay( cancel, 1000 );
+				await UTask.Delay( canceler, 1000 );
 				Log.Debug( "a end" );
 			} );
 			Log.Debug( _events );
@@ -67,9 +65,9 @@ namespace SubmarineMirage.TestMultiEvent {
 					Log.Warning( "key down Add" );
 					Log.Debug( _events );
 					var i = count++;
-					_events.AddLast( $"{i}", async cancel => {
+					_events.AddLast( $"{i}", async canceler => {
 						Log.Debug( $"{i} start" );
-						await UTask.Delay( cancel, 1000 );
+						await UTask.Delay( canceler, 1000 );
 						Log.Debug( $"{i} end" );
 					} );
 					Log.Debug( _events );
@@ -92,9 +90,9 @@ namespace SubmarineMirage.TestMultiEvent {
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
 					Log.Warning( "key down Run" );
-					UTask.Void( _asyncCanceler, async cancel => {
+					UTask.Void( async () => {
 						Log.Debug( _events );
-						await _events.Run( cancel );
+						await _events.Run( _asyncCanceler );
 						Log.Debug( _events );
 					} );
 				} )

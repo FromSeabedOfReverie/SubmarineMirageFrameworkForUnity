@@ -6,9 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask {
 	using System;
-	using System.Linq;
-	using System.Collections.Generic;
-	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
@@ -18,7 +15,6 @@ namespace SubmarineMirage.SMTask {
 	using Scene;
 	using Main;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -51,11 +47,11 @@ namespace SubmarineMirage.SMTask {
 
 
 		public async UniTask Create( Func<UniTask> registerBehaviours ) {
-			_loadEvent.AddLast( async cancel => {
+			_loadEvent.AddLast( async canceler => {
 				await registerBehaviours();
 			} );
 
-			_initializeEvent.AddLast( async cancel => {
+			_initializeEvent.AddLast( async canceler => {
 // TODO : シーン読込後に、テストオブジェクトを作成してしまう
 				await _foreverScene.RunStateEvent( FiniteStateMachineRunState.Entering );
 // TODO : デバッグ用、暫定
@@ -101,7 +97,7 @@ namespace SubmarineMirage.SMTask {
 					SMTaskType.Work, SMTaskRanState.LateUpdate ).Forget();
 			} );
 
-			_finalizeEvent.AddLast( async cancel => {
+			_finalizeEvent.AddLast( async canceler => {
 				await _foreverScene.RunStateEvent( FiniteStateMachineRunState.Exiting );
 				Dispose();
 			} );

@@ -7,7 +7,6 @@
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
-	using System.Threading;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx;
@@ -29,7 +28,7 @@ namespace SubmarineMirage.SMTask {
 		public readonly Dictionary<SMTaskType, SMObject> _objects = new Dictionary<SMTaskType, SMObject>();
 		public bool _isEnter	{ get; private set; }
 
-		public CancellationToken _activeAsyncCancel => _owner._activeAsyncCancel;
+		public UTaskCanceler _activeAsyncCanceler => _owner._activeAsyncCanceler;
 
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
@@ -71,7 +70,7 @@ namespace SubmarineMirage.SMTask {
 											.SelectMany( pair => pair.Value.GetBrothers() )
 					).Select( o => o._behaviour.GetAboutName() )
 				);
-				Log.Debug( $"befor reverse : {befor}" );
+				Log.Debug( $"{nameof( befor )} reverse : {befor}" );
 */
 				result = result.Reverse();
 /*
@@ -84,7 +83,7 @@ namespace SubmarineMirage.SMTask {
 											.SelectMany( pair => pair.Value.GetBrothers() )
 					).Select( o => o._behaviour.GetAboutName() )
 				);
-				Log.Debug( $"after reverse : {after}" );
+				Log.Debug( $"{nameof( after )} reverse : {after}" );
 */
 			}
 			return result;
@@ -166,8 +165,8 @@ namespace SubmarineMirage.SMTask {
 		public async UniTask Enter() {
 			await Load();
 //			Log.Debug( _modifyler );
-//			await UTask.NextFrame( _activeAsyncCancel );
-//			await UTask.WaitWhile( _activeAsyncCancel, () => !Input.GetKeyDown( KeyCode.Return ) );
+//			await UTask.NextFrame( _activeAsyncCanceler );
+//			await UTask.WaitWhile( _activeAsyncCanceler, () => !Input.GetKeyDown( KeyCode.Return ) );
 			_isEnter = true;
 			return;
 			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Creating );
@@ -210,7 +209,7 @@ namespace SubmarineMirage.SMTask {
 					var bs = t.GetComponents<SMMonoBehaviour>();
 					if ( !bs.IsEmpty() ) {
 						new SMObject( t.gameObject, bs, null );
-						await UTask.NextFrame( _activeAsyncCancel );
+						await UTask.NextFrame( _activeAsyncCanceler );
 					} else {
 						foreach ( Transform child in t ) {
 							children.Concat( child );
@@ -218,7 +217,7 @@ namespace SubmarineMirage.SMTask {
 					}
 				}
 				currents = children;
-				await UTask.NextFrame( _activeAsyncCancel );
+				await UTask.NextFrame( _activeAsyncCanceler );
 			}
 
 			Log.Debug( $"{nameof( Load )} {_owner.GetAboutName()} : {TimeManager.s_instance.StopMeasure()}秒" );
