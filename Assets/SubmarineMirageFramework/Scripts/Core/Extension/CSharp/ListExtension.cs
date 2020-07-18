@@ -12,11 +12,11 @@ namespace SubmarineMirage.Extension {
 
 
 	public static class ListExtension {
-		public static List<T> Clone<T>( this List<T> self ) {
+		public static List<T> Copy<T>( this List<T> self ) {
 			return new List<T>( self );
 		}
 
-		public static List<T> ReverseByClone<T>( this List<T> self ) {
+		public static List<T> ReverseByCopy<T>( this List<T> self ) {
 			var result = new List<T>( self );
 			result.Reverse();
 			return result;

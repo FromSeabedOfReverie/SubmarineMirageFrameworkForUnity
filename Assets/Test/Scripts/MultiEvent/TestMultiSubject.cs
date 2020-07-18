@@ -15,9 +15,6 @@ namespace SubmarineMirage.TestMultiEvent {
 	using Test;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class TestMultiSubject : Test {
 		MultiSubject _events = new MultiSubject();
 

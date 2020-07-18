@@ -12,7 +12,9 @@ namespace SubmarineMirage.MultiEvent {
 
 	public class ReverseEventModifyData<T> : EventModifyData<T> {
 
+
 		public ReverseEventModifyData() {}
+
 
 		public override void Run() => _owner._events.Reverse();
 	}

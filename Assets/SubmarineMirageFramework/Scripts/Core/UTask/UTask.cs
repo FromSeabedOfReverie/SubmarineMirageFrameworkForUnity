@@ -174,6 +174,11 @@ namespace SubmarineMirage.UTask {
 		) => asyncOperation.ToUniTask( progress, timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static UniTask ToUniTask( this UTaskCanceler canceler,
+											PlayerLoopTiming timing = PlayerLoopTiming.Update
+		) => WaitUntilCanceled( canceler, timing );
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static UniTask ToUniTask( this IEnumerator enumerator, UTaskCanceler canceler,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => enumerator.ToUniTask( timing, canceler.ToToken() );

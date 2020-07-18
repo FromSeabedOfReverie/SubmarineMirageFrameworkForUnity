@@ -59,12 +59,15 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public async UniTask WaitRunning()
 			=> await UTask.WaitWhile( _owner._asyncCanceler, () => _isRunning );
 
+
 		public override string ToString() {
-			var result = $"{this.GetAboutName()}(\n"
-				+ $"    {nameof( _isRunning )} : {_isRunning}\n"
-				+ $"    {nameof( _data )} : \n"
-					+ string.Join( "\n", _data.Select( d => $"        {d}" ) )
-				+ "\n)";
+			var result = string.Join( "\n",
+				$"{this.GetAboutName()}(",
+				$"    {nameof( _isRunning )} : {_isRunning}",
+				$"    {nameof( _data )} : \n"
+					+ string.Join( "\n", _data.Select( d => $"        {d}" ) ),
+				")"
+			);
 			return result;
 		}
 	}

@@ -6,36 +6,29 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
+	using UniRx;
 	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseMultiEvent<T> : IDisposableExtension {
+	public abstract class BaseMultiEvent<T> : IDisposable {
 		public readonly List< KeyValuePair<string, T> > _events = new List< KeyValuePair<string, T> >();
-		protected EventModifyler<T> _eventModifyler	{ get; private set; }
-		public virtual bool _isLock {
-			get => _eventModifyler._isLock.Value;
-			set => _eventModifyler._isLock.Value = value;
-		}
-		public MultiDisposable _disposables	{ get; private set; }
-		public virtual bool _isDispose => _disposables._isDispose;
+		protected EventModifyler<T> _modifyler	{ get; private set; }
+		protected readonly CompositeDisposable _disposables = new CompositeDisposable();
+		public bool _isDispose => _disposables.IsDisposed;
 
 
 		public BaseMultiEvent() {
-			_eventModifyler = new EventModifyler<T>( this );
-			SetDisposables();
-		}
-
-		protected virtual void SetDisposables() {
-			_disposables = new MultiDisposable();
-			_disposables.AddLast( _eventModifyler );
-			_disposables.AddLast( () => {
+			_modifyler = new EventModifyler<T>( this );
+			_disposables.Add( _modifyler );
+			_disposables.Add( Disposable.Create( () => {
 				_events.ForEach( pair => OnRemove( pair.Value ) );
 				_events.Clear();
-			} );
+			} ) );
 		}
 
 		public virtual void Dispose() => _disposables.Dispose();
@@ -43,69 +36,39 @@ namespace SubmarineMirage.MultiEvent {
 		~BaseMultiEvent() => Dispose();
 
 
-		protected void RegisterEventModifyler( EventModifyData<T> data ) {
-			_eventModifyler.Register( data );
-		}
+		protected void Register( EventModifyData<T> data ) => _modifyler.Register( data );
 
 
-		public void InsertFirst( string findKey, string key, T function ) {
-			RegisterEventModifyler( new InsertEventModifyData<T>(
-				findKey, EventAddType.First, key, function
-			) );
-		}
+		public void InsertFirst( string findKey, string key, T function )
+			=> Register( new InsertEventModifyData<T>( findKey, EventAddType.First, key, function ) );
 
-		public void InsertFirst( string findKey, T function ) {
-			RegisterEventModifyler( new InsertEventModifyData<T>(
-				findKey, EventAddType.First, string.Empty, function
-			) );
-		}
+		public void InsertFirst( string findKey, T function )
+			=> Register( new InsertEventModifyData<T>( findKey, EventAddType.First, string.Empty, function ) );
 
-		public void InsertLast( string findKey, string key, T function ) {
-			RegisterEventModifyler( new InsertEventModifyData<T>(
-				findKey, EventAddType.Last, key, function
-			) );
-		}
+		public void InsertLast( string findKey, string key, T function )
+			=> Register( new InsertEventModifyData<T>( findKey, EventAddType.Last, key, function ) );
 
-		public void InsertLast( string findKey, T function ) {
-			RegisterEventModifyler( new InsertEventModifyData<T>(
-				findKey, EventAddType.Last, string.Empty, function
-			) );
-		}
+		public void InsertLast( string findKey, T function )
+			=> Register( new InsertEventModifyData<T>( findKey, EventAddType.Last, string.Empty, function ) );
 
 
-		public void AddFirst( string key, T function ) {
-			RegisterEventModifyler( new AddEventModifyData<T>(
-				EventAddType.First, key, function
-			) );
-		}
+		public void AddFirst( string key, T function )
+			=> Register( new AddEventModifyData<T>( EventAddType.First, key, function ) );
 
-		public void AddFirst( T function ) {
-			RegisterEventModifyler( new AddEventModifyData<T>(
-				EventAddType.First, string.Empty, function
-			) );
-		}
+		public void AddFirst( T function )
+			=> Register( new AddEventModifyData<T>( EventAddType.First, string.Empty, function ) );
 
-		public void AddLast( string key, T function ) {
-			RegisterEventModifyler( new AddEventModifyData<T>(
-				EventAddType.Last, key, function
-			) );
-		}
+		public void AddLast( string key, T function )
+			=> Register( new AddEventModifyData<T>( EventAddType.Last, key, function ) );
 
-		public void AddLast( T function ) {
-			RegisterEventModifyler( new AddEventModifyData<T>(
-				EventAddType.Last, string.Empty, function
-			) );
-		}
+		public void AddLast( T function )
+			=> Register( new AddEventModifyData<T>( EventAddType.Last, string.Empty, function ) );
 
 
-		public void Reverse() {
-			RegisterEventModifyler( new ReverseEventModifyData<T>() );
-		}
+		public void Reverse() => Register( new ReverseEventModifyData<T>() );
 
 
-		public void Remove( string key ) {
-			RegisterEventModifyler( new RemoveEventModifyData<T>( key ) );
-		}
+		public void Remove( string key ) => Register( new RemoveEventModifyData<T>( key ) );
 
 		public abstract void OnRemove( T function );
 
@@ -115,15 +78,20 @@ namespace SubmarineMirage.MultiEvent {
 			if ( _data != null && _data._function != null ) {
 				OnRemove( _data._function );
 			}
-			throw new ObjectDisposedException( "_disposables", "既に解放済" );
+			throw new ObjectDisposedException( $"{nameof( _disposables )}", "既に解放済" );
 		}
 
 
 		public override string ToString() {
-			var result = $"{this.GetAboutName()}(\n";
-			_events.ForEach( pair => result += $"    {pair.Key} : {pair.Value.GetAboutName()}\n" );
-			result += $"{_eventModifyler}\n";
-			result += "\n)";
+			var result = string.Join( "\n",
+				$"{this.GetAboutName()}(",
+				$"    {nameof( _isDispose )} : {_isDispose}",
+				$"    {nameof( _events )} : \n" + string.Join( "\n",
+					_events.Select( pair => $"        {pair.Key} : {pair.Value.GetAboutName()}" )
+				),
+				$"    {nameof( _modifyler )} : {_modifyler}",
+				")"
+			);
 			return result;
 		}
 	}

@@ -11,11 +11,9 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using MultiEvent;
+	using UTask;
 	using Debug;
 	using Test;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class TestMultiDisposable : Test {
@@ -30,8 +28,7 @@ namespace SubmarineMirage.TestMultiEvent {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestInsert() => From( TestInsertSub() );
-		IEnumerator TestInsertSub() {
+		public IEnumerator TestInsert() => From( async () => {
 			Log.Debug( _events );
 
 			_events.AddLast( "0", () => Log.Debug( "0" ) );
@@ -50,14 +47,13 @@ namespace SubmarineMirage.TestMultiEvent {
 			_events.AddFirst( "-1", () => Log.Debug( "-1" ) );
 			Log.Debug( _events );
 
-			yield break;
-		}
+			await UTask.DontWait();
+		} );
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( TestManualSub() );
-		IEnumerator TestManualSub() {
+		public IEnumerator TestManual() => From( async () => {
 			var count = 0;
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
@@ -77,18 +73,6 @@ namespace SubmarineMirage.TestMultiEvent {
 			);
 
 			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
-					Log.Warning( "key down UnLock" );
-					Log.Debug( _events );
-					_events._isLock = false;
-					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
-					Log.Warning( "key down Lock" );
-					Log.Debug( _events );
-					_events._isLock = true;
-					Log.Debug( _events );
-				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
 					Log.Warning( "key down Dispose" );
 					Log.Debug( _events );
@@ -97,7 +81,7 @@ namespace SubmarineMirage.TestMultiEvent {
 				} )
 			);
 
-			while ( true )	{ yield return null; }
-		}
+			await UTask.Never( _asyncCanceler );
+		} );
 	}
 }

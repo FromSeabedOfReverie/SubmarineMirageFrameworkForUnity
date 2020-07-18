@@ -18,8 +18,8 @@ namespace SubmarineMirage.MultiEvent {
 
 	public class EventModifyler<T> : IDisposable {
 		BaseMultiEvent<T> _owner;
-		readonly List< EventModifyData<T> > _eventData = new List< EventModifyData<T> >();
-		public readonly ReactiveProperty<bool> _isLock = new ReactiveProperty<bool>();
+		readonly Queue< EventModifyData<T> > _data = new Queue< EventModifyData<T> >();
+		bool _isRunning;
 		readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 
@@ -27,17 +27,11 @@ namespace SubmarineMirage.MultiEvent {
 			_owner = owner;
 
 			_disposables.Add( Disposable.Create( () => {
-				_eventData
+				_data
 					.Where( data => data._function != null )
 					.ForEach( data => _owner.OnRemove( data._function ) );
-				_eventData.Clear();
+				_data.Clear();
 			} ) );
-
-			_isLock
-				.SkipLatestValueOnSubscribe()
-				.Where( isLock => !isLock )
-				.Subscribe( _ => Run() );
-			_disposables.Add( _isLock );
 		}
 
 		~EventModifyler() => Dispose();
@@ -48,24 +42,32 @@ namespace SubmarineMirage.MultiEvent {
 		public void Register( EventModifyData<T> data ) {
 			_owner.CheckDisposeError( data );
 			data._owner = _owner;
-			_eventData.Add( data );
+			_data.Enqueue( data );
 
-			if ( !_isLock.Value )	{ Run(); }
+			if ( !_isRunning )	{ Run(); }
 		}
 
 
 		void Run() {
-			if ( _eventData.IsEmpty() )	{ return; }
-			_eventData.ForEach( data => data.Run() );
-			_eventData.Clear();
+			if ( _isRunning )	{ return; }
+
+			_isRunning = true;
+			while ( !_data.IsEmpty() ) {
+				var d = _data.Dequeue();
+				d.Run();
+			}
+			_isRunning = false;
 		}
 
 
 		public override string ToString() {
-			var result = $"{this.GetAboutName()}(\n"
-				+ $"    _isLock : {_isLock}\n";
-			_eventData.ForEach( data => result += $"    {data}\n" );
-			result += ")";
+			var result = string.Join( "\n",
+				$"{this.GetAboutName()}(",
+				$"    {nameof( _isRunning )} : {_isRunning}",
+				$"    {nameof( _data )} : \n"
+					+ string.Join( "\n", _data.Select( d => $"        {d}" ) ),
+				")"
+			);
 			return result;
 		}
 	}

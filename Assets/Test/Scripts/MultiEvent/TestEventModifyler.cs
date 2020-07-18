@@ -11,11 +11,9 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using MultiEvent;
+	using UTask;
 	using Debug;
 	using Test;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class TestEventModifyler : Test {
@@ -30,71 +28,47 @@ namespace SubmarineMirage.TestMultiEvent {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestLock() => From( TestLockSub() );
-		IEnumerator TestLockSub() {
+		public IEnumerator TestChangeWhileRunning() => From( async () => {
+			Log.Debug( "・生成テスト" );
 			Log.Debug( _events );
 
+			Log.Debug( "・追加テスト" );
 			_events.AddLast( "b", () => Log.Debug( "b" ) );
 			Log.Debug( _events );
 
-			_events._isLock = true;
-			_events.AddLast( "c", () => Log.Debug( "c" ) );
-			_events.AddFirst( "a", () => Log.Debug( "a" ) );
-			_events.InsertLast( "b", "b.5", () => Log.Debug( "b.5" ) );
-			_events.InsertFirst( "b", "a.5", () => Log.Debug( "b.5" ) );
+			Log.Debug( "・追加中に変更を登録" );
+			_events.AddLast( "start", () => {
+				_events.AddLast( "c", () => Log.Debug( "c" ) );
+				_events.AddFirst( "a", () => Log.Debug( "a" ) );
+				_events.InsertLast( "b", "b.5", () => Log.Debug( "b.5" ) );
+				_events.InsertFirst( "b", "a.5", () => Log.Debug( "a.5" ) );
+				_events.Reverse();
+				_events.Remove( "start" );
+				Log.Debug( _events );
+			} );
 			Log.Debug( _events );
 
-			_events._isLock = false;
+			Log.Debug( "・実行1" );
+			_events.Run();
 			Log.Debug( _events );
 
-			yield break;
-		}
+			Log.Debug( "・実行2" );
+			_events.Run();
+			Log.Debug( _events );
+
+			await UTask.DontWait();
+		} );
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( TestManualSub() );
-		IEnumerator TestManualSub() {
-			var count = 0;
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( "key down Add" );
-					Log.Debug( _events );
-					var i = count++;
-					_events.AddLast( $"{i}", () => Log.Debug( $"{i}" ) );
-					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Remove" );
-					Log.Debug( _events );
-					count--;
-					_events.Remove( $"{count}" );
-					Log.Debug( _events );
-				} )
-			);
+		public IEnumerator TestManual() => From( async () => {
+			_disposables.AddLast( TestMultiEventUtility.SetKey(
+				_events,
+				i => _events.AddLast( $"{i}", () => Log.Debug( $"{i}" ) )
+			) );
 
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
-					Log.Warning( "key down UnLock" );
-					Log.Debug( _events );
-					_events._isLock = false;
-					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
-					Log.Warning( "key down Lock" );
-					Log.Debug( _events );
-					_events._isLock = true;
-					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose" );
-					Log.Debug( _events );
-					_events.Dispose();
-					Log.Debug( _events );
-				} )
-			);
-
-			while ( true )	{ yield return null; }
-		}
+			await UTask.Never( _asyncCanceler );
+		} );
 	}
 }

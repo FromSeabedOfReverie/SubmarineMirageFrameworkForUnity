@@ -13,7 +13,6 @@ namespace SubmarineMirage.TestUTask {
 	using UnityEngine.Networking;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UniRx.Triggers;
 	using Cysharp.Threading.Tasks;
 	using UTask;
 	using Debug;
@@ -174,13 +173,13 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.NextFrame( _canceler );
 
 			Log.Debug( 4 );
-			_canceler.Cancel( false );
-			Log.Debug( _canceler );
 			UTask.Void( async () => {
 				await UTask.Yield( _canceler );
 				Log.Debug( 5 );
 			} );
 			Log.Debug( 6 );
+			_canceler.Cancel();
+			Log.Debug( 7 );
 			await UTask.NextFrame( _asyncCanceler );
 		} );
 
@@ -197,12 +196,13 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.NextFrame( _canceler );
 
 			Log.Debug( 4 );
-			_canceler.Cancel( false );
 			UTask.Void( async () => {
 				await UTask.NextFrame( _canceler );
 				Log.Debug( 5 );
 			} );
 			Log.Debug( 6 );
+			_canceler.Cancel();
+			Log.Debug( 7 );
 			await UTask.NextFrame( _asyncCanceler );
 		} );
 
@@ -227,12 +227,13 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.NextFrame( _canceler );
 
 			Log.Debug( 7 );
-			_canceler.Cancel( false );
 			UTask.Void( async () => {
 				await UTask.Delay( _canceler, 1000 );
 				Log.Debug( 8 );
 			} );
 			Log.Debug( 9 );
+			_canceler.Cancel();
+			Log.Debug( 10 );
 			await UTask.Delay( _asyncCanceler, 1000 );
 		} );
 
@@ -256,12 +257,13 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.NextFrame( _canceler );
 
 			Log.Debug( 7 );
-			_canceler.Cancel( false );
 			UTask.Void( async () => {
 				await UTask.Delay( _canceler, TimeSpan.FromSeconds( 1 ) );
 				Log.Debug( 8 );
 			} );
 			Log.Debug( 9 );
+			_canceler.Cancel();
+			Log.Debug( 10 );
 			await UTask.Delay( _asyncCanceler, TimeSpan.FromSeconds( 1 ) );
 		} );
 
@@ -285,12 +287,13 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.NextFrame( _canceler );
 
 			Log.Debug( 7 );
-			_canceler.Cancel( false );
 			UTask.Void( async () => {
 				await UTask.Delay( _canceler, 1000, DelayType.DeltaTime );
 				Log.Debug( 8 );
 			} );
 			Log.Debug( 9 );
+			_canceler.Cancel();
+			Log.Debug( 10 );
 			await UTask.Delay( _asyncCanceler, 1000, DelayType.DeltaTime );
 		} );
 
@@ -314,12 +317,13 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.NextFrame( _canceler );
 
 			Log.Debug( 7 );
-			_canceler.Cancel( false );
 			UTask.Void( async () => {
 				await UTask.Delay( _canceler, TimeSpan.FromSeconds( 1 ), DelayType.DeltaTime );
 				Log.Debug( 8 );
 			} );
 			Log.Debug( 9 );
+			_canceler.Cancel();
+			Log.Debug( 10 );
 			await UTask.Delay( _asyncCanceler, TimeSpan.FromSeconds( 1 ), DelayType.DeltaTime );
 		} );
 
@@ -344,12 +348,13 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.NextFrame( _canceler );
 
 			Log.Debug( 7 );
-			_canceler.Cancel( false );
 			UTask.Void( async () => {
 				await UTask.DelayFrame( _canceler, 30 );
 				Log.Debug( 8 );
 			} );
 			Log.Debug( 9 );
+			_canceler.Cancel();
+			Log.Debug( 10 );
 			await UTask.DelayFrame( _asyncCanceler, 30 );
 		} );
 
@@ -421,19 +426,12 @@ namespace SubmarineMirage.TestUTask {
 			Log.Debug( 1 );
 			UTask.Void( async () => {
 				await UTask.Delay( _canceler, 1000 );
-				_canceler.Cancel( false );
+				_canceler.Cancel();
 				Log.Debug( 2 );
 			} );
 			Log.Debug( 3 );
 			await UTask.WaitUntilCanceled( _canceler );
 			Log.Debug( 4 );
-
-			Log.Debug( 5 );
-			UTask.Void( async () => {
-				await UTask.WaitUntilCanceled( _canceler );
-				Log.Debug( 6 );
-			} );
-			Log.Debug( 7 );
 		} );
 
 
@@ -464,7 +462,6 @@ namespace SubmarineMirage.TestUTask {
 			await UTask.Delay( _asyncCanceler, 5000 );
 		} );
 
-
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestToUniTask3() => From( async () => {
@@ -492,7 +489,21 @@ namespace SubmarineMirage.TestUTask {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestToUniTask4() => From( async () => {
 			Log.Debug( 1 );
-			await TestToUniTask4Coroutine().ToUniTask( _canceler );
+			UTask.Void( async () => {
+				await UTask.Delay( _canceler, 1000 );
+				_canceler.Cancel();
+				Log.Debug( 2 );
+			} );
+			Log.Debug( 3 );
+			await _canceler.ToUniTask();
+			Log.Debug( 4 );
+		} );
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestToUniTask5() => From( async () => {
+			Log.Debug( 1 );
+			await TestToUniTask5Coroutine().ToUniTask( _canceler );
 			Log.Debug( 2 );
 
 			Log.Debug( 3 );
@@ -502,10 +513,10 @@ namespace SubmarineMirage.TestUTask {
 				Log.Debug( 4 );
 			} );
 			Log.Debug( 5 );
-			await TestToUniTask4Coroutine().ToUniTask( _canceler );
+			await TestToUniTask5Coroutine().ToUniTask( _canceler );
 			Log.Debug( 6 );
 		} );
-		IEnumerator TestToUniTask4Coroutine() {
+		IEnumerator TestToUniTask5Coroutine() {
 			Log.Debug( 10 );
 			yield return new WaitForSeconds( 1 );
 			Log.Debug( 20 );

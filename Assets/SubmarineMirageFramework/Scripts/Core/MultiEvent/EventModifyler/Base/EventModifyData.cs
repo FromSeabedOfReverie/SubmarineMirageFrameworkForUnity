@@ -16,11 +16,13 @@ namespace SubmarineMirage.MultiEvent {
 		public BaseMultiEvent<T> _owner;
 		public T _function;
 
+
 		public abstract void Run();
 
-		protected void NoEventError( string key ) {
-			throw new KeyNotFoundException( $"イベント関数が未登録 : {key}" );
-		}
+
+		protected void NoEventError( string key )
+			=> throw new KeyNotFoundException( $"イベント関数が未登録 : {key}" );
+
 
 		public override string ToString() => $"{this.GetAboutName()}()";
 	}

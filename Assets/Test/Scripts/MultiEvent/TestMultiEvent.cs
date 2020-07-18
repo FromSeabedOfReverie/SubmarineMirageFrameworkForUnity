@@ -11,11 +11,9 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using MultiEvent;
+	using UTask;
 	using Debug;
 	using Test;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class TestMultiEvent : Test {
@@ -30,8 +28,7 @@ namespace SubmarineMirage.TestMultiEvent {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestAdd() => From( TestAddSub() );
-		IEnumerator TestAddSub() {
+		public IEnumerator TestAdd() => From( async () => {
 			Log.Debug( _events );
 
 			_events.AddLast( "b", () => Log.Debug( "b" ) );
@@ -39,45 +36,22 @@ namespace SubmarineMirage.TestMultiEvent {
 			_events.AddFirst( "a", () => Log.Debug( "a" ) );
 			Log.Debug( _events );
 
-			yield break;
-		}
+			await UTask.DontWait();
+		} );
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( TestManualSub() );
-		IEnumerator TestManualSub() {
-			var count = 0;
+		public IEnumerator TestManual() => From( async () => {
 			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( "key down Add" );
-					Log.Debug( _events );
-					var i = count++;
-					_events.AddLast( $"{i}", () => Log.Debug( $"{i}" ) );
-					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Remove" );
-					Log.Debug( _events );
-					count--;
-					_events.Remove( $"{count}" );
-					Log.Debug( _events );
-				} )
+				TestMultiEventUtility.SetKey(
+					_events,
+					i => _events.AddLast( $"{i}", () => Log.Debug( $"{i}" ) )
+				),
+				Observable.EveryUpdate().Subscribe( _ => _events.Run() )
 			);
 
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose" );
-					Log.Debug( _events );
-					_events.Dispose();
-					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => !_events._isDispose ).Subscribe( _ =>
-					_events.Run()
-				)
-			);
-
-			while ( true )	{ yield return null; }
-		}
+			await UTask.Never( _asyncCanceler );
+		} );
 	}
 }

@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
@@ -17,9 +18,9 @@ namespace SubmarineMirage.MultiEvent {
 
 		public void Run() {
 			CheckDisposeError();
-			_isLock = true;
-			_events.ForEach( pair => pair.Value.Invoke() );
-			_isLock = false;
+
+			var temp = _events.Copy();
+			temp.ForEach( pair => pair.Value.Invoke() );
 		}
 	}
 }

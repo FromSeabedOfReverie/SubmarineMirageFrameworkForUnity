@@ -9,7 +9,6 @@ namespace SubmarineMirage.UTask {
 	using System.Threading;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Extension;
@@ -30,7 +29,7 @@ namespace SubmarineMirage.UTask {
 
 
 		public UTaskCanceler() {
-			_disposables.AddLast( () => Cancel( false ) );
+			_disposables.AddLast( () => CancelBody( false ) );
 			_disposables.AddLast( () => _canceler.Dispose() );
 			_disposables.AddLast( _cancelEvent );
 			_disposables.AddLast( () => {
@@ -53,9 +52,9 @@ namespace SubmarineMirage.UTask {
 		public void Dispose() => _disposables.Dispose();
 
 
-		public void Cancel( bool isReCreate = true ) {
+		void CancelBody( bool isReCreate = true ) {
 #if TestUTask
-			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( Cancel )}\n{this}" );
+			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( CancelBody )}\n{this}" );
 #endif
 			_canceler.Cancel();
 			if ( isReCreate ) {
@@ -67,10 +66,12 @@ namespace SubmarineMirage.UTask {
 #endif
 			_cancelEvent.Run();
 #if TestUTask
-			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( _children )}.{nameof( Cancel )}\n{this}" );
+			Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( _children )}.{nameof( CancelBody )}\n{this}" );
 #endif
-			_children.ForEach( c => c.Cancel( isReCreate ) );
+			_children.ForEach( c => c.CancelBody() );
 		}
+
+		public void Cancel() => CancelBody();
 
 
 		public UTaskCanceler CreateChild() {
@@ -90,9 +91,6 @@ namespace SubmarineMirage.UTask {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CancellationToken ToToken() => _canceler.Token;
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ( UniTask, CancellationTokenRegistration ) ToUniTask() => _canceler.Token.ToUniTask();
 
 		public override string ToString() => string.Join( "\n",
 			$"{nameof( UTaskCanceler )}(",

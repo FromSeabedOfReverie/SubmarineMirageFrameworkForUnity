@@ -17,11 +17,13 @@ namespace SubmarineMirage.MultiEvent {
 		EventAddType _type;
 		string _key;
 
+
 		public AddEventModifyData( EventAddType type, string key, T function ) {
 			_type = type;
 			_key = key;
 			_function = function;
 		}
+
 
 		public override void Run() {
 			var pair = new KeyValuePair<string, T>( _key, _function );
@@ -30,6 +32,7 @@ namespace SubmarineMirage.MultiEvent {
 				case EventAddType.Last:		_owner._events.Add( pair );			break;
 			}
 		}
+
 
 		public override string ToString() => $"{this.GetAboutName()}( {_type}, {_key} )";
 	}

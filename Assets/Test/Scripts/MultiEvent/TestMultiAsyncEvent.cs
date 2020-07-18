@@ -16,9 +16,6 @@ namespace SubmarineMirage.TestMultiEvent {
 	using Test;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class TestMultiAsyncEvent : Test {
 		MultiAsyncEvent _events = new MultiAsyncEvent();
 

@@ -18,12 +18,14 @@ namespace SubmarineMirage.MultiEvent {
 		EventAddType _type;
 		string _key;
 
+
 		public InsertEventModifyData( string findKey, EventAddType type, string key, T function ) {
 			_findKey = findKey;
 			_type = type;
 			_key = key;
 			_function = function;
 		}
+
 
 		public override void Run() {
 			var pair = new KeyValuePair<string, T>( _key, _function );
@@ -36,6 +38,7 @@ namespace SubmarineMirage.MultiEvent {
 			i = Mathf.Clamp( i, 0, _owner._events.Count );
 			_owner._events.Insert( i, pair );
 		}
+
 
 		public override string ToString() => $"{this.GetAboutName()}( {_findKey}, {_type}, {_key} )";
 	}

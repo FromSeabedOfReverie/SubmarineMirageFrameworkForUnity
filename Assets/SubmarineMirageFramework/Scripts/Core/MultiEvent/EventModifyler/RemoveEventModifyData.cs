@@ -14,9 +14,9 @@ namespace SubmarineMirage.MultiEvent {
 	public class RemoveEventModifyData<T> : EventModifyData<T> {
 		string _removeKey;
 
-		public RemoveEventModifyData( string removeKey ) {
-			_removeKey = removeKey;
-		}
+
+		public RemoveEventModifyData( string removeKey ) => _removeKey = removeKey;
+
 
 		public override void Run() {
 			var i = _owner._events.RemoveAll( pair => {
@@ -26,6 +26,7 @@ namespace SubmarineMirage.MultiEvent {
 			} );
 			if ( i == 0 )	{ NoEventError( _removeKey ); }
 		}
+
 
 		public override string ToString() => $"{this.GetAboutName()}( {_removeKey} )";
 	}
