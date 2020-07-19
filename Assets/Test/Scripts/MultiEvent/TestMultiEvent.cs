@@ -28,12 +28,28 @@ namespace SubmarineMirage.TestMultiEvent {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestAdd() => From( async () => {
+		public IEnumerator TestModifyler() => From( async () => {
+			TestMultiEventUtility.SetModifyler( _events, a => a );
+
+			Log.Debug( "・実行" );
+			_events.Run();
 			Log.Debug( _events );
 
-			_events.AddLast( "b", () => Log.Debug( "b" ) );
-			_events.AddLast( "c", () => Log.Debug( "c" ) );
-			_events.AddFirst( "a", () => Log.Debug( "a" ) );
+			await UTask.DontWait();
+		} );
+
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestChangeWhileRunning() => From( async () => {
+			TestMultiEventUtility.SetChangeWhileRunning( _events, a => a );
+
+			Log.Debug( "・実行 1" );
+			_events.Run();
+			Log.Debug( _events );
+
+			Log.Debug( "・実行 2" );
+			_events.Run();
 			Log.Debug( _events );
 
 			await UTask.DontWait();
@@ -44,10 +60,7 @@ namespace SubmarineMirage.TestMultiEvent {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() => From( async () => {
 			_disposables.AddLast(
-				TestMultiEventUtility.SetKey(
-					_events,
-					i => _events.AddLast( $"{i}", () => Log.Debug( $"{i}" ) )
-				),
+				TestMultiEventUtility.SetKey( _events, a => a ),
 				Observable.EveryUpdate().Subscribe( _ => _events.Run() )
 			);
 

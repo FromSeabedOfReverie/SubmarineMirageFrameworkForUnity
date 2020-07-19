@@ -9,6 +9,7 @@ namespace SubmarineMirage.MultiEvent {
 	using Cysharp.Threading.Tasks;
 	using UTask;
 	using Extension;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -16,10 +17,11 @@ namespace SubmarineMirage.MultiEvent {
 
 	public class MultiAsyncEvent : BaseMultiEvent< Func<UTaskCanceler, UniTask> > {
 		UTaskCanceler _canceler;
+		public bool _isRunning	{ get; private set; }
 
 
 		public override void Dispose() {
-			_canceler?.Dispose();
+			_canceler?.Dispose();	// _disposables.Add()だと、最初期実行登録ができない
 			base.Dispose();
 		}
 
@@ -29,12 +31,29 @@ namespace SubmarineMirage.MultiEvent {
 		public async UniTask Run( UTaskCanceler canceler ) {
 			CheckDisposeError();
 
-			using ( _canceler = canceler.CreateChild() ) {
-				var temp = _events.Copy();
-				foreach ( var pair in temp ) {
-					await pair.Value.Invoke( _canceler );
-				}
+			if ( _isRunning ) {
+				Log.Warning( $"既に実行中の為、未実行 : {this}" );
+				return;
 			}
+
+			try {
+				_isRunning = true;
+				using ( _canceler = canceler.CreateChild() ) {
+					var temp = _events.Copy();
+					foreach ( var pair in temp ) {
+						await pair.Value.Invoke( _canceler );
+					}
+				}
+			} finally {
+				_isRunning = false;
+			}
+		}
+
+
+		public override string ToString() {
+			return base.ToString().InsertLast( "\n",
+				$"    {nameof( _isRunning )} : {_isRunning}\n"
+			);
 		}
 	}
 }

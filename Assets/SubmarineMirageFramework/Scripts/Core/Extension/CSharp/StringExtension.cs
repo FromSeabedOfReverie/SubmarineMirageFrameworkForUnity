@@ -33,5 +33,26 @@ namespace SubmarineMirage.Extension {
 		public static string UnifyNewLine( this string self ) {
 			return self.Replace("\r\n", "\n").Replace( "\r", "\n" );
 		}
+		///------------------------------------------------------------------------------------------------
+		/// ● 挿入
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 挿入
+		/// </summary>
+		static string Insert( this string self, string findText, string insertText, bool isInsertFirst ) {
+			var i = self.IndexOf( findText );
+			if ( !isInsertFirst )	{ i += findText.Length; }
+			return self.Insert( i, insertText );
+		}
+		/// <summary>
+		/// ● 最初に挿入
+		/// </summary>
+		public static string InsertFirst( this string self, string findText, string insertText )
+			=> Insert( self, findText, insertText, true );
+		/// <summary>
+		/// ● 最後に挿入
+		/// </summary>
+		public static string InsertLast( this string self, string findText, string insertText )
+			=> Insert( self, findText, insertText, false );
 	}
 }

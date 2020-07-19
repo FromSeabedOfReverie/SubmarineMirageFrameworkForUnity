@@ -9,7 +9,6 @@ namespace SubmarineMirage.TestMultiEvent {
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
-	using UniRx;
 	using MultiEvent;
 	using UTask;
 	using Debug;
@@ -63,10 +62,7 @@ namespace SubmarineMirage.TestMultiEvent {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() => From( async () => {
-			_disposables.AddLast( TestMultiEventUtility.SetKey(
-				_events,
-				i => _events.AddLast( $"{i}", () => Log.Debug( $"{i}" ) )
-			) );
+			_disposables.AddLast( TestMultiEventUtility.SetKey( _events, a => a ) );
 
 			await UTask.Never( _asyncCanceler );
 		} );

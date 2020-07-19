@@ -5,12 +5,16 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestMultiEvent {
+	using System;
 	using System.Collections;
+	using System.Collections.Generic;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using UniRx;
+	using KoganeUnityLib;
 	using MultiEvent;
+	using UTask;
 	using Debug;
 	using Test;
 
@@ -27,54 +31,143 @@ namespace SubmarineMirage.TestMultiEvent {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestAdd() => From( TestAddSub() );
-		IEnumerator TestAddSub() {
-			Log.Debug( _events );
+		public IEnumerator TestSubject() => From( async () => {
+			var ss = new List< Subject<Unit> >();
+			2.Times( i => {
+				var s = new Subject<Unit>();
+				s.Subscribe( _ => Log.Debug( $"{i} a" ) );
+				s.Subscribe( _ => Log.Debug( $"{i} b" ) );
+				ss.Add( s );
+			} );
 
-			_events.AddLast( "b" ).Subscribe( _ => Log.Debug( "b" ) );
-			_events.AddLast( "c" ).Subscribe( _ => Log.Debug( "c" ) );
-			_events.AddFirst( "a" ).Subscribe( _ => Log.Debug( "a" ) );
-			Log.Debug( _events );
+			var d = Observable.EveryUpdate().Subscribe( _ => {
+				Log.Debug( "・EveryUpdate" );
+				ss.ForEach( s => s.OnNext( Unit.Default ) );
+			} );
+			await UTask.Delay( _asyncCanceler, 500 );
 
-			yield break;
-		}
+			Log.Debug( "・OnCompleted" );
+			ss.ForEach( s => s.OnCompleted() );
+			await UTask.Delay( _asyncCanceler, 500 );
+
+			Log.Debug( "・解放" );
+			d.Dispose();
+			ss.ForEach( s => s.Dispose() );
+			await UTask.Delay( _asyncCanceler, 500 );
+		} );
 
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( TestManualSub() );
-		IEnumerator TestManualSub() {
-			var count = 0;
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( "key down Add" );
+		public IEnumerator TestModifyler() => From( async () => {
+			TestMultiEventUtility.SetModifyler(
+				_events,
+				a => {
+					var s = new Subject<Unit>();
+					s.Subscribe( _ => a() );
+					return s;
+				},
+				startName => {
+					var ifName = $"{nameof( _events.InsertFirst )}";
+					Log.Debug( $"・{ifName}" );
+					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => Log.Debug( $"{ifName} 10" ) );
 					Log.Debug( _events );
-					var i = count++;
-					_events.AddLast( $"{i}" ).Subscribe( __ => Log.Debug( $"{i}" ) );
+					_events.InsertFirst( startName ).Subscribe( _ => Log.Debug( $"{ifName} 20" ) );
 					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Remove" );
+
+					var ilName = $"{nameof( _events.InsertLast )}";
+					Log.Debug( $"・{ilName}" );
+					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => Log.Debug( $"{ilName} 10" ) );
 					Log.Debug( _events );
-					count--;
-					_events.Remove( $"{count}" );
+					_events.InsertLast( startName ).Subscribe( _ => Log.Debug( $"{ilName} 20" ) );
 					Log.Debug( _events );
-				} )
+
+					var afName = $"{nameof( _events.AddFirst )}";
+					Log.Debug( $"・{afName}" );
+					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => Log.Debug( $"{afName} 10" ) );
+					Log.Debug( _events );
+					_events.AddFirst().Subscribe( _ => Log.Debug( $"{afName} 20" ) );
+					Log.Debug( _events );
+
+					var alName = $"{nameof( _events.AddLast )}";
+					Log.Debug( $"・{alName}" );
+					_events.AddLast( $"{alName} 10" ).Subscribe( _ => Log.Debug( $"{alName} 10" ) );
+					Log.Debug( _events );
+					_events.AddLast().Subscribe( _ => Log.Debug( $"{alName} 20" ) );
+					Log.Debug( _events );
+				}
 			);
 
-			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose" );
+			Log.Debug( "・実行" );
+			_events.Run();
+			Log.Debug( _events );
+
+			Log.Debug( "・解放" );
+			_events.Dispose();
+			Log.Debug( _events );
+
+			await UTask.DontWait();
+		} );
+
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestChangeWhileRunning() => From( async () => {
+			TestMultiEventUtility.SetChangeWhileRunning(
+				_events,
+				a => {
+					var s = new Subject<Unit>();
+					s.Subscribe( _ => a() );
+					return s;
+				},
+				startName => {
 					Log.Debug( _events );
-					_events.Dispose();
+
+					var ifName = $"{nameof( _events.InsertFirst )}";
+					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => Log.Debug( $"{ifName} 10" ) );
+					_events.InsertFirst( startName ).Subscribe( _ => Log.Debug( $"{ifName} 20" ) );
+
+					var ilName = $"{nameof( _events.InsertLast )}";
+					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => Log.Debug( $"{ilName} 10" ) );
+					_events.InsertLast( startName ).Subscribe( _ => Log.Debug( $"{ilName} 20" ) );
+
+					var afName = $"{nameof( _events.AddFirst )}";
+					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => Log.Debug( $"{afName} 10" ) );
+					_events.AddFirst().Subscribe( _ => Log.Debug( $"{afName} 20" ) );
+
+					var alName = $"{nameof( _events.AddLast )}";
+					_events.AddLast( $"{alName} 10" ).Subscribe( _ => Log.Debug( $"{alName} 10" ) );
+					_events.AddLast().Subscribe( _ => Log.Debug( $"{alName} 20" ) );
+
 					Log.Debug( _events );
-				} ),
-				Observable.EveryUpdate().Where( _ => !_events._isDispose ).Subscribe( _ =>
-					_events.Run()
-				)
+				}
 			);
 
-			while ( true )	{ yield return null; }
-		}
+			Log.Debug( "・実行 1" );
+			_events.Run();
+			Log.Debug( _events );
+
+			Log.Debug( "・実行 2" );
+			_events.Run();
+			Log.Debug( _events );
+
+			await UTask.DontWait();
+		} );
+
+
+		[UnityTest]
+		[Timeout( int.MaxValue )]
+		public IEnumerator TestManual() => From( async () => {
+			_disposables.AddLast(
+				TestMultiEventUtility.SetKey( _events, a => {
+					var s = new Subject<Unit>();
+					s.Subscribe( _ => a() );
+					return s;
+				} ),
+				Observable.EveryUpdate().Subscribe( _ => _events.Run() )
+			);
+
+			await UTask.Never( _asyncCanceler );
+		} );
 	}
 }
