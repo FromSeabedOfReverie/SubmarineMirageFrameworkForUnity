@@ -5,15 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestSMTask {
-	using System;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UTask;
-	using SMTask;
 	using Extension;
 	using Debug;
 	using Test;
@@ -26,111 +23,71 @@ namespace SubmarineMirage.TestSMTask {
 
 
 	public class TestSMBehaviour : Test {
-		SMBehaviour _behaviour;
+		TestSMBehaviourBody _testBody;
 		Text _text;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_behaviour = new B6();
-
-			_createEvent.AddLast( async canceler => {
-				TestSMTaskUtility.SetEvent( _behaviour );
-				await UTask.DontWait();
-			} );
+			var behaviour = new B6();
+			_testBody = new TestSMBehaviourBody( behaviour );
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _behaviour == null ) {
+				if ( behaviour == null ) {
 					_text.text = string.Empty;
 					return;
 				}
-				_text.text =
-					$"{_behaviour.GetAboutName()}(\n"
-					+ $"    {nameof( _behaviour._isInitialized )} : {_behaviour._isInitialized}\n"
-					+ $"    {nameof( _behaviour._isActive )} : {_behaviour._isActive}\n"
-					+ $"    {_behaviour._body._ranState}\n"
-					+ $"    {_behaviour._body._activeState}\n"
-					+ $"    next : {_behaviour._body._nextActiveState}\n"
-					+ $")";
+				_text.text = string.Join( "\n",
+					$"{behaviour.GetAboutName()}(",
+					$"    {nameof( behaviour._id )} : {behaviour._id}",
+					$"    {nameof( behaviour._type )} : {behaviour._type}",
+					$"    {nameof( behaviour._object._owner )} : "
+						+ $"{behaviour._object._owner}( {behaviour._object._id} )",
+					$"    {nameof( behaviour._body._ranState )} : {behaviour._body._ranState}",
+					$"    {nameof( behaviour._body._activeState )} : {behaviour._body._activeState}",
+					$"    {nameof( behaviour._body._nextActiveState )} : {behaviour._body._nextActiveState}",
+					$"    {nameof( behaviour._isInitialized )} : {behaviour._isInitialized}",
+					$"    {nameof( behaviour._isActive )} : {behaviour._isActive}",
+					")"
+				);
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
-
-			_disposables.AddLast( _behaviour );
+			_disposables.AddLast( behaviour );
 		}
 
 
-		[UnityTest]
-		public IEnumerator TestRunErrorState() => From( async () => {
-			var errorRuns = new SMTaskRanState[] {
-				SMTaskRanState.None, SMTaskRanState.Created, SMTaskRanState.Loaded, SMTaskRanState.Initialized,
-				SMTaskRanState.Finalized,
-			};
-			foreach ( var state in errorRuns ) {
-				try						{ await _behaviour.RunStateEvent( state ); }
-				catch ( Exception e )	{ Log.Error( e ); }
-			}
-		} );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestCreate() => From( () => _testBody.TestCreate() );
 
 
-		[UnityTest]
-		public IEnumerator TestRunStateEvent() => From( async () => {
-			var states = new SMTaskRanState[] {
-				SMTaskRanState.Creating, SMTaskRanState.Loading, SMTaskRanState.Initializing,
-				SMTaskRanState.FixedUpdate, SMTaskRanState.Update, SMTaskRanState.LateUpdate,
-				SMTaskRanState.Finalizing,
-			};
-			foreach( var run in states ) {
-				Log.Debug( $"request : {run}" );
-				await _behaviour.RunStateEvent( run );
-			}
-		} );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestRunErrorState() => From( () => _testBody.TestRunErrorState() );
 
 
-		[UnityTest]
-		public IEnumerator TestStopActiveAsync() => From( async () => {
-			UTask.Void( async () => {
-				await UTask.Delay( _asyncCanceler, 3000 );
-				Log.Debug( $"{nameof( _behaviour.StopActiveAsync )}" );
-				_behaviour.StopActiveAsync();
-			} );
-			try {
-				while ( true ) {
-					Log.Debug( "Runnning" );
-					await UTask.Delay( _behaviour._activeAsyncCanceler, 1000 );
-				}
-			} catch ( OperationCanceledException ) {
-			}
-			Log.Debug( $"end {nameof( TestStopActiveAsync )}" );
-		} );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestEventRun() => From( () => _testBody.TestEventRun( _testBody._behaviour ) );
 
 
-		[UnityTest]
-		public IEnumerator TestDispose() => From( async () => {
-			UTask.Void( async () => {
-				await UTask.Delay( _asyncCanceler, 3000 );
-				Log.Debug( $"{nameof( _behaviour.Dispose )}" );
-				_behaviour.Dispose();
-			} );
-			try {
-				while ( true ) {
-					Log.Debug( "Runnning" );
-					await UTask.Delay( _behaviour._activeAsyncCanceler, 1000 );
-				}
-			} catch ( OperationCanceledException ) {
-			}
-			Log.Debug( $"end {nameof( TestDispose )}" );
-		} );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestTaskType() => From( () => _testBody.TestTaskType<B4, B5, B6>() );
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( TestManualSub() );
-		IEnumerator TestManualSub() {
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour ) );
-			while ( true )	{ yield return null; }
-		}
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestStopActiveAsync() => From( () => _testBody.TestStopActiveAsync() );
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDispose() => From( () => _testBody.TestDispose<B6>() );
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDelete() => From( () => _testBody.TestDelete<B6>() );
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestManual() => From( _testBody.TestManual() );
 	}
 }

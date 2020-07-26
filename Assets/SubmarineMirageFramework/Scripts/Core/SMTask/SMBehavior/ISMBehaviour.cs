@@ -20,6 +20,7 @@ namespace SubmarineMirage.SMTask {
 
 		SMObject _object		{ get; set; }
 		SMBehaviourBody _body	{ get; }
+		uint _id				{ get; }
 		ISMBehaviour _previous	{ get; set; }
 		ISMBehaviour _next		{ get; set; }
 
@@ -39,6 +40,7 @@ namespace SubmarineMirage.SMTask {
 		UTaskCanceler _inActiveAsyncCanceler	{ get; }
 
 		void Create();
+		void DestroyObject();
 		void StopActiveAsync();
 		UniTask RunStateEvent( SMTaskRanState state );
 		UniTask ChangeActive( bool isActive );

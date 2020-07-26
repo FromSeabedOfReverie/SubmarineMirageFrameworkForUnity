@@ -39,50 +39,50 @@ namespace SubmarineMirage.TestSMTask {
 */
 		void CreateTestRunB1() {
 			_behaviour = new B1();
-			TestSMTaskUtility.SetEvent( _behaviour );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			TestSMBehaviourUtility.SetEvent( _behaviour );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 		}
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunB1() => From( RunForever() );
 
 		void CreateTestRunB2() {
 			_behaviour = new B2();
-			TestSMTaskUtility.SetEvent( _behaviour );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			TestSMBehaviourUtility.SetEvent( _behaviour );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 		}
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunB2() => From( RunForever() );
 		
 		void CreateTestRunB3() {
 			_behaviour = new B3();
-			TestSMTaskUtility.SetEvent( _behaviour );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			TestSMBehaviourUtility.SetEvent( _behaviour );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 		}
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunB3() => From( RunForever() );
 
 
 		void CreateTestRunM1()
-			=> _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"false, M1" );
+			=> _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"false, M1" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunM1() => From( TestRunM1Sub() );
 		IEnumerator TestRunM1Sub() {
-			TestSMTaskUtility.SetEvent( _behaviour );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			TestSMBehaviourUtility.SetEvent( _behaviour );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
 		void CreateTestRunM2()
-			=> _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"false, M2" );
+			=> _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"false, M2" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunM2() => From( TestRunM2Sub() );
 		IEnumerator TestRunM2Sub() {
-			TestSMTaskUtility.SetEvent( _behaviour );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			TestSMBehaviourUtility.SetEvent( _behaviour );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 		
 		void CreateTestRunM3()
-			=> _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"true, M3" );
+			=> _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"true, M3" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunM3() => From( TestRunM3Sub() );
 		IEnumerator TestRunM3Sub() {
-			TestSMTaskUtility.SetEvent( _behaviour );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			TestSMBehaviourUtility.SetEvent( _behaviour );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
@@ -104,33 +104,33 @@ namespace SubmarineMirage.TestSMTask {
 
 		イベント実行中、活動状態変更の、兼ね合いテスト
 */
-		void CreateTestRunBrothers1() => _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+		void CreateTestRunBrothers1() => _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 			true, M1, M4,
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunBrothers1() => From( TestRunBrothers1Sub() );
 		IEnumerator TestRunBrothers1Sub() {
-			_behaviour._object.GetBehaviours().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			_behaviour._object.GetBehaviours().ForEach( b => TestSMBehaviourUtility.SetEvent( b ) );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
-		void CreateTestRunBrothers2() => _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+		void CreateTestRunBrothers2() => _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 			true, M1, M2, M2,
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunBrothers2() => From( TestRunBrothers2Sub() );
 		IEnumerator TestRunBrothers2Sub() {
-			_behaviour._object.GetBehaviours().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			_behaviour._object.GetBehaviours().ForEach( b => TestSMBehaviourUtility.SetEvent( b ) );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
-		void CreateTestRunBrothers3() => _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+		void CreateTestRunBrothers3() => _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 			true, M1, M2, M3,
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunBrothers3() => From( TestRunBrothers3Sub() );
 		IEnumerator TestRunBrothers3Sub() {
-			_behaviour._object.GetBehaviours().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			_behaviour._object.GetBehaviours().ForEach( b => TestSMBehaviourUtility.SetEvent( b ) );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
@@ -154,39 +154,42 @@ namespace SubmarineMirage.TestSMTask {
 
 		イベント実行中、活動状態変更の、兼ね合いテスト
 */
-		void CreateTestRunChildren1() => _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+		void CreateTestRunChildren1() => _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 			true, M1, M1,
 				M1, M1,
 					M1, M1,
 		");
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren1() => From( TestRunChildren1Sub() );
 		IEnumerator TestRunChildren1Sub() {
-			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b =>
+				TestSMBehaviourUtility.SetEvent( b ) );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
-		void CreateTestRunChildren2() => _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+		void CreateTestRunChildren2() => _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 			true, M1, M1,
 				M2, M2,
 					M2, M2,
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren2() => From( TestRunChildren2Sub() );
 		IEnumerator TestRunChildren2Sub() {
-			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b =>
+				TestSMBehaviourUtility.SetEvent( b ) );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
-		void CreateTestRunChildren3() => _behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+		void CreateTestRunChildren3() => _behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 			false, M1, M1,
 				M2, M2,
 					M3, M3,
 		" );
 		[UnityTest] [Timeout( int.MaxValue )] public IEnumerator TestRunChildren3() => From( TestRunChildren3Sub() );
 		IEnumerator TestRunChildren3Sub() {
-			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour._object ) );
+			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b =>
+				TestSMBehaviourUtility.SetEvent( b ) );
+			_disposables.AddLast( TestSMObjectUtility.SetRunKey( _behaviour._object ) );
 			yield return RunForever();
 		}
 
@@ -224,7 +227,7 @@ namespace SubmarineMirage.TestSMTask {
 					→	d',e, d'	不可
 */
 		void CreateTestRunByActiveState1() {
-			_behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+			_behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 				true, M1, M1,
 					true, M1, M1,
 			" );
@@ -232,16 +235,17 @@ namespace SubmarineMirage.TestSMTask {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRunByActiveState1() => From( TestRunByActiveState1Sub() );
 		IEnumerator TestRunByActiveState1Sub() {
-			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
+			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b =>
+				TestSMBehaviourUtility.SetEvent( b ) );
 			_disposables.AddLast(
-				TestSMTaskUtility.SetRunKey( _behaviour._object ),
-				TestSMTaskUtility.SetChangeActiveKey( _behaviour._object._child )
+				TestSMObjectUtility.SetRunKey( _behaviour._object ),
+				TestSMObjectUtility.SetChangeActiveKey( _behaviour._object._child )
 			);
 			yield return RunForever();
 		}
 
 		void CreateTestRunByActiveState2() {
-			_behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+			_behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 				true, M2, M2,
 					true, M2, M2,
 			" );
@@ -249,16 +253,17 @@ namespace SubmarineMirage.TestSMTask {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRunByActiveState2() => From( TestRunByActiveState2Sub() );
 		IEnumerator TestRunByActiveState2Sub() {
-			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
+			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b =>
+				TestSMBehaviourUtility.SetEvent( b ) );
 			_disposables.AddLast(
-				TestSMTaskUtility.SetRunKey( _behaviour._object ),
-				TestSMTaskUtility.SetChangeActiveKey( _behaviour._object._child )
+				TestSMObjectUtility.SetRunKey( _behaviour._object ),
+				TestSMObjectUtility.SetChangeActiveKey( _behaviour._object._child )
 			);
 			yield return RunForever();
 		}
 
 		void CreateTestRunByActiveState3() {
-			_behaviour = TestSMTaskUtility.CreateSMMonoBehaviour( @"
+			_behaviour = TestSMBehaviourUtility.CreateBehaviours( @"
 				true, M3, M3,
 					true, M3, M3,
 			" );
@@ -266,10 +271,11 @@ namespace SubmarineMirage.TestSMTask {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRunByActiveState3() => From( TestRunByActiveState3Sub() );
 		IEnumerator TestRunByActiveState3Sub() {
-			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b => TestSMTaskUtility.SetEvent( b ) );
+			_behaviour._object.GetBehavioursInChildren<ISMBehaviour>().ForEach( b =>
+				TestSMBehaviourUtility.SetEvent( b ) );
 			_disposables.AddLast(
-				TestSMTaskUtility.SetRunKey( _behaviour._object ),
-				TestSMTaskUtility.SetChangeActiveKey( _behaviour._object._child )
+				TestSMObjectUtility.SetRunKey( _behaviour._object ),
+				TestSMObjectUtility.SetChangeActiveKey( _behaviour._object._child )
 			);
 			yield return RunForever();
 		}

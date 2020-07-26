@@ -38,7 +38,7 @@ namespace SubmarineMirage.TestSMTask {
 //			go.SetActive( false );
 
 			_createEvent.AddLast( async canceler => {
-				TestSMTaskUtility.SetEvent( _behaviour );
+				TestSMBehaviourUtility.SetEvent( _behaviour );
 				await UTask.DontWait();
 			} );
 
@@ -136,7 +136,7 @@ namespace SubmarineMirage.TestSMTask {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() => From( TestManualSub() );
 		IEnumerator TestManualSub() {
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour ) );
+			_disposables.AddLast( TestSMBehaviourUtility.SetRunKey( _behaviour ) );
 			while ( true )	{ yield return null; }
 		}
 	}

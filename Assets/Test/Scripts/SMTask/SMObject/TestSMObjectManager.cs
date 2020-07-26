@@ -95,7 +95,7 @@ namespace SubmarineMirage.TestSMTask {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() => From( TestManualSub() );
 		IEnumerator TestManualSub() {
-			_disposables.AddLast( TestSMTaskUtility.SetRunKey( _behaviour ) );
+			_disposables.AddLast( TestSMBehaviourUtility.SetRunKey( _behaviour ) );
 
 			var i = 0;
 			_disposables.AddLast(

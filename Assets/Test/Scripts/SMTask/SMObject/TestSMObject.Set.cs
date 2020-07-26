@@ -59,7 +59,7 @@ namespace SubmarineMirage.TestSMTask {
 		_ownerちゃんと設定？
 		_behaviour、複数もちゃんと設定？
 */
-		void CreateTestMultiVariable() => TestSMTaskUtility.CreateSMMonoBehaviour( @"
+		void CreateTestMultiVariable() => TestSMBehaviourUtility.CreateBehaviours( @"
 			M1, M1, M1,
 			M2, M2, M2,
 			M3, M3, M3,
@@ -93,7 +93,7 @@ namespace SubmarineMirage.TestSMTask {
 		SetupParent、SetupChildren、SetupBehaviours、それぞれ1回だけ呼ばれる？
 		SetupTop、親子階層含めて、1回だけ呼ばれる？
 */
-		void CreateTestObject() => TestSMTaskUtility.CreateSMMonoBehaviour(
+		void CreateTestObject() => TestSMBehaviourUtility.CreateBehaviours(
 #if false
 		@"
 			M1,

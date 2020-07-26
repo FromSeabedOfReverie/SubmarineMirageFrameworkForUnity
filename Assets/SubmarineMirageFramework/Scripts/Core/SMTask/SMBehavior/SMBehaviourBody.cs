@@ -18,11 +18,15 @@ namespace SubmarineMirage.SMTask {
 
 
 	public class SMBehaviourBody : IDisposableExtension {
-		public SMTaskRanState _ranState	{ get; private set; }
-		public SMTaskActiveState _activeState	{ get; private set; }
+		static uint s_idCount;
+		public uint _id			{ get; private set; }
+
+		public SMTaskRanState _ranState				{ get; private set; }
+		public SMTaskActiveState _activeState		{ get; private set; }
 		public SMTaskActiveState? _nextActiveState	{ get; private set; }
-		public bool _isInitialized => _ranState >= SMTaskRanState.Initialized;
-		public bool _isActive => _activeState == SMTaskActiveState.Enabled;
+
+		public bool _isInitialized =>	_ranState >= SMTaskRanState.Initialized;
+		public bool _isActive =>		_activeState == SMTaskActiveState.Enabled;
 
 		ISMBehaviour _owner;
 
@@ -42,6 +46,8 @@ namespace SubmarineMirage.SMTask {
 
 
 		public SMBehaviourBody( ISMBehaviour owner, SMTaskActiveState nextActiveState ) {
+			_id = ++s_idCount;
+
 			_owner = owner;
 			_nextActiveState = nextActiveState;
 
@@ -62,8 +68,9 @@ namespace SubmarineMirage.SMTask {
 			_disposables.AddLast( () => UnLink() );
 #if TestSMTask
 			_disposables.AddLast( () =>
-				Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( Dispose )} : {_owner.GetAboutName()}" )
+				Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( Dispose )} : {this}" )
 			);
+			Log.Debug( $"{nameof( SMBehaviourBody )}() : {this}" );
 #endif
 		}
 
@@ -72,10 +79,16 @@ namespace SubmarineMirage.SMTask {
 		public void Dispose() => _disposables.Dispose();
 
 		void UnLink() {
+#if TestSMTask
+			Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( UnLink )} : start\n{_owner}" );
+#endif
 			if ( _owner._previous != null )	{ _owner._previous._next = _owner._next; }
 			if ( _owner._next != null )		{ _owner._next._previous = _owner._previous; }
 			_owner._previous = null;
 			_owner._next = null;
+#if TestSMTask
+			Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( UnLink )} : end\n{_owner}" );
+#endif
 		}
 
 
@@ -88,7 +101,9 @@ namespace SubmarineMirage.SMTask {
 					if ( _activeState != SMTaskActiveState.Disabled )	{ return; }
 					switch ( _ranState ) {
 						case SMTaskRanState.None:
-							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
+#if TestSMTask
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}\n{this}" );
+#endif
 							_ranState = SMTaskRanState.Creating;
 							try {
 // TODO : awaitが不要な事を、FSM等実装後に確認後、状態をCreateのみに、修正
@@ -109,7 +124,9 @@ namespace SubmarineMirage.SMTask {
 					if ( _nextActiveState != SMTaskActiveState.Enabling )	{ return; }
 					switch ( _ranState ) {
 						case SMTaskRanState.Created:
-							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
+#if TestSMTask
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}\n{this}" );
+#endif
 							_ranState = SMTaskRanState.Loading;
 							try {
 								await _loadEvent.Run( _activeAsyncCanceler );
@@ -128,7 +145,9 @@ namespace SubmarineMirage.SMTask {
 					if ( _nextActiveState != SMTaskActiveState.Enabling )	{ return; }
 					switch ( _ranState ) {
 						case SMTaskRanState.Loaded:
-							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
+#if TestSMTask
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}\n{this}" );
+#endif
 							_ranState = SMTaskRanState.Initializing;
 							try {
 								await _initializeEvent.Run( _activeAsyncCanceler );
@@ -154,7 +173,9 @@ namespace SubmarineMirage.SMTask {
 						case SMTaskRanState.FixedUpdate:
 						case SMTaskRanState.Update:
 						case SMTaskRanState.LateUpdate:
-							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
+#if TestSMTask
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}\n{this}" );
+#endif
 							_fixedUpdateEvent.Run();
 							return;
 					}
@@ -172,7 +193,9 @@ namespace SubmarineMirage.SMTask {
 					switch ( _ranState ) {
 						case SMTaskRanState.Update:
 						case SMTaskRanState.LateUpdate:
-							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
+#if TestSMTask
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}\n{this}" );
+#endif
 							_updateEvent.Run();
 							return;
 					}
@@ -189,7 +212,9 @@ namespace SubmarineMirage.SMTask {
 					}
 					switch ( _ranState ) {
 						case SMTaskRanState.LateUpdate:
-							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
+#if TestSMTask
+							Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}\n{this}" );
+#endif
 							_lateUpdateEvent.Run();
 							return;
 					}
@@ -209,8 +234,12 @@ namespace SubmarineMirage.SMTask {
 						case SMTaskRanState.FixedUpdate:
 						case SMTaskRanState.Update:
 						case SMTaskRanState.LateUpdate:
-							Log.Debug(
-								$"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state} : check disable" );
+#if TestSMTask
+							Log.Debug( string.Join( "\n",
+								$"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state} : check disable",
+								$"{this}"
+							) );
+#endif
 							await ChangeActive( false );
 							break;
 					}
@@ -224,7 +253,9 @@ namespace SubmarineMirage.SMTask {
 					// 非同期停止時に、catchで状態が変わる為、1フレーム待機
 					await UTask.NextFrame( _inActiveAsyncCanceler );
 					_ranState = SMTaskRanState.Finalizing;
-					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}" );
+#if TestSMTask
+					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunStateEvent)} : {state}\n{this}" );
+#endif
 					switch ( lastRanState ) {
 						case SMTaskRanState.Loading:
 						case SMTaskRanState.Loaded:
@@ -297,7 +328,12 @@ namespace SubmarineMirage.SMTask {
 
 			switch ( _nextActiveState ) {
 				case SMTaskActiveState.Enabling:
-					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState} : call" );
+#if TestSMTask
+					Log.Debug( string.Join( "\n",
+						$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState} : call",
+						$"{this}"
+					) );
+#endif
 					switch ( _activeState ) {
 						case SMTaskActiveState.Enabling:
 							_nextActiveState = null;
@@ -324,8 +360,10 @@ namespace SubmarineMirage.SMTask {
 								return;
 							}
 							if ( !_isInitialized ) { return; }
+#if TestSMTask
 							Log.Debug(
-								$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState}" );
+								$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState}\n{this}" );
+#endif
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Enabling;
 							try {
@@ -340,7 +378,12 @@ namespace SubmarineMirage.SMTask {
 					return;
 
 				case SMTaskActiveState.Disabling:
-					Log.Debug( $"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState} : call" );
+#if TestSMTask
+					Log.Debug( string.Join( "\n",
+						$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState} : call",
+						$"{this}"
+					) );
+#endif
 					switch ( _activeState ) {
 						case SMTaskActiveState.Disabling:
 							_nextActiveState = null;
@@ -360,8 +403,10 @@ namespace SubmarineMirage.SMTask {
 
 						case SMTaskActiveState.Enabled:
 							StopActiveAsync();
+#if TestSMTask
 							Log.Debug(
-								$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState}" );
+								$"{_owner.GetAboutName()}.{nameof(RunActiveEvent)} : {_nextActiveState}\n{this}" );
+#endif
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Disabling;
 							try {
@@ -383,6 +428,45 @@ namespace SubmarineMirage.SMTask {
 		}
 
 
-		public override string ToString() => this.ToDeepString();
+
+		public override string ToString() {
+			var result = string.Join( "\n",
+				$"    {nameof( SMBehaviourBody )}(",
+				$"        {nameof( _id )} : {_id} / {s_idCount}",
+				$"        {nameof( _owner )} : {_owner.GetAboutName()}( {_owner._id} )",
+				$"        {nameof( _ranState )} : {_ranState}",
+				$"        {nameof( _activeState )} : {_activeState}",
+				$"        {nameof( _nextActiveState )} : {_nextActiveState}",
+				$"        {nameof( _isInitialized )} : {_isInitialized}",
+				$"        {nameof( _isActive )} : {_isActive}",
+				"\n"
+			);
+
+			var isCancel = _activeAsyncCanceler._disposables._isDispose
+				? true
+				: _activeAsyncCanceler.ToToken().IsCancellationRequested;
+			result += $"        {nameof( _activeAsyncCanceler )}.Cancel : {isCancel}\n";
+
+			isCancel = _inActiveAsyncCanceler._disposables._isDispose
+				? true
+				: _inActiveAsyncCanceler.ToToken().IsCancellationRequested;
+			result += $"        {nameof( _inActiveAsyncCanceler )}.Cancel : {isCancel}\n";
+
+			result += string.Join( "\n",
+				$"        {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
+				"",
+				$"        {nameof( _loadEvent )}._isRunning : {_loadEvent._isRunning}",
+				$"        {nameof( _initializeEvent )}._isRunning : {_initializeEvent._isRunning}",
+				$"        {nameof( _enableEvent )}._isRunning : {_enableEvent._isRunning}",
+				$"        {nameof( _fixedUpdateEvent )}.Count : {_fixedUpdateEvent._events.Count}",
+				$"        {nameof( _updateEvent )}.Count : {_updateEvent._events.Count}",
+				$"        {nameof( _lateUpdateEvent )}.Count : {_lateUpdateEvent._events.Count}",
+				$"        {nameof( _disableEvent )}._isRunning : {_disableEvent._isRunning}",
+				$"        {nameof( _finalizeEvent )}._isRunning : {_finalizeEvent._isRunning}",
+				"    )"
+			);
+
+			return result;
+		}
 	}
 }

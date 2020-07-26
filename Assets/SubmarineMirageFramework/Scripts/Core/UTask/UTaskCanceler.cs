@@ -92,6 +92,7 @@ namespace SubmarineMirage.UTask {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CancellationToken ToToken() => _canceler.Token;
 
+
 		public override string ToString() => string.Join( "\n",
 			$"{nameof( UTaskCanceler )}(",
 			$"    IsCancel : {_canceler.IsCancellationRequested}",

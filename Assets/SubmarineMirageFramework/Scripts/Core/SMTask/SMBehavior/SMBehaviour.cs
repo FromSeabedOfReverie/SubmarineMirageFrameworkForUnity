@@ -20,8 +20,9 @@ namespace SubmarineMirage.SMTask {
 
 		public SMObject _object			{ get; set; }
 		public SMBehaviourBody _body	{ get; protected set; }
-		public ISMBehaviour _previous	{ get; set; }
-		public ISMBehaviour _next		{ get; set; }
+		public uint _id => _body?._id ?? 0;
+		public ISMBehaviour _previous	{ get; set; }	// 常に無
+		public ISMBehaviour _next		{ get; set; }	// 常に無
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isActive		=> _body._isActive;
@@ -52,16 +53,13 @@ namespace SubmarineMirage.SMTask {
 
 		public abstract void Create();
 
+		public void DestroyObject() => _object.Destroy();
 
 		public void StopActiveAsync() => _body.StopActiveAsync();
 
 
-		public void DestroyObject() => _object.Destroy();
-
-
 		public async UniTask RunStateEvent( SMTaskRanState state )
 			=> await _body.RunStateEvent( state );
-
 
 		public async UniTask ChangeActive( bool isActive )
 			=> await _body.ChangeActive( isActive );
@@ -70,7 +68,19 @@ namespace SubmarineMirage.SMTask {
 			=> await _body.RunActiveEvent();
 
 
-		public override string ToString()
-			=> $"{this.GetAboutName()}( {_type}, {_lifeSpan} )";
+		public override string ToString() => string.Join( "\n",
+			$"{this.GetAboutName()}(",
+			$"    {nameof( _type )} : {_type}",
+			$"    {nameof( _lifeSpan )} : {_lifeSpan}",
+			string.Join( "",
+				$"    {nameof( _object._owner )} : ",
+				$"{( _object._owner != null ? _object._owner.ToString() : "null" )}",
+				$"( {_object._id} )"
+			),
+			$"    {nameof( _previous )} : {_previous?._id}",
+			$"    {nameof( _next )} : {_next?._id}",
+			$"    {nameof( _body )} : {_body}",
+			")"
+		);
 	}
 }

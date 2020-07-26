@@ -24,6 +24,7 @@ namespace SubmarineMirage.SMTask {
 
 		public SMObject _object			{ get; set; }
 		public SMBehaviourBody _body	{ get; private set; }
+		public uint _id => _body?._id ?? 0;
 		public ISMBehaviour _previous	{ get; set; }
 		public ISMBehaviour _next		{ get; set; }
 
@@ -61,8 +62,20 @@ namespace SubmarineMirage.SMTask {
 
 		public abstract void Create();
 
+		public void DestroyObject() => _object.Destroy();
 
 		public void StopActiveAsync() => _body.StopActiveAsync();
+
+
+		public async UniTask RunStateEvent( SMTaskRanState state )
+			=> await _body.RunStateEvent( state );
+
+		public async UniTask ChangeActive( bool isActive )
+			=> await _body.ChangeActive( isActive );
+
+		public async UniTask RunActiveEvent()
+			=> await _body.RunActiveEvent();
+
 
 
 		public T GetBehaviour<T>() where T : SMMonoBehaviour
@@ -111,7 +124,6 @@ namespace SubmarineMirage.SMTask {
 
 
 
-
 		public T AddBehaviour<T>() where T : SMMonoBehaviour
 			=> _object.AddBehaviour<T>();
 
@@ -119,28 +131,22 @@ namespace SubmarineMirage.SMTask {
 			=> _object.AddBehaviour( type );
 
 
-		public void DestroyObject()
-			=> _object.Destroy();
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays )
 			=> _object.ChangeParent( parent, isWorldPositionStays );
 
 
-
-
-		public async UniTask RunStateEvent( SMTaskRanState state )
-			=> await _body.RunStateEvent( state );
-
-
-		public async UniTask ChangeActive( bool isActive )
-			=> await _body.ChangeActive( isActive );
-
-		public async UniTask RunActiveEvent()
-			=> await _body.RunActiveEvent();
-
-
-		public override string ToString()
-			=> $"{this.GetAboutName()}( {_type}, {_lifeSpan}, {_object._owner} )";
+		public override string ToString() => string.Join( "\n",
+			$"{this.GetAboutName()}(",
+			$"    {nameof( _id )} : {_id}",
+			$"    {nameof( _type )} : {_type}",
+			$"    {nameof( _lifeSpan )} : {_lifeSpan}",
+			$"    {nameof( _object._owner )} : {_object._owner}( {_object._id} )",
+			$"    {nameof( _body )} : {_body}",
+			$"    {nameof( _previous )} : {_previous?._id}",
+			$"    {nameof( _next )} : {_next?._id}",
+			")"
+		);
 
 
 #if DEVELOP
