@@ -15,7 +15,6 @@ namespace SubmarineMirage.TestSMTask {
 	using MultiEvent;
 	using UTask;
 	using SMTask;
-	using SMTask.Modifyler;
 	using Extension;
 	using Debug;
 
@@ -137,38 +136,38 @@ namespace SubmarineMirage.TestSMTask {
 			var id = behaviour._id;
 
 			behaviour._loadEvent.AddLast( async canceler => {
-				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
+				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._loadEvent )}\n{behaviour}" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._loadEvent )}" );
+				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._loadEvent )}\n{behaviour}" );
 			} );
 			behaviour._initializeEvent.AddLast( async canceler => {
-				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
+				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._initializeEvent )}\n{behaviour}" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._initializeEvent )}" );
+				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._initializeEvent )}\n{behaviour}" );
 			} );
 			behaviour._enableEvent.AddLast( async canceler => {
-				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
+				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._enableEvent )}\n{behaviour}" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._enableEvent )}" );
+				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._enableEvent )}\n{behaviour}" );
 			} );
 			behaviour._fixedUpdateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( $"{name}( {id} ).{nameof( behaviour._fixedUpdateEvent )}" );
+				Log.Debug( $"{name}( {id} ).{nameof( behaviour._fixedUpdateEvent )}\n{behaviour}" );
 			} );
 			behaviour._updateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( $"{name}( {id} ).{nameof( behaviour._updateEvent )}" );
+				Log.Debug( $"{name}( {id} ).{nameof( behaviour._updateEvent )}\n{behaviour}" );
 			} );
 			behaviour._lateUpdateEvent.AddLast().Subscribe( _ => {
-				Log.Debug( $"{name}( {id} ).{nameof( behaviour._lateUpdateEvent )}" );
+				Log.Debug( $"{name}( {id} ).{nameof( behaviour._lateUpdateEvent )}\n{behaviour}" );
 			} );
 			behaviour._disableEvent.AddLast( async canceler => {
-				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
+				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._disableEvent )}\n{behaviour}" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._disableEvent )}" );
+				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._disableEvent )}\n{behaviour}" );
 			} );
 			behaviour._finalizeEvent.AddLast( async canceler => {
-				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
+				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._finalizeEvent )}\n{behaviour}" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._finalizeEvent )}" );
+				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._finalizeEvent )}\n{behaviour}" );
 			} );
 		}
 

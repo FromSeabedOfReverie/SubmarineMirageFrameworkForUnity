@@ -68,19 +68,6 @@ namespace SubmarineMirage.SMTask {
 			=> await _body.RunActiveEvent();
 
 
-		public override string ToString() => string.Join( "\n",
-			$"{this.GetAboutName()}(",
-			$"    {nameof( _type )} : {_type}",
-			$"    {nameof( _lifeSpan )} : {_lifeSpan}",
-			string.Join( "",
-				$"    {nameof( _object._owner )} : ",
-				$"{( _object._owner != null ? _object._owner.ToString() : "null" )}",
-				$"( {_object._id} )"
-			),
-			$"    {nameof( _previous )} : {_previous?._id}",
-			$"    {nameof( _next )} : {_next?._id}",
-			$"    {nameof( _body )} : {_body}",
-			")"
-		);
+		public override string ToString() => _body.ToString( this );
 	}
 }

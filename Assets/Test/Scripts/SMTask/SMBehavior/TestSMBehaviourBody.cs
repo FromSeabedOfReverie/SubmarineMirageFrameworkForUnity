@@ -8,9 +8,9 @@ namespace SubmarineMirage.TestSMTask {
 	using System;
 	using System.Linq;
 	using System.Collections;
+	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using UTask;
 	using MultiEvent;
 	using SMTask;
@@ -24,15 +24,37 @@ namespace SubmarineMirage.TestSMTask {
 
 
 	public class TestSMBehaviourBody : IDisposableExtension {
-		public ISMBehaviour _behaviour		{ get; private set; }
+		ISMBehaviour _viewBehaviour;
+		public string _viewText	{ get; private set; }
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-
-		public TestSMBehaviourBody( ISMBehaviour behaviour ) {
-			_behaviour = behaviour;
-			TestSMBehaviourUtility.SetEvent( _behaviour );
-			_disposables.AddLast( _behaviour );
+		public TestSMBehaviourBody() {
+			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
+				if ( _viewBehaviour == null ) {
+					_viewText = string.Empty;
+					return;
+				}
+				_viewText = string.Join( "\n",
+					$"{_viewBehaviour.GetAboutName()}(",
+					$"    {nameof( _viewBehaviour._id )} : {_viewBehaviour._id}",
+					$"    {nameof( _viewBehaviour._type )} : {_viewBehaviour._type}",
+					$"    {nameof( _viewBehaviour._object._owner )} : "
+						+ $"{_viewBehaviour._object._owner}( {_viewBehaviour._object._id} )",
+					$"    {nameof( _viewBehaviour._body._ranState )} : {_viewBehaviour._body._ranState}",
+					$"    {nameof( _viewBehaviour._body._activeState )} : {_viewBehaviour._body._activeState}",
+					$"    {nameof( _viewBehaviour._body._nextActiveState )} : "
+						+ $"{_viewBehaviour._body._nextActiveState}",
+					$"    {nameof( _viewBehaviour._isInitialized )} : {_viewBehaviour._isInitialized}",
+					$"    {nameof( _viewBehaviour._isActive )} : {_viewBehaviour._isActive}"
+				);
+				if ( _viewBehaviour is MonoBehaviourExtension ) {
+					var mb = (MonoBehaviourExtension)_viewBehaviour;
+					_viewText += $"\n    {nameof( mb.isActiveAndEnabled )} : {mb.isActiveAndEnabled}\n";
+				}
+				_viewText += "\n)";
+			} ) );
+			_disposables.AddLast( () => _viewText = string.Empty );
 		}
 
 		public void Dispose() => _disposables.Dispose();
@@ -40,13 +62,52 @@ namespace SubmarineMirage.TestSMTask {
 		~TestSMBehaviourBody() => Dispose();
 
 
+		ISMBehaviour CreateBehaviour( Type type, bool isGameObjectActive = true, bool isComponentEnabled = true ) {
+			if ( type.IsInheritance<MonoBehaviourExtension>() ) {
+				var go = new GameObject( $"{type.Name}" );
+				go.SetActive( isGameObjectActive );
+				var mb = (SMMonoBehaviour)go.AddComponent( type );
+				mb.enabled = isComponentEnabled;
+				new SMObject( go, new ISMBehaviour[] { mb }, null );
+				return _viewBehaviour = mb;
+			}
+			return _viewBehaviour = type.Create<ISMBehaviour>();
+		}
+
+		ISMBehaviour CreateBehaviour<T>( bool isGameObjectActive = true, bool isComponentEnabled = true )
+			=> CreateBehaviour( typeof( T ), isGameObjectActive, isComponentEnabled );
+
+
 /*
 		・作成テスト
 		_id、設定された？
 		文章表示、ちゃんとできてる？
 */
-		public async UniTask TestCreate() {
-			Log.Debug( $"Create : {_behaviour}" );
+		public async UniTask TestCreate<T>() {
+			var behaviour = CreateBehaviour<T>();
+			Log.Debug( $"Create : {behaviour}" );
+			behaviour.Dispose();
+			await UTask.DontWait();
+		}
+
+/*
+		・作成テスト
+		_id、設定された？
+		文章表示、ちゃんとできてる？
+*/
+		public async UniTask TestCreateMono<T>() {
+			using ( var b = (SMMonoBehaviour)CreateBehaviour<T>( true, true ) ) {
+				Log.Debug( $"Create : Active, Enable\n{b}" );
+			}
+			using ( var b = (SMMonoBehaviour)CreateBehaviour<T>( false, true ) ) {
+				Log.Debug( $"Create : InActive, Enable\n{b}" );
+			}
+			using ( var b = (SMMonoBehaviour)CreateBehaviour<T>( true, false ) ) {
+				Log.Debug( $"Create : Active, Disable\n{b}" );
+			}
+			using ( var b = (SMMonoBehaviour)CreateBehaviour<T>( false, false ) ) {
+				Log.Debug( $"Create : InActive, Disable\n{b}" );
+			}
 			await UTask.DontWait();
 		}
 
@@ -55,15 +116,17 @@ namespace SubmarineMirage.TestSMTask {
 		・仕事実行時のエラーテスト
 		RunStateEvent、違う型の場合、ちゃんとエラー出る？
 */
-		public async UniTask TestRunErrorState() {
-			var errorRuns = new SMTaskRanState[] {
+		public async UniTask TestRunErrorState<T>() {
+			var behaviour = CreateBehaviour<T>();
+			var errorRunStates = new SMTaskRanState[] {
 				SMTaskRanState.None, SMTaskRanState.Created, SMTaskRanState.Loaded, SMTaskRanState.Initialized,
 				SMTaskRanState.Finalized,
 			};
-			foreach ( var state in errorRuns ) {
-				try						{ await _behaviour.RunStateEvent( state ); }
+			foreach ( var state in errorRunStates ) {
+				try						{ await behaviour.RunStateEvent( state ); }
 				catch ( Exception e )	{ Log.Error( e ); }
 			}
+			behaviour.Dispose();
 		}
 
 
@@ -73,7 +136,7 @@ namespace SubmarineMirage.TestSMTask {
 		_enableEvent、_disableEvent、ちゃんと機能する？
 		RunActiveEvent、初回時のみ、ちゃんと機能する？
 */
-		public async UniTask TestEventRun( ISMBehaviour behaviour ) {
+		async UniTask TestEventRun( ISMBehaviour behaviour ) {
 			Log.Debug( $"request : {SMTaskRanState.Creating}" );
 			await behaviour.RunStateEvent( SMTaskRanState.Creating );
 
@@ -113,15 +176,16 @@ namespace SubmarineMirage.TestSMTask {
 		public async UniTask TestTaskType<T1, T2, T3>() {
 			var behaviourTypes = new Type[] { typeof( T1 ), typeof( T2 ), typeof( T3 ) };
 			var behaviours = behaviourTypes.Select( t => {
-				var b = t.Create<ISMBehaviour>();
+				var b = CreateBehaviour( t );
 				TestSMBehaviourUtility.SetEvent( b );
 				return b;
 			} );
+
 			foreach( var b in behaviours ) {
 				Log.Debug( $"・TestEventRun : {b._type}" );
 				await TestEventRun( b );
+				b.Dispose();
 			}
-			behaviours.ForEach( b => b.Dispose() );
 		}
 
 
@@ -129,78 +193,80 @@ namespace SubmarineMirage.TestSMTask {
 		・非同期処理の停止テスト
 		StopActiveAsync、機能する？
 */
-		public async UniTask TestStopActiveAsync() {
-			Log.Debug( $"start : {nameof( TestStopActiveAsync )}" );
+		public async UniTask TestStopActiveAsync<T>() {
+			var behaviour = CreateBehaviour<T>();
+			TestSMBehaviourUtility.SetEvent( behaviour );
+			var canceler = new UTaskCanceler();
 
-			var stopActiveAsync = new Action<int>( i => UTask.Void( async () => {
-				await UTask.Delay( _behaviour._activeAsyncCanceler, i );
-				Log.Debug( $"{nameof( _behaviour.StopActiveAsync )}" );
-				_behaviour.StopActiveAsync();
+			var stopActiveAsync = new Action<int>( waitSecond => UTask.Void( async () => {
+				await UTask.Delay( canceler, waitSecond );
+				Log.Debug( $"{nameof( behaviour.StopActiveAsync )}" );
+				behaviour.StopActiveAsync();
 			} ) );
 
 
 			Log.Debug( $"・Run : {SMTaskRanState.Creating}" );
 			stopActiveAsync( 0 );
-			try { await _behaviour.RunStateEvent( SMTaskRanState.Creating ); }
+			try { await behaviour.RunStateEvent( SMTaskRanState.Creating ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunStateEvent( SMTaskRanState.Creating );
+			await behaviour.RunStateEvent( SMTaskRanState.Creating );
 
 			Log.Debug( $"・Run : {SMTaskRanState.Loading}" );
 			stopActiveAsync( 500 );
-			try { await _behaviour.RunStateEvent( SMTaskRanState.Loading ); }
+			try { await behaviour.RunStateEvent( SMTaskRanState.Loading ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunStateEvent( SMTaskRanState.Loading );
+			await behaviour.RunStateEvent( SMTaskRanState.Loading );
 
 			Log.Debug( $"・Run : {SMTaskRanState.Initializing}" );
 			stopActiveAsync( 500 );
-			try { await _behaviour.RunStateEvent( SMTaskRanState.Initializing ); }
+			try { await behaviour.RunStateEvent( SMTaskRanState.Initializing ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunStateEvent( SMTaskRanState.Initializing );
+			await behaviour.RunStateEvent( SMTaskRanState.Initializing );
 
-			Log.Debug( $"・Run : {nameof( _behaviour.RunActiveEvent )}" );
+			Log.Debug( $"・Run : {nameof( behaviour.RunActiveEvent )}" );
 			stopActiveAsync( 500 );
-			try { await _behaviour.RunActiveEvent(); }
+			try { await behaviour.RunActiveEvent(); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunActiveEvent();
+			await behaviour.ChangeActive( true );
 
 			Log.Debug( $"・Run : {SMTaskRanState.FixedUpdate}" );
 			stopActiveAsync( 0 );
-			try { await _behaviour.RunStateEvent( SMTaskRanState.FixedUpdate ); }
+			try { await behaviour.RunStateEvent( SMTaskRanState.FixedUpdate ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunStateEvent( SMTaskRanState.FixedUpdate );
+			await behaviour.RunStateEvent( SMTaskRanState.FixedUpdate );
 
 			Log.Debug( $"・Run : {SMTaskRanState.Update}" );
 			stopActiveAsync( 0 );
-			try { await _behaviour.RunStateEvent( SMTaskRanState.Update ); }
+			try { await behaviour.RunStateEvent( SMTaskRanState.Update ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunStateEvent( SMTaskRanState.Update );
+			await behaviour.RunStateEvent( SMTaskRanState.Update );
 
-			Log.Debug( $"・Run : {nameof( _behaviour.ChangeActive )}( {false} )" );
+			Log.Debug( $"・Run : {nameof( behaviour.ChangeActive )}( {false} )" );
 			stopActiveAsync( 500 );
-			try { await _behaviour.ChangeActive( false ); }
+			try { await behaviour.ChangeActive( false ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.ChangeActive( false );
+			await behaviour.ChangeActive( false );
 
-			Log.Debug( $"・Run : {nameof( _behaviour.ChangeActive )}( {true} )" );
+			Log.Debug( $"・Run : {nameof( behaviour.ChangeActive )}( {true} )" );
 			stopActiveAsync( 500 );
-			try { await _behaviour.ChangeActive( true ); }
+			try { await behaviour.ChangeActive( true ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.ChangeActive( true );
+			await behaviour.ChangeActive( true );
 
 			Log.Debug( $"・Run : {SMTaskRanState.LateUpdate}" );
 			stopActiveAsync( 0 );
-			try { await _behaviour.RunStateEvent( SMTaskRanState.LateUpdate ); }
+			try { await behaviour.RunStateEvent( SMTaskRanState.LateUpdate ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunStateEvent( SMTaskRanState.LateUpdate );
+			await behaviour.RunStateEvent( SMTaskRanState.LateUpdate );
 
 			Log.Debug( $"・Run : {SMTaskRanState.Finalizing}" );
 			stopActiveAsync( 1500 );
-			try { await _behaviour.RunStateEvent( SMTaskRanState.Finalizing ); }
+			try { await behaviour.RunStateEvent( SMTaskRanState.Finalizing ); }
 			catch ( OperationCanceledException ) {}
-			await _behaviour.RunStateEvent( SMTaskRanState.Finalizing );
+			await behaviour.RunStateEvent( SMTaskRanState.Finalizing );
 
-
-			Log.Debug( $"end : {nameof( TestStopActiveAsync )}" );
+			behaviour.Dispose();
+			canceler.Dispose();
 		}
 
 
@@ -209,14 +275,14 @@ namespace SubmarineMirage.TestSMTask {
 		解放される？
 */
 		public async UniTask TestDispose<T>() {
-			Log.Debug( $"start : {nameof( TestDispose )}" );
+			var canceler = new UTaskCanceler();
 
 			for ( var waitSecond = 500; waitSecond < 7000; waitSecond += 1000 ) {
-				var b = typeof( T ).Create<ISMBehaviour>();
+				var b = CreateBehaviour<T>();
 				TestSMBehaviourUtility.SetEvent( b );
 
 				UTask.Void( async () => {
-					await UTask.Delay( b._activeAsyncCanceler, waitSecond );
+					await UTask.Delay( canceler, waitSecond );
 					Log.Debug( $"{nameof( b.Dispose )}" );
 					b.Dispose();
 				} );
@@ -225,9 +291,10 @@ namespace SubmarineMirage.TestSMTask {
 				catch ( OperationCanceledException ) {}
 
 				b.Dispose();
+				canceler.Cancel();
 			}
 
-			Log.Debug( $"end : {nameof( TestDispose )}" );
+			canceler.Dispose();
 		}
 
 
@@ -236,17 +303,19 @@ namespace SubmarineMirage.TestSMTask {
 		削除される？
 */
 		public async UniTask TestDelete<T>() {
+			var canceler = new UTaskCanceler();
 			{
-				var b = typeof( T ).Create<ISMBehaviour>();
+				var b = CreateBehaviour<T>();
 				TestSMBehaviourUtility.SetEvent( b );
 				Log.Debug( $"Create : {b}" );
 
-				await UTask.NextFrame( _behaviour._activeAsyncCanceler );
+				await UTask.NextFrame( canceler );
 				b = null;
 			}
-			await UTask.Delay( _behaviour._activeAsyncCanceler, 2000 );
+			await UTask.Delay( canceler, 2000 );
 
 			Log.Debug( $"Delete" );
+			canceler.Dispose();
 		}
 
 
@@ -254,8 +323,11 @@ namespace SubmarineMirage.TestSMTask {
 		・手動テスト
 		イベント等の実行時の、複雑なタイミング等を、テストする
 */
-		public IEnumerator TestManual() {
-			_disposables.AddLast( TestSMBehaviourUtility.SetRunKey( _behaviour ) );
+		public IEnumerator TestManual<T>( bool isActive = true ) {
+			var behaviour = CreateBehaviour<T>( isActive );
+			TestSMBehaviourUtility.SetEvent( behaviour );
+			_disposables.AddLast( TestSMBehaviourUtility.SetRunKey( behaviour ) );
+			_disposables.AddLast( behaviour );
 			while ( true )	{ yield return null; }
 		}
 	}

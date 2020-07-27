@@ -11,7 +11,6 @@ namespace SubmarineMirage.TestSMTask {
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using Extension;
 	using Debug;
 	using Test;
 	using UnityObject = UnityEngine.Object;
@@ -29,46 +28,25 @@ namespace SubmarineMirage.TestSMTask {
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			var behaviour = new B6();
-			_testBody = new TestSMBehaviourBody( behaviour );
+			_testBody = new TestSMBehaviourBody();
+			_disposables.AddLast( _testBody );
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			_text = go.GetComponentInChildren<Text>();
-			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( behaviour == null ) {
-					_text.text = string.Empty;
-					return;
-				}
-				_text.text = string.Join( "\n",
-					$"{behaviour.GetAboutName()}(",
-					$"    {nameof( behaviour._id )} : {behaviour._id}",
-					$"    {nameof( behaviour._type )} : {behaviour._type}",
-					$"    {nameof( behaviour._object._owner )} : "
-						+ $"{behaviour._object._owner}( {behaviour._object._id} )",
-					$"    {nameof( behaviour._body._ranState )} : {behaviour._body._ranState}",
-					$"    {nameof( behaviour._body._activeState )} : {behaviour._body._activeState}",
-					$"    {nameof( behaviour._body._nextActiveState )} : {behaviour._body._nextActiveState}",
-					$"    {nameof( behaviour._isInitialized )} : {behaviour._isInitialized}",
-					$"    {nameof( behaviour._isActive )} : {behaviour._isActive}",
-					")"
-				);
-			} ) );
+			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ =>
+				_text.text = _testBody._viewText
+			) );
 			_disposables.AddLast( () => _text.text = string.Empty );
-			_disposables.AddLast( behaviour );
 		}
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestCreate() => From( () => _testBody.TestCreate() );
+		public IEnumerator TestCreate() => From( () => _testBody.TestCreate<B6>() );
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestRunErrorState() => From( () => _testBody.TestRunErrorState() );
-
-
-		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestEventRun() => From( () => _testBody.TestEventRun( _testBody._behaviour ) );
+		public IEnumerator TestRunErrorState() => From( () => _testBody.TestRunErrorState<B6>() );
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
@@ -76,7 +54,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestStopActiveAsync() => From( () => _testBody.TestStopActiveAsync() );
+		public IEnumerator TestStopActiveAsync() => From( () => _testBody.TestStopActiveAsync<B6>() );
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
@@ -88,6 +66,6 @@ namespace SubmarineMirage.TestSMTask {
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( _testBody.TestManual() );
+		public IEnumerator TestManual() => From( _testBody.TestManual<B6>() );
 	}
 }

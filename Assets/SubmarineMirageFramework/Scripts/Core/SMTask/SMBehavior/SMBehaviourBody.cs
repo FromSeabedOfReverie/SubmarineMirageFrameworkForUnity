@@ -468,5 +468,20 @@ namespace SubmarineMirage.SMTask {
 
 			return result;
 		}
+
+		public string ToString( ISMBehaviour behaviour ) => string.Join( "\n",
+			$"{behaviour.GetAboutName()}(",
+			$"    {nameof( behaviour._type )} : {behaviour._type}",
+			$"    {nameof( behaviour._lifeSpan )} : {behaviour._lifeSpan}",
+			string.Join( "",
+				$"    {nameof( behaviour._object._owner )} : ",
+				$"{( behaviour._object._owner != null ? behaviour._object._owner.name : "null" )}",
+				$"( {behaviour._object._id} )"
+			),
+			$"    {nameof( behaviour._previous )} : {behaviour._previous?._id}",
+			$"    {nameof( behaviour._next )} : {behaviour._next?._id}",
+			$"    {nameof( behaviour._body )} : {behaviour._body}",
+			")"
+		);
 	}
 }

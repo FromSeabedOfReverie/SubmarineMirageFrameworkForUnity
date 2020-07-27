@@ -136,17 +136,7 @@ namespace SubmarineMirage.SMTask {
 			=> _object.ChangeParent( parent, isWorldPositionStays );
 
 
-		public override string ToString() => string.Join( "\n",
-			$"{this.GetAboutName()}(",
-			$"    {nameof( _id )} : {_id}",
-			$"    {nameof( _type )} : {_type}",
-			$"    {nameof( _lifeSpan )} : {_lifeSpan}",
-			$"    {nameof( _object._owner )} : {_object._owner}( {_object._id} )",
-			$"    {nameof( _body )} : {_body}",
-			$"    {nameof( _previous )} : {_previous?._id}",
-			$"    {nameof( _next )} : {_next?._id}",
-			")"
-		);
+		public override string ToString() => _body.ToString( this );
 
 
 #if DEVELOP
