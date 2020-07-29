@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMObject
+#define TestSMObject
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;

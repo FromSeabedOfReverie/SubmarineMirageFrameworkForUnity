@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMObject
+#define TestSMObject
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
@@ -23,7 +23,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public SMObjectModifyData( SMObject smObject ) {
 			_object = smObject;
-//			Debug.Log.Debug( $"{this.GetAboutName()}( {_object} )" );
+#if TestSMObject
+			Log.Debug( $"{this.GetAboutName()}() : {_object}" );
+#endif
 		}
 
 		public abstract void Cancel();

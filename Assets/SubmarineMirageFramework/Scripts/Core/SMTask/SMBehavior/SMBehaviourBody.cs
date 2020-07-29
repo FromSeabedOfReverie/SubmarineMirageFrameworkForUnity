@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTask
+//#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using Cysharp.Threading.Tasks;

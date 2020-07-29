@@ -21,7 +21,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	public class SMObjectModifyler : IDisposableExtension {
 		public SMObject _owner	{ get; private set; }
 		public Queue<SMObjectModifyData> _data = new Queue<SMObjectModifyData>();
-		public bool _isRunning	{ get; private set; }
+		bool _isRunning;
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 

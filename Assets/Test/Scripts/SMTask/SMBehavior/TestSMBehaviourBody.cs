@@ -50,7 +50,7 @@ namespace SubmarineMirage.TestSMTask {
 				);
 				if ( _viewBehaviour is MonoBehaviourExtension ) {
 					var mb = (MonoBehaviourExtension)_viewBehaviour;
-					_viewText += $"\n    {nameof( mb.isActiveAndEnabled )} : {mb.isActiveAndEnabled}\n";
+					_viewText += $"\n    {nameof( mb.isActiveAndEnabled )} : {mb.isActiveAndEnabled}";
 				}
 				_viewText += "\n)";
 			} ) );
@@ -63,7 +63,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 		ISMBehaviour CreateBehaviour( Type type, bool isGameObjectActive = true, bool isComponentEnabled = true ) {
-			if ( type.IsInheritance<MonoBehaviourExtension>() ) {
+			if ( type.IsInheritance<SMMonoBehaviour>() ) {
 				var go = new GameObject( $"{type.Name}" );
 				go.SetActive( isGameObjectActive );
 				var mb = (SMMonoBehaviour)go.AddComponent( type );
