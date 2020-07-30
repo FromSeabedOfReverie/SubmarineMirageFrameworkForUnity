@@ -114,14 +114,14 @@ namespace SubmarineMirage.SMTask {
 			var os = GetAll( type, type == SMTaskType.FirstWork && state == SMTaskRanState.Finalizing );
 			switch ( type ) {
 				case SMTaskType.FirstWork:
-					os.ForEach( o => o._modifyler.Register( new RunStateSMObject( o, state ) ) );
+					os.ForEach( o => RunStateSMObject.RunOrRegister( o, state ) );
 					foreach ( var o in os ) {
 						await o._modifyler.WaitRunning();
 					}
 					break;
 
 				case SMTaskType.Work:
-					os.ForEach( o => o._modifyler.Register( new RunStateSMObject( o, state ) ) );
+					os.ForEach( o => RunStateSMObject.RunOrRegister( o, state ) );
 					await os.Select( o => o._modifyler.WaitRunning() );
 					break;
 			}

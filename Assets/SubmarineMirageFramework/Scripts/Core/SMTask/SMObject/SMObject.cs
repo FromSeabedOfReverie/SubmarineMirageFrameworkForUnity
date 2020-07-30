@@ -211,6 +211,7 @@ namespace SubmarineMirage.SMTask {
 				yield return current;
 			}
 		}
+
 		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
 			=> GetBehaviours()
 				.Where( b => b is T )

@@ -32,31 +32,31 @@ namespace SubmarineMirage.TestSMTask {
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( "key down Creating" );
-					smObject._top._modifyler.Register( new RunStateSMObject( smObject, SMTaskRanState.Creating ) );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Creating );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
 					Log.Warning( "key down Loading" );
-					smObject._top._modifyler.Register( new RunStateSMObject( smObject, SMTaskRanState.Loading ) );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Loading );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
 					Log.Warning( "key down Initializing" );
-					smObject._top._modifyler.Register( new RunStateSMObject( smObject, SMTaskRanState.Initializing ) );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Initializing );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
 					Log.Warning( "key down FixedUpdate" );
-					smObject._top._modifyler.Register( new RunStateSMObject( smObject, SMTaskRanState.FixedUpdate ) );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.FixedUpdate );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
 					Log.Warning( "key down Update" );
-					smObject._top._modifyler.Register( new RunStateSMObject( smObject, SMTaskRanState.Update ) );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Update );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
 					Log.Warning( "key down LateUpdate" );
-					smObject._top._modifyler.Register( new RunStateSMObject( smObject, SMTaskRanState.LateUpdate ) );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.LateUpdate );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
 					Log.Warning( "key down Finalizing" );
-					smObject._top._modifyler.Register( new RunStateSMObject( smObject, SMTaskRanState.Finalizing ) );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Finalizing );
 				} )
 			);
 			disposables.AddLast(

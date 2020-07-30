@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestSMObject
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using System.Linq;
@@ -30,9 +31,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public override void Cancel() {}
 
 
-		public override async UniTask Run() {
-			await ChangeActive( _object, _isActive, _isChangeOwner );
-		}
+		public override UniTask Run() => ChangeActive( _object, _isActive, _isChangeOwner );
 
 
 		bool IsCanChangeActive( SMObject smObject, bool isChangeOwner ) {
@@ -50,7 +49,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 // TODO : Disable時でも、Activeにしてしまうが、Managerの方で呼ばないはず、確認する
 						smObject._owner.SetActive( isActive );
 						await UTask.DontWait();
+#if TestSMObject
 						Log.Debug( $"{smObject._owner.GetAboutName()}.SetActive : {isActive}" );
+#endif
 					} );
 				}
 				if ( isActive ) {
@@ -85,8 +86,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 									catch ( OperationCanceledException )	{}
 								} )
 								.Concat(
-									smObject.GetChildren()
-										.Select( o => ChangeActive( o, isActive, false ) )
+									smObject.GetChildren().Select( o => ChangeActive( o, isActive, false ) )
 								);
 						} );
 						break;

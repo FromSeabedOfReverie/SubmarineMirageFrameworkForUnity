@@ -58,14 +58,11 @@ namespace SubmarineMirage.SMTask {
 		public void StopActiveAsync() => _body.StopActiveAsync();
 
 
-		public async UniTask RunStateEvent( SMTaskRanState state )
-			=> await _body.RunStateEvent( state );
+		public UniTask RunStateEvent( SMTaskRanState state ) => _body.RunStateEvent( state );
 
-		public async UniTask ChangeActive( bool isActive )
-			=> await _body.ChangeActive( isActive );
+		public UniTask ChangeActive( bool isActive ) => _body.ChangeActive( isActive );
 
-		public async UniTask RunActiveEvent()
-			=> await _body.RunActiveEvent();
+		public UniTask RunActiveEvent() => _body.RunActiveEvent();
 
 
 		public override string ToString() => _body.ToString( this );

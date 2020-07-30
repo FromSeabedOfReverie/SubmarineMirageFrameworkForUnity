@@ -18,8 +18,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	public class RegisterSMObject : SMObjectModifyData {
 		public RegisterSMObject( SMObject smObject ) : base( smObject ) {
 			if ( !_object._isTop ) {
-				throw new NotSupportedException(
-					$"最上階の{nameof( SMObject )}で無い為、登録不可 :\n{_object}" );
+				throw new NotSupportedException( $"最上階の{nameof( SMObject )}で無い為、登録不可 :\n{_object}" );
 			}
 		}
 
@@ -46,22 +45,18 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				case SMTaskType.DontWork:
 					// 生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
 					await UTask.NextFrame( _object._asyncCanceler );
-					_object._top._modifyler.Register(
-						new RunStateSMObject( _object, SMTaskRanState.Creating ) );
+					RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Creating );
+
 					return;
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
 					if ( _object._objects._isEnter ) {
 						// 生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
 						await UTask.NextFrame( _object._asyncCanceler );
-						_object._top._modifyler.Register(
-							new RunStateSMObject( _object, SMTaskRanState.Creating ) );
-						_object._top._modifyler.Register(
-							new RunStateSMObject( _object, SMTaskRanState.Loading ) );
-						_object._top._modifyler.Register(
-							new RunStateSMObject( _object, SMTaskRanState.Initializing ) );
-						_object._top._modifyler.Register(
-							new RunActiveSMObject( _object ) );
+						RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Creating );
+						RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Loading );
+						RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Initializing );
+						_object._top._modifyler.Register( new RunActiveSMObject( _object ) );
 					}
 					return;
 			}

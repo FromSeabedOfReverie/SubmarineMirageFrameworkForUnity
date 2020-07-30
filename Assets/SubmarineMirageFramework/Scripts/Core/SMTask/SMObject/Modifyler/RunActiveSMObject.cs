@@ -20,9 +20,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public override void Cancel() {}
 
 
-		public override async UniTask Run() {
-			await RunActiveEvent( _object );
-		}
+		public override UniTask Run() => RunActiveEvent( _object );
 
 
 // TODO : 親がdisableでも、enableしそう

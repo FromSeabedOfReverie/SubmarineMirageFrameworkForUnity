@@ -24,8 +24,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			: base( smObject )
 		{
 			if ( !_object._isTop ) {
-				throw new NotSupportedException(
-					$"最上階の{nameof( SMObject )}で無い為、再登録不可 :\n{_object}" );
+				throw new NotSupportedException( $"最上階の{nameof( SMObject )}で無い為、再登録不可 :\n{_object}" );
 			}
 			_lastType = lastType;
 			_lastScene = lastScene;

@@ -56,8 +56,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			_isRunning = false;
 		}
 
-		public async UniTask WaitRunning()
-			=> await UTask.WaitWhile( _owner._asyncCanceler, () => _isRunning );
+		public UniTask WaitRunning()
+			=> UTask.WaitWhile( _owner._asyncCanceler, () => _isRunning );
 
 
 		public override string ToString() {

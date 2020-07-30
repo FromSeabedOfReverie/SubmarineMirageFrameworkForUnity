@@ -25,32 +25,40 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				case SMTaskRanState.FixedUpdate:
 				case SMTaskRanState.Update:
 				case SMTaskRanState.LateUpdate:
-					// 駄目で元々、即時実行する
-					RunStateEvent( _object, state ).Forget();
-					break;
-				case SMTaskRanState.Finalizing:
-					// TODO : キューに貯まっている他のタスクを無視して、即実行したいけど、逐次実行でも問題ない？
-					break;
+					throw new ArgumentOutOfRangeException(
+						$"{state}",
+						$"負荷軽減の為、静的関数 {nameof( RunOrRegister )} 以外で、実行不可"
+					);
 			}
 		}
 
 		public override void Cancel() {}
 
 
-		public override async UniTask Run() {
-			switch ( _state ) {
+		public override UniTask Run() => RunStateEvent( _object, _state );
+
+
+		public static void RunOrRegister( SMObject smObject, SMTaskRanState state ) {
+			switch ( state ) {
 				case SMTaskRanState.FixedUpdate:
 				case SMTaskRanState.Update:
 				case SMTaskRanState.LateUpdate:
-					return;
+					// 駄目で元々、即時実行する
+					RunStateEvent( smObject, state ).Forget();
+					break;
+
+// TODO : キューに貯まっている他のタスクを無視して、即実行したいけど、逐次実行でも問題ない？
+//				case SMTaskRanState.Finalizing:
+//					break;
+
 				default:
-					await RunStateEvent( _object, _state );
+					smObject._top._modifyler.Register( new RunStateSMObject( smObject, state ) );
 					break;
 			}
 		}
 
 
-		async UniTask RunStateEvent( SMObject smObject, SMTaskRanState state ) {
+		static async UniTask RunStateEvent( SMObject smObject, SMTaskRanState state ) {
 			using ( var events = new MultiAsyncEvent() ) {
 				switch ( smObject._type ) {
 					case SMTaskType.FirstWork:
