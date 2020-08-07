@@ -62,11 +62,12 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( smObject.ToString() );
+			var i = smObject._id;
 			var b = smObject._behaviour;
 			var a = b._isActive ? "◯" : "×";
 			var g = smObject._owner != null ? $"( {smObject._owner.name} )" : "";
 			EditorGUILayout.SelectableLabel(
-				$"{a} {b.GetAboutName()}{g}( {b._body._ranState} )",
+				$"{a} {i} {b.GetAboutName()}{g}( {b._body._ranState} )",
 				GUILayout.Height( 16 )
 			);
 

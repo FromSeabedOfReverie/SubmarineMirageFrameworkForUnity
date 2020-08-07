@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
-	using SMTask;
 	using Singleton;
 	///====================================================================================================
 	/// <summary>
@@ -14,12 +13,10 @@ namespace SubmarineMirage.Extension {
 	///		NGUI、UGUIの文字描画の装飾を行う。
 	/// </summary>
 	///====================================================================================================
-	public class DecorationManager : Singleton<DecorationManager> {
+	public class DecorationManager : RawSingleton<DecorationManager> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>処理の型</summary>
-		public override SMTaskType _type => SMTaskType.DontWork;
 		/// <summary>NGUI装飾</summary>
 		public NGUIDecoration _nGUI { get; private set; }
 		/// <summary>UGUI装飾</summary>
@@ -33,11 +30,5 @@ namespace SubmarineMirage.Extension {
 			_nGUI = new NGUIDecoration();
 			_uGUI = new UGUIDecoration();
 		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 作成
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public override void Create() {}
 	}
 }
