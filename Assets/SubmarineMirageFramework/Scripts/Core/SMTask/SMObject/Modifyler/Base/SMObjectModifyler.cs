@@ -62,11 +62,11 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public override string ToString() {
 			var result = string.Join( "\n",
-				$"{this.GetAboutName()}(",
-				$"    {nameof( _isRunning )} : {_isRunning}",
-				$"    {nameof( _data )} : \n"
-					+ string.Join( "\n", _data.Select( d => $"        {d}" ) ),
-				")"
+				$"    {this.GetAboutName()}(",
+				$"        {nameof( _isRunning )} : {_isRunning}",
+				$"        {nameof( _data )} : \n"
+					+ string.Join( "\n", _data.Select( d => $"            {d}" ) ),
+				"    )"
 			);
 			return result;
 		}

@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMObject
+#define TestSMTask
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using System.Linq;
@@ -49,7 +49,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 // TODO : Disable時でも、Activeにしてしまうが、Managerの方で呼ばないはず、確認する
 						smObject._owner.SetActive( isActive );
 						await UTask.DontWait();
-#if TestSMObject
+#if TestSMTask
 						Log.Debug( $"{smObject._owner.GetAboutName()}.SetActive : {isActive}" );
 #endif
 					} );

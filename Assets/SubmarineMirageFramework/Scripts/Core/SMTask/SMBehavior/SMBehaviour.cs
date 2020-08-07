@@ -4,11 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
-	using Extension;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -45,6 +46,9 @@ namespace SubmarineMirage.SMTask {
 		protected SMBehaviour() {
 			_body = new SMBehaviourBody( this, SMTaskActiveState.Enabling );
 			_object = new SMObject( null, new ISMBehaviour[] { this }, null );
+#if TestSMTask
+			Log.Debug( $"{nameof( SMBehaviour )}() : {this}" );
+#endif
 		}
 
 		~SMBehaviour() => Dispose();

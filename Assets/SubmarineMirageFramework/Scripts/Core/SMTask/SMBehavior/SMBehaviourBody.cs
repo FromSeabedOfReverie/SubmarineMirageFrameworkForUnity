@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMTask
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using Cysharp.Threading.Tasks;
@@ -82,6 +82,7 @@ namespace SubmarineMirage.SMTask {
 #if TestSMTask
 			Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( UnLink )} : start\n{_owner}" );
 #endif
+			if ( _owner._object._behaviour == _owner )	{ _owner._object._behaviour = _owner._next; }
 			if ( _owner._previous != null )	{ _owner._previous._next = _owner._next; }
 			if ( _owner._next != null )		{ _owner._next._previous = _owner._previous; }
 			_owner._previous = null;
@@ -439,7 +440,7 @@ namespace SubmarineMirage.SMTask {
 				$"        {nameof( _nextActiveState )} : {_nextActiveState}",
 				$"        {nameof( _isInitialized )} : {_isInitialized}",
 				$"        {nameof( _isActive )} : {_isActive}",
-				"\n"
+				""
 			);
 
 			var isCancel = _activeAsyncCanceler._disposables._isDispose

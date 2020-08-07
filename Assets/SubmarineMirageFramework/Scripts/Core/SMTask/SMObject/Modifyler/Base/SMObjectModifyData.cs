@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMObject
+//#define TestSMTask
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public SMObjectModifyData( SMObject smObject ) {
 			_object = smObject;
-#if TestSMObject
+#if TestSMTask
 			Log.Debug( $"{this.GetAboutName()}() : {_object}" );
 #endif
 		}
@@ -68,14 +68,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 		public static void SetAllObjectData( SMObject top ) {
-#if TestSMObject
-			Log.Debug( $"start {nameof( SetAllObjectData )} : {top}" );
+#if TestSMTask
+			Log.Debug( $"{nameof( SetAllObjectData )} : start\n{top}" );
 #endif
 			var lastType = top._type;
 			var lastScene = top._scene;
 			var allObjects = top.GetAllChildren();
 			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
-#if TestSMObject
+#if TestSMTask
 			Log.Debug(
 				$"{nameof( allBehaviours )} : \n"
 					+ $"{string.Join( ", ", allBehaviours.Select( b => b.GetAboutName() ) )}"
@@ -105,7 +105,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			} );
 
 			if ( lastScene == null ) {
-#if TestSMObject
+#if TestSMTask
 				Log.Debug( $"Register : {top}" );
 #endif
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
@@ -113,22 +113,22 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					top._modifyler.Register( new RegisterSMObject( top ) );
 				}
 			} else if ( top._type != lastType || top._scene != lastScene ) {
-#if TestSMObject
+#if TestSMTask
 				Log.Debug( $"ReRegister : {top}" );
 #endif
 				top._modifyler.Register( new ReRegisterSMObject( top, lastType, lastScene ) );
 			} else {
-#if TestSMObject
+#if TestSMTask
 				Log.Debug( $"DontRegister : {top}" );
 #endif
 			}
-#if TestSMObject
-			Log.Debug( $"end {nameof( SetAllObjectData )} : {top}" );
+#if TestSMTask
+			Log.Debug( $"{nameof( SetAllObjectData )} : end\n{top}" );
 #endif
 		}
 
 		public static void UnLinkObject( SMObject smObject ) {
-			if ( smObject._objects._objects[smObject._type] == smObject ) {
+			if ( smObject._objects?._objects[smObject._type] == smObject ) {
 				smObject._objects._objects[smObject._type] = smObject._next;
 			}
 

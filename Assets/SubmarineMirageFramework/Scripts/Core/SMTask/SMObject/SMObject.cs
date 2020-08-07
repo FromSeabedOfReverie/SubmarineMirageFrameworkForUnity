@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMObject
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -36,7 +36,7 @@ namespace SubmarineMirage.SMTask {
 		public GameObject _owner		{ get; private set; }
 		public SMObjectModifyler _modifyler	{ get; private set; }
 
-		public ISMBehaviour _behaviour	{ get; private set; }
+		public ISMBehaviour _behaviour;
 		public SMObject _previous;
 		public SMObject _next;
 		public SMObject _parent;
@@ -52,8 +52,8 @@ namespace SubmarineMirage.SMTask {
 
 		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent ) {
 			_id = ++s_idCount;
-#if TestSMObject
-			Log.Debug( $"{behaviours.FirstOrDefault().GetAboutName()} : start\n{this}" );
+#if TestSMTask
+			Log.Debug( $"{nameof( SMObject )}() : start\n{this}" );
 #endif
 			_owner = owner;
 
@@ -65,13 +65,15 @@ namespace SubmarineMirage.SMTask {
 			SetupChildren();
 			SetupTop();
 
-			_disposables.AddLast( () => GetBehaviours().ForEach( b => b.Dispose() ) );
-			_disposables.AddLast( () => GetChildren().ForEach( o => o.Dispose() ) );
+			_disposables.AddLast( () => GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() ) );
+			_disposables.AddLast( () => GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() ) );
 			_disposables.AddLast( _asyncCanceler );
 			_disposables.AddLast( () => SMObjectModifyData.UnLinkObject( this ) );
-			
-#if TestSMObject
-			Log.Debug( $"{_behaviour.GetAboutName()} : end\n{this}" );
+#if TestSMTask
+			_disposables.AddLast( () =>
+				Log.Debug( $"{nameof( SMObject )}.{nameof( Dispose )} : {this}" )
+			);
+			Log.Debug( $"{nameof( SMObject )}() : end\n{this}" );
 #endif
 		}
 
@@ -82,7 +84,7 @@ namespace SubmarineMirage.SMTask {
 
 
 		void SetupBehaviours( IEnumerable<ISMBehaviour> behaviours ) {
-#if TestSMObject
+#if TestSMTask
 			Log.Debug( $"{nameof( SetupBehaviours )} : start\n{this}" );
 #endif
 			_behaviour = behaviours.First();
@@ -97,50 +99,54 @@ namespace SubmarineMirage.SMTask {
 				b._object = this;
 				if ( _owner != null )	{ ( (SMMonoBehaviour)b ).Constructor(); }
 			} );
-#if TestSMObject
+#if TestSMTask
 			Log.Debug( $"{nameof( SetupBehaviours )} : end\n{this}" );
 #endif
 		}
 
 		void SetupParent( SMObject parent ) {
 			if ( _owner == null )	{ return; }
-#if TestSMObject
+#if TestSMTask
 			Log.Debug( $"{nameof( SetupParent )} : start\n{this}" );
 #endif
 			if ( parent != null )	{ SMObjectModifyData.AddChildObject( parent, this ); }
-#if TestSMObject
+#if TestSMTask
 			Log.Debug( $"{nameof( SetupParent )} : end\n{this}" );
 #endif
 		}
 
 		void SetupChildren() {
 			if ( _owner == null )	{ return; }
-#if TestSMObject
+#if TestSMTask
 			Log.Debug( $"{nameof( SetupChildren )} : start\n{this}" );
 #endif
-			var currents = Enumerable.Empty<Transform>()
-				.Concat( _owner.transform );
+			var currents = new Queue<Transform>();
+			currents.Enqueue( _owner.transform );
 			while ( !currents.IsEmpty() ) {
-				var children = Enumerable.Empty<Transform>();
-				currents.ForEach( t => {
-					foreach ( Transform child in t ) {
-						var bs = child.GetComponents<SMMonoBehaviour>();
-						if ( !bs.IsEmpty() ) {
-							new SMObject( child.gameObject, bs, this );
-						} else {
-							children.Concat( child );
-						}
+				foreach ( Transform child in currents.Dequeue() ) {
+					var bs = child.GetComponents<SMMonoBehaviour>();
+					if ( !bs.IsEmpty() ) {
+						new SMObject( child.gameObject, bs, this );
+					} else {
+						currents.Enqueue( child );
 					}
-				} );
-				currents = children;
+				}
 			}
-#if TestSMObject
+#if TestSMTask
 			Log.Debug( $"{nameof( SetupChildren )} : end\n{this}" );
 #endif
 		}
 
 		void SetupTop() {
-			if ( _parent == null )	{ SMObjectModifyData.SetTopObject( this ); }
+			if ( _parent != null )	{ return; }
+
+#if TestSMTask
+			Log.Debug( $"{nameof( SetupTop )} : start\n{this}" );
+#endif
+			SMObjectModifyData.SetTopObject( this );
+#if TestSMTask
+			Log.Debug( $"{nameof( SetupTop )} : end\n{this}" );
+#endif
 		}
 
 
@@ -179,15 +185,12 @@ namespace SubmarineMirage.SMTask {
 			}
 		}
 		public IEnumerable<SMObject> GetAllChildren() {
-			var currents = Enumerable.Empty<SMObject>()
-				.Concat( this );
+			var currents = new Queue<SMObject>();
+			currents.Enqueue( this );
 			while ( !currents.IsEmpty() ) {
-				var children = Enumerable.Empty<SMObject>();
-				foreach ( var o in currents ) {
-					yield return  o;
-					children.Concat( o.GetChildren() );
-				}
-				currents = children;
+				var o = currents.Dequeue();
+				yield return o;
+				o.GetChildren().ForEach( c => currents.Enqueue( c ) );
 			}
 		}
 
@@ -282,19 +285,18 @@ namespace SubmarineMirage.SMTask {
 		public override string ToString() {
 			var toObjectNameEvent = new Func<SMObject, string>( o => (
 				o == null			? string.Empty :
-				o == this			? "this" :
-				o._owner != null	? $"{o._id}, {o._owner}"
-									: $"{o._id}, {o._behaviour.GetAboutName()}"
+				o == this			? $"this" :
+				o._owner != null	? $"{o._owner.name}( {o._id} )"
+									: $"{o._behaviour.GetAboutName()}( {o._id} )"
 			) );
 
-			return string.Join( "\n",
+			var result = string.Join( "\n",
 				$"{nameof( SMObject )}(",
 				$"    {nameof( _id )} : {_id} / {s_idCount}",
 				$"    {nameof( _type )} : {_type}",
 				$"    {nameof( _lifeSpan )} : {_lifeSpan}",
 				$"    {nameof( _scene )} : {_scene}",
-				$"    {nameof( _owner )} : {_owner}",
-				$"    {nameof( _modifyler )} : {_modifyler}",
+				$"    {nameof( _owner )} : {( _owner != null ? _owner.name : "" )}",
 
 				$"    {nameof( _top )} : {toObjectNameEvent( _top )}",
 				$"    {nameof( _previous )} : {toObjectNameEvent( _previous )}",
@@ -303,16 +305,25 @@ namespace SubmarineMirage.SMTask {
 
 				$"    {nameof( GetChildren )} : ",
 				string.Join( "\n", GetChildren().Select( ( o, i ) =>
-					$"        {i} : {o._owner}( {o._id} )" ) ),
+					$"        {i} : {o._owner?.name}( {o._id} )" ) ),
 
 				$"    {nameof( GetBehaviours )} : ",
 				string.Join( "\n", GetBehaviours().Select( ( b, i ) =>
 					$"        {i} : {b.GetAboutName()}( {b._id} )" ) ),
 
-				$"    {nameof( _asyncCanceler )} : {_asyncCanceler}",
-				$"    {nameof( _disposables )} : {_disposables}",
+				$"    {nameof( _modifyler )} : {_modifyler}",
+				""
+			);
+			var isCancel = _asyncCanceler._disposables._isDispose
+				? true
+				: _asyncCanceler.ToToken().IsCancellationRequested;
+			result += $"    {nameof( _asyncCanceler )}.Cancel : {isCancel}\n";
+			result += string.Join( "\n",
+				$"    {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
 				")"
 			);
+
+			return result;
 		}
 	}
 }

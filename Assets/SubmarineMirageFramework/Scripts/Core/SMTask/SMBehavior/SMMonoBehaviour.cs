@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -13,6 +14,7 @@ namespace SubmarineMirage.SMTask {
 	using MultiEvent;
 	using UTask;
 	using Extension;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -51,6 +53,9 @@ namespace SubmarineMirage.SMTask {
 				this,
 				isActiveAndEnabled ? SMTaskActiveState.Enabling : SMTaskActiveState.Disabling
 			);
+#if TestSMTask
+			Log.Debug( $"{nameof( SMMonoBehaviour )}.{nameof( Constructor )} : {this}" );
+#endif
 		}
 
 #if DEVELOP

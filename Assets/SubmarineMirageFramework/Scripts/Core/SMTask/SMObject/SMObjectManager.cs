@@ -38,9 +38,13 @@ namespace SubmarineMirage.SMTask {
 
 			EnumUtils.GetValues<SMTaskType>().ForEach( t => _objects[t] = null );
 			_disposables.AddLast( () => {
-				_objects
-					.SelectMany( pair => pair.Value?.GetBrothers() )
-					.ForEach( o => o?.Dispose() );
+				new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork }
+					.Select( t => _objects.GetOrDefault( t ) )
+					.Where( o => o != null )
+					.SelectMany( o => o.GetBrothers().Reverse() )
+					.Where( o => o != null )
+					.ToArray()
+					.ForEach( o => o.Dispose() );
 				_objects.Clear();
 			} );
 		}
@@ -202,22 +206,20 @@ namespace SubmarineMirage.SMTask {
 			if ( _owner == _owner._fsm._foreverScene )	{ return; }
 			TimeManager.s_instance.StartMeasure();
 
-			var currents = _owner._scene.GetRootGameObjects().Select( go => go.transform );
+			var currents = new Queue<Transform>();
+			_owner._scene.GetRootGameObjects()
+				.ForEach( go => currents.Enqueue( go.transform ) );
 			while ( !currents.IsEmpty() ) {
-				var children = Enumerable.Empty<Transform>();
-				foreach ( var t in currents ) {
-					var bs = t.GetComponents<SMMonoBehaviour>();
-					if ( !bs.IsEmpty() ) {
-						new SMObject( t.gameObject, bs, null );
-						await UTask.NextFrame( _activeAsyncCanceler );
-					} else {
-						foreach ( Transform child in t ) {
-							children.Concat( child );
-						}
+				var current = currents.Dequeue();
+				var bs = current.GetComponents<SMMonoBehaviour>();
+				if ( !bs.IsEmpty() ) {
+					new SMObject( current.gameObject, bs, null );
+					await UTask.NextFrame( _activeAsyncCanceler );
+				} else {
+					foreach ( Transform child in current ) {
+						currents.Enqueue( child );
 					}
 				}
-				currents = children;
-				await UTask.NextFrame( _activeAsyncCanceler );
 			}
 
 			Log.Debug( $"{nameof( Load )} {_owner.GetAboutName()} : {TimeManager.s_instance.StopMeasure()}秒" );
