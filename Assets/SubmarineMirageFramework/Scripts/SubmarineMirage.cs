@@ -13,6 +13,7 @@ namespace SubmarineMirage.Main {
 	using SMTask;
 	using Singleton;
 	using Scene;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -21,12 +22,7 @@ namespace SubmarineMirage.Main {
 	public class SubmarineMirage : RawSingleton<SubmarineMirage> {
 		public readonly MultiAsyncEvent _createTestEvent = new MultiAsyncEvent();
 		public bool _isRegisterCreateTestEvent = true;
-
-// TODO : 戻す
-//		public bool _isInitialized	{ get; private set; }
-// TODO : 消す
-		public bool _isInitialized	{ get; set; }
-
+		public bool _isInitialized	{ get; private set; }
 		UTaskCanceler _canceler = new UTaskCanceler();
 
 
@@ -48,14 +44,14 @@ namespace SubmarineMirage.Main {
 
 			await initializePluginEvent();
 
+			new Log();
 			SceneManager.CreateInstance();
 			MonoBehaviourSingletonManager.CreateInstance();
-			SMTaskRunner.CreateInstance();
 
 			await UTask.WaitWhile( _canceler, () => !_isRegisterCreateTestEvent );
 			await _createTestEvent.Run( _canceler );
 
-			await SMTaskRunner.s_instance.Create( () => registerBehavioursEvent() );
+			await SMTaskRunner.s_instance.RunForeverTasks( () => registerBehavioursEvent() );
 
 			_isInitialized = true;
 		}

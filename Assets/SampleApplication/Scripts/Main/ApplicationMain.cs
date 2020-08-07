@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Main {
-	using System.Threading.Tasks;
 	using UnityEngine;
 	using DG.Tweening;
 	using UniRx;
@@ -43,26 +42,12 @@ namespace SubmarineMirage.Main {
 
 
 		static async UniTask RegisterBehaviours() {
-			new Log();
-
 			await UTask.DontWait();
 		}
 
 
-// TODO : 戻す
-//		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
-//		static async void Main()
-//			=> await SubmarineMirage.s_instance.TakeOff( InitializePlugin, RegisterBehaviours );
-// TODO : 消す
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
-		static async void Main() {
-			await Task.Delay( 1 );
-			await InitializePlugin();
-			var canceler = new UTaskCanceler();
-			await UTask.WaitWhile( canceler, () => !SubmarineMirage.s_instance._isRegisterCreateTestEvent );
-			await SubmarineMirage.s_instance._createTestEvent.Run( canceler );
-			SubmarineMirage.s_instance._isInitialized = true;
-			canceler.Dispose();
-		}
+		static async void Main()
+			=> await SubmarineMirage.s_instance.TakeOff( InitializePlugin, RegisterBehaviours );
 	}
 }
