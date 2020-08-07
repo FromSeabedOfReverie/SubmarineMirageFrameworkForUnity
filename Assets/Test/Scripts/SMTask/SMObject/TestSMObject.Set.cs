@@ -11,6 +11,7 @@ namespace SubmarineMirage.TestSMTask {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using KoganeUnityLib;
+	using SMTask;
 	using Extension;
 	using Debug;
 	using Test;
@@ -23,43 +24,42 @@ namespace SubmarineMirage.TestSMTask {
 
 	public partial class TestSMObject : Test {
 /*
-		・単体変数テスト
+		・単体作成テスト
 		_type、_lifeSpan、_sceneが、適切に設定されるか？
 		_type、_lifeSpan、_sceneにより、適切に登録されるか？
 		_ownerちゃんと設定？
+		SMMonoBehaviour、コンストラクタ呼ぶ？
+		リンク解放される？
 */
-		void CreateTestVariable() {
-#if false
-			new Type[] { typeof( B1 ), typeof( B2 ), typeof( B3 ), typeof( B4 ), typeof( B5 ), typeof( B6 ) }
-				.ForEach( t => t.Create() );
-#else
+		void CreateTestCreate() {
 			new Type[] { typeof( B1 ), typeof( B2 ), typeof( B3 ), typeof( B4 ), typeof( B5 ), typeof( B6 ) }
 				.ForEach( t => t.Create() );
 			new Type[] { typeof( M1 ), typeof( M2 ), typeof( M3 ), typeof( M4 ), typeof( M5 ), typeof( M6 ) }
 				.ForEach( t => {
-					var go = new GameObject( $"{t.Name}", t );
+					var go = new GameObject( $"{t.Name}" );
 					go.SetActive( false );
+					var mb = (SMMonoBehaviour)go.AddComponent( t );
 				} );
-#endif
 		}
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestVariable() => From( TestVariableSub() );
-		IEnumerator TestVariableSub() {
-			Log.Debug( $"{nameof( TestVariableSub )}" );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestCreate() => From( TestCreateSub() );
+		IEnumerator TestCreateSub() {
+			Log.Debug( $"{nameof( TestCreateSub )}" );
 			while ( true )	{ yield return null; }
 		}
 
 
 /*
-		・複数変数テスト
+		・複数動作の作成テスト
 		_type、_lifeSpan、_sceneが、適切に設定されるか？
 		_type、_lifeSpan、_sceneにより、適切に登録されるか？
 		_ownerちゃんと設定？
 		_behaviour、複数もちゃんと設定？
+		リンク設定される？
+		リンク解放される？
 */
-		void CreateTestMultiVariable() => TestSMBehaviourUtility.CreateBehaviours( @"
+		void CreateTestCreateBehaviours() => TestSMBehaviourUtility.CreateBehaviours( @"
 			M1, M1, M1,
 			M2, M2, M2,
 			M3, M3, M3,
@@ -79,23 +79,23 @@ namespace SubmarineMirage.TestSMTask {
 			M1, M6,
 		" );
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestMultiVariable() => From( TestMultiVariableSub() );
-		IEnumerator TestMultiVariableSub() {
-			Log.Debug( $"{nameof( TestMultiVariableSub )}" );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestCreateBehaviours() => From( TestCreateBehavioursSub() );
+		IEnumerator TestCreateBehavioursSub() {
+			Log.Debug( $"{nameof( TestCreateBehavioursSub )}" );
 			while ( true )	{ yield return null; }
 		}
 
+
 /*
-		・階層テスト
+		・複数物の作成テスト
 		_top、_parent、_child、親子兄弟関係、が正しく設定されるか？
 		SetupParent、SetupChildren、SetupBehaviours、それぞれ1回だけ呼ばれる？
 		SetupTop、親子階層含めて、1回だけ呼ばれる？
+		リンク設定される？
+		リンク解放される？
 */
-		void CreateTestObject() => TestSMBehaviourUtility.CreateBehaviours(
-#if false
-		@"
+		void CreateTestCreateObjects1() => TestSMBehaviourUtility.CreateBehaviours( @"
 			M1,
 				null,
 					M2,
@@ -107,9 +107,17 @@ namespace SubmarineMirage.TestSMTask {
 				null,
 					M1,
 				M1,
-		"
-#else
-		@"
+		" );
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestCreateObjects1() => From( TestCreateObjects1Sub() );
+		IEnumerator TestCreateObjects1Sub() {
+			Log.Debug( $"{nameof( TestCreateObjects1Sub )}" );
+			while ( true )	{ yield return null; }
+		}
+
+
+		void CreateTestCreateObjects2() => TestSMBehaviourUtility.CreateBehaviours( @"
 			M1,
 				M1,
 					M1,
@@ -172,15 +180,12 @@ namespace SubmarineMirage.TestSMTask {
 				null,
 					M1,
 				M1,
-		"
-#endif
-		);
+		" );
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestObject() => From( TestObjectSub() );
-		IEnumerator TestObjectSub() {
-			Log.Debug( $"{nameof( TestObjectSub )}" );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestCreateObjects2() => From( TestCreateObjects2Sub() );
+		IEnumerator TestCreateObjects2Sub() {
+			Log.Debug( $"{nameof( TestCreateObjects2Sub )}" );
 			while ( true )	{ yield return null; }
 		}
 	}

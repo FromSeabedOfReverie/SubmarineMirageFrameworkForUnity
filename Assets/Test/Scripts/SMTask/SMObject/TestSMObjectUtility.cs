@@ -18,6 +18,7 @@ namespace SubmarineMirage.TestSMTask {
 	using SMTask.Modifyler;
 	using Extension;
 	using Debug;
+	using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
 
 
@@ -137,6 +138,25 @@ namespace SubmarineMirage.TestSMTask {
 						} )
 					)
 			);
+		}
+
+
+		public static async UniTask LoadObjectsInScene( UTaskCanceler canceler ) {
+			var currents = new Queue<Transform>();
+			UnitySceneManager.GetActiveScene().GetRootGameObjects()
+				.ForEach( go => currents.Enqueue( go.transform ) );
+			while ( !currents.IsEmpty() ) {
+				var current = currents.Dequeue();
+				var bs = current.GetComponents<SMMonoBehaviour>();
+				if ( !bs.IsEmpty() ) {
+					new SMObject( current.gameObject, bs, null );
+					await UTask.NextFrame( canceler );
+				} else {
+					foreach ( Transform child in current ) {
+						currents.Enqueue( child );
+					}
+				}
+			}
 		}
 	}
 }

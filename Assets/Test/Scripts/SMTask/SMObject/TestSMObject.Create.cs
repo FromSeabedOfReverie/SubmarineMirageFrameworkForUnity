@@ -34,29 +34,31 @@ namespace SubmarineMirage.TestSMTask {
 			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _behaviour._object == null ) {
+				if ( _behaviour?._object == null ) {
 					_text.text = string.Empty;
 					return;
 				}
 				var b = _behaviour._object._behaviour;
-				_text.text =
-					$"{_behaviour._object}\n"
-					+ $"{b.GetAboutName()}(\n"
-					+ $"    {nameof( b._isInitialized )} : {b._isInitialized}\n"
-					+ $"    {nameof( b._isActive )} : {b._isActive}\n"
-					+ $"    {nameof( b._body._ranState )} : {b._body._ranState}\n"
-					+ $"    {nameof( b._body._activeState )} : {b._body._activeState}\n"
-					+ $"    next : {b._body._nextActiveState}\n"
-					+ $")\n";
+				_text.text = string.Join( "\n",
+					$"{_behaviour._object}",
+					$"{b.GetAboutName()}(",
+					$"    {nameof( b._isInitialized )} : {b._isInitialized}",
+					$"    {nameof( b._isActive )} : {b._isActive}",
+					$"    {nameof( b._body._ranState )} : {b._body._ranState}",
+					$"    {nameof( b._body._activeState )} : {b._body._activeState}",
+					$"    next : {b._body._nextActiveState}",
+					")"
+				);
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
 			_createEvent.AddLast( async canceler => {
 				Log.Debug( $"start {nameof( Create )}{_testName}" );
 				switch ( _testName ) {
-					case nameof( TestVariable ):					CreateTestVariable();				break;
-					case nameof( TestMultiVariable ):				CreateTestMultiVariable();			break;
-					case nameof( TestObject ):						CreateTestObject();					break;
+					case nameof( TestCreate ):						CreateTestCreate();					break;
+					case nameof( TestCreateBehaviours ):			CreateTestCreateBehaviours();		break;
+					case nameof( TestCreateObjects1 ):				CreateTestCreateObjects1();			break;
+					case nameof( TestCreateObjects2 ):				CreateTestCreateObjects2();			break;
 
 					case nameof( TestGetObjects ):					CreateTestGetObjects();				break;
 					case nameof( TestGetBehaviour ):				CreateTestGetBehaviour();			break;
