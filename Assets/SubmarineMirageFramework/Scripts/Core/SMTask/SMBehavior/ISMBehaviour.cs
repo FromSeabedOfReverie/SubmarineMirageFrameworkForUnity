@@ -46,5 +46,6 @@ namespace SubmarineMirage.SMTask {
 		UniTask ChangeActive( bool isActive );
 		UniTask RunActiveEvent();
 		string ToString();
+		string ToLineString();
 	}
 }

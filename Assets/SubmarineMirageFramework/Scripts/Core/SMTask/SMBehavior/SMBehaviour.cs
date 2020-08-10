@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTask
+//#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
@@ -69,6 +69,8 @@ namespace SubmarineMirage.SMTask {
 		public UniTask RunActiveEvent() => _body.RunActiveEvent();
 
 
-		public override string ToString() => _body.ToString( this );
+		public override string ToString() => _body.BehaviourToString( this );
+
+		public string ToLineString() => _body.BehaviourToLineString( this );
 	}
 }

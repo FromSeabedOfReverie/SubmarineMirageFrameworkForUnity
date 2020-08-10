@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTask
+//#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using Cysharp.Threading.Tasks;
@@ -430,59 +430,49 @@ namespace SubmarineMirage.SMTask {
 
 
 
-		public override string ToString() {
-			var result = string.Join( "\n",
-				$"    {nameof( SMBehaviourBody )}(",
-				$"        {nameof( _id )} : {_id} / {s_idCount}",
-				$"        {nameof( _owner )} : {_owner.GetAboutName()}( {_owner._id} )",
-				$"        {nameof( _ranState )} : {_ranState}",
-				$"        {nameof( _activeState )} : {_activeState}",
-				$"        {nameof( _nextActiveState )} : {_nextActiveState}",
-				$"        {nameof( _isInitialized )} : {_isInitialized}",
-				$"        {nameof( _isActive )} : {_isActive}",
-				""
-			);
+		public override string ToString() => string.Join( "\n",
+			$"    {nameof( SMBehaviourBody )}(",
+			$"        {nameof( _id )} : {_id} ↑{_owner._previous?._id} ↓{_owner._next?._id}",
+			$"        {nameof( _owner )} : {_owner._id} {_owner.GetAboutName()}",
+			$"        {nameof( _ranState )} : {_ranState}",
+			$"        {nameof( _activeState )} : {_activeState}",
+			$"        {nameof( _nextActiveState )} : {_nextActiveState}",
+			"",
+			$"        {nameof( _activeAsyncCanceler )}._isCancel : {_activeAsyncCanceler._isCancel}",
+			$"        {nameof( _inActiveAsyncCanceler )}._isCancel : {_inActiveAsyncCanceler._isCancel}",
+			$"        {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
+			"",
+			$"        {nameof( _loadEvent )}._isRunning : {_loadEvent._isRunning}",
+			$"        {nameof( _initializeEvent )}._isRunning : {_initializeEvent._isRunning}",
+			$"        {nameof( _enableEvent )}._isRunning : {_enableEvent._isRunning}",
+			$"        {nameof( _fixedUpdateEvent )}.Count : {_fixedUpdateEvent._events.Count}",
+			$"        {nameof( _updateEvent )}.Count : {_updateEvent._events.Count}",
+			$"        {nameof( _lateUpdateEvent )}.Count : {_lateUpdateEvent._events.Count}",
+			$"        {nameof( _disableEvent )}._isRunning : {_disableEvent._isRunning}",
+			$"        {nameof( _finalizeEvent )}._isRunning : {_finalizeEvent._isRunning}",
+			"    )"
+		);
 
-			var isCancel = _activeAsyncCanceler._disposables._isDispose
-				? true
-				: _activeAsyncCanceler.ToToken().IsCancellationRequested;
-			result += $"        {nameof( _activeAsyncCanceler )}.Cancel : {isCancel}\n";
-
-			isCancel = _inActiveAsyncCanceler._disposables._isDispose
-				? true
-				: _inActiveAsyncCanceler.ToToken().IsCancellationRequested;
-			result += $"        {nameof( _inActiveAsyncCanceler )}.Cancel : {isCancel}\n";
-
-			result += string.Join( "\n",
-				$"        {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
-				"",
-				$"        {nameof( _loadEvent )}._isRunning : {_loadEvent._isRunning}",
-				$"        {nameof( _initializeEvent )}._isRunning : {_initializeEvent._isRunning}",
-				$"        {nameof( _enableEvent )}._isRunning : {_enableEvent._isRunning}",
-				$"        {nameof( _fixedUpdateEvent )}.Count : {_fixedUpdateEvent._events.Count}",
-				$"        {nameof( _updateEvent )}.Count : {_updateEvent._events.Count}",
-				$"        {nameof( _lateUpdateEvent )}.Count : {_lateUpdateEvent._events.Count}",
-				$"        {nameof( _disableEvent )}._isRunning : {_disableEvent._isRunning}",
-				$"        {nameof( _finalizeEvent )}._isRunning : {_finalizeEvent._isRunning}",
-				"    )"
-			);
-
-			return result;
-		}
-
-		public string ToString( ISMBehaviour behaviour ) => string.Join( "\n",
+		public string BehaviourToString( ISMBehaviour behaviour ) => string.Join( "\n",
 			$"{behaviour.GetAboutName()}(",
 			$"    {nameof( behaviour._type )} : {behaviour._type}",
 			$"    {nameof( behaviour._lifeSpan )} : {behaviour._lifeSpan}",
-			string.Join( "",
-				$"    {nameof( behaviour._object._owner )} : ",
-				$"{( behaviour._object._owner != null ? behaviour._object._owner.name : "null" )}",
-				$"( {behaviour._object._id} )"
-			),
-			$"    {nameof( behaviour._previous )} : {behaviour._previous?._id}",
-			$"    {nameof( behaviour._next )} : {behaviour._next?._id}",
+			$"    {nameof( behaviour._object._owner )} : {behaviour._object.ToLineString()}",
+			$"    {nameof( behaviour._previous )} : {behaviour._previous?.ToLineString()}",
+			$"    {nameof( behaviour._next )} : {behaviour._next?.ToLineString()}",
 			$"    {nameof( behaviour._body )} : {behaviour._body}",
 			")"
+		);
+
+		public string BehaviourToLineString( ISMBehaviour behaviour ) => string.Join( " ",
+			behaviour._id,
+			behaviour.GetAboutName(),
+			behaviour._body._ranState,
+			behaviour._body._activeState,
+			behaviour._body._nextActiveState,
+			$"↑{behaviour._previous?._id}",
+			$"↓{behaviour._next?._id}",
+			behaviour._disposables._isDispose ? "Dispose" : ""
 		);
 	}
 }

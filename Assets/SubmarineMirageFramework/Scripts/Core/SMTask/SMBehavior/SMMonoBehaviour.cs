@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTask
+//#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -138,7 +138,9 @@ namespace SubmarineMirage.SMTask {
 			=> _object.ChangeParent( parent, isWorldPositionStays );
 
 
-		public override string ToString() => _body.ToString( this );
+		public override string ToString() => _body.BehaviourToString( this );
+
+		public string ToLineString() => _body.BehaviourToLineString( this );
 
 
 #if DEVELOP
