@@ -60,7 +60,11 @@ namespace SubmarineMirage.TestSMTask {
 					case nameof( TestCreateObjects1 ):				CreateTestCreateObjects1();			break;
 					case nameof( TestCreateObjects2 ):				CreateTestCreateObjects2();			break;
 
-					case nameof( TestGetObjects ):					CreateTestGetObjects();				break;
+					case nameof( TestGetFirstLastChild ):			CreateTestGetFirstLastChild();		break;
+					case nameof( TestGetBrothersChildren ):			CreateTestGetBrothersChildren();	break;
+					case nameof( TestGetAllParentsChildren ):		CreateTestGetAllParentsChildren();	break;
+
+
 					case nameof( TestGetBehaviour ):				CreateTestGetBehaviour();			break;
 					case nameof( TestGetObjectBehaviour ):			CreateTestGetObjectBehaviour();		break;
 					case nameof( TestGetInSMMonoBehaviour ):		CreateTestGetInSMMonoBehaviour();	break;

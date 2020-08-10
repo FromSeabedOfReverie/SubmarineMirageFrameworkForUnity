@@ -11,6 +11,7 @@ namespace SubmarineMirage.TestSMTask {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using KoganeUnityLib;
+	using UTask;
 	using SMTask;
 	using Extension;
 	using Debug;
@@ -43,11 +44,10 @@ namespace SubmarineMirage.TestSMTask {
 		}
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestCreate() => From( TestCreateSub() );
-		IEnumerator TestCreateSub() {
-			Log.Debug( $"{nameof( TestCreateSub )}" );
-			while ( true )	{ yield return null; }
-		}
+		public IEnumerator TestCreate() => From( async () => {
+			Log.Debug( $"{nameof( TestCreate )}" );
+			await UTask.Never( _asyncCanceler );
+		} );
 
 
 /*
@@ -80,11 +80,10 @@ namespace SubmarineMirage.TestSMTask {
 		" );
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestCreateBehaviours() => From( TestCreateBehavioursSub() );
-		IEnumerator TestCreateBehavioursSub() {
-			Log.Debug( $"{nameof( TestCreateBehavioursSub )}" );
-			while ( true )	{ yield return null; }
-		}
+		public IEnumerator TestCreateBehaviours() => From( async () => {
+			Log.Debug( $"{nameof( TestCreateBehaviours )}" );
+			await UTask.Never( _asyncCanceler );
+		} );
 
 
 /*
@@ -110,11 +109,10 @@ namespace SubmarineMirage.TestSMTask {
 		" );
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestCreateObjects1() => From( TestCreateObjects1Sub() );
-		IEnumerator TestCreateObjects1Sub() {
-			Log.Debug( $"{nameof( TestCreateObjects1Sub )}" );
-			while ( true )	{ yield return null; }
-		}
+		public IEnumerator TestCreateObjects1() => From( async () => {
+			Log.Debug( $"{nameof( TestCreateObjects1 )}" );
+			await UTask.Never( _asyncCanceler );
+		} );
 
 
 		void CreateTestCreateObjects2() => TestSMBehaviourUtility.CreateBehaviours( @"
@@ -183,10 +181,9 @@ namespace SubmarineMirage.TestSMTask {
 		" );
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestCreateObjects2() => From( TestCreateObjects2Sub() );
-		IEnumerator TestCreateObjects2Sub() {
-			Log.Debug( $"{nameof( TestCreateObjects2Sub )}" );
-			while ( true )	{ yield return null; }
-		}
+		public IEnumerator TestCreateObjects2() => From( async () => {
+			Log.Debug( $"{nameof( TestCreateObjects2 )}" );
+			await UTask.Never( _asyncCanceler );
+		} );
 	}
 }

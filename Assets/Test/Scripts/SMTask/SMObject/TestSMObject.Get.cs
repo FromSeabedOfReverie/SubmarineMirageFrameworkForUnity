@@ -10,6 +10,8 @@ namespace SubmarineMirage.TestSMTask {
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
 	using KoganeUnityLib;
+	using UTask;
+	using SMTask;
 	using Scene;
 	using Extension;
 	using Debug;
@@ -22,11 +24,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 	public partial class TestSMObject : Test {
-/*
-		・SMObject取得テスト
-		GetAllParents、GetAllChildren、動作確認
-*/
-		void CreateTestGetObjects() => TestSMBehaviourUtility.CreateBehaviours( @"
+		void CreateTestObjects() => TestSMBehaviourUtility.CreateBehaviours( @"
 			M1, M1, M2,
 				null,
 					M2,
@@ -40,44 +38,138 @@ namespace SubmarineMirage.TestSMTask {
 				null,
 					M1,
 						M6,
-							M1, M1
+							M1, M1,
 				M1,
 		" );
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestGetObjects() => From( TestGetObjectsSub() );
-		IEnumerator TestGetObjectsSub() {
-			Log.Debug( $"{nameof( TestGetObjectsSub )}" );
 
-			var top = SceneManager.s_instance.GetBehaviour<M1>()._object;
-			var center = SceneManager.s_instance.GetBehaviour<M3>()._object;
-			var bottom = SceneManager.s_instance.GetBehaviour<M5>()._object;
-			TestSMObjectUtility.LogObject( $"{nameof( top )}",		top );
-			TestSMObjectUtility.LogObject( $"{nameof( center )}",	center );
-			TestSMObjectUtility.LogObject( $"{nameof( bottom )}",	bottom );
+/*
+		・SMObject取得テスト
+		GetFirst、GetLast、GetLastChild、動作確認
+*/
+		void CreateTestGetFirstLastChild() => TestSMBehaviourUtility.CreateBehaviours( @"
+			M4,
+			M4,
+			M4,
+			M1,
+				M1,
+				M1,
+				M1,
+			M2,
+		" );
 
-			TestSMObjectUtility.LogObjects( $"{nameof( top.GetAllChildren )}",		top.GetAllChildren() );
-			TestSMObjectUtility.LogObjects( $"{nameof( center.GetAllChildren )}",	center.GetAllChildren() );
-			TestSMObjectUtility.LogObjects( $"{nameof( bottom.GetAllChildren )}",	bottom.GetAllChildren() );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestGetFirstLastChild() => From( async () => {
+			Log.Debug( $"{nameof( TestGetFirstLastChild )}" );
 
-			TestSMObjectUtility.LogObjects( $"{nameof( top.GetAllParents )}",		top.GetAllParents() );
-			TestSMObjectUtility.LogObjects( $"{nameof( center.GetAllParents )}",	center.GetAllParents() );
-			TestSMObjectUtility.LogObjects( $"{nameof( bottom.GetAllParents )}",	bottom.GetAllParents() );
+			Log.Debug( "・最上階テスト" );
+			var start = SceneManager.s_instance.GetBehaviour<M4>()._object._next;
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetFirst )}",	start.GetFirst() );
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetLast )}",		start.GetLast() );
 
-			while ( true )	{ yield return null; }
-		}
+			Log.Debug( "・子テスト" );
+			var child = SceneManager.s_instance.GetBehaviour<M1>()._object._child._next;
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetFirst )}",	child.GetFirst() );
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetLast )}",		child.GetLast() );
+			var parent = SceneManager.s_instance.GetBehaviour<M1>()._object;
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetLastChild )}",	parent.GetLastChild() );
+
+			Log.Debug( "・単体取得テスト" );
+			start = SceneManager.s_instance.GetBehaviour<M2>()._object;
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetFirst )}",		start.GetFirst() );
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetLast )}",			start.GetLast() );
+
+			Log.Debug( "・取得不可テスト" );
+			TestSMObjectUtility.LogObject( $"{nameof( SMObject.GetLastChild )}",	start.GetLastChild() );
+
+			await UTask.Never( _asyncCanceler );
+		} );
+
+
+/*
+		・SMObject取得テスト
+		GetBrothers、GetChildren、動作確認
+*/
+		void CreateTestGetBrothersChildren() => TestSMBehaviourUtility.CreateBehaviours( @"
+			M4,
+			M4,
+			M4,
+			M1,
+				M1,
+				M1,
+				M1,
+			M2,
+		" );
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestGetBrothersChildren() => From( async () => {
+			Log.Debug( $"{nameof( TestGetBrothersChildren )}" );
+
+			Log.Debug( "・最上階テスト" );
+			var start = SceneManager.s_instance.GetBehaviour<M4>()._object._next;
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetBrothers )}",	start.GetBrothers() );
+
+			Log.Debug( "・子テスト" );
+			var child = SceneManager.s_instance.GetBehaviour<M1>()._object._child._next;
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetBrothers )}",	child.GetBrothers() );
+			var parent = SceneManager.s_instance.GetBehaviour<M1>()._object;
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetChildren )}",	parent.GetChildren() );
+
+			Log.Debug( "・単体取得テスト" );
+			start = SceneManager.s_instance.GetBehaviour<M2>()._object;
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetBrothers )}",	start.GetBrothers() );
+
+			Log.Debug( "・取得不可テスト" );
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetChildren )}",	start.GetChildren() );
+
+			await UTask.Never( _asyncCanceler );
+		} );
+
+
+/*
+		・SMObject取得テスト
+		GetAllParents、GetAllChildren、動作確認
+*/
+		void CreateTestGetAllParentsChildren() => TestSMBehaviourUtility.CreateBehaviours( @"
+			M4,
+				M4,
+					M4,
+				M4,
+					M4,
+						M4,
+					M4,
+				null,
+					M4,
+				M4,
+			M4,
+		" );
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestGetAllParentsChildren() => From( async () => {
+			Log.Debug( $"{nameof( TestGetAllParentsChildren )}" );
+
+			Log.Debug( "・複数取得テスト" );
+			var start = SceneManager.s_instance.GetBehaviour<M4>()._object;
+			SMObject lastChild = null;
+			for ( lastChild = start._child._next; lastChild?._child != null; lastChild = lastChild._child ) {}
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetAllParents )}",	lastChild.GetAllParents() );
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetAllChildren )}",	start.GetAllChildren() );
+
+			Log.Debug( "・単体取得テスト" );
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetAllParents )}",	start._next.GetAllParents() );
+			TestSMObjectUtility.LogObjects( $"{nameof( SMObject.GetAllChildren )}",	start._next.GetAllChildren() );
+
+			await UTask.Never( _asyncCanceler );
+		} );
 
 
 /*
 		・取得テスト
 		GetBehaviour<T>、GetBehaviour(type)、GetBehaviours<T>、GetBehaviours(type)、動作確認
 */
-		void CreateTestGetBehaviour()
-			=> CreateTestGetObjects();
+		void CreateTestGetBehaviour() => CreateTestObjects();
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestGetBehaviour() => From( TestGetBehaviourSub() );
 		IEnumerator TestGetBehaviourSub() {
 			Log.Debug( $"{nameof( TestGetBehaviourSub )}" );
@@ -127,11 +219,9 @@ namespace SubmarineMirage.TestSMTask {
 		GetBehaviourInChildren<T>、GetBehaviourInChildren(type)
 		GetBehavioursInChildren<T>、GetBehavioursInChildren(type)
 */
-		void CreateTestGetObjectBehaviour()
-			=> CreateTestGetObjects();
+		void CreateTestGetObjectBehaviour() => CreateTestObjects();
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestGetObjectBehaviour() => From( TestGetObjectBehaviourSub() );
 		IEnumerator TestGetObjectBehaviourSub() {
 			Log.Debug( $"{nameof( TestGetObjectBehaviourSub )}" );
@@ -278,11 +368,9 @@ namespace SubmarineMirage.TestSMTask {
 /*
 		・SMMonoBehaviour内の取得テスト
 */
-		void CreateTestGetInSMMonoBehaviour()
-			=> CreateTestGetObjects();
+		void CreateTestGetInSMMonoBehaviour() => CreateTestObjects();
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestGetInSMMonoBehaviour() => From( TestGetInSMMonoBehaviourSub() );
 		IEnumerator TestGetInSMMonoBehaviourSub() {
 			Log.Debug( $"{nameof( TestGetInSMMonoBehaviourSub )}" );
@@ -380,8 +468,7 @@ namespace SubmarineMirage.TestSMTask {
 				.ForEach( t => t.Create() );
 		}
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestGetSMBehaviour() => From( TestGetSMBehaviourSub() );
 		IEnumerator TestGetSMBehaviourSub() {
 			Log.Debug( $"{nameof( TestGetSMBehaviourSub )}" );
