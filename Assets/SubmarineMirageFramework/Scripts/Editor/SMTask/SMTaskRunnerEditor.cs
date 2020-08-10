@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Editor.EditorSMTask {
+	using System.Linq;
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
@@ -61,15 +62,24 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 		void ShowObject( SMObject smObject ) {
 			EditorGUI.indentLevel++;
 
-			GUI.SetNextControlName( smObject.ToString() );
-			var i = smObject._id;
-			var b = smObject._behaviour;
-			var a = b._isActive ? "◯" : "×";
-			var g = smObject._owner != null ? $"( {smObject._owner.name} )" : "";
-			EditorGUILayout.SelectableLabel(
-				$"{a} {i} {b.GetAboutName()}{g}( {b._body._ranState} )",
-				GUILayout.Height( 16 )
-			);
+			GUI.SetNextControlName( string.Join( "\n",
+				$"{smObject._id}, {smObject._type}, {smObject._lifeSpan}( {smObject._scene.GetAboutName()} )",
+
+				$"{( smObject._owner != null ? smObject._owner.name : "null" )}",
+				string.Join( "\n", smObject.GetBehaviours().Select( b => $"    {b.ToLineString()}" ) ),
+
+				$"△ {( smObject._top == smObject ? "this" : smObject._top?.ToLineString( false ) )}",
+				$"← {smObject._parent?.ToLineString( false )}",
+				$"↑ {smObject._previous?.ToLineString( false )}",
+				$"↓ {smObject._next?.ToLineString( false )}",
+				$"→",
+				string.Join( "\n", smObject.GetChildren().Select( o => $"    {o.ToLineString( false )}" ) ),
+
+				$"{( smObject._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
+					+ $"{( smObject._disposables._isDispose ? "Dispose" : "" )}"
+			) );
+
+			EditorGUILayout.SelectableLabel( smObject.ToLineString( false ), GUILayout.Height( 16 ) );
 
 			smObject.GetChildren().ForEach( child => ShowObject( child ) );
 
