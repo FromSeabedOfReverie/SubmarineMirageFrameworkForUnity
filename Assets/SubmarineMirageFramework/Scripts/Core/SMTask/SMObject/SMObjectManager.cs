@@ -206,9 +206,9 @@ namespace SubmarineMirage.SMTask {
 			if ( _owner == _owner._fsm._foreverScene )	{ return; }
 			TimeManager.s_instance.StartMeasure();
 
-			var currents = new Queue<Transform>();
-			_owner._scene.GetRootGameObjects()
-				.ForEach( go => currents.Enqueue( go.transform ) );
+			var currents = new Queue<Transform>(
+				_owner._scene.GetRootGameObjects().Select( go => go.transform )
+			);
 			while ( !currents.IsEmpty() ) {
 				var current = currents.Dequeue();
 				var bs = current.GetComponents<SMMonoBehaviour>();

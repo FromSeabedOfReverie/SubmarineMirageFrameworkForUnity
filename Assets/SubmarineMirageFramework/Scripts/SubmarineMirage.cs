@@ -13,6 +13,7 @@ namespace SubmarineMirage.Main {
 	using SMTask;
 	using Singleton;
 	using Scene;
+	using Extension;
 	using Debug;
 
 
@@ -32,6 +33,7 @@ namespace SubmarineMirage.Main {
 			_disposables.AddLast( () => {
 				SMTaskRunner.DisposeInstance();
 				SceneManager.DisposeInstance();
+				DecorationManager.DisposeInstance();
 			} );
 		}
 

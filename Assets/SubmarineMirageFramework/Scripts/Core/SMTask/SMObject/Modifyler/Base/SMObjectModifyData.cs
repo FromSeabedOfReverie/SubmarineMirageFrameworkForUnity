@@ -69,15 +69,21 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public static void SetAllObjectData( SMObject top ) {
 #if TestSMTask
-			Log.Debug( $"{nameof( SetAllObjectData )} : start\n{top}" );
+//			Log.Debug( $"{nameof( SetAllObjectData )} : start\n{top}" );
 #endif
 			var lastType = top._type;
 			var lastScene = top._scene;
 			var allObjects = top.GetAllChildren();
 			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
 #if TestSMTask
+/*
 			Log.Debug(
-				$"{nameof( allBehaviours )} : \n"
+				$"{nameof( allObjects )} : "
+					+ $"{string.Join( ", ", allObjects.Select( o => $"{o._behaviour.GetAboutName()}..." ) )}"
+			);
+*/
+			Log.Debug(
+				$"{nameof( allBehaviours )} : "
 					+ $"{string.Join( ", ", allBehaviours.Select( b => b.GetAboutName() ) )}"
 			);
 #endif
@@ -128,7 +134,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 		public static void UnLinkObject( SMObject smObject ) {
-			if ( smObject._objects?._objects[smObject._type] == smObject ) {
+			if ( smObject._objects?._objects.GetOrDefault( smObject._type ) == smObject ) {
 				smObject._objects._objects[smObject._type] = smObject._next;
 			}
 
