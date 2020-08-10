@@ -48,7 +48,7 @@ namespace SubmarineMirage.Singleton {
 
 		public static void DisposeInstance() {
 			if ( !s_isCreated )	{ return; }
-			s_instanceObject.Dispose();
+			s_instanceObject._object.Dispose();
 			s_instanceObject = null;
 		}
 	}
