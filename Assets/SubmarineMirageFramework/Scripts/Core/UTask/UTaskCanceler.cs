@@ -15,12 +15,17 @@ namespace SubmarineMirage.UTask {
 	using Debug;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class UTaskCanceler : IDisposableExtension {
 		CancellationTokenSource _canceler = new CancellationTokenSource();
 		public readonly MultiSubject _cancelEvent = new MultiSubject();
+		public bool _isCancel =>
+//			_disposables._isDispose ||
+			_canceler.IsCancellationRequested;
 
 		UTaskCanceler _parent;
 		readonly List<UTaskCanceler> _children = new List<UTaskCanceler>();
@@ -95,7 +100,7 @@ namespace SubmarineMirage.UTask {
 
 		public override string ToString() => string.Join( "\n",
 			$"{nameof( UTaskCanceler )}(",
-			$"    IsCancel : {_canceler.IsCancellationRequested}",
+			$"    {nameof( _isCancel )} : {_isCancel}",
 			$"    {nameof( _cancelEvent )} : {_cancelEvent}",
 			$"    {nameof( _parent )} : {( _parent != null ? 1 : 0 )}",
 			$"    {nameof( _children )} : {_children.Count}",

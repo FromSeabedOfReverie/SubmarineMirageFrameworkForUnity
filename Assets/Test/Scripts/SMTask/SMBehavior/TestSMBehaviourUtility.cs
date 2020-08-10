@@ -55,7 +55,7 @@ namespace SubmarineMirage.TestSMTask {
 					return new { a.i, isActive, a.types };
 				} )
 				.ForEach( ( a, i ) => {
-					var go = new GameObject( $"indent : {a.i}, id : {i}" );
+					var go = new GameObject( $"[t{a.i} i{i}]" );
 					go.SetActive( a.isActive );
 					go.SetParent( parents.GetOrDefault( a.i - 1 ) );
 					parents[a.i] = go.transform;
