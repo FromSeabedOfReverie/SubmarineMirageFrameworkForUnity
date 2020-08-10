@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTask
+//#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -65,14 +65,12 @@ namespace SubmarineMirage.SMTask {
 			SetupChildren();
 			SetupTop();
 
-			_disposables.AddLast( () => GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() ) );
 			_disposables.AddLast( () => GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() ) );
+			_disposables.AddLast( () => GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() ) );
 			_disposables.AddLast( _asyncCanceler );
 			_disposables.AddLast( () => SMObjectModifyData.UnLinkObject( this ) );
 #if TestSMTask
-			_disposables.AddLast( () =>
-				Log.Debug( $"{nameof( SMObject )}.{nameof( Dispose )} : {this}" )
-			);
+			_disposables.AddLast( () => Log.Debug( $"{nameof( SMObject )}.{nameof( Dispose )} : {this}" ) );
 			Log.Debug( $"{nameof( SMObject )}() : end\n{this}" );
 #endif
 		}
@@ -169,6 +167,7 @@ namespace SubmarineMirage.SMTask {
 			for ( current = _child; current?._next != null; current = current._next )	{}
 			return current;
 		}
+
 		public IEnumerable<SMObject> GetBrothers() {
 			for ( var current = GetFirst(); current != null; current = current._next )	{
 				yield return current;
@@ -282,47 +281,59 @@ namespace SubmarineMirage.SMTask {
 
 
 
-		public override string ToString() {
-			var toObjectNameEvent = new Func<SMObject, string>( o => (
-				o == null			? string.Empty :
-				o == this			? $"this" :
-				o._owner != null	? $"{o._owner.name}( {o._id} )"
-									: $"{o._behaviour.GetAboutName()}( {o._id} )"
-			) );
+		public override string ToString() => string.Join( "\n",
+			$"{nameof( SMObject )}(",
+			$"    {nameof( _id )} : {_id}",
+			$"    {nameof( _type )} : {_type}",
+			$"    {nameof( _lifeSpan )} : {_lifeSpan}",
+			$"    {nameof( _scene )} : {_scene}",
 
-			var result = string.Join( "\n",
-				$"{nameof( SMObject )}(",
-				$"    {nameof( _id )} : {_id} / {s_idCount}",
-				$"    {nameof( _type )} : {_type}",
-				$"    {nameof( _lifeSpan )} : {_lifeSpan}",
-				$"    {nameof( _scene )} : {_scene}",
-				$"    {nameof( _owner )} : {( _owner != null ? _owner.name : "" )}",
+			$"    {nameof( _owner )} : {( _owner != null ? _owner.name : "null" )}",
+			$"    {nameof( GetBehaviours )} : ",
+			string.Join( "\n", GetBehaviours().Select( b => $"        {b.ToLineString()}" ) ),
 
-				$"    {nameof( _top )} : {toObjectNameEvent( _top )}",
-				$"    {nameof( _previous )} : {toObjectNameEvent( _previous )}",
-				$"    {nameof( _next )} : {toObjectNameEvent( _next )}",
-				$"    {nameof( _parent )} : {toObjectNameEvent( _parent )}",
+			$"    {nameof( _top )} : {( _top == this ? "this" : _top?.ToLineString() )}",
+			$"    {nameof( _parent )} : {_parent?.ToLineString()}",
+			$"    {nameof( _previous )} : {_previous?.ToLineString()}",
+			$"    {nameof( _next )} : {_next?.ToLineString()}",
+			$"    {nameof( GetChildren )} : ",
+			string.Join( "\n", GetChildren().Select( o => $"        {o.ToLineString()}" ) ),
 
-				$"    {nameof( GetChildren )} : ",
-				string.Join( "\n", GetChildren().Select( ( o, i ) =>
-					$"        {i} : {o._owner?.name}( {o._id} )" ) ),
+			$"    {nameof( _modifyler )} : {_modifyler}",
+			"",
+			$"    {nameof( _asyncCanceler )}._isCancel : {_asyncCanceler._isCancel}",
+			$"    {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
+			")"
+		);
 
-				$"    {nameof( GetBehaviours )} : ",
-				string.Join( "\n", GetBehaviours().Select( ( b, i ) =>
-					$"        {i} : {b.GetAboutName()}( {b._id} )" ) ),
+		public string ToLineString( bool isViewLink = true ) {
+			var bs = GetBehaviours().ToArray();
+			var isDispose = bs.All( b => b._disposables._isDispose );
 
-				$"    {nameof( _modifyler )} : {_modifyler}",
+			var result = string.Join( " ",
+				_id,
+				_owner != null ? _owner.name : "null",
+				$"({string.Join( ", ", bs.Select( b => b.GetAboutName() ) )})",
 				""
 			);
-			var isCancel = _asyncCanceler._disposables._isDispose
-				? true
-				: _asyncCanceler.ToToken().IsCancellationRequested;
-			result += $"    {nameof( _asyncCanceler )}.Cancel : {isCancel}\n";
-			result += string.Join( "\n",
-				$"    {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
-				")"
-			);
-
+			if ( isDispose ) {
+				result += "Dispose ";
+			} else {
+				result += string.Join( " ",
+					bs.Max( b => b._body._ranState ),
+					bs.Any( b => b._isActive ) ? "◯" : "×",
+					""
+				);
+			}
+			if ( isViewLink ) {
+				result += string.Join( " ",
+					$"△{_top?._id}",
+					$"←{_parent?._id}",
+					$"↑{_previous?._id}",
+					$"↓{_next?._id}",
+					$"→{string.Join( ",", GetChildren().Select( o => o._id ) )}"
+				);
+			}
 			return result;
 		}
 	}
