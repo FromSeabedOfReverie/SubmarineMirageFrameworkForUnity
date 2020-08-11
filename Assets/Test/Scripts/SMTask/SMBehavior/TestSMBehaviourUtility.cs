@@ -173,28 +173,14 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-		public static void LogBehaviour( string text, ISMBehaviour behaviour ) {
-			if ( behaviour == null ) {
-				Log.Debug( $"{text} : null" );
-				return;
-			}
-			var name = behaviour._object._owner != null ? behaviour._object._owner.name : null;
-			var id = behaviour._id;
-			Log.Debug( $"{text} : {behaviour.GetAboutName()}, {name}, {nameof( id )} : {id}" );
-		}
+		public static void LogBehaviour( string text, ISMBehaviour behaviour )
+			=> Log.Debug( $"{text} : {behaviour?.ToLineString() ?? "null"}" );
 
-		public static void LogBehaviours( string text, IEnumerable<ISMBehaviour> behaviours ) {
-			Log.Debug(
-				$"{text} :\n"
-					+ string.Join( "\n",
-						behaviours.Select( b => {
-							var name = b._object._owner != null ? b._object._owner.name : null;
-							var id = b._id;
-							return $"{b.GetAboutName()}, {name}, {nameof( id )} : {id}";
-						} )
-					)
-			);
-		}
+		public static void LogBehaviours( string text, IEnumerable<ISMBehaviour> behaviours )
+			=> Log.Debug( string.Join( "\n",
+				$"{text} : {behaviours.Count()}",
+				string.Join( "\n", behaviours.Select( b => b?.ToLineString() ?? "null" ) )
+			) );
 	}
 
 

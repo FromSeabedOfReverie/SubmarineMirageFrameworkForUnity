@@ -81,6 +81,10 @@ namespace SubmarineMirage.SMTask {
 		void UnLink() {
 #if TestSMTask
 			Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( UnLink )} : start\n{_owner}" );
+/*
+			var p = _owner._previous;
+			var n = _owner._next;
+*/
 #endif
 			if ( _owner._object._behaviour == _owner )	{ _owner._object._behaviour = _owner._next; }
 			if ( _owner._previous != null )	{ _owner._previous._next = _owner._next; }
@@ -88,6 +92,14 @@ namespace SubmarineMirage.SMTask {
 			_owner._previous = null;
 			_owner._next = null;
 #if TestSMTask
+/*
+			Log.Debug( string.Join( "\n",
+				$"_object : {_owner._object.ToLineString()}",
+				$"_object._behaviour : {_owner._object._behaviour?.ToLineString()}",
+				$"_owner._previous : {p?.ToLineString()}",
+				$"_owner._next : {n?.ToLineString()}"
+			) );
+*/
 			Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( UnLink )} : end\n{_owner}" );
 #endif
 		}

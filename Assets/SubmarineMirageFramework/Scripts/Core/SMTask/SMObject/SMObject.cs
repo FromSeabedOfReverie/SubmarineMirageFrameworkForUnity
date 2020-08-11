@@ -98,6 +98,7 @@ namespace SubmarineMirage.SMTask {
 				if ( _owner != null )	{ ( (SMMonoBehaviour)b ).Constructor(); }
 			} );
 #if TestSMTask
+//			Log.Debug( string.Join( "\n", behaviours.Select( b => b.ToLineString() ) ) );
 			Log.Debug( $"{nameof( SetupBehaviours )} : end\n{this}" );
 #endif
 		}
@@ -213,7 +214,6 @@ namespace SubmarineMirage.SMTask {
 				yield return current;
 			}
 		}
-
 		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
 			=> GetBehaviours()
 				.Where( b => b is T )
@@ -222,6 +222,7 @@ namespace SubmarineMirage.SMTask {
 		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
 			=> GetBehaviours()
 				.Where( b => b.GetType() == type );
+
 
 		public T GetBehaviourInParent<T>() where T : ISMBehaviour
 			=> GetAllParents()
