@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -27,6 +28,10 @@ namespace SubmarineMirage.SMTask {
 		public BaseScene _owner	{ get; private set; }
 		public readonly Dictionary<SMTaskType, SMObject> _objects = new Dictionary<SMTaskType, SMObject>();
 		public bool _isEnter	{ get; private set; }
+		readonly SMTaskType[] _getAllTopsTaskTypes =
+			new SMTaskType[] { SMTaskType.FirstWork, SMTaskType.Work, SMTaskType.DontWork };
+		readonly SMTaskType[] _disposeTaskTypes =
+			new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork };
 
 		public UTaskCanceler _activeAsyncCanceler => _owner._activeAsyncCanceler;
 
@@ -38,7 +43,7 @@ namespace SubmarineMirage.SMTask {
 
 			EnumUtils.GetValues<SMTaskType>().ForEach( t => _objects[t] = null );
 			_disposables.AddLast( () => {
-				new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork }
+				_disposeTaskTypes
 					.Select( t => _objects.GetOrDefault( t ) )
 					.Where( o => o != null )
 					.SelectMany( o => o.GetBrothers().Reverse() )
@@ -55,67 +60,57 @@ namespace SubmarineMirage.SMTask {
 
 
 
-		public IEnumerable<SMObject> GetAll( SMTaskType? type = null, bool isReverse = false ) {
-			var result = (
-				type.HasValue	? _objects[type.Value]?.GetBrothers() ?? Enumerable.Empty<SMObject>()
-								: _objects
-									.Select( pair => pair.Value )
-									.Where( o => o != null )
-									.SelectMany( o => o.GetBrothers() )
-			);
-
+		public IEnumerable<SMObject> GetAllTops( SMTaskType? type = null, bool isReverse = false ) {
+			IEnumerable<SMObject> result = null;
+			if ( type.HasValue ) {
+				result = _objects[type.Value]?.GetBrothers() ?? Enumerable.Empty<SMObject>();
+			} else {
+				result = _getAllTopsTaskTypes
+					.Select( t => _objects.GetOrDefault( t ) )
+					.Where( o => o != null )
+					.SelectMany( o => o.GetBrothers() );
+			}
 			if ( isReverse ) {
-/*
-				var befor = string.Join(
-					", ",
-					(	type.HasValue	? _objects[type.Value].GetBrothers()
-										: _objects
-											.Where( pair => pair.Value != null )
-											.SelectMany( pair => pair.Value.GetBrothers() )
-					).Select( o => o._behaviour.GetAboutName() )
-				);
-				Log.Debug( $"{nameof( befor )} reverse : {befor}" );
-*/
+#if TestSMTask
+				Log.Debug( $"Start Reverse :\n{string.Join( "\n", result.Select( o => o.ToLineString() ) )}" );
+#endif
 				result = result.Reverse();
-/*
-				Log.Debug( $"new : {string.Join( ", ", result.Select( o => o._behaviour.GetAboutName() ) )}" );
-				var after = string.Join(
-					", ",
-					(	type.HasValue	? _objects[type.Value].GetBrothers()
-										: _objects
-											.Where( pair => pair.Value != null )
-											.SelectMany( pair => pair.Value.GetBrothers() )
-					).Select( o => o._behaviour.GetAboutName() )
-				);
-				Log.Debug( $"{nameof( after )} reverse : {after}" );
-*/
+#if TestSMTask
+				Log.Debug( $"End Reverse :\n{string.Join( "\n", result.Select( o => o.ToLineString() ) )}" );
+				Log.Debug(
+					$"Don't Reverse :\n{string.Join( "\n", GetAllTops( type ).Select( o => o.ToLineString() ) )}" );
+#endif
 			}
 			return result;
 		}
 
 
-		public T GetBehaviour<T>( SMTaskType? type = null ) where T : ISMBehaviour
-			=> GetAll( type )
-				.Select( o => o.GetBehaviourInChildren<T>() )
-				.FirstOrDefault( b => b != null );
+		public T GetBehaviour<T>( SMTaskType? taskType = null ) where T : ISMBehaviour
+			=> (T)GetBehaviour( typeof( T ), taskType );
 
-		public ISMBehaviour GetBehaviour( Type systemType, SMTaskType? type = null )
-			=> GetAll( type )
-				.Select( o => o.GetBehaviourInChildren( systemType ) )
-				.FirstOrDefault( b => b != null );
+		public ISMBehaviour GetBehaviour( Type type, SMTaskType? taskType = null )
+			=> GetBehaviours( type, taskType )
+				.FirstOrDefault();
 
-		public IEnumerable<T> GetBehaviours<T>( SMTaskType? type = null ) where T : ISMBehaviour
-			=> GetAll( type )
-				.SelectMany( o => o.GetBehavioursInChildren<T>() );
+		public IEnumerable<T> GetBehaviours<T>( SMTaskType? taskType = null ) where T : ISMBehaviour
+			=> GetBehaviours( typeof( T ), taskType )
+				.Select( b => (T)b );
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type systemType, SMTaskType? type = null )
-			=> GetAll( type )
-				.SelectMany( o => o.GetBehavioursInChildren( systemType ) );
+		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, SMTaskType? taskType = null ) {
+			var currents = new Queue<SMObject>( GetAllTops( taskType ) );
+			while ( !currents.IsEmpty() ) {
+				var o = currents.Dequeue();
+				foreach ( var b in o.GetBehaviours( type ) ) {
+					yield return b;
+				}
+				o.GetChildren().ForEach( c => currents.Enqueue( c ) );
+			}
+		}
 
 
 
 		public async UniTask RunAllStateEvents( SMTaskType type, SMTaskRanState state ) {
-			var os = GetAll( type, type == SMTaskType.FirstWork && state == SMTaskRanState.Finalizing );
+			var os = GetAllTops( type, type == SMTaskType.FirstWork && state == SMTaskRanState.Finalizing );
 			switch ( type ) {
 				case SMTaskType.FirstWork:
 					os.ForEach( o => RunStateSMObject.RunOrRegister( o, state ) );
@@ -132,7 +127,7 @@ namespace SubmarineMirage.SMTask {
 		}
 
 		public async UniTask ChangeAllActives( SMTaskType type, bool isActive ) {
-			var os = GetAll( type, type == SMTaskType.FirstWork && !isActive );
+			var os = GetAllTops( type, type == SMTaskType.FirstWork && !isActive );
 			switch ( type ) {
 				case SMTaskType.FirstWork:
 					os.ForEach( o => o._modifyler.Register( new ChangeActiveSMObject( o, isActive, true ) ) );
@@ -149,7 +144,7 @@ namespace SubmarineMirage.SMTask {
 		}
 
 		public async UniTask RunAllActiveEvents( SMTaskType type ) {
-			var os = GetAll( type );
+			var os = GetAllTops( type );
 			switch ( type ) {
 				case SMTaskType.FirstWork:
 					os.ForEach( o => o._modifyler.Register( new RunActiveSMObject( o ) ) );
@@ -192,9 +187,9 @@ namespace SubmarineMirage.SMTask {
 			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Finalizing );
 			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Finalizing );
 
-			GetAll( SMTaskType.Work ).ForEach( o => o.Dispose() );
-			GetAll( SMTaskType.FirstWork ).ForEach( o => o.Dispose() );
-			GetAll( SMTaskType.DontWork ).ForEach( o => o.Dispose() );
+			GetAllTops( SMTaskType.Work ).ForEach( o => o.Dispose() );
+			GetAllTops( SMTaskType.FirstWork ).ForEach( o => o.Dispose() );
+			GetAllTops( SMTaskType.DontWork ).ForEach( o => o.Dispose() );
 
 			_objects.ForEach( pair => _objects[pair.Key] = null );
 

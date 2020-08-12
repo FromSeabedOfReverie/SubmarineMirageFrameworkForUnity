@@ -143,7 +143,7 @@ namespace SubmarineMirage.TestSMTask {
 
 /*
 		・SMBehaviour取得テスト
-		GetBehaviour,T,type、GetBehaviourAtLast、GetBehaviours,T,type、動作確認
+		GetBehaviour,T,Type、GetBehaviourAtLast、GetBehaviours,T,Type、動作確認
 */
 		void CreateTestGetBehavioursLast() => TestSMBehaviourUtility.CreateBehaviours( @"
 			M1, M4, M4, M1,
@@ -188,8 +188,8 @@ namespace SubmarineMirage.TestSMTask {
 
 /*
 		・SMBehaviour取得テスト
-		GetBehaviourInParent,T,type、GetBehaviourInChildren,T,type、
-		GetBehavioursInParent,T,type、GetBehavioursInChildren,T,type、動作確認
+		GetBehaviourInParent,T,Type、GetBehaviourInChildren,T,Type、
+		GetBehavioursInParent,T,Type、GetBehavioursInChildren,T,Type、動作確認
 */
 		void CreateTestGetBehavioursParentChildren() => TestSMBehaviourUtility.CreateBehaviours( @"
 			M1, M4,

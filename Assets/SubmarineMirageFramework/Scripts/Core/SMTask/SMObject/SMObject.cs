@@ -163,11 +163,8 @@ namespace SubmarineMirage.SMTask {
 			for ( current = this; current._next != null; current = current._next )	{}
 			return current;
 		}
-		public SMObject GetLastChild() {
-			SMObject current = null;
-			for ( current = _child; current?._next != null; current = current._next )	{}
-			return current;
-		}
+		public SMObject GetLastChild()
+			=> _child?.GetLast();
 
 		public IEnumerable<SMObject> GetBrothers() {
 			for ( var current = GetFirst(); current != null; current = current._next )	{
@@ -179,11 +176,9 @@ namespace SubmarineMirage.SMTask {
 				yield return current;
 			}
 		}
-		public IEnumerable<SMObject> GetChildren() {
-			for ( var current = _child; current != null; current = current._next ) {
-				yield return current;
-			}
-		}
+		public IEnumerable<SMObject> GetChildren()
+			=> _child?.GetBrothers() ?? Enumerable.Empty<SMObject>();
+
 		public IEnumerable<SMObject> GetAllChildren() {
 			var currents = new Queue<SMObject>();
 			currents.Enqueue( this );
@@ -262,11 +257,8 @@ namespace SubmarineMirage.SMTask {
 
 
 
-		public T AddBehaviour<T>() where T : SMMonoBehaviour {
-			var data = new AddBehaviourSMObject( this, typeof( T ) );
-			_top._modifyler.Register( data );
-			return (T)data._behaviour;
-		}
+		public T AddBehaviour<T>() where T : SMMonoBehaviour
+			=> (T)AddBehaviour( typeof( T ) );
 
 		public SMMonoBehaviour AddBehaviour( Type type ) {
 			var data = new AddBehaviourSMObject( this, type );

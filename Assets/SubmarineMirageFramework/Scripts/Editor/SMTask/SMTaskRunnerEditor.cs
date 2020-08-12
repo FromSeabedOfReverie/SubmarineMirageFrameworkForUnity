@@ -52,7 +52,7 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 				EditorGUI.indentLevel++;
 				scene._objects._objects.ForEach( pair => {
 					ShowHeading2( pair.Key.ToString() );
-					scene._objects.GetAll( pair.Key ).ForEach( o => ShowObject( o ) );
+					scene._objects.GetAllTops( pair.Key ).ForEach( o => ShowObject( o ) );
 				} );
 				EditorGUI.indentLevel--;
 			} );
