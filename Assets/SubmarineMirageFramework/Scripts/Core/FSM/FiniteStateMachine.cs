@@ -53,7 +53,7 @@ namespace SubmarineMirage.FSM {
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public FiniteStateMachine( TOwner owner, TState[] states, Type startState = null ) {
+		public FiniteStateMachine( TOwner owner, IEnumerable<TState> states, Type startState = null ) {
 			_owner = owner;
 			_registerEventName = this.GetAboutName();
 			states.ForEach( s => _states[s.GetType()] = s );

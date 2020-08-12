@@ -31,8 +31,6 @@ namespace SubmarineMirage.Scene {
 			owner,
 			new BaseScene[] {
 				new UnknownScene(),
-				new TestChange1Scene(),
-				new TestChange2Scene(),
 			}
 		) {
 			_foreverScene = new ForeverScene();
