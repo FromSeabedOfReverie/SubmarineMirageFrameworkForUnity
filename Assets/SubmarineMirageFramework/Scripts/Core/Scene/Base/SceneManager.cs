@@ -50,51 +50,51 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public TBehaviour GetBehaviour<TBehaviour, TScene>( SMTaskType? bodyType = null )
-			where TBehaviour : class, ISMBehaviour
+		public T GetBehaviour<T>( SMTaskType? taskType = null )
+			where T : ISMBehaviour
+			=> GetBehaviours<T>( taskType )
+				.FirstOrDefault();
+
+		public TBehaviour GetBehaviour<TBehaviour, TScene>( SMTaskType? taskType = null )
+			where TBehaviour : ISMBehaviour
 			where TScene : BaseScene
-			=> _fsm.GetAllScene()
-				.FirstOrDefault( s => s is TScene )
-				?._objects.GetBehaviour<TBehaviour>( bodyType );
+			=> GetBehaviours<TBehaviour, TScene>( taskType )
+				.FirstOrDefault();
 
-		public T GetBehaviour<T>( SMTaskType? bodyType = null ) where T : ISMBehaviour
-			=> _fsm.GetAllScene()
-				.Select( s => s._objects.GetBehaviour<T>( bodyType ) )
-				.FirstOrDefault( b => b != null );
+		public ISMBehaviour GetBehaviour( Type type, Type sceneType = null, SMTaskType? taskType = null )
+			=> GetBehaviours( type, sceneType, taskType )
+				.FirstOrDefault();
 
-		public ISMBehaviour GetBehaviour( Type type, Type sceneType = null, SMTaskType? bodyType = null ) {
-			if ( sceneType != null ) {
-				return _fsm.GetAllScene()
-					.FirstOrDefault( s => s.GetType() == sceneType )
-					?._objects.GetBehaviour( type, bodyType );
-			} else {
-				return _fsm.GetAllScene()
-					.Select( s => s._objects.GetBehaviour( type, bodyType ) )
-					.FirstOrDefault( b => b != null );
-			}
-		}
+		public IEnumerable<T> GetBehaviours<T>( SMTaskType? taskType = null )
+			where T : ISMBehaviour
+			=> GetBehaviours( typeof( T ), null, taskType )
+				.Select( b => (T)b );
 
-		public IEnumerable<TBehaviour> GetBehaviours<TBehaviour, TScene>( SMTaskType? bodyType = null )
-			where TBehaviour : class, ISMBehaviour
+		public IEnumerable<TBehaviour> GetBehaviours<TBehaviour, TScene>( SMTaskType? taskType = null )
+			where TBehaviour : ISMBehaviour
 			where TScene : BaseScene
-			=> _fsm.GetAllScene()
-				.FirstOrDefault( s => s is TScene )
-				?._objects.GetBehaviours<TBehaviour>( bodyType );
-
-		public IEnumerable<T> GetBehaviours<T>( SMTaskType? bodyType = null ) where T : ISMBehaviour
-			=> _fsm.GetAllScene()
-				.SelectMany( s => s._objects.GetBehaviours<T>( bodyType ) );
+			=> GetBehaviours( typeof( TBehaviour ), typeof( TScene ), taskType )
+				.Select( b => (TBehaviour)b );
 
 		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, Type sceneType = null,
-														SMTaskType? bodyType = null
+														SMTaskType? taskType = null
 		) {
+			var scenes = Enumerable.Empty<BaseScene>();
 			if ( sceneType != null ) {
-				return _fsm.GetAllScene()
-					.FirstOrDefault( s => s.GetType() == sceneType )
-					?._objects.GetBehaviours( type, bodyType );
+				var scene = _fsm.GetAllScene().FirstOrDefault( s => s.GetType() == sceneType );
+				if ( scene != null )	{ scenes = new [] { scene }; }
 			} else {
-				return _fsm.GetAllScene()
-					.SelectMany( s => s._objects.GetBehaviours( type, bodyType ) );
+				scenes = _fsm.GetAllScene();
+			}
+			var currents = new Queue<SMObject>( scenes.SelectMany( s => {
+				return s._objects.GetAllTops( taskType );
+			} ) );
+			while ( !currents.IsEmpty() ) {
+				var o = currents.Dequeue();
+				foreach ( var b in o.GetBehaviours( type ) ) {
+					yield return b;
+				}
+				o.GetChildren().ForEach( c => currents.Enqueue( c ) );
 			}
 		}
 	}
