@@ -25,13 +25,14 @@ namespace SubmarineMirage.SMTask {
 
 
 	public class SMObjectManager : IDisposableExtension {
+		static readonly SMTaskType[] GET_ALL_TOPS_TASK_TYPES =
+			new SMTaskType[] { SMTaskType.FirstWork, SMTaskType.Work, SMTaskType.DontWork };
+		static readonly SMTaskType[] DISPOSE_TASK_TYPES =
+			new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork };
+
 		public BaseScene _owner	{ get; private set; }
 		public readonly Dictionary<SMTaskType, SMObject> _objects = new Dictionary<SMTaskType, SMObject>();
 		public bool _isEnter	{ get; private set; }
-		readonly SMTaskType[] _getAllTopsTaskTypes =
-			new SMTaskType[] { SMTaskType.FirstWork, SMTaskType.Work, SMTaskType.DontWork };
-		readonly SMTaskType[] _disposeTaskTypes =
-			new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork };
 
 		public UTaskCanceler _activeAsyncCanceler => _owner._activeAsyncCanceler;
 
@@ -43,7 +44,7 @@ namespace SubmarineMirage.SMTask {
 
 			EnumUtils.GetValues<SMTaskType>().ForEach( t => _objects[t] = null );
 			_disposables.AddLast( () => {
-				_disposeTaskTypes
+				DISPOSE_TASK_TYPES
 					.Select( t => _objects.GetOrDefault( t ) )
 					.Where( o => o != null )
 					.SelectMany( o => o.GetBrothers().Reverse() )
@@ -65,7 +66,7 @@ namespace SubmarineMirage.SMTask {
 			if ( type.HasValue ) {
 				result = _objects[type.Value]?.GetBrothers() ?? Enumerable.Empty<SMObject>();
 			} else {
-				result = _getAllTopsTaskTypes
+				result = GET_ALL_TOPS_TASK_TYPES
 					.Select( t => _objects.GetOrDefault( t ) )
 					.Where( o => o != null )
 					.SelectMany( o => o.GetBrothers() );
@@ -86,7 +87,8 @@ namespace SubmarineMirage.SMTask {
 
 
 		public T GetBehaviour<T>( SMTaskType? taskType = null ) where T : ISMBehaviour
-			=> (T)GetBehaviour( typeof( T ), taskType );
+			=> GetBehaviours<T>( taskType )
+				.FirstOrDefault();
 
 		public ISMBehaviour GetBehaviour( Type type, SMTaskType? taskType = null )
 			=> GetBehaviours( type, taskType )

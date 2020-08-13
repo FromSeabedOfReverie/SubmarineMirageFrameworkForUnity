@@ -69,7 +69,6 @@ namespace SubmarineMirage.TestSMTask {
 					case nameof( TestGetBehaviours ):	CreateTestGetBehaviours();	break;
 				}
 				Log.Debug( $"end {nameof( Create )}{_testName}" );
-
 				await UTask.DontWait();
 			} );
 		}

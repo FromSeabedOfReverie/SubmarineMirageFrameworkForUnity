@@ -176,11 +176,13 @@ namespace SubmarineMirage.TestSMTask {
 		public static void LogBehaviour( string text, ISMBehaviour behaviour )
 			=> Log.Debug( $"{text} : {behaviour?.ToLineString() ?? "null"}" );
 
-		public static void LogBehaviours( string text, IEnumerable<ISMBehaviour> behaviours )
-			=> Log.Debug( string.Join( "\n",
-				$"{text} : {behaviours.Count()}",
-				string.Join( "\n", behaviours.Select( b => b?.ToLineString() ?? "null" ) )
+		public static void LogBehaviours( string text, IEnumerable<ISMBehaviour> behaviours ) {
+			var bs = behaviours.ToArray();
+			Log.Debug( string.Join( "\n",
+				$"{text} : {bs.Count()}",
+				string.Join( "\n", bs.Select( b => b?.ToLineString() ?? "null" ) )
 			) );
+		}
 	}
 
 

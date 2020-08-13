@@ -117,11 +117,13 @@ namespace SubmarineMirage.TestSMTask {
 		public static void LogObject( string text, SMObject smObject )
 			=> Log.Debug( $"{text} : {smObject?.ToLineString() ?? "null"}" );
 
-		public static void LogObjects( string text, IEnumerable<SMObject> smObjects )
-			=> Log.Debug( string.Join( "\n",
-				$"{text} : {smObjects.Count()}",
-				string.Join( "\n", smObjects.Select( o => o?.ToLineString() ?? "null" ) )
+		public static void LogObjects( string text, IEnumerable<SMObject> smObjects ) {
+			var os = smObjects.ToArray();
+			Log.Debug( string.Join( "\n",
+				$"{text} : {os.Count()}",
+				string.Join( "\n", os.Select( o => o?.ToLineString() ?? "null" ) )
 			) );
+		}
 
 
 		public static async UniTask LoadObjectsInScene( UTaskCanceler canceler ) {
