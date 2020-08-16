@@ -19,6 +19,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class ChangeActiveSMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.Runner;
 		bool _isActive;
 		bool _isChangeOwner;
 

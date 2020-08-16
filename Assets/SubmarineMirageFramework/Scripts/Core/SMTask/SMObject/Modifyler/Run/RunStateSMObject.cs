@@ -15,6 +15,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class RunStateSMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.Runner;
 		SMTaskRanState _state;
 
 

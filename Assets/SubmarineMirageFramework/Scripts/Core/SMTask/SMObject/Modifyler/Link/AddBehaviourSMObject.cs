@@ -15,6 +15,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class AddBehaviourSMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.LinkChanger;
 		public SMMonoBehaviour _behaviour	{ get; private set; }
 
 
@@ -39,29 +40,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			_behaviour._object = _object;
 			SetAllObjectData( _object._top );
 
-			await RunBehaviour();
-		}
-
-
-		async UniTask RunBehaviour() {
 			_behaviour.Constructor();
+			_object._top._modifyler.Register( new InitializeBehaviourSMObject( _object, _behaviour ) );
 
-			switch ( _object._type ) {
-				case SMTaskType.DontWork:
-					await UTask.NextFrame( _behaviour._activeAsyncCanceler );
-					await _behaviour.RunStateEvent( SMTaskRanState.Creating );
-					return;
-				case SMTaskType.Work:
-				case SMTaskType.FirstWork:
-					if ( _object._objects._isEnter ) {
-						await UTask.NextFrame( _behaviour._activeAsyncCanceler );
-						await _behaviour.RunStateEvent( SMTaskRanState.Creating );
-						await _behaviour.RunStateEvent( SMTaskRanState.Loading );
-						await _behaviour.RunStateEvent( SMTaskRanState.Initializing );
-						await _behaviour.RunActiveEvent();
-					}
-					return;
-			}
+			await UTask.DontWait();
 		}
 	}
 }

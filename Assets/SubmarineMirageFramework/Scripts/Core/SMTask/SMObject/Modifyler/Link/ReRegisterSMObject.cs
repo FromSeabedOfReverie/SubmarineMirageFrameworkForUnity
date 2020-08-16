@@ -16,6 +16,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class ReRegisterSMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.LinkChanger;
 		SMTaskType _lastType;
 		BaseScene _lastScene;
 

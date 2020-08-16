@@ -18,6 +18,12 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public abstract class SMObjectModifyData {
+		public enum ModifyType {
+			LinkChanger,
+			Runner,
+		}
+
+		public abstract ModifyType _type	{ get; }
 		public SMObject _object;
 
 

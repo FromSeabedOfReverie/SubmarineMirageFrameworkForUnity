@@ -20,7 +20,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public class SMObjectModifyler : IDisposableExtension {
 		public SMObject _owner	{ get; private set; }
-		public Queue<SMObjectModifyData> _data = new Queue<SMObjectModifyData>();
+		public readonly LinkedList<SMObjectModifyData> _data = new LinkedList<SMObjectModifyData>();
 		bool _isRunning;
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
@@ -40,7 +40,20 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		public void Register( SMObjectModifyData data ) {
-			_data.Enqueue( data );
+			switch( data._type ) {
+				case SMObjectModifyData.ModifyType.LinkChanger:
+					_data.AddBefore(
+						data,
+						d => d._type == SMObjectModifyData.ModifyType.Runner,
+						() => _data.Enqueue( data )
+					);
+					break;
+
+				case SMObjectModifyData.ModifyType.Runner:
+					_data.Enqueue( data );
+					break;
+			}
+
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
 

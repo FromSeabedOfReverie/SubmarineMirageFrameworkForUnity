@@ -15,6 +15,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class UnregisterSMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.LinkChanger;
+
+
 		public UnregisterSMObject( SMObject smObject ) : base( smObject ) {
 			if ( !_object._isTop ) {
 				throw new NotSupportedException(

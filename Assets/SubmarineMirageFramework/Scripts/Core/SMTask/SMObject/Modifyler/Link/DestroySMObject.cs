@@ -5,16 +5,18 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask.Modifyler {
-	using System.Linq;
-	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public class DestroySMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.LinkChanger;
+
+
 		public DestroySMObject( SMObject smObject ) : base( smObject ) {}
 
 		public override void Cancel() {}
@@ -25,16 +27,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			UnLinkObject( _object );
 			if ( top != _object )	{ SetAllObjectData( top ); }
 
-			var topData = top._modifyler._data
-				.Where( d => {
-					if ( d._object != _object ) {
-						return true;
-					} else {
-						d.Cancel();
-						return false;
-					}
-				} );
-			top._modifyler._data = new Queue<SMObjectModifyData>( topData );
+			top._modifyler._data.RemoveAll(
+				d => d._object == _object,
+				d => d.Cancel()
+			);
 
 			await RunObject();
 		}

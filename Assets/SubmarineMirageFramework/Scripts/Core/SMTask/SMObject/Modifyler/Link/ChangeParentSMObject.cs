@@ -17,6 +17,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class ChangeParentSMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.LinkChanger;
 		Transform _parent;
 		bool _isWorldPositionStays;
 
@@ -48,19 +49,11 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 			SetTopObject( _object );
 
+			top._modifyler._data.RemoveAll(
+				d => d._object == _object,
+				d => _object._top._modifyler.Register( d )
+			);
 
-			var topData = top._modifyler._data
-				.Where( d => {
-					if ( d._object != _object ) {
-						return true;
-					} else {
-						_object._top._modifyler.Register( d );
-						return false;
-					}
-				} );
-			top._modifyler._data = new Queue<SMObjectModifyData>( topData );
-
-			
 			if ( _object._parent != null && _object._owner.activeSelf ) {
 				var isParentActive = _object._parent._owner.activeInHierarchy;
 				await new ChangeActiveSMObject( _object, isParentActive, false ).Run();

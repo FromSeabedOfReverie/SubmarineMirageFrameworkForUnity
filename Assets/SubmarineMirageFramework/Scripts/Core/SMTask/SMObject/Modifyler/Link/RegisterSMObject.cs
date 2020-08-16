@@ -16,6 +16,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class RegisterSMObject : SMObjectModifyData {
+		public override ModifyType _type => ModifyType.LinkChanger;
+
+
 		public RegisterSMObject( SMObject smObject ) : base( smObject ) {
 			if ( !_object._isTop ) {
 				throw new NotSupportedException( $"最上階の{nameof( SMObject )}で無い為、登録不可 :\n{_object}" );
