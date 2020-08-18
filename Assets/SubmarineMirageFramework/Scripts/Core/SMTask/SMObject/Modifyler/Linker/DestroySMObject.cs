@@ -14,7 +14,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class DestroySMObject : SMObjectModifyData {
-		public override ModifyType _type => ModifyType.LinkChanger;
+		public override ModifyType _type => ModifyType.Linker;
 
 
 		public DestroySMObject( SMObject smObject ) : base( smObject ) {}

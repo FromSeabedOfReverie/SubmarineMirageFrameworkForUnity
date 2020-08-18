@@ -15,7 +15,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class AddBehaviourSMObject : SMObjectModifyData {
-		public override ModifyType _type => ModifyType.LinkChanger;
+		public override ModifyType _type => ModifyType.Linker;
 		public SMMonoBehaviour _behaviour	{ get; private set; }
 
 

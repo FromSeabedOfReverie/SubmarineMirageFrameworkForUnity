@@ -15,7 +15,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class UnregisterSMObject : SMObjectModifyData {
-		public override ModifyType _type => ModifyType.LinkChanger;
+		public override ModifyType _type => ModifyType.Linker;
 
 
 		public UnregisterSMObject( SMObject smObject ) : base( smObject ) {

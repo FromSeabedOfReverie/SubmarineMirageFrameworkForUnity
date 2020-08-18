@@ -17,7 +17,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class ChangeParentSMObject : SMObjectModifyData {
-		public override ModifyType _type => ModifyType.LinkChanger;
+		public override ModifyType _type => ModifyType.Linker;
 		Transform _parent;
 		bool _isWorldPositionStays;
 
