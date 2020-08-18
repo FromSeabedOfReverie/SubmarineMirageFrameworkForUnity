@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestSMTask
-#define TestSMTaskModifyler
+//#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -51,10 +51,8 @@ namespace SubmarineMirage.SMTask {
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent
-#if TestSMTaskModifyler
-							,bool isSetupData = true
-#endif
+		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent,
+							bool isDebug = false
 		) {
 			_id = ++s_idCount;
 #if TestSMTask
@@ -68,13 +66,15 @@ namespace SubmarineMirage.SMTask {
 			SetupBehaviours( behaviours );
 			SetupParent( parent );
 			SetupChildren();
-#if TestSMTaskModifyler
-			if ( isSetupData ) {
+
+			if ( !isDebug
+#if !TestSMTaskModifyler
+					|| true
 #endif
+			) {
 				SetupTop();
-#if TestSMTaskModifyler
 			}
-#endif
+
 			_disposables.AddLast( () => GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() ) );
 			_disposables.AddLast( () => GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() ) );
 			_disposables.AddLast( _asyncCanceler );
