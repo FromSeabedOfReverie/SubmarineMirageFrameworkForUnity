@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestSMTask {
+namespace SubmarineMirage.TestSMTask.Modifyler {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -47,7 +47,7 @@ namespace SubmarineMirage.TestSMTask {
 	}
 
 	public class LinkData : TestModifyData {
-		public override ModifyType _type => ModifyType.LinkChanger;
+		public override ModifyType _type => ModifyType.Linker;
 		public LinkData( SMObject smObject ) : base( smObject ) {}
 	}
 
