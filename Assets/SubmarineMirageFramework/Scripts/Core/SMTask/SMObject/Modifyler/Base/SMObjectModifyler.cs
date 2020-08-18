@@ -41,7 +41,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public void Register( SMObjectModifyData data ) {
 			switch( data._type ) {
-				case SMObjectModifyData.ModifyType.LinkChanger:
+				case SMObjectModifyData.ModifyType.Linker:
 					_data.AddBefore(
 						data,
 						d => d._type == SMObjectModifyData.ModifyType.Runner,

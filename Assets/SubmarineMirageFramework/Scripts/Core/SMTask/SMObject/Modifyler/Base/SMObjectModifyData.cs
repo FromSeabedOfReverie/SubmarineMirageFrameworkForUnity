@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
+//#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
@@ -19,15 +19,18 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public abstract class SMObjectModifyData {
 		public enum ModifyType {
-			LinkChanger,
+			Linker,
 			Runner,
 		}
 
 		public abstract ModifyType _type	{ get; }
+		static uint s_idCount;
+		public uint _id					{ get; private set; }
 		public SMObject _object;
 
 
 		public SMObjectModifyData( SMObject smObject ) {
+			_id = ++s_idCount;
 			_object = smObject;
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( SMObjectModifyData )}() : {this}" );
@@ -135,12 +138,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			var allObjects = top.GetAllChildren();
 			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
 #if TestSMTaskModifyler
-///*
 			Log.Debug(
 				$"{nameof( allObjects )} :\n"
 					+ $"{string.Join( "\n", allObjects.Select( o => o?.ToLineString() ) )}"
 			);
-//*/
 			Log.Debug(
 				$"{nameof( allBehaviours )} :\n"
 					+ $"{string.Join( "\n", allBehaviours.Select( b => b?.ToLineString() ) )}"
@@ -200,13 +201,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 #endif
 		}
 
+
 		public static void UnLinkObject( SMObject smObject ) {
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( UnLinkObject )} : start" );
-			var objects = smObject._objects?._objects;
-			var parent = smObject._parent;
-			var previous = smObject._previous;
-			var next = smObject._next;
+			var objects = smObject?._objects?._objects;
+			var parent = smObject?._parent;
+			var previous = smObject?._previous;
+			var next = smObject?._next;
 			if ( objects != null ) {
 				Log.Debug( string.Join( "\n",
 					objects.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
@@ -247,8 +249,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 
-		public override string ToString() => string.Join( "\n",
+		public override string ToString() => string.Join( " ",
 			$"{this.GetAboutName()}(",
+			$"    {_id}",
 			$"    {_type}",
 			$"    {_object?.ToLineString()}",
 			")"
