@@ -144,9 +144,9 @@ namespace SubmarineMirage.SMTask {
 			=> _object.ChangeParent( parent, isWorldPositionStays );
 
 
-		public override string ToString() => _body.BehaviourToString( this );
+		public override string ToString() => SMBehaviourBody.BehaviourToString( this );
 
-		public string ToLineString() => _body.BehaviourToLineString( this );
+		public string ToLineString() => SMBehaviourBody.BehaviourToLineString( this );
 
 
 #if DEVELOP

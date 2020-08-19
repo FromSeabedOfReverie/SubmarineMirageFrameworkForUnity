@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestSMTask
+//#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask {
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
@@ -43,9 +44,13 @@ namespace SubmarineMirage.SMTask {
 		public MultiDisposable _disposables	=> _body._disposables;
 
 
-		protected SMBehaviour() {
+		protected SMBehaviour( bool isDebug = false ) {
 			_body = new SMBehaviourBody( this, SMTaskActiveState.Enabling );
-			_object = new SMObject( null, new ISMBehaviour[] { this }, null );
+			_object = new SMObject( null, new ISMBehaviour[] { this }, null
+#if TestSMTaskModifyler
+				, isDebug
+#endif
+			);
 #if TestSMTask
 			Log.Debug( $"{nameof( SMBehaviour )}() : {this}" );
 #endif
@@ -69,8 +74,8 @@ namespace SubmarineMirage.SMTask {
 		public UniTask RunActiveEvent() => _body.RunActiveEvent();
 
 
-		public override string ToString() => _body.BehaviourToString( this );
+		public override string ToString() => SMBehaviourBody.BehaviourToString( this );
 
-		public string ToLineString() => _body.BehaviourToLineString( this );
+		public string ToLineString() => SMBehaviourBody.BehaviourToLineString( this );
 	}
 }

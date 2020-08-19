@@ -465,23 +465,23 @@ namespace SubmarineMirage.SMTask {
 			"    )"
 		);
 
-		public string BehaviourToString( ISMBehaviour behaviour ) => string.Join( "\n",
+		public static string BehaviourToString( ISMBehaviour behaviour ) => string.Join( "\n",
 			$"{behaviour.GetAboutName()}(",
 			$"    {nameof( behaviour._type )} : {behaviour._type}",
 			$"    {nameof( behaviour._lifeSpan )} : {behaviour._lifeSpan}",
-			$"    {nameof( behaviour._object._owner )} : {behaviour._object.ToLineString()}",
+			$"    {nameof( behaviour._object._owner )} : {behaviour._object?.ToLineString()}",
 			$"    {nameof( behaviour._previous )} : {behaviour._previous?.ToLineString()}",
 			$"    {nameof( behaviour._next )} : {behaviour._next?.ToLineString()}",
 			$"    {nameof( behaviour._body )} : {behaviour._body}",
 			")"
 		);
 
-		public string BehaviourToLineString( ISMBehaviour behaviour ) => string.Join( " ",
+		public static string BehaviourToLineString( ISMBehaviour behaviour ) => string.Join( " ",
 			behaviour._id,
 			behaviour.GetAboutName(),
-			behaviour._body._ranState,
-			behaviour._body._activeState,
-			behaviour._body._nextActiveState,
+			behaviour._body?._ranState,
+			behaviour._body?._activeState,
+			behaviour._body?._nextActiveState,
 			$"↑{behaviour._previous?._id}",
 			$"↓{behaviour._next?._id}",
 			behaviour._disposables._isDispose ? "Dispose" : ""
