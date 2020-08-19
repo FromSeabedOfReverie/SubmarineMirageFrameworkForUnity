@@ -59,5 +59,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				await new ChangeActiveSMObject( _object, isParentActive, false ).Run();
 			}
 		}
+
+
+		public override string ToString() => base.ToString().InsertLast( " ",
+			string.Join( ", ",
+				_parent?.name,
+				_isWorldPositionStays
+			)
+			+ ", "
+		);
 	}
 }

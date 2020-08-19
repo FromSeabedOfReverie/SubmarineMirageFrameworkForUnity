@@ -50,10 +50,8 @@ namespace SubmarineMirage.MultiEvent {
 		}
 
 
-		public override string ToString() {
-			return base.ToString().InsertLast( "\n",
-				$"    {nameof( _isRunning )} : {_isRunning}\n"
-			);
-		}
+		public override string ToString() => base.ToString().InsertLast( "\n",
+			$"    {nameof( _isRunning )} : {_isRunning}\n"
+		);
 	}
 }

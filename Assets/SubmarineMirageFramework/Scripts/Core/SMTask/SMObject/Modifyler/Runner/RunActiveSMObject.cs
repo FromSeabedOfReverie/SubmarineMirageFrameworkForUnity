@@ -16,6 +16,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public class RunActiveSMObject : SMObjectModifyData {
 		public override ModifyType _type => ModifyType.Runner;
+
+
 		public RunActiveSMObject( SMObject smObject ) : base( smObject ) {}
 
 		public override void Cancel() {}

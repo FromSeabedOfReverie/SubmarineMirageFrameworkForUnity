@@ -8,6 +8,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
 	using UTask;
+	using Extension;
 	using UnityObject = UnityEngine.Object;
 
 
@@ -45,5 +46,13 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 			await UTask.DontWait();
 		}
+
+
+		public override string ToString() => base.ToString().InsertLast( " ",
+			string.Join( ", ",
+				_behaviour?.ToLineString()
+			)
+			+ ", "
+		);
 	}
 }

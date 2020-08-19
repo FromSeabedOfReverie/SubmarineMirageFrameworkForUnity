@@ -103,5 +103,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				await events.Run( smObject._asyncCanceler );
 			}
 		}
+
+
+		public override string ToString() => base.ToString().InsertLast( " ",
+			string.Join( ", ",
+				_isActive,
+				_isChangeOwner
+			)
+			+ ", "
+		);
 	}
 }

@@ -9,6 +9,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
+	using Extension;
 
 
 	// TODO : コメント追加、整頓
@@ -103,5 +104,13 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				await events.Run( smObject._asyncCanceler );
 			}
 		}
+
+
+		public override string ToString() => base.ToString().InsertLast( " ",
+			string.Join( ", ",
+				_state
+			)
+			+ ", "
+		);
 	}
 }
