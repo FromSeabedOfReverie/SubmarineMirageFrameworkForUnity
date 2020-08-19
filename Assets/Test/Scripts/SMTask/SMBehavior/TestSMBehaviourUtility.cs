@@ -188,29 +188,40 @@ namespace SubmarineMirage.TestSMTask {
 
 
 	public abstract class BaseB : SMBehaviour {
-		public override void Create() {}
+		public BaseB( bool isDebug = false ) : base( isDebug ) {
+			Log.Debug( $"{nameof( BaseB )}() : {this}" );
+		}
+		public override void Create() {
+			Log.Debug( $"{nameof( Create )} : {this}" );
+		}
 	}
 	public class B1 : BaseB {
+		public B1( bool isDebug = false ) : base( isDebug ) {}
 		public override SMTaskType _type => SMTaskType.DontWork;
 		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class B2 : BaseB {
+		public B2( bool isDebug = false ) : base( isDebug ) {}
 		public override SMTaskType _type => SMTaskType.Work;
 		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class B3 : BaseB {
+		public B3( bool isDebug = false ) : base( isDebug ) {}
 		public override SMTaskType _type => SMTaskType.FirstWork;
 		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 	}
 	public class B4 : BaseB {
+		public B4( bool isDebug = false ) : base( isDebug ) {}
 		public override SMTaskType _type => SMTaskType.DontWork;
 		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 	public class B5 : BaseB {
+		public B5( bool isDebug = false ) : base( isDebug ) {}
 		public override SMTaskType _type => SMTaskType.Work;
 		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
 	public class B6 : BaseB {
+		public B6( bool isDebug = false ) : base( isDebug ) {}
 		public override SMTaskType _type => SMTaskType.FirstWork;
 		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 	}
@@ -218,7 +229,12 @@ namespace SubmarineMirage.TestSMTask {
 
 
 	public abstract class BaseM : SMMonoBehaviour {
-		public override void Create() {}
+		public BaseM() {
+			Log.Debug( $"{nameof( BaseM )}() : {this}" );
+		}
+		public override void Create() {
+			Log.Debug( $"{nameof( Create )} : {this}" );
+		}
 	}
 	public class M1 : BaseM {
 		public override SMTaskType _type => SMTaskType.DontWork;
