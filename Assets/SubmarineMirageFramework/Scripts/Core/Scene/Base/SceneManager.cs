@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestSMTaskModifyler
 namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
@@ -35,8 +36,15 @@ namespace SubmarineMirage.Scene {
 			SMObjectModifyData.SetAllObjectData( s_instance._object._top );
 		}
 
-		public override void Create() {}
+#if TestSMTaskModifyler
+		public SceneManager() => Log.Debug( $"{nameof( SceneManager )}() : {this}" );
+#endif
 
+		public override void Create() {
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( Create )} : {this}" );
+#endif
+		}
 
 
 		public bool IsInBuildScene() {

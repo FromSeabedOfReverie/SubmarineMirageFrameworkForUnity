@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestSMTaskModifyler
 namespace SubmarineMirage.Singleton {
 	using UnityEngine;
 	using SMTask;
@@ -53,6 +54,15 @@ namespace SubmarineMirage.Singleton {
 		}
 
 
-		public override void Create() {}
+#if TestSMTaskModifyler
+		public MonoBehaviourSingletonManager()
+			=> Log.Debug( $"{nameof( MonoBehaviourSingletonManager )}() : {this}" );
+#endif
+
+		public override void Create() {
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( Create )} : {this}" );
+#endif
+		}
 	}
 }
