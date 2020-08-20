@@ -4,13 +4,15 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
-	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using Extension;
+	using Debug;
+
 
 
 	// TODO : コメント追加、整頓
+
 
 
 	public class DestroySMObject : SMObjectModifyData {
@@ -23,27 +25,59 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		public override async UniTask Run() {
-			var top = _object._top;
-			UnLinkObject( _object );
-			if ( top != _object )	{ SetAllObjectData( top ); }
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( Run )} : start\n{this}" );
+			Log.Debug( $"{nameof( _object._top._modifyler )} : {_object?._top?._modifyler}" );
+			Log.Debug( $"{nameof( _object._top )} : {_object?._top}" );
+			Log.Debug( $"{nameof( _object )} : {_object}" );
+#endif
 
-			top._modifyler._data.RemoveAll(
-				d => d._object == _object,
-				d => d.Cancel()
-			);
+			UnLinkObject( _object );
+			if ( !_object._isTop )	{ SetAllObjectData( _object._top ); }
+
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( _object._top )} : {_object?._top}" );
+			Log.Debug( $"{nameof( _object )} : {_object}" );
+#endif
 
 			await RunObject();
+
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( _object._top._modifyler )} : {_object?._top?._modifyler}" );
+			Log.Debug( $"{nameof( Run )} : end\n{this}" );
+#endif
 		}
 
 
 		async UniTask RunObject() {
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( RunObject )} : start\n{this}" );
+#endif
+
 			try {
+#if TestSMTaskModifyler
+				Log.Debug( $"{nameof( ChangeActiveSMObject )} : 待機開始\n{_object}" );
+#endif
 				await new ChangeActiveSMObject( _object, false, true ).Run();
+#if TestSMTaskModifyler
+				Log.Debug( $"{nameof( ChangeActiveSMObject )} : 待機終了\n{_object}" );
+				Log.Debug( $"{nameof( RunStateSMObject )} : 待機開始\n{_object}" );
+#endif
 				await new RunStateSMObject( _object, SMTaskRanState.Finalizing ).Run();
+#if TestSMTaskModifyler
+				Log.Debug( $"{nameof( RunStateSMObject )} : 待機終了\n{_object}" );
+#endif
+
 			} finally {
 				_object.Dispose();
-				if ( _object._owner != null )	{ Object.Destroy( _object._owner ); }
+#if TestSMTaskModifyler
+				Log.Debug( $"finally : {_object}" );
+#endif
 			}
+
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( RunObject )} : end\n{this}" );
+#endif
 		}
 	}
 }
