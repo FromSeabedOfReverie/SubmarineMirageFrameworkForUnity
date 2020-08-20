@@ -29,7 +29,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public override void Cancel() {
 			_behaviour.Dispose();
-			UnityObject.Destroy( _behaviour );
 		}
 
 
@@ -48,7 +47,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 
-		public override string ToString() => base.ToString().InsertLast( " ",
+		public override string ToString() => base.ToString().InsertLast( ", ",
 			string.Join( ", ",
 				_behaviour?.ToLineString()
 			)

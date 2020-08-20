@@ -12,9 +12,12 @@ namespace SubmarineMirage.SMTask {
 	using UTask;
 	using Extension;
 	using Debug;
+	using UnityObject = UnityEngine.Object;
+
 
 
 	// TODO : コメント追加、整頓
+
 
 
 	public class SMBehaviourBody : IDisposableExtension {
@@ -53,9 +56,7 @@ namespace SubmarineMirage.SMTask {
 
 			_disposables.AddLast(
 				_activeAsyncCanceler,
-				_inActiveAsyncCanceler
-			);
-			_disposables.AddLast(
+				_inActiveAsyncCanceler,
 				_loadEvent,
 				_initializeEvent,
 				_enableEvent,
@@ -65,7 +66,13 @@ namespace SubmarineMirage.SMTask {
 				_disableEvent,
 				_finalizeEvent
 			);
-			_disposables.AddLast( () => UnLink() );
+			_disposables.AddLast( () => {
+				UnLink();
+				if ( _owner._object != null ) {
+					if ( _owner._object._owner != null )	{ UnityObject.Destroy( (SMMonoBehaviour)_owner ); }
+					if ( _owner._object._behaviour == null )	{ _owner._object.Dispose(); }
+				}
+			} );
 #if TestSMTask
 			_disposables.AddLast( () =>
 				Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( Dispose )} : {this}" )
@@ -286,7 +293,6 @@ namespace SubmarineMirage.SMTask {
 							break;
 					}
 					_ranState = SMTaskRanState.Finalized;
-					Dispose();
 					return;
 
 				case SMTaskRanState.None:

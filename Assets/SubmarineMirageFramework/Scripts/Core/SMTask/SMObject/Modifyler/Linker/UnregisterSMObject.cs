@@ -7,11 +7,9 @@
 //#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
-	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using UTask;
 	using Debug;
-	using UnityObject = UnityEngine.Object;
 
 
 	// TODO : コメント追加、整頓
@@ -33,17 +31,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public override async UniTask Run() {
 			_object.Dispose();
-
-			if ( _object._owner != null ) {
-				UnityObject.Destroy( _object._owner );
-#if TestSMTaskModifyler
-				Log.Debug( $"{nameof( GameObject )}を削除 : {this}" );
-			} else {
-				Log.Debug( $"{nameof( GameObject )}は無い為、未削除 : {this}" );
-#endif
-			}
-
 			await UTask.DontWait();
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( Run )} : {this}" );
+#endif
 		}
 	}
 }

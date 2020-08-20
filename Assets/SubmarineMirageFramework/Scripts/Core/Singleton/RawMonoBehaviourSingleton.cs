@@ -11,7 +11,9 @@ namespace SubmarineMirage.Singleton {
 	using Debug;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public abstract class RawMonoBehaviourSingleton<T> : MonoBehaviourExtension, ISingleton, IDisposableExtension
@@ -50,6 +52,7 @@ namespace SubmarineMirage.Singleton {
 		public static void DisposeInstance() {
 			if ( !s_isCreated )	{ return; }
 			s_instanceObject.Dispose();
+			Destroy( s_instanceObject );
 			s_instanceObject = null;
 		}
 

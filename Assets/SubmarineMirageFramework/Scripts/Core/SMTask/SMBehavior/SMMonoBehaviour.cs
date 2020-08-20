@@ -66,10 +66,7 @@ namespace SubmarineMirage.SMTask {
 #endif
 		void OnDestroy() => Dispose();
 
-		public void Dispose() {
-			_body?.Dispose();
-			if ( _object != null && _object._behaviour == null )	{ _object.Dispose(); }
-		}
+		public void Dispose() => _body?.Dispose();
 
 		public abstract void Create();
 
