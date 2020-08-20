@@ -82,17 +82,13 @@ namespace SubmarineMirage.MultiEvent {
 		}
 
 
-		public override string ToString() {
-			var result = string.Join( "\n",
-				$"{this.GetAboutName()}(",
-				$"    {nameof( _isDispose )} : {_isDispose}",
-				$"    {nameof( _events )} : \n" + string.Join( "\n",
-					_events.Select( pair => $"        {pair.Key} : {pair.Value.GetAboutName()}" )
-				),
-				$"    {nameof( _modifyler )} : {_modifyler}",
-				")"
-			);
-			return result;
-		}
+		public override string ToString() => string.Join( "\n",
+			$"{this.GetAboutName()}(",
+			$"    {nameof( _isDispose )} : {_isDispose}",
+			$"    {nameof( _events )} :",
+			string.Join( "\n", _events.Select( pair => $"        {pair.Key} : {pair.Value.GetAboutName()}" ) ),
+			$"    {nameof( _modifyler )} : {_modifyler}",
+			")"
+		);
 	}
 }

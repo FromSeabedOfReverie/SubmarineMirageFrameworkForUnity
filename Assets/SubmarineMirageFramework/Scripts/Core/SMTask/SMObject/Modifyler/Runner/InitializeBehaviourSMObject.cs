@@ -51,7 +51,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 
-		public override string ToString() => base.ToString().InsertLast( " ",
+		public override string ToString() => base.ToString().InsertLast( ", ",
 			string.Join( ", ",
 				_behaviour?.ToLineString()
 			)

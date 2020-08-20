@@ -25,8 +25,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public abstract ModifyType _type	{ get; }
 		static uint s_idCount;
-		public uint _id					{ get; private set; }
-		public SMObject _object;
+		public uint _id			{ get; private set; }
+		public SMObject _object	{ get; private set; }
 
 
 		public SMObjectModifyData( SMObject smObject ) {

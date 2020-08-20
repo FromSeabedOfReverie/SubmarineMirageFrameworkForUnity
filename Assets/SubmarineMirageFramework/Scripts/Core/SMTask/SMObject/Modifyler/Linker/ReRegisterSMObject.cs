@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
+//#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using System.Linq;
@@ -89,7 +89,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 
-		public override string ToString() => base.ToString().InsertLast( " ",
+		public override string ToString() => base.ToString().InsertLast( ", ",
 			string.Join( ", ",
 				_lastType,
 				_lastScene.GetAboutName()
