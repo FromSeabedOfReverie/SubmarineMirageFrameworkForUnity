@@ -20,7 +20,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public class SMObjectModifyler : IDisposableExtension {
 		public SMObject _owner	{ get; private set; }
-		public readonly LinkedList<SMObjectModifyData> _data = new LinkedList<SMObjectModifyData>();
+		readonly LinkedList<SMObjectModifyData> _data = new LinkedList<SMObjectModifyData>();
 		bool _isRunning;
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
@@ -56,6 +56,16 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
+
+		public void ReRegister( SMObject removeObject ) => _data.RemoveAll(
+			d => d._object == removeObject,
+			d => removeObject._top._modifyler.Register( d )
+		);
+
+		public void Unregister( SMObject removeObject ) => _data.RemoveAll(
+			d => d._object == removeObject,
+			d => d.Cancel()
+		);
 
 
 		async UniTask Run() {

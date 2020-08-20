@@ -49,10 +49,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 			SetTopObject( _object );
 
-			top._modifyler._data.RemoveAll(
-				d => d._object == _object,
-				d => _object._top._modifyler.Register( d )
-			);
+			top._modifyler.ReRegister( _object );
 
 			if ( _object._parent != null && _object._owner.activeSelf ) {
 				var isParentActive = _object._parent._owner.activeInHierarchy;
@@ -61,7 +58,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 
-		public override string ToString() => base.ToString().InsertLast( " ",
+		public override string ToString() => base.ToString().InsertLast( ", ",
 			string.Join( ", ",
 				_parent?.name,
 				_isWorldPositionStays
