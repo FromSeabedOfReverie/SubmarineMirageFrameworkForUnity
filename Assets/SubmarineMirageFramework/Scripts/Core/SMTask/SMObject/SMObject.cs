@@ -19,9 +19,12 @@ namespace SubmarineMirage.SMTask {
 	using Scene;
 	using Extension;
 	using Debug;
+	using UnityObject = UnityEngine.Object;
+
 
 
 	// TODO : コメント追加、整頓
+
 
 
 	public class SMObject : IDisposableExtension {
@@ -61,7 +64,6 @@ namespace SubmarineMirage.SMTask {
 			_owner = owner;
 
 			_modifyler = new SMObjectModifyler( this );
-			_disposables.AddLast( _modifyler );
 
 			SetupBehaviours( behaviours );
 			SetupParent( parent );
@@ -75,10 +77,17 @@ namespace SubmarineMirage.SMTask {
 				SetupTop();
 			}
 
-			_disposables.AddLast( () => GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() ) );
-			_disposables.AddLast( () => GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() ) );
-			_disposables.AddLast( _asyncCanceler );
-			_disposables.AddLast( () => SMObjectModifyData.UnLinkObject( this ) );
+			_disposables.AddLast( _modifyler );
+			_disposables.AddLast( () => {
+				GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() );
+				GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() );
+			} );
+			_disposables.AddLast( _asyncCanceler );	// 子が再生成される為、後に解放
+			_disposables.AddLast( () => {
+				_top?._modifyler.Unregister( this );
+				SMObjectModifyData.UnLinkObject( this );
+				if ( _owner != null )	{ UnityObject.Destroy( _owner ); }
+			} );
 #if TestSMTask
 			_disposables.AddLast( () => Log.Debug( $"{nameof( SMObject )}.{nameof( Dispose )} : {this}" ) );
 			Log.Debug( $"{nameof( SMObject )}() : end\n{this}" );
@@ -106,6 +115,8 @@ namespace SubmarineMirage.SMTask {
 
 				b._object = this;
 				if ( _owner != null )	{ ( (SMMonoBehaviour)b ).Constructor(); }
+				b._activeAsyncCanceler.SetParent( _asyncCanceler );
+				b._inActiveAsyncCanceler.SetParent( _asyncCanceler );
 			} );
 #if TestSMTask
 //			Log.Debug( string.Join( "\n", behaviours.Select( b => b.ToLineString() ) ) );

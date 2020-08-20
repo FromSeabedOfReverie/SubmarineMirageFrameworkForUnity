@@ -34,8 +34,10 @@ namespace SubmarineMirage.UTask {
 
 
 		public UTaskCanceler() {
-			_disposables.AddLast( () => CancelBody( false ) );
-			_disposables.AddLast( () => _canceler.Dispose() );
+			_disposables.AddLast( () => {
+				CancelBody( false );
+				_canceler.Dispose();
+			} );
 			_disposables.AddLast( _cancelEvent );
 			_disposables.AddLast( () => {
 				if ( _parent != null ) {
@@ -91,6 +93,11 @@ namespace SubmarineMirage.UTask {
 			) );
 #endif
 			return child;
+		}
+
+		public void SetParent( UTaskCanceler parent ) {
+			_parent = parent;
+			_parent._children.Add( this );
 		}
 
 

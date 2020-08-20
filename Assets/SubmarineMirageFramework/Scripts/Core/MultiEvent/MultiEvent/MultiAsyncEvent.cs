@@ -6,6 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System;
+	using System.Threading;
+	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using UTask;
 	using Extension;
@@ -39,10 +41,15 @@ namespace SubmarineMirage.MultiEvent {
 			try {
 				_isRunning = true;
 				using ( _canceler = canceler.CreateChild() ) {
+					var isCancel = false;
+					_canceler._cancelEvent.AddLast().Subscribe( _ => isCancel = true );
+_canceler._cancelEvent.AddLast( "a" ).Subscribe( _ => Log.Debug("キャンセル") );
 					var temp = _events.Copy();
 					foreach ( var pair in temp ) {
+						if ( isCancel )	{ break; }
 						await pair.Value.Invoke( _canceler );
 					}
+_canceler._cancelEvent.Remove( "a" );
 				}
 			} finally {
 				_isRunning = false;
