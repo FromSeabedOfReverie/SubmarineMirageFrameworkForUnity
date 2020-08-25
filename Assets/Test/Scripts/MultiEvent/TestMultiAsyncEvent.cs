@@ -29,15 +29,18 @@ namespace SubmarineMirage.TestMultiEvent {
 		}
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestDispose() => From( async () => {
+			Log.Debug( $"{nameof( TestDispose )}" );
 			var canceler = new UTaskCanceler();
+			
 
 
 			Log.Debug( "・即削除テスト" );
 			var asyncEvent = new MultiAsyncEvent();
+			Log.Debug( asyncEvent );
 			asyncEvent.Dispose();
+			Log.Debug( asyncEvent );
 
 
 			Log.Debug( "・停止テスト" );
@@ -85,8 +88,7 @@ namespace SubmarineMirage.TestMultiEvent {
 		} );
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestModifyler() => From( async () => {
 			TestMultiEventUtility.SetModifyler(
 				_events,
@@ -104,8 +106,7 @@ namespace SubmarineMirage.TestMultiEvent {
 		} );
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestChangeWhileRunning() => From( async () => {
 			TestMultiEventUtility.SetChangeWhileRunning(
 				_events,
@@ -127,8 +128,7 @@ namespace SubmarineMirage.TestMultiEvent {
 		} );
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
+		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestManual() => From( async () => {
 			var canceler = new UTaskCanceler();
 			_disposables.AddLast( canceler );

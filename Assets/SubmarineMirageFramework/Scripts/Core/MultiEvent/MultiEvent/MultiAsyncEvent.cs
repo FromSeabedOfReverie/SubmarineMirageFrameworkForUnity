@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System;
-	using System.Threading;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using UTask;
@@ -18,12 +17,23 @@ namespace SubmarineMirage.MultiEvent {
 
 
 	public class MultiAsyncEvent : BaseMultiEvent< Func<UTaskCanceler, UniTask> > {
+		static readonly string EVENT_KEY = $"{nameof( MultiAsyncEvent )}.{nameof( Run )}";
+		string _eventKey;
 		UTaskCanceler _canceler;
+		Func<bool, bool> _isThrowCancelEvent;
 		public bool _isRunning	{ get; private set; }
 
 
+		public MultiAsyncEvent( Func<bool, bool> isThrowCancelEvent = null ) {
+			_eventKey = $"{EVENT_KEY}{_id}";
+			_isThrowCancelEvent = isThrowCancelEvent;
+		}
+
 		public override void Dispose() {
-			_canceler?.Dispose();	// _disposables.Add()だと、最初期実行登録ができない
+			// _disposables.Add()だと、最初期実行登録ができない
+			_canceler?.Cancel();
+			_canceler?._cancelEvent?.Remove( _eventKey );
+			_canceler = null;
 			base.Dispose();
 		}
 
@@ -38,27 +48,36 @@ namespace SubmarineMirage.MultiEvent {
 				return;
 			}
 
+			var isCancelByCanceler = false;
 			try {
 				_isRunning = true;
-				using ( _canceler = canceler.CreateChild() ) {
-					var isCancel = false;
-					_canceler._cancelEvent.AddLast().Subscribe( _ => isCancel = true );
-_canceler._cancelEvent.AddLast( "a" ).Subscribe( _ => Log.Debug("キャンセル") );
-					var temp = _events.Copy();
-					foreach ( var pair in temp ) {
-						if ( isCancel )	{ break; }
-						await pair.Value.Invoke( _canceler );
-					}
-_canceler._cancelEvent.Remove( "a" );
+				_canceler = canceler;
+				_canceler._cancelEvent.AddLast( _eventKey ).Subscribe( _ => isCancelByCanceler = true );
+				var temp = _events.Copy();
+				foreach ( var pair in temp ) {
+					if ( isCancelByCanceler )	{ break; }
+					await pair.Value.Invoke( _canceler );
 				}
+
+			} catch ( OperationCanceledException ) {
+				if ( _isThrowCancelEvent == null || _isThrowCancelEvent.Invoke( isCancelByCanceler ) ) {
+					throw;
+				}
+
 			} finally {
+				_canceler?._cancelEvent?.Remove( _eventKey );
+				_canceler = null;
 				_isRunning = false;
 			}
 		}
 
 
-		public override string ToString() => base.ToString().InsertLast( "\n",
-			$"    {nameof( _isRunning )} : {_isRunning}\n"
+		public override string ToString() => base.ToString().InsertFirst( ")",
+			string.Join( "\n",
+				$"    {nameof( _eventKey )} : {_eventKey}",
+				$"    {nameof( _isRunning )} : {_isRunning}"
+			)
+			 + "\n"
 		);
 	}
 }

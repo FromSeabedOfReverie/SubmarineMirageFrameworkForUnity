@@ -270,5 +270,114 @@ namespace SubmarineMirage.TestUTask {
 			parent = null;
 			child = null;
 		} );
+
+
+/*
+		・停止識別子の比較テスト
+		IsCanceledBy、確認
+*/
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestIsCanceledBy() => From( async () => {
+			Log.Debug( $"{nameof( TestIsCanceledBy )}" );
+
+
+			Log.Debug( "・単体テスト" );
+			using ( var c = new UTaskCanceler() ) {
+				c._cancelEvent.AddLast().Subscribe( _ => Log.Debug( "停止" ) );
+				Log.Debug( $"等しい？ : {c.IsCanceledBy( c.ToToken() )}" );
+				try {
+					UTask.Void( async () => {
+						await UTask.Delay( c, 500 );
+						c.Cancel();
+					} );
+					await UTask.Delay( c, 1000 );
+					Log.Debug( "処理完了" );
+
+				} catch ( OperationCanceledException e ) {
+					Log.Debug( $"等しい？ : {c.IsCanceledBy( e.CancellationToken )}" );
+				}
+			}
+
+
+			Log.Debug( "・親子、親停止テスト" );
+			using ( var c = new UTaskCanceler() ) {
+				using ( var cc = c.CreateChild() ) {
+					c._cancelEvent.AddLast().Subscribe(_ => Log.Debug("親停止"));
+					cc._cancelEvent.AddLast().Subscribe(_ => Log.Debug("子停止"));
+					Log.Debug( string.Join( "\n",
+						$"親 : {c.ToToken().GetHashCode()}",
+						$"子 : {cc.ToToken().GetHashCode()}"
+					) );
+					Log.Debug( string.Join( "\n",
+						$"親子等しい？ : {c.IsCanceledBy( cc.ToToken() )}",
+						$"子親等しい？ : {cc.IsCanceledBy( c.ToToken() )}"
+					) );
+					try {
+						UTask.Void( async () => {
+							await UTask.Delay( c, 500 );
+							c.Cancel();
+						} );
+						await UTask.Delay( cc, 1000 );
+						Log.Debug( "処理完了" );
+
+					} catch ( OperationCanceledException e ) {
+						Log.Debug( string.Join( "\n",
+							$"親等しい？ : {c.IsCanceledBy( e.CancellationToken )}",
+							$"子等しい？ : {cc.IsCanceledBy( e.CancellationToken )}"
+						) );
+					}
+				}
+			}
+
+
+			Log.Debug( "・親子、子停止テスト" );
+			using ( var c = new UTaskCanceler() ) {
+				using ( var cc = c.CreateChild() ) {
+					c._cancelEvent.AddLast().Subscribe(_ => Log.Debug("親停止"));
+					cc._cancelEvent.AddLast().Subscribe(_ => Log.Debug("子停止"));
+					Log.Debug( string.Join( "\n",
+						$"親 : {c.ToToken().GetHashCode()}",
+						$"子 : {cc.ToToken().GetHashCode()}"
+					) );
+					Log.Debug( string.Join( "\n",
+						$"親子等しい？ : {c.IsCanceledBy( cc.ToToken() )}",
+						$"子親等しい？ : {cc.IsCanceledBy( c.ToToken() )}"
+					) );
+					try {
+						UTask.Void( async () => {
+							await UTask.Delay( cc, 500 );
+							cc.Cancel();
+						} );
+						await UTask.Delay( c, 1000 );
+						Log.Debug( "処理完了" );
+
+					} catch ( OperationCanceledException e ) {
+						Log.Debug( string.Join( "\n",
+							$"親等しい？ : {c.IsCanceledBy( e.CancellationToken )}",
+							$"子等しい？ : {cc.IsCanceledBy( e.CancellationToken )}"
+						) );
+					}
+				}
+			}
+		} );
+
+
+/*
+		・解放後のテスト
+		_isCancel、確認
+*/
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDisposed() => From( async () => {
+			Log.Debug( $"{nameof( TestDisposed )}" );
+
+			var c = new UTaskCanceler();
+			c.Dispose();
+			Log.Debug( string.Join( "\n",
+				$"{nameof( c._isDispose )} : {c._isDispose}",
+				$"{nameof( c._isCancel )} : {c._isCancel}"
+			) );
+
+			await UTask.DontWait();
+		} );
 	}
 }

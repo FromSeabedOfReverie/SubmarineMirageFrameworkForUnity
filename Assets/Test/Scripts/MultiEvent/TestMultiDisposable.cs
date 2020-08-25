@@ -14,6 +14,7 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UniRx;
 	using MultiEvent;
 	using UTask;
+	using Extension;
 	using Debug;
 	using Test;
 
@@ -63,12 +64,12 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{ifName} 60" ) )
 				);
 				Log.Debug( _events );
-				_events.InsertFirst( startName, $"{ifName} 70 & 80", new List<IDisposable> {
+				_events.InsertFirst( startName, $"{ifName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{ifName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{ifName} 80" ) )
 				} );
 				Log.Debug( _events );
-				_events.InsertFirst( startName, new List<IDisposable> {
+				_events.InsertFirst( startName, new [] {
 					Disposable.Create( () => Log.Debug( $"{ifName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{ifName} 100" ) )
 				} );
@@ -90,12 +91,12 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{ilName} 60" ) )
 				);
 				Log.Debug( _events );
-				_events.InsertLast( startName, $"{ilName} 70 & 80", new List<IDisposable> {
+				_events.InsertLast( startName, $"{ilName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{ilName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{ilName} 80" ) )
 				} );
 				Log.Debug( _events );
-				_events.InsertLast( startName, new List<IDisposable> {
+				_events.InsertLast( startName, new [] {
 					Disposable.Create( () => Log.Debug( $"{ilName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{ilName} 100" ) )
 				} );
@@ -117,12 +118,12 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{afName} 60" ) )
 				);
 				Log.Debug( _events );
-				_events.AddFirst( $"{afName} 70 & 80", new List<IDisposable> {
+				_events.AddFirst( $"{afName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{afName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{afName} 80" ) )
 				} );
 				Log.Debug( _events );
-				_events.AddFirst( new List<IDisposable> {
+				_events.AddFirst( new [] {
 					Disposable.Create( () => Log.Debug( $"{afName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{afName} 100" ) )
 				} );
@@ -144,12 +145,12 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{alName} 60" ) )
 				);
 				Log.Debug( _events );
-				_events.AddLast( $"{alName} 70 & 80", new List<IDisposable> {
+				_events.AddLast( $"{alName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{alName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{alName} 80" ) )
 				} );
 				Log.Debug( _events );
-				_events.AddLast( new List<IDisposable> {
+				_events.AddLast( new [] {
 					Disposable.Create( () => Log.Debug( $"{alName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{alName} 100" ) )
 				} );
@@ -185,11 +186,11 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{ifName} 50" ) ),
 					Disposable.Create( () => Log.Debug( $"{ifName} 60" ) )
 				);
-				_events.InsertFirst( startName, $"{ifName} 70 & 80", new List<IDisposable> {
+				_events.InsertFirst( startName, $"{ifName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{ifName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{ifName} 80" ) )
 				} );
-				_events.InsertFirst( startName, new List<IDisposable> {
+				_events.InsertFirst( startName, new [] {
 					Disposable.Create( () => Log.Debug( $"{ifName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{ifName} 100" ) )
 				} );
@@ -205,11 +206,11 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{ilName} 50" ) ),
 					Disposable.Create( () => Log.Debug( $"{ilName} 60" ) )
 				);
-				_events.InsertLast( startName, $"{ilName} 70 & 80", new List<IDisposable> {
+				_events.InsertLast( startName, $"{ilName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{ilName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{ilName} 80" ) )
 				} );
-				_events.InsertLast( startName, new List<IDisposable> {
+				_events.InsertLast( startName, new [] {
 					Disposable.Create( () => Log.Debug( $"{ilName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{ilName} 100" ) )
 				} );
@@ -225,11 +226,11 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{afName} 50" ) ),
 					Disposable.Create( () => Log.Debug( $"{afName} 60" ) )
 				);
-				_events.AddFirst( $"{afName} 70 & 80", new List<IDisposable> {
+				_events.AddFirst( $"{afName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{afName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{afName} 80" ) )
 				} );
-				_events.AddFirst( new List<IDisposable> {
+				_events.AddFirst( new [] {
 					Disposable.Create( () => Log.Debug( $"{afName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{afName} 100" ) )
 				} );
@@ -245,11 +246,11 @@ namespace SubmarineMirage.TestMultiEvent {
 					Disposable.Create( () => Log.Debug( $"{alName} 50" ) ),
 					Disposable.Create( () => Log.Debug( $"{alName} 60" ) )
 				);
-				_events.AddLast( $"{alName} 70 & 80", new List<IDisposable> {
+				_events.AddLast( $"{alName} 70 & 80", new [] {
 					Disposable.Create( () => Log.Debug( $"{alName} 70" ) ),
 					Disposable.Create( () => Log.Debug( $"{alName} 80" ) )
 				} );
-				_events.AddLast( new List<IDisposable> {
+				_events.AddLast( new [] {
 					Disposable.Create( () => Log.Debug( $"{alName} 90" ) ),
 					Disposable.Create( () => Log.Debug( $"{alName} 100" ) )
 				} );

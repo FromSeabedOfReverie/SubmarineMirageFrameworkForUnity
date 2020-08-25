@@ -19,12 +19,11 @@ namespace SubmarineMirage.MultiEvent {
 
 
 		public override void Run() {
-			var i = _owner._events.RemoveAll( pair => {
+			_owner._events.RemoveAll( pair => {
 				var isRemove = pair.Key == _removeKey;
 				if ( isRemove )	{ _owner.OnRemove( pair.Value ); }
 				return isRemove;
 			} );
-			if ( i == 0 )	{ NoEventError( _removeKey ); }
 		}
 
 
