@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 //#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
+	using System;
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
@@ -32,6 +33,11 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public SMObjectModifyData( SMObject smObject ) {
 			_id = ++s_idCount;
 			_object = smObject;
+			
+			if ( _object == null || _object._isDispose ) {
+				throw new ObjectDisposedException( $"{nameof( _object )}", $"既に解放、削除済\n{_object}" );
+			}
+
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( SMObjectModifyData )}() : {this}" );
 #endif

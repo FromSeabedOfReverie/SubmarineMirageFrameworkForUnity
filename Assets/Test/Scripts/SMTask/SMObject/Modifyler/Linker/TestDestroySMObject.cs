@@ -36,6 +36,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 					case nameof( TestRun1 ):	CreateTestRun1();	break;
 					case nameof( TestRun2 ):	CreateTestRun2();	break;
 					case nameof( TestRun3 ):	CreateTestRun3();	break;
+					case nameof( TestError ):	CreateTestError();	break;
 				}
 				Log.Debug( $"end {nameof( Create )}{_testName}" );
 

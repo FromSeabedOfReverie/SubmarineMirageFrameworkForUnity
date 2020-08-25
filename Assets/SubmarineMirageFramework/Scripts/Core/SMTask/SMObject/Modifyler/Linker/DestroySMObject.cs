@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
+//#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Debug;
@@ -31,17 +31,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			Log.Debug( $"{nameof( _object._top )} : {_object?._top}" );
 			Log.Debug( $"{nameof( _object )} : {_object}" );
 #endif
-
 			UnLinkObject( _object );
 			if ( !_object._isTop )	{ SetAllObjectData( _object._top ); }
-
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( _object._top )} : {_object?._top}" );
 			Log.Debug( $"{nameof( _object )} : {_object}" );
 #endif
 
 			await RunObject();
-
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( _object._top._modifyler )} : {_object?._top?._modifyler}" );
 			Log.Debug( $"{nameof( Run )} : end\n{this}" );
@@ -53,7 +50,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( RunObject )} : start\n{this}" );
 #endif
-
 			try {
 #if TestSMTaskModifyler
 				Log.Debug( $"{nameof( ChangeActiveSMObject )} : 待機開始\n{_object}" );
@@ -74,7 +70,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				Log.Debug( $"finally : {_object}" );
 #endif
 			}
-
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( RunObject )} : end\n{this}" );
 #endif

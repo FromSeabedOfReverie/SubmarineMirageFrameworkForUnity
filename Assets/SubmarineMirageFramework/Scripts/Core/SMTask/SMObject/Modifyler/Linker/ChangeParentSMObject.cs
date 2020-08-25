@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using System.Linq;
@@ -11,9 +12,12 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using Extension;
+	using Debug;
+
 
 
 	// TODO : コメント追加、整頓
+
 
 
 	public class ChangeParentSMObject : SMObjectModifyData {
@@ -38,15 +42,15 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public override async UniTask Run() {
 			_object._owner.transform.SetParent( _parent, _isWorldPositionStays );
 
-			var top = _object._top;
 			UnLinkObject( _object );
-			if ( top != _object )	{ SetAllObjectData( top ); }
+			if ( !_object._isTop )	{ SetAllObjectData( _object._top ); }
 
 			var parent = _object._owner.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
 				?._object;
 			if ( parent != null )	{ AddChildObject( parent, _object ); }
 			else					{ RegisterObject(); }
 
+			var top = _object._top;
 			SetTopObject( _object );
 
 			top._modifyler.ReRegister( _object );

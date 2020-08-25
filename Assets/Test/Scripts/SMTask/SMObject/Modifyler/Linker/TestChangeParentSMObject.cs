@@ -30,7 +30,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			_createEvent.AddLast( async canceler => {
 				Log.Debug( $"start {nameof( Create )}{_testName}" );
 				switch ( _testName ) {
-					case nameof( TestHoge ):	CreateTestHoge();	break;
+					case nameof( TestSetParent ):	CreateTestSetParent();	break;
 				}
 				Log.Debug( $"end {nameof( Create )}{_testName}" );
 
@@ -40,14 +40,41 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 
 /*
-		・テスト
+		・親設定テスト
+		transform.SetParent、確認
 */
-		void CreateTestHoge() {}
+		void CreateTestSetParent() {}
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestHoge() => From( async () => {
-			await UTask.NextFrame( _asyncCanceler );
-			Log.Debug( $"{nameof( TestHoge )}" );
+		public IEnumerator TestSetParent() => From( async () => {
+			Log.Debug( $"{nameof( TestSetParent )}" );
+
+			var p = new GameObject( "1p" ).transform;
+			p.position = Vector3.one;
+			var c = new GameObject( "1c" ).transform;
+			c.position = Vector3.one * 2;
+			c.SetParent( p );
+
+			p = new GameObject( "2p" ).transform;
+			p.position = Vector3.one;
+			c = new GameObject( "2c" ).transform;
+			c.position = Vector3.one * 2;
+			c.SetParent( p, true );
+
+			p = new GameObject( "3p" ).transform;
+			p.position = Vector3.one;
+			c = new GameObject( "3c" ).transform;
+			c.position = Vector3.one * 2;
+			c.SetParent( p, false );
+
+			p = new GameObject( "4p" ).transform;
+			p.position = Vector3.one;
+			c = new GameObject( "4c" ).transform;
+			c.position = Vector3.one * 2;
+			c.parent = p;
+
+			c = new GameObject( "5c" ).transform;
+			c.SetParent( null );
 
 			await UTask.Never( _asyncCanceler );
 		} );
