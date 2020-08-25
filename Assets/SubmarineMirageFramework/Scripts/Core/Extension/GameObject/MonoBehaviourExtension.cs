@@ -40,8 +40,6 @@ namespace SubmarineMirage.Extension {
 		/// ● 文字列に変換
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public override string ToString() {
-			return this.ToDeepString();
-		}
+		public override string ToString() => this.ToDeepString();
 	}
 }

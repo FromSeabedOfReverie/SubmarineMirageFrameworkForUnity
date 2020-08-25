@@ -5,14 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
-	using System;
 	using MultiEvent;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface IDisposableExtension : IDisposable {
+	public interface IDisposableExtension : IRawDisposableExtension {
 		MultiDisposable _disposables	{ get; }
 	}
 }

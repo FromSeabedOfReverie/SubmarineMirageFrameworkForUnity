@@ -17,8 +17,8 @@ namespace SubmarineMirage.Extension {
 		/// ● 真偽値から整数に変換
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static int ToInt( this bool b ) {
-			return b ? 1 : 0;
+		public static int ToInt( this bool self ) {
+			return self ? 1 : 0;
 		}
 	}
 }

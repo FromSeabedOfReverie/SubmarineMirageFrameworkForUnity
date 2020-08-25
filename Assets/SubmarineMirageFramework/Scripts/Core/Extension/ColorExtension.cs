@@ -19,9 +19,9 @@ namespace SubmarineMirage.Extension {
 		/// ● 255を補正（0～255 → 0～1）
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static Color Correct255( this Color color ) {
-			var lastAlpha = color.a;
-			var result = color / 255;
+		public static Color Correct255( this Color self ) {
+			var lastAlpha = self.a;
+			var result = self / 255;
 			if ( lastAlpha <= 1 ) { result.a = lastAlpha; }
 			return result;
 		}
@@ -30,8 +30,8 @@ namespace SubmarineMirage.Extension {
 		/// ● NGUI色に変換
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static string ToNGUIFormat( this Color c ) {
-			var s = ColorUtility.ToHtmlStringRGB( c );
+		public static string ToNGUIFormat( this Color self ) {
+			var s = ColorUtility.ToHtmlStringRGB( self );
 			return "[" + s + "]";
 		}
 		///------------------------------------------------------------------------------------------------
@@ -39,8 +39,8 @@ namespace SubmarineMirage.Extension {
 		/// ● UGUI色に変換
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static string ToUGUIFormat( this Color c ) {
-			var s = ColorUtility.ToHtmlStringRGB( c );
+		public static string ToUGUIFormat( this Color self ) {
+			var s = ColorUtility.ToHtmlStringRGB( self );
 			return "<color=#" + s + ">";
 		}
 	}

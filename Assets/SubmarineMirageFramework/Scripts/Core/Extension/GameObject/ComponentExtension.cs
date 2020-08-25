@@ -19,63 +19,59 @@ namespace SubmarineMirage.Extension {
 	public static class ComponentExtension {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 指定層の子供達のゲーム物を全取得
+		/// ● 指定層の子達のゲーム物を全取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static List<GameObject> GetChildrenInLayer( this Component component, LayerManager.Name layer )
-			=> GameObjectUtility.GetChildrenInLayer( component.gameObject, layer );
+		public static IEnumerable<GameObject> GetChildrenInLayer( this Component self, LayerManager.Name layer )
+			=> GameObjectUtility.GetChildrenInLayer( self.gameObject, layer );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 親を含まない、全子階層の部品達を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static T[] GetComponentsInChildrenWithoutSelf<T>( this Component component, bool isIncludeInactive )
+		public static T[] GetComponentsInChildrenWithoutSelf<T>( this Component self, bool isIncludeInactive )
 			where T : Component
-			=> component.gameObject.GetComponentsInChildrenWithoutSelf<T>( isIncludeInactive );
+			=> self.gameObject.GetComponentsInChildrenWithoutSelf<T>( isIncludeInactive );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 1階層までの、子供達の、部品達を取得
+		/// ● 1階層までの、子達の、部品達を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static List<T> GetComponentsInChildrenUntilOneHierarchy<T>( this Component component,
-																			bool isIncludeInactive = false
-		)
-			=> GameObjectUtility.GetComponentsInChildrenUntilOneHierarchy<T>(
-				component.gameObject, isIncludeInactive );
+		public static IEnumerable<T> GetComponentsInChildrenUntilOneHierarchy<T>( this Component self,
+																					bool isIncludeInactive = false
+		) => GameObjectUtility.GetComponentsInChildrenUntilOneHierarchy<T>(
+				self.gameObject, isIncludeInactive );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 1階層までの、親の、部品達を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static List<T> GetComponentsInParentUntilOneHierarchy<T>( this Component component,
-																			bool isIncludeInactive = false
-		)
-			=> GameObjectUtility.GetComponentsInParentUntilOneHierarchy<T>(
-				component.gameObject, isIncludeInactive );
+		public static IEnumerable<T> GetComponentsInParentUntilOneHierarchy<T>( this Component self,
+																				bool isIncludeInactive = false
+		) => GameObjectUtility.GetComponentsInParentUntilOneHierarchy<T>(
+				self.gameObject, isIncludeInactive );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 1階層までの、親の、部品を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static T GetComponentInParentUntilOneHierarchy<T>( this Component component,
+		public static T GetComponentInParentUntilOneHierarchy<T>( this Component self,
 																	bool isIncludeInactive = false
-		)
-			=> GameObjectUtility.GetComponentInParentUntilOneHierarchy<T>(
-				component.gameObject, isIncludeInactive );
+		) => GameObjectUtility.GetComponentInParentUntilOneHierarchy<T>(
+				self.gameObject, isIncludeInactive );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 指定名ゲーム物から、部品を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static T FindComponent<T>( this Component component, string name ) where T : Component
+		public static T FindComponent<T>( this Component self, string name ) where T : Component
 			=> GameObjectUtility.FindComponent<T>( name );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 指定付箋ゲーム物から、部品を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static T FindComponentWithTag<T>( this Component component, TagManager.Name tag )
-			where T : Component
+		public static T FindComponentWithTag<T>( this Component self, TagManager.Name tag ) where T : Component
 			=> GameObjectUtility.FindComponentWithTag<T>( tag );
 	}
 }
