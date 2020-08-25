@@ -26,8 +26,9 @@ namespace SubmarineMirage.SMTask {
 		public ISMBehaviour _previous	{ get; set; }	// 常に無
 		public ISMBehaviour _next		{ get; set; }	// 常に無
 
-		public bool _isInitialized	=> _body._isInitialized;
-		public bool _isActive		=> _body._isActive;
+		public bool _isInitialized =>	_body._isInitialized;
+		public bool _isActive =>		_body._isActive;
+		public bool _isDispose =>		_body._isDispose;
 
 		public MultiAsyncEvent _loadEvent		=> _body._loadEvent;
 		public MultiAsyncEvent _initializeEvent	=> _body._initializeEvent;

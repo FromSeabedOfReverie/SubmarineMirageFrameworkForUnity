@@ -47,7 +47,8 @@ namespace SubmarineMirage.SMTask {
 		public SMObject _child;
 		public SMObject _top;
 
-		public bool _isTop => _top == this;
+		public bool _isTop =>		_top == this;
+		public bool _isDispose =>	_disposables._isDispose;
 
 		public readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
 
@@ -290,7 +291,7 @@ namespace SubmarineMirage.SMTask {
 		public void Destroy()
 			=> _top._modifyler.Register( new DestroySMObject( this ) );
 
-		public void ChangeParent( Transform parent, bool isWorldPositionStays )
+		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _top._modifyler.Register( new ChangeParentSMObject( this, parent, isWorldPositionStays ) );
 
 
@@ -316,13 +317,13 @@ namespace SubmarineMirage.SMTask {
 			$"    {nameof( _modifyler )} : {_modifyler}",
 			"",
 			$"    {nameof( _asyncCanceler )}._isCancel : {_asyncCanceler._isCancel}",
-			$"    {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
+			$"    {nameof( _isDispose )} : {_isDispose}",
 			")"
 		);
 
 		public string ToLineString( bool isViewLink = true ) {
 			var bs = GetBehaviours().ToArray();
-			var isDispose = bs.All( b => b._disposables._isDispose );
+			var isDispose = bs.All( b => b._isDispose );
 
 			var result = string.Join( " ",
 				_id,

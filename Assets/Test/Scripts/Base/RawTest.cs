@@ -20,6 +20,7 @@ namespace SubmarineMirage.Test {
 		protected Func<UTaskCanceler, UniTask> _initializeEvent;
 		protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
 		protected readonly CompositeDisposable _disposables = new CompositeDisposable();
+		public override bool _isDispose => _disposables.IsDisposed;
 
 
 		protected override async UniTask AwakeSub() {

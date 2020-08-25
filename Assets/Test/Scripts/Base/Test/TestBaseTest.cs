@@ -19,6 +19,9 @@ namespace SubmarineMirage.Test {
 
 
 	public class TestBaseTest : BaseTest {
+		public override bool _isDispose => _asyncCanceler._isDispose;
+
+
 		protected override async UniTask AwakeSub() {
 			Create();
 			UTask.Void( async () => {

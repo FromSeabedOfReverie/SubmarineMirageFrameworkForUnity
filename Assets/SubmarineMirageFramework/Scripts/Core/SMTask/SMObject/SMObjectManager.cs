@@ -33,6 +33,7 @@ namespace SubmarineMirage.SMTask {
 		public BaseScene _owner	{ get; private set; }
 		public readonly Dictionary<SMTaskType, SMObject> _objects = new Dictionary<SMTaskType, SMObject>();
 		public bool _isEnter	{ get; private set; }
+		public bool _isDispose => _disposables._isDispose;
 
 		public UTaskCanceler _activeAsyncCanceler => _owner._activeAsyncCanceler;
 

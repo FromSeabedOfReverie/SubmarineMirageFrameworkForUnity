@@ -76,7 +76,7 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 				string.Join( "\n", smObject.GetChildren().Select( o => $"    {o.ToLineString( false )}" ) ),
 
 				$"{( smObject._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
-					+ $"{( smObject._disposables._isDispose ? "Dispose" : "" )}"
+					+ $"{( smObject._isDispose ? "Dispose" : "" )}"
 			) );
 
 			EditorGUILayout.SelectableLabel( smObject.ToLineString( false ), GUILayout.Height( 16 ) );

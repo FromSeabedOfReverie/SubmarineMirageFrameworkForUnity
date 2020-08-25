@@ -14,6 +14,7 @@ namespace SubmarineMirage.Test {
 	using Cysharp.Threading.Tasks;
 	using Main;
 	using UTask;
+	using Extension;
 	using Editor;
 	using Debug;
 
@@ -21,9 +22,10 @@ namespace SubmarineMirage.Test {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseTest : IPrebuildSetup, IDisposable {
+	public abstract class BaseTest : IPrebuildSetup, IRawDisposableExtension {
 		protected string _testName => TestContext.CurrentContext.Test.Name;
 		protected bool _isInitialized;
+		public abstract bool _isDispose	{ get; }
 		protected readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
 
 

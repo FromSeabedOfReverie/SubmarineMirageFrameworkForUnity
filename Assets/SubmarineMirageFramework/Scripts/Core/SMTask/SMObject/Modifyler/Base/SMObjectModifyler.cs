@@ -22,6 +22,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public SMObject _owner	{ get; private set; }
 		readonly LinkedList<SMObjectModifyData> _data = new LinkedList<SMObjectModifyData>();
 		bool _isRunning;
+		public bool _isDispose => _disposables._isDispose;
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 

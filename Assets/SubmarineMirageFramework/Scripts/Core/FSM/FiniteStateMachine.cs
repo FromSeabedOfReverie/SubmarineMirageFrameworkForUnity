@@ -27,8 +27,6 @@ namespace SubmarineMirage.FSM {
 		where TState : class, IState<TFSM, TOwner>
 	{
 		protected TOwner _owner	{ get; private set; }
-		public bool _isActive => _owner._isActive;
-		bool _isInitialized;
 		RunState? _runState => _state?._runState;
 		public string _registerEventName	{ get; private set; }
 
@@ -36,8 +34,12 @@ namespace SubmarineMirage.FSM {
 		public TState _state	{ get; private set; }
 		protected TState _nextState;
 		protected Type _startState;
+
+		public bool _isActive =>	_owner._isActive;
+		bool _isInitialized;
 		bool _isRequestNextState;
 		public bool _isChangingState	{ get; private set; }
+		public bool _isDispose =>	_disposables._isDispose;
 
 		public MultiAsyncEvent _loadEvent		=> _owner._loadEvent;
 		public MultiAsyncEvent _initializeEvent	=> _owner._initializeEvent;

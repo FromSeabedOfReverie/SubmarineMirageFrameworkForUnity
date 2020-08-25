@@ -27,6 +27,7 @@ namespace SubmarineMirage.TestSMTask {
 		ISMBehaviour _viewBehaviour;
 		public string _viewText	{ get; private set; }
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
+		public bool _isDispose => _disposables._isDispose;
 
 
 		public TestSMBehaviourBody() {

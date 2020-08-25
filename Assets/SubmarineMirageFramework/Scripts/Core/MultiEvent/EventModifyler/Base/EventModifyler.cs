@@ -16,10 +16,11 @@ namespace SubmarineMirage.MultiEvent {
 	// TODO : コメント追加、整頓
 
 
-	public class EventModifyler<T> : IDisposable {
+	public class EventModifyler<T> : IRawDisposableExtension {
 		BaseMultiEvent<T> _owner;
 		readonly Queue< EventModifyData<T> > _data = new Queue< EventModifyData<T> >();
 		bool _isRunning;
+		public bool _isDispose => _disposables.IsDisposed;
 		readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 
@@ -60,15 +61,12 @@ namespace SubmarineMirage.MultiEvent {
 		}
 
 
-		public override string ToString() {
-			var result = string.Join( "\n",
-				$"{this.GetAboutName()}(",
-				$"    {nameof( _isRunning )} : {_isRunning}",
-				$"    {nameof( _data )} : \n"
-					+ string.Join( "\n", _data.Select( d => $"        {d}" ) ),
-				")"
-			);
-			return result;
-		}
+		public override string ToString() => string.Join( "\n",
+			$"{this.GetAboutName()}(",
+			$"    {nameof( _isRunning )} : {_isRunning}",
+			$"    {nameof( _data )} :",
+			string.Join( "\n", _data.Select( d => $"        {d}" ) ),
+			")"
+		);
 	}
 }

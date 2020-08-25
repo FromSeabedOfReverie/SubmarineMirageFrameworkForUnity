@@ -19,6 +19,7 @@ namespace SubmarineMirage.Test {
 		protected readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
 		protected readonly MultiSubject _finalizeEvent = new MultiSubject();
 		protected readonly MultiDisposable _disposables	= new MultiDisposable();
+		public override bool _isDispose => _disposables._isDispose;
 
 
 		protected override async UniTask AwakeSub() {

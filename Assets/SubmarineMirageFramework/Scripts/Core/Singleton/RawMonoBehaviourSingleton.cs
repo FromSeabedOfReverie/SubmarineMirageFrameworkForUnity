@@ -22,6 +22,7 @@ namespace SubmarineMirage.Singleton {
 		protected static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
+		public bool _isDispose => _disposables._isDispose;
 
 
 		public static T s_instance {

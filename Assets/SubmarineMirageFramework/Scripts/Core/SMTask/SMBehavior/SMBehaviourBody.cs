@@ -30,6 +30,7 @@ namespace SubmarineMirage.SMTask {
 
 		public bool _isInitialized =>	_ranState >= SMTaskRanState.Initialized;
 		public bool _isActive =>		_activeState == SMTaskActiveState.Enabled;
+		public bool _isDispose =>		_disposables._isDispose;
 
 		ISMBehaviour _owner;
 
@@ -458,7 +459,7 @@ namespace SubmarineMirage.SMTask {
 			"",
 			$"        {nameof( _activeAsyncCanceler )}._isCancel : {_activeAsyncCanceler._isCancel}",
 			$"        {nameof( _inActiveAsyncCanceler )}._isCancel : {_inActiveAsyncCanceler._isCancel}",
-			$"        {nameof( _disposables._isDispose )} : {_disposables._isDispose}",
+			$"        {nameof( _isDispose )} : {_isDispose}",
 			"",
 			$"        {nameof( _loadEvent )}._isRunning : {_loadEvent._isRunning}",
 			$"        {nameof( _initializeEvent )}._isRunning : {_initializeEvent._isRunning}",
@@ -490,7 +491,7 @@ namespace SubmarineMirage.SMTask {
 			behaviour._body?._nextActiveState,
 			$"↑{behaviour._previous?._id}",
 			$"↓{behaviour._next?._id}",
-			behaviour._disposables._isDispose ? "Dispose" : ""
+			behaviour._isDispose ? "Dispose" : ""
 		);
 	}
 }

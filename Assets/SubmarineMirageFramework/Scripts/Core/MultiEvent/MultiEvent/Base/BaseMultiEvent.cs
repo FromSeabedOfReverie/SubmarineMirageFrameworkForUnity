@@ -15,7 +15,9 @@ namespace SubmarineMirage.MultiEvent {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseMultiEvent<T> : IDisposable {
+	public abstract class BaseMultiEvent<T> : IRawDisposableExtension {
+		static uint s_idCount;
+		public uint _id					{ get; private set; }
 		public readonly List< KeyValuePair<string, T> > _events = new List< KeyValuePair<string, T> >();
 		protected EventModifyler<T> _modifyler	{ get; private set; }
 		protected readonly CompositeDisposable _disposables = new CompositeDisposable();
@@ -23,6 +25,7 @@ namespace SubmarineMirage.MultiEvent {
 
 
 		public BaseMultiEvent() {
+			_id = ++s_idCount;
 			_modifyler = new EventModifyler<T>( this );
 			_disposables.Add( _modifyler );
 			_disposables.Add( Disposable.Create( () => {
@@ -84,6 +87,7 @@ namespace SubmarineMirage.MultiEvent {
 
 		public override string ToString() => string.Join( "\n",
 			$"{this.GetAboutName()}(",
+			$"    {nameof( _id )} : {_id}",
 			$"    {nameof( _isDispose )} : {_isDispose}",
 			$"    {nameof( _events )} :",
 			string.Join( "\n", _events.Select( pair => $"        {pair.Key} : {pair.Value.GetAboutName()}" ) ),

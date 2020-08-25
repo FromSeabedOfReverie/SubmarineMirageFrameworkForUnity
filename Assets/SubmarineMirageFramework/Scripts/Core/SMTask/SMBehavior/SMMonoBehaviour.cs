@@ -30,22 +30,23 @@ namespace SubmarineMirage.SMTask {
 		public ISMBehaviour _previous	{ get; set; }
 		public ISMBehaviour _next		{ get; set; }
 
-		public bool _isInitialized	=> _body._isInitialized;
-		public bool _isActive		=> _body._isActive;
+		public bool _isInitialized =>	_body?._isInitialized ?? false;
+		public bool _isActive =>		_body?._isActive ?? false;
+		public bool _isDispose =>		_body?._isDispose ?? false;
 
-		public MultiAsyncEvent _loadEvent		=> _body._loadEvent;
-		public MultiAsyncEvent _initializeEvent	=> _body._initializeEvent;
-		public MultiAsyncEvent _enableEvent		=> _body._enableEvent;
-		public MultiSubject _fixedUpdateEvent	=> _body._fixedUpdateEvent;
-		public MultiSubject _updateEvent		=> _body._updateEvent;
-		public MultiSubject _lateUpdateEvent	=> _body._lateUpdateEvent;
-		public MultiAsyncEvent _disableEvent	=> _body._disableEvent;
-		public MultiAsyncEvent _finalizeEvent	=> _body._finalizeEvent;
+		public MultiAsyncEvent _loadEvent		=> _body?._loadEvent;
+		public MultiAsyncEvent _initializeEvent	=> _body?._initializeEvent;
+		public MultiAsyncEvent _enableEvent		=> _body?._enableEvent;
+		public MultiSubject _fixedUpdateEvent	=> _body?._fixedUpdateEvent;
+		public MultiSubject _updateEvent		=> _body?._updateEvent;
+		public MultiSubject _lateUpdateEvent	=> _body?._lateUpdateEvent;
+		public MultiAsyncEvent _disableEvent	=> _body?._disableEvent;
+		public MultiAsyncEvent _finalizeEvent	=> _body?._finalizeEvent;
 
-		public UTaskCanceler _activeAsyncCanceler	=> _body._activeAsyncCanceler;
-		public UTaskCanceler _inActiveAsyncCanceler	=> _body._inActiveAsyncCanceler;
+		public UTaskCanceler _activeAsyncCanceler	=> _body?._activeAsyncCanceler;
+		public UTaskCanceler _inActiveAsyncCanceler	=> _body?._inActiveAsyncCanceler;
 
-		public MultiDisposable _disposables	=> _body._disposables;
+		public MultiDisposable _disposables	=> _body?._disposables;
 
 
 		public void Constructor() {
@@ -66,13 +67,16 @@ namespace SubmarineMirage.SMTask {
 #endif
 		void OnDestroy() => Dispose();
 
-		public void Dispose() => _body?.Dispose();
+		public void Dispose() {
+			if ( _body != null )	{ _body.Dispose(); }
+			else					{ Destroy( this ); }
+		}
 
 		public abstract void Create();
 
 		public void DestroyObject() => _object.Destroy();
 
-		public void StopActiveAsync() => _body.StopActiveAsync();
+		public void StopActiveAsync() => _body?.StopActiveAsync();
 
 
 		public UniTask RunStateEvent( SMTaskRanState state ) => _body.RunStateEvent( state );
@@ -137,7 +141,7 @@ namespace SubmarineMirage.SMTask {
 
 
 
-		public void ChangeParent( Transform parent, bool isWorldPositionStays )
+		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _object.ChangeParent( parent, isWorldPositionStays );
 
 

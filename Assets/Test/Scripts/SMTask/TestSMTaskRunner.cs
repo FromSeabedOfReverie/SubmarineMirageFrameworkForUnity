@@ -45,7 +45,7 @@ namespace SubmarineMirage.TestSMTask {
 				}
 				_text.text = string.Join( "\n",
 					$"{_taskRunner.GetAboutName()}(",
-					$"    {nameof( _taskRunner._disposables._isDispose )} : {_taskRunner._disposables._isDispose}",
+					$"    {nameof( _taskRunner._isDispose )} : {_taskRunner._isDispose}",
 					")"
 				);
 			} ) );

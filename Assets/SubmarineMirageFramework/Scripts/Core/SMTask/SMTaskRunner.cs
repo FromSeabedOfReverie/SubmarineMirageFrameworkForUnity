@@ -89,7 +89,7 @@ namespace SubmarineMirage.SMTask {
 
 		void FixedUpdate() {
 			return;
-			if ( _disposables._isDispose )	{ return; }
+			if ( _isDispose )	{ return; }
 
 			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.FixedUpdate ).Forget();
 			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.FixedUpdate ).Forget();
@@ -100,7 +100,7 @@ namespace SubmarineMirage.SMTask {
 
 		void Update() {
 			return;
-			if ( _disposables._isDispose )	{ return; }
+			if ( _isDispose )	{ return; }
 
 			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Update ).Forget();
 			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Update ).Forget();
@@ -111,7 +111,7 @@ namespace SubmarineMirage.SMTask {
 
 		void LateUpdate() {
 			return;
-			if ( _disposables._isDispose )	{ return; }
+			if ( _isDispose )	{ return; }
 
 			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.LateUpdate ).Forget();
 			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.LateUpdate ).Forget();

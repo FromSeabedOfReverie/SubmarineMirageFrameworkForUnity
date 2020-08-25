@@ -14,7 +14,7 @@ namespace SubmarineMirage.MultiEvent {
 	// TODO : コメント追加、整頓
 
 
-	public class MultiDisposable : BaseMultiEvent<IDisposable>, IDisposable {
+	public class MultiDisposable : BaseMultiEvent<IDisposable> {
 		public override void OnRemove( IDisposable function ) => function.Dispose();
 
 

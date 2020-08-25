@@ -27,7 +27,9 @@ namespace SubmarineMirage.FSM {
 		public RunState _runState	{ get; private set; } = RunState.Exited;
 		SMTaskActiveState _activeState;
 		SMTaskActiveState? _nextActiveState;
-		public bool _isActive => _activeState == SMTaskActiveState.Enabled;
+
+		public bool _isActive =>	_activeState == SMTaskActiveState.Enabled;
+		public bool _isDispose =>	_disposables._isDispose;
 
 		protected readonly MultiAsyncEvent _loadEvent = new MultiAsyncEvent();
 		protected readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
