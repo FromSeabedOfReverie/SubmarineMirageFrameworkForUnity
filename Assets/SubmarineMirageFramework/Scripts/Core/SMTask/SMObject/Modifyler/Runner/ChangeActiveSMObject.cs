@@ -4,10 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTask
+#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
-	using System;
 	using System.Linq;
+	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
@@ -19,6 +19,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class ChangeActiveSMObject : SMObjectModifyData {
+		static readonly string EVENT_KEY = $"{nameof( ChangeActiveSMObject )}.{nameof( ChangeActive )}";
 		public override ModifyType _type => ModifyType.Runner;
 		bool _isActive;
 		bool _isChangeOwner;
@@ -43,14 +44,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		async UniTask ChangeActive( SMObject smObject, bool isActive, bool isChangeOwner ) {
-			using ( var events = new MultiAsyncEvent() ) {
+			using ( var events = new MultiAsyncEvent( isCancelByCanceler => isCancelByCanceler ) ) {
 				var isCanChangeActive = false;
 				if ( isChangeOwner && smObject._owner != null && smObject._type != SMTaskType.DontWork ) {
 					events.AddLast( async _ => {
 // TODO : Disable時でも、Activeにしてしまうが、Managerの方で呼ばないはず、確認する
 						smObject._owner.SetActive( isActive );
 						await UTask.DontWait();
-#if TestSMTask
+#if TestSMTaskModifyler
 						Log.Debug( $"{smObject._owner.GetAboutName()}.SetActive : {isActive}" );
 #endif
 					} );
@@ -67,8 +68,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						foreach ( var b in smObject.GetBehaviours() ) {
 							events.AddLast( async _ => {
 								if ( !isCanChangeActive )	{ return; }
-								try										{ await b.ChangeActive( isActive ); }
-								catch ( OperationCanceledException )	{}
+								await b.ChangeActive( isActive );
 							} );
 						}
 						events.AddLast( async _ => {
@@ -82,13 +82,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					case SMTaskType.Work:
 						events.AddLast( async _ => {
 							if ( !isCanChangeActive )	{ return; }
-							await smObject.GetBehaviours().Select( async b => {
-									try										{ await b.ChangeActive( isActive ); }
-									catch ( OperationCanceledException )	{}
-								} )
-								.Concat(
-									smObject.GetChildren().Select( o => ChangeActive( o, isActive, false ) )
-								);
+							await smObject.GetBehaviours().Select( b => b.ChangeActive( isActive ) )
+								.Concat( smObject.GetChildren().Select( o => ChangeActive( o, isActive, false ) ) );
 						} );
 						break;
 				}

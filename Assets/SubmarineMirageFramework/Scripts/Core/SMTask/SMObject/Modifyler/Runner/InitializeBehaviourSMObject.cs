@@ -20,9 +20,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		public InitializeBehaviourSMObject( SMObject smObject, SMMonoBehaviour behaviour ) : base( smObject ) {
-			if ( _object._owner == null ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、実行不可 :\n{_object}" );
-			}
 			_behaviour = behaviour;
 		}
 

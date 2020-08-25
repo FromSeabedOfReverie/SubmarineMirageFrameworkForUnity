@@ -61,14 +61,11 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		static async UniTask RunStateEvent( SMObject smObject, SMTaskRanState state ) {
-			using ( var events = new MultiAsyncEvent() ) {
+			using ( var events = new MultiAsyncEvent( isCancelByCanceler => isCancelByCanceler ) ) {
 				switch ( smObject._type ) {
 					case SMTaskType.FirstWork:
 						foreach ( var b in smObject.GetBehaviours() ) {
-							events.AddLast( async _ => {
-								try										{ await b.RunStateEvent( state ); }
-								catch ( OperationCanceledException )	{}
-							} );
+							events.AddLast( _ => b.RunStateEvent( state ) );
 						}
 						events.AddLast( async _ => {
 							foreach ( var o in smObject.GetChildren() ) {
@@ -78,25 +75,17 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						break;
 
 					case SMTaskType.Work:
-						events.AddLast( async _ => await smObject.GetBehaviours().Select( async b => {
-								try										{ await b.RunStateEvent( state ); }
-								catch ( OperationCanceledException )	{}
-							} )
-							.Concat(
-								smObject.GetChildren().Select( o => RunStateEvent( o, state ) )
-							)
+						events.AddLast( async _ =>
+							await smObject.GetBehaviours().Select( b => b.RunStateEvent( state ) )
+								.Concat( smObject.GetChildren().Select( o => RunStateEvent( o, state ) ) )
 						);
 						break;
 
 					case SMTaskType.DontWork:
 						if ( state != SMTaskRanState.Creating )	{ break; }
-						events.AddLast( async _ => await smObject.GetBehaviours().Select( async b => {
-								try										{ await b.RunStateEvent( state ); }
-								catch ( OperationCanceledException )	{}
-							} )
-							.Concat(
-								smObject.GetChildren().Select( o => RunStateEvent( o, state ) )
-							)
+						events.AddLast( async _ =>
+							await smObject.GetBehaviours().Select( b => b.RunStateEvent( state ) )
+								.Concat( smObject.GetChildren().Select( o => RunStateEvent( o, state ) ) )
 						);
 						break;
 				}

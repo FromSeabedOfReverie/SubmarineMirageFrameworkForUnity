@@ -28,14 +28,11 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 // TODO : 親がdisableでも、enableしそう
 		async UniTask RunActiveEvent( SMObject smObject ) {
-			using ( var events = new MultiAsyncEvent() ) {
+			using ( var events = new MultiAsyncEvent( isCancelByCanceler => isCancelByCanceler ) ) {
 				switch ( smObject._type ) {
 					case SMTaskType.FirstWork:
 						foreach ( var b in smObject.GetBehaviours() ) {
-							events.AddLast( async _ => {
-								try										{ await b.RunActiveEvent(); }
-								catch ( OperationCanceledException )	{}
-							} );
+							events.AddLast( _ => b.RunActiveEvent() );
 						}
 						events.AddLast( async _ => {
 							foreach ( var o in smObject.GetChildren() ) {
@@ -45,13 +42,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						break;
 
 					case SMTaskType.Work:
-						events.AddLast( async _ => await smObject.GetBehaviours().Select( async b => {
-								try										{ await b.RunActiveEvent(); }
-								catch ( OperationCanceledException )	{}
-							} )
-							.Concat(
-								smObject.GetChildren().Select( o => RunActiveEvent( o ) )
-							)
+						events.AddLast( async _ =>
+							await smObject.GetBehaviours().Select( b => b.RunActiveEvent() )
+								.Concat( smObject.GetChildren().Select( o => RunActiveEvent( o ) ) )
 						);
 						break;
 				}
