@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMTask
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -13,6 +13,7 @@ namespace SubmarineMirage.SMTask {
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
+	using Modifyler;
 	using Extension;
 	using Debug;
 
@@ -24,9 +25,10 @@ namespace SubmarineMirage.SMTask {
 		public virtual SMTaskType _type => SMTaskType.Work;
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
+		public uint _id => _body?._id ?? 0;
 		public SMObject _object			{ get; set; }
 		public SMBehaviourBody _body	{ get; private set; }
-		public uint _id => _body?._id ?? 0;
+		public SMBehaviourModifyler _modifyler => _body?._modifyler;
 		public ISMBehaviour _previous	{ get; set; }
 		public ISMBehaviour _next		{ get; set; }
 
@@ -34,17 +36,17 @@ namespace SubmarineMirage.SMTask {
 		public bool _isActive =>		_body?._isActive ?? false;
 		public bool _isDispose =>		_body?._isDispose ?? false;
 
-		public MultiAsyncEvent _loadEvent		=> _body?._loadEvent;
-		public MultiAsyncEvent _initializeEvent	=> _body?._initializeEvent;
-		public MultiAsyncEvent _enableEvent		=> _body?._enableEvent;
-		public MultiSubject _fixedUpdateEvent	=> _body?._fixedUpdateEvent;
-		public MultiSubject _updateEvent		=> _body?._updateEvent;
-		public MultiSubject _lateUpdateEvent	=> _body?._lateUpdateEvent;
-		public MultiAsyncEvent _disableEvent	=> _body?._disableEvent;
-		public MultiAsyncEvent _finalizeEvent	=> _body?._finalizeEvent;
+		public MultiAsyncEvent _selfInitializeEvent	=> _body?._selfInitializeEvent;
+		public MultiAsyncEvent _initializeEvent		=> _body?._initializeEvent;
+		public MultiSubject _enableEvent			=> _body?._enableEvent;
+		public MultiSubject _fixedUpdateEvent		=> _body?._fixedUpdateEvent;
+		public MultiSubject _updateEvent			=> _body?._updateEvent;
+		public MultiSubject _lateUpdateEvent		=> _body?._lateUpdateEvent;
+		public MultiSubject _disableEvent			=> _body?._disableEvent;
+		public MultiAsyncEvent _finalizeEvent		=> _body?._finalizeEvent;
 
-		public UTaskCanceler _activeAsyncCanceler	=> _body?._activeAsyncCanceler;
-		public UTaskCanceler _inActiveAsyncCanceler	=> _body?._inActiveAsyncCanceler;
+		public UTaskCanceler _asyncCancelerOnDisable	=> _body?._asyncCancelerOnDisable;
+		public UTaskCanceler _asyncCancelerOnDispose	=> _body?._asyncCancelerOnDispose;
 
 		public MultiDisposable _disposables	=> _body?._disposables;
 
@@ -52,7 +54,7 @@ namespace SubmarineMirage.SMTask {
 		public void Constructor() {
 			_body = new SMBehaviourBody(
 				this,
-				isActiveAndEnabled ? SMTaskActiveState.Enabling : SMTaskActiveState.Disabling
+				isActiveAndEnabled ? SMTaskActiveState.Enable : SMTaskActiveState.Disable
 			);
 #if TestSMTask
 			_disposables.AddLast( () =>
@@ -76,15 +78,9 @@ namespace SubmarineMirage.SMTask {
 
 		public void DestroyObject() => _object.Destroy();
 
-		public void StopActiveAsync() => _body?.StopActiveAsync();
+		public void ChangeActiveObject( bool isActive ) => _object.ChangeActive( isActive );
 
-
-		public UniTask RunStateEvent( SMTaskRanState state ) => _body.RunStateEvent( state );
-
-		public UniTask ChangeActive( bool isActive ) => _body.ChangeActive( isActive );
-
-		public UniTask RunActiveEvent() => _body.RunActiveEvent();
-
+		public void StopAsyncOnDisable() => _body?.StopAsyncOnDisable();
 
 
 		public T GetBehaviour<T>() where T : SMMonoBehaviour

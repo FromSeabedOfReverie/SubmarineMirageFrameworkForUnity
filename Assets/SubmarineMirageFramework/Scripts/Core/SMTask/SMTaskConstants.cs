@@ -10,12 +10,11 @@ namespace SubmarineMirage.SMTask {
 	// TODO : コメント追加、整頓
 
 
-	public enum SMTaskRanState {
+	public enum SMTaskRunState {
 		None,
-		Creating,
-		Created,
-		Loading,
-		Loaded,
+		Create,
+		SelfInitializing,
+		SelfInitialized,
 		Initializing,
 		Initialized,
 		FixedUpdate,
@@ -25,10 +24,8 @@ namespace SubmarineMirage.SMTask {
 		Finalized,
 	}
 	public enum SMTaskActiveState {
-		Disabled,
-		Disabling,
-		Enabled,
-		Enabling,
+		Disable,
+		Enable,
 	}
 	public enum SMTaskType {
 		DontWork,

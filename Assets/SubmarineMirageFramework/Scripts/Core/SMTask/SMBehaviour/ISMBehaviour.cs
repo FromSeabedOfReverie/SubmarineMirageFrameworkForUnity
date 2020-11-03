@@ -8,6 +8,7 @@ namespace SubmarineMirage.SMTask {
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
+	using Modifyler;
 	using Extension;
 
 
@@ -18,33 +19,32 @@ namespace SubmarineMirage.SMTask {
 		SMTaskType _type			{ get; }
 		SMTaskLifeSpan _lifeSpan	{ get; }
 
+		uint _id				{ get; }
 		SMObject _object		{ get; set; }
 		SMBehaviourBody _body	{ get; }
-		uint _id				{ get; }
+		SMBehaviourModifyler _modifyler	{ get; }
 		ISMBehaviour _previous	{ get; set; }
 		ISMBehaviour _next		{ get; set; }
 
 		bool _isInitialized	{ get; }
 		bool _isActive		{ get; }
 
-		MultiAsyncEvent _loadEvent			{ get; }
-		MultiAsyncEvent _initializeEvent	{ get; }
-		MultiAsyncEvent _enableEvent		{ get; }
-		MultiSubject _fixedUpdateEvent		{ get; }
-		MultiSubject _updateEvent			{ get; }
-		MultiSubject _lateUpdateEvent		{ get; }
-		MultiAsyncEvent _disableEvent		{ get; }
-		MultiAsyncEvent _finalizeEvent		{ get; }
+		MultiAsyncEvent _selfInitializeEvent	{ get; }
+		MultiAsyncEvent _initializeEvent		{ get; }
+		MultiSubject _enableEvent				{ get; }
+		MultiSubject _fixedUpdateEvent			{ get; }
+		MultiSubject _updateEvent				{ get; }
+		MultiSubject _lateUpdateEvent			{ get; }
+		MultiSubject _disableEvent				{ get; }
+		MultiAsyncEvent _finalizeEvent			{ get; }
 
-		UTaskCanceler _activeAsyncCanceler		{ get; }
-		UTaskCanceler _inActiveAsyncCanceler	{ get; }
+		UTaskCanceler _asyncCancelerOnDisable	{ get; }
+		UTaskCanceler _asyncCancelerOnDispose	{ get; }
 
 		void Create();
 		void DestroyObject();
-		void StopActiveAsync();
-		UniTask RunStateEvent( SMTaskRanState state );
-		UniTask ChangeActive( bool isActive );
-		UniTask RunActiveEvent();
+		void ChangeActiveObject( bool isActive );
+		void StopAsyncOnDisable();
 		string ToString();
 		string ToLineString();
 	}
