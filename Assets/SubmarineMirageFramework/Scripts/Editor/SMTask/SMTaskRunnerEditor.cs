@@ -68,7 +68,7 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 				$"{( smObject._owner != null ? smObject._owner.name : "null" )}",
 				string.Join( "\n", smObject.GetBehaviours().Select( b => $"    {b.ToLineString()}" ) ),
 
-				$"△ {( smObject._top == smObject ? "this" : smObject._top?.ToLineString( false ) )}",
+				$"△ {( smObject._isTop ? "this" : smObject._top?.ToLineString( false ) )}",
 				$"← {smObject._parent?.ToLineString( false )}",
 				$"↑ {smObject._previous?.ToLineString( false )}",
 				$"↓ {smObject._next?.ToLineString( false )}",
