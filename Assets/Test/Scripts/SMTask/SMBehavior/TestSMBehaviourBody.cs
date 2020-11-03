@@ -14,6 +14,7 @@ namespace SubmarineMirage.TestSMTask {
 	using UTask;
 	using MultiEvent;
 	using SMTask;
+	using SMTask.Modifyler;
 	using Extension;
 	using Debug;
 
@@ -44,8 +45,8 @@ namespace SubmarineMirage.TestSMTask {
 						+ $"{_viewBehaviour._object._owner}( {_viewBehaviour._object._id} )",
 					$"    {nameof( _viewBehaviour._body._ranState )} : {_viewBehaviour._body._ranState}",
 					$"    {nameof( _viewBehaviour._body._activeState )} : {_viewBehaviour._body._activeState}",
-					$"    {nameof( _viewBehaviour._body._nextActiveState )} : "
-						+ $"{_viewBehaviour._body._nextActiveState}",
+					$"    {nameof( _viewBehaviour._body._initialActiveState )} : "
+						+ $"{_viewBehaviour._body._initialActiveState}",
 					$"    {nameof( _viewBehaviour._isInitialized )} : {_viewBehaviour._isInitialized}",
 					$"    {nameof( _viewBehaviour._isActive )} : {_viewBehaviour._isActive}"
 				);
@@ -119,12 +120,12 @@ namespace SubmarineMirage.TestSMTask {
 */
 		public async UniTask TestRunErrorState<T>() {
 			var behaviour = CreateBehaviour<T>();
-			var errorRunStates = new SMTaskRanState[] {
-				SMTaskRanState.None, SMTaskRanState.Created, SMTaskRanState.Loaded, SMTaskRanState.Initialized,
-				SMTaskRanState.Finalized,
+			var errorRunStates = new SMTaskRunState[] {
+				SMTaskRunState.None, SMTaskRunState.SelfInitialized, SMTaskRunState.Initialized,
+				SMTaskRunState.Finalized,
 			};
 			foreach ( var state in errorRunStates ) {
-				try						{ await behaviour.RunStateEvent( state ); }
+				try						{ await RunStateSMBehaviour.RegisterAndRun( behaviour, state ); }
 				catch ( Exception e )	{ Log.Error( e ); }
 			}
 			behaviour.Dispose();
@@ -138,35 +139,35 @@ namespace SubmarineMirage.TestSMTask {
 		RunActiveEvent、初回時のみ、ちゃんと機能する？
 */
 		async UniTask TestEventRun( ISMBehaviour behaviour ) {
-			Log.Debug( $"request : {SMTaskRanState.Creating}" );
-			await behaviour.RunStateEvent( SMTaskRanState.Creating );
+			Log.Debug( $"request : {SMTaskRunState.Create}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Create );
 
-			Log.Debug( $"request : {SMTaskRanState.Loading}" );
-			await behaviour.RunStateEvent( SMTaskRanState.Loading );
+			Log.Debug( $"request : {SMTaskRunState.SelfInitializing}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing );
 
-			Log.Debug( $"request : {SMTaskRanState.Initializing}" );
-			await behaviour.RunStateEvent( SMTaskRanState.Initializing );
+			Log.Debug( $"request : {SMTaskRunState.Initializing}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing );
 
-			Log.Debug( $"request : {nameof( behaviour.RunActiveEvent )}" );
-			await behaviour.RunActiveEvent();
+			Log.Debug( $"request : {nameof( ChangeActiveSMBehaviour.RegisterAndRunInitial )}" );
+			await ChangeActiveSMBehaviour.RegisterAndRunInitial( behaviour );
 
-			Log.Debug( $"request : {SMTaskRanState.FixedUpdate}" );
-			await behaviour.RunStateEvent( SMTaskRanState.FixedUpdate );
+			Log.Debug( $"request : {SMTaskRunState.FixedUpdate}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.FixedUpdate );
 
-			Log.Debug( $"request : {SMTaskRanState.Update}" );
-			await behaviour.RunStateEvent( SMTaskRanState.Update );
+			Log.Debug( $"request : {SMTaskRunState.Update}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Update );
 
-			Log.Debug( $"request : {nameof( behaviour.ChangeActive )}( {false} )" );
-			await behaviour.ChangeActive( false );
+			Log.Debug( $"request : {SMTaskActiveState.Disable}" );
+			await ChangeActiveSMBehaviour.RegisterAndRun( behaviour, false );
 
-			Log.Debug( $"request : {nameof( behaviour.ChangeActive )}( {true} )" );
-			await behaviour.ChangeActive( true );
+			Log.Debug( $"request : {SMTaskActiveState.Enable}" );
+			await ChangeActiveSMBehaviour.RegisterAndRun( behaviour, true );
 
-			Log.Debug( $"request : {SMTaskRanState.LateUpdate}" );
-			await behaviour.RunStateEvent( SMTaskRanState.LateUpdate );
+			Log.Debug( $"request : {SMTaskRunState.LateUpdate}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.LateUpdate );
 
-			Log.Debug( $"request : {SMTaskRanState.Finalizing}" );
-			await behaviour.RunStateEvent( SMTaskRanState.Finalizing );
+			Log.Debug( $"request : {SMTaskRunState.Finalizing}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing );
 		}
 
 
@@ -201,70 +202,70 @@ namespace SubmarineMirage.TestSMTask {
 
 			var stopActiveAsync = new Action<int>( waitSecond => UTask.Void( async () => {
 				await UTask.Delay( canceler, waitSecond );
-				Log.Debug( $"{nameof( behaviour.StopActiveAsync )}" );
-				behaviour.StopActiveAsync();
+				Log.Debug( $"{nameof( behaviour.StopAsyncOnDisable )}" );
+				behaviour.StopAsyncOnDisable();
 			} ) );
 
 
-			Log.Debug( $"・Run : {SMTaskRanState.Creating}" );
+			Log.Debug( $"・Run : {SMTaskRunState.Create}" );
 			stopActiveAsync( 0 );
-			try { await behaviour.RunStateEvent( SMTaskRanState.Creating ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Create ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.RunStateEvent( SMTaskRanState.Creating );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Create );
 
-			Log.Debug( $"・Run : {SMTaskRanState.Loading}" );
+			Log.Debug( $"・Run : {SMTaskRunState.SelfInitializing}" );
 			stopActiveAsync( 500 );
-			try { await behaviour.RunStateEvent( SMTaskRanState.Loading ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.RunStateEvent( SMTaskRanState.Loading );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing );
 
-			Log.Debug( $"・Run : {SMTaskRanState.Initializing}" );
+			Log.Debug( $"・Run : {SMTaskRunState.Initializing}" );
 			stopActiveAsync( 500 );
-			try { await behaviour.RunStateEvent( SMTaskRanState.Initializing ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.RunStateEvent( SMTaskRanState.Initializing );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing );
 
-			Log.Debug( $"・Run : {nameof( behaviour.RunActiveEvent )}" );
+			Log.Debug( $"・Run : {nameof( ChangeActiveSMBehaviour.RegisterAndRunInitial )}" );
 			stopActiveAsync( 500 );
-			try { await behaviour.RunActiveEvent(); }
+			try { await ChangeActiveSMBehaviour.RegisterAndRunInitial( behaviour ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.ChangeActive( true );
+			await ChangeActiveSMBehaviour.RegisterAndRunInitial( behaviour );
 
-			Log.Debug( $"・Run : {SMTaskRanState.FixedUpdate}" );
+			Log.Debug( $"・Run : {SMTaskRunState.FixedUpdate}" );
 			stopActiveAsync( 0 );
-			try { await behaviour.RunStateEvent( SMTaskRanState.FixedUpdate ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.FixedUpdate ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.RunStateEvent( SMTaskRanState.FixedUpdate );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.FixedUpdate );
 
-			Log.Debug( $"・Run : {SMTaskRanState.Update}" );
+			Log.Debug( $"・Run : {SMTaskRunState.Update}" );
 			stopActiveAsync( 0 );
-			try { await behaviour.RunStateEvent( SMTaskRanState.Update ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Update ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.RunStateEvent( SMTaskRanState.Update );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Update );
 
-			Log.Debug( $"・Run : {nameof( behaviour.ChangeActive )}( {false} )" );
+			Log.Debug( $"・Run : {SMTaskActiveState.Disable}" );
 			stopActiveAsync( 500 );
-			try { await behaviour.ChangeActive( false ); }
+			try { await ChangeActiveSMBehaviour.RegisterAndRun( behaviour, false ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.ChangeActive( false );
+			await ChangeActiveSMBehaviour.RegisterAndRun( behaviour, false );
 
-			Log.Debug( $"・Run : {nameof( behaviour.ChangeActive )}( {true} )" );
+			Log.Debug( $"・Run : {SMTaskActiveState.Enable}" );
 			stopActiveAsync( 500 );
-			try { await behaviour.ChangeActive( true ); }
+			try { await ChangeActiveSMBehaviour.RegisterAndRun( behaviour, true ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.ChangeActive( true );
+			await ChangeActiveSMBehaviour.RegisterAndRun( behaviour, true );
 
-			Log.Debug( $"・Run : {SMTaskRanState.LateUpdate}" );
+			Log.Debug( $"・Run : {SMTaskRunState.LateUpdate}" );
 			stopActiveAsync( 0 );
-			try { await behaviour.RunStateEvent( SMTaskRanState.LateUpdate ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.LateUpdate ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.RunStateEvent( SMTaskRanState.LateUpdate );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.LateUpdate );
 
-			Log.Debug( $"・Run : {SMTaskRanState.Finalizing}" );
+			Log.Debug( $"・Run : {SMTaskRunState.Finalizing}" );
 			stopActiveAsync( 1500 );
-			try { await behaviour.RunStateEvent( SMTaskRanState.Finalizing ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing ); }
 			catch ( OperationCanceledException ) {}
-			await behaviour.RunStateEvent( SMTaskRanState.Finalizing );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing );
 
 			behaviour.Dispose();
 			canceler.Dispose();

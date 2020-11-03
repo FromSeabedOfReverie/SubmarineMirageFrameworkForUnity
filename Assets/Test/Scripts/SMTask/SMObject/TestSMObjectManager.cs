@@ -55,7 +55,7 @@ namespace SubmarineMirage.TestSMTask {
 					$"    {nameof( _sceneManager._isActive )} : {_sceneManager._isActive}",
 					$"    {nameof( _sceneManager._body._ranState )} : {_sceneManager._body._ranState}",
 					$"    {nameof( _sceneManager._body._activeState )} : {_sceneManager._body._activeState}",
-					$"    {nameof( _sceneManager._body._nextActiveState )} : {_sceneManager._body._nextActiveState}",
+					$"    {nameof( _sceneManager._body._initialActiveState )} : {_sceneManager._body._initialActiveState}",
 					")",
 					$"{nameof( _sceneManager._fsm )} : {_sceneManager._fsm}"
 				);
@@ -293,7 +293,7 @@ namespace SubmarineMirage.TestSMTask {
 			var i = 0;
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
-					Log.Warning( "key down change scene" );
+					Log.Warning( $"key down {nameof( _sceneManager._fsm.ChangeScene )}" );
 					i = (i + 1) % 2;
 					switch ( i ) {
 						case 0:

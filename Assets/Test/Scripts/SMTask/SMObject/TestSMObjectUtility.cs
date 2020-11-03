@@ -32,59 +32,59 @@ namespace SubmarineMirage.TestSMTask {
 
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( "key down Creating" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Creating );
+					Log.Warning( $"key down {SMTaskRunState.Create}" );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Create );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Loading" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Loading );
+					Log.Warning( $"key down {SMTaskRunState.SelfInitializing}" );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.SelfInitializing );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
-					Log.Warning( "key down Initializing" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Initializing );
+					Log.Warning( $"key down {SMTaskRunState.Initializing}" );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Initializing );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
-					Log.Warning( "key down FixedUpdate" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.FixedUpdate );
+					Log.Warning( $"key down {SMTaskRunState.FixedUpdate}" );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.FixedUpdate );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
-					Log.Warning( "key down Update" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Update );
+					Log.Warning( $"key down {SMTaskRunState.Update}" );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Update );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
-					Log.Warning( "key down LateUpdate" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.LateUpdate );
+					Log.Warning( $"key down {SMTaskRunState.LateUpdate}" );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.LateUpdate );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
-					Log.Warning( "key down Finalizing" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRanState.Finalizing );
+					Log.Warning( $"key down {SMTaskRunState.Finalizing}" );
+					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Finalizing );
 				} )
 			);
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.A ) ).Subscribe( _ => {
-					Log.Warning( "key down Enabling Owner" );
+					Log.Warning( $"key down {SMTaskActiveState.Enable} Owner" );
 					smObject._top._modifyler.Register( new ChangeActiveSMObject( smObject, true, true ) );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.S ) ).Subscribe( _ => {
-					Log.Warning( "key down Disabling Owner" );
+					Log.Warning( $"key down {SMTaskActiveState.Disable} Owner" );
 					smObject._top._modifyler.Register( new ChangeActiveSMObject( smObject, false, true ) );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
-					Log.Warning( "key down Enabling" );
+					Log.Warning( $"key down {SMTaskActiveState.Enable}" );
 					smObject._top._modifyler.Register( new ChangeActiveSMObject( smObject, true, false ) );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
-					Log.Warning( "key down Disabling" );
+					Log.Warning( $"key down {SMTaskActiveState.Disable}" );
 					smObject._top._modifyler.Register( new ChangeActiveSMObject( smObject, false, false ) );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.C ) ).Subscribe( _ => {
-					Log.Warning( "key down RunActiveEvent" );
+					Log.Warning( $"key down {nameof( RunActiveSMObject )}" );
 					smObject._top._modifyler.Register( new RunActiveSMObject( smObject ) );
 				} )
 			);
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose" );
+					Log.Warning( $"key down {nameof( smObject.Dispose )}" );
 					smObject.Dispose();
 					smObject = null;
 				} )
@@ -100,11 +100,11 @@ namespace SubmarineMirage.TestSMTask {
 
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.D ) ).Subscribe( _ => {
-					Log.Warning( "key down Enabling Child Owner" );
+					Log.Warning( $"key down {SMTaskActiveState.Enable} Child Owner" );
 					smObject._top._modifyler.Register( new ChangeActiveSMObject( smObject, true, true ) );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.F ) ).Subscribe( _ => {
-					Log.Warning( "key down Disabling Child Owner" );
+					Log.Warning( $"key down {SMTaskActiveState.Disable} Child Owner" );
 					smObject._top._modifyler.Register( new ChangeActiveSMObject( smObject, false, true ) );
 				} )
 			);

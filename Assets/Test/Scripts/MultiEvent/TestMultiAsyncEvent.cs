@@ -144,7 +144,7 @@ namespace SubmarineMirage.TestMultiEvent {
 					} )
 				),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
-					Log.Warning( "key down Run" );
+					Log.Warning( $"key down {nameof( _events.Run )}" );
 					UTask.Void( async () => {
 						Log.Debug( _events );
 						await _events.Run( canceler );
@@ -152,7 +152,7 @@ namespace SubmarineMirage.TestMultiEvent {
 					} );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
-					Log.Warning( "key down Cancel" );
+					Log.Warning( $"key down {nameof( canceler.Cancel )}" );
 					Log.Debug( _events );
 					canceler.Cancel();
 					Log.Debug( _events );

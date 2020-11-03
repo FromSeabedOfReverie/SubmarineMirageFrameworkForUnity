@@ -15,6 +15,7 @@ namespace SubmarineMirage.TestSMTask {
 	using MultiEvent;
 	using UTask;
 	using SMTask;
+	using SMTask.Modifyler;
 	using Extension;
 	using Debug;
 
@@ -76,51 +77,51 @@ namespace SubmarineMirage.TestSMTask {
 
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( "key down Creating" );
-					behaviour.RunStateEvent( SMTaskRanState.Creating ).Forget();
+					Log.Warning( $"key down {SMTaskRunState.Create}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Create ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Loading" );
-					behaviour.RunStateEvent( SMTaskRanState.Loading ).Forget();
+					Log.Warning( $"key down {SMTaskRunState.SelfInitializing}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
-					Log.Warning( "key down Initializing" );
-					behaviour.RunStateEvent( SMTaskRanState.Initializing ).Forget();
+					Log.Warning( $"key down {SMTaskRunState.Initializing}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
-					Log.Warning( "key down FixedUpdate" );
-					behaviour.RunStateEvent( SMTaskRanState.FixedUpdate ).Forget();
+					Log.Warning( $"key down {SMTaskRunState.FixedUpdate}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.FixedUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
-					Log.Warning( "key down Update" );
-					behaviour.RunStateEvent( SMTaskRanState.Update ).Forget();
+					Log.Warning( $"key down {SMTaskRunState.Update}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Update ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
-					Log.Warning( "key down LateUpdate" );
-					behaviour.RunStateEvent( SMTaskRanState.LateUpdate ).Forget();
+					Log.Warning( $"key down {SMTaskRunState.LateUpdate}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.LateUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
-					Log.Warning( "key down Finalizing" );
-					behaviour.RunStateEvent( SMTaskRanState.Finalizing ).Forget();
+					Log.Warning( $"key down {SMTaskRunState.Finalizing}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing ).Forget();
 				} )
 			);
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
-					Log.Warning( "key down Enabling" );
-					behaviour.ChangeActive( true ).Forget();
+					Log.Warning( $"key down {SMTaskActiveState.Enable}" );
+					ChangeActiveSMBehaviour.RegisterAndRun( behaviour, true ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
-					Log.Warning( "key down Disabling" );
-					behaviour.ChangeActive( false ).Forget();
+					Log.Warning( $"key down {SMTaskActiveState.Disable}" );
+					ChangeActiveSMBehaviour.RegisterAndRun( behaviour, false ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.C ) ).Subscribe( _ => {
-					Log.Warning( "key down RunActiveEvent" );
-					behaviour.RunActiveEvent().Forget();
+					Log.Warning( $"key down {nameof( ChangeActiveSMBehaviour.RegisterAndRunInitial )}" );
+					ChangeActiveSMBehaviour.RegisterAndRunInitial( behaviour ).Forget();
 				} )
 			);
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose" );
+					Log.Warning( $"key down {nameof( behaviour.Dispose )}" );
 					behaviour.Dispose();
 					behaviour = null;
 				} )
@@ -135,10 +136,10 @@ namespace SubmarineMirage.TestSMTask {
 			var name = behaviour.GetAboutName();
 			var id = behaviour._id;
 
-			behaviour._loadEvent.AddLast( async canceler => {
-				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._loadEvent )}\n{behaviour}" );
+			behaviour._selfInitializeEvent.AddLast( async canceler => {
+				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._selfInitializeEvent )}\n{behaviour}" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._loadEvent )}\n{behaviour}" );
+				Log.Debug( $"end : {name}( {id} ).{nameof( behaviour._selfInitializeEvent )}\n{behaviour}" );
 			} );
 			behaviour._initializeEvent.AddLast( async canceler => {
 				Log.Debug( $"start : {name}( {id} ).{nameof( behaviour._initializeEvent )}\n{behaviour}" );

@@ -113,14 +113,14 @@ namespace SubmarineMirage.TestMultiEvent {
 
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( "key down Add" );
+					Log.Warning( $"key down {nameof( events.AddLast )}" );
 					Log.Debug( events );
 					var i = count++;
 					events.AddLast( $"{i}", function( () => Log.Debug( $"{i}" ) ) );
 					Log.Debug( events );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( "key down Remove" );
+					Log.Warning( $"key down {nameof( events.Remove )}" );
 					Log.Debug( events );
 					count--;
 					events.Remove( $"{count}" );
@@ -129,7 +129,7 @@ namespace SubmarineMirage.TestMultiEvent {
 			);
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( "key down Dispose" );
+					Log.Warning( $"key down {nameof( events.Dispose )}" );
 					Log.Debug( events );
 					events.Dispose();
 					Log.Debug( events );

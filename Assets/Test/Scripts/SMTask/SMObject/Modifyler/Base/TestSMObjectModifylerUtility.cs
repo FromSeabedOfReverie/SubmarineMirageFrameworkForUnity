@@ -46,6 +46,11 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 		public void TestAddObject( SMObject brother, SMObject add ) => AddObject( brother, add );
 	}
 
+	public class InterruptData : TestModifyData {
+		public override ModifyType _type => ModifyType.Interrupter;
+		public InterruptData( SMObject smObject ) : base( smObject ) {}
+	}
+
 	public class LinkData : TestModifyData {
 		public override ModifyType _type => ModifyType.Linker;
 		public LinkData( SMObject smObject ) : base( smObject ) {}

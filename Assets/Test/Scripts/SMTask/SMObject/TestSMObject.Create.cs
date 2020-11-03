@@ -46,7 +46,7 @@ namespace SubmarineMirage.TestSMTask {
 					$"    {nameof( b._isActive )} : {b._isActive}",
 					$"    {nameof( b._body._ranState )} : {b._body._ranState}",
 					$"    {nameof( b._body._activeState )} : {b._body._activeState}",
-					$"    next : {b._body._nextActiveState}",
+					$"    {nameof( b._body._initialActiveState )} : {b._body._initialActiveState}",
 					")"
 				);
 			} ) );

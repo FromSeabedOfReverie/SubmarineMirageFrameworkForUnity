@@ -64,9 +64,9 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			TestSMBehaviourUtility.SetEvent( o._behaviour );
 			TestSMBehaviourUtility.SetEvent( o._child._behaviour );
 			TestSMBehaviourUtility.SetEvent( o._child._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Creating ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Initializing ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Loading ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
 			o._modifyler.Register( new RunActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -101,9 +101,9 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			TestSMBehaviourUtility.SetEvent( o._behaviour );
 			TestSMBehaviourUtility.SetEvent( o._child._behaviour );
 			TestSMBehaviourUtility.SetEvent( o._child._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Creating ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Initializing ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Loading ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
 			o._modifyler.Register( new RunActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -136,9 +136,9 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			var o = SceneManager.s_instance.GetBehaviour<M3>()._object;
 			TestSMBehaviourUtility.SetEvent( o._behaviour );
 			TestSMBehaviourUtility.SetEvent( o._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Creating ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Initializing ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Loading ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
 			o._modifyler.Register( new RunActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -150,10 +150,10 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 				o._modifyler.Register( new DestroySMObject( o._child ) );
 				await UTask.Delay( _asyncCanceler, 1500 );
 				Log.Debug( "停止" );
-				c._behaviour._inActiveAsyncCanceler.Cancel();
+				c._behaviour._asyncCancelerOnDispose.Cancel();
 				await UTask.NextFrame( _asyncCanceler );
 				Log.Debug( "停止" );
-				c._behaviour._inActiveAsyncCanceler.Cancel();
+				c._behaviour._asyncCancelerOnDispose.Cancel();
 			} );
 
 			o._modifyler.Register( new DestroySMObject( o ) );
@@ -181,9 +181,9 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			TestSMBehaviourUtility.SetEvent( o._behaviour );
 			TestSMBehaviourUtility.SetEvent( o._child._behaviour );
 			TestSMBehaviourUtility.SetEvent( o._child._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Creating ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Initializing ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Loading ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
 			o._modifyler.Register( new RunActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -217,9 +217,9 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 			var o = SceneManager.s_instance.GetBehaviour<M3>()._object;
 			TestSMBehaviourUtility.SetEvent( o._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Creating ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Initializing ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRanState.Loading ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
+			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
 			o._modifyler.Register( new RunActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 

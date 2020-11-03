@@ -46,7 +46,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 					+ $"    {nameof( b._isActive )} : {b._isActive}\n"
 					+ $"    {nameof( b._body._ranState )} : {b._body._ranState}\n"
 					+ $"    {nameof( b._body._activeState )} : {b._body._activeState}\n"
-					+ $"    next : {b._body._nextActiveState}\n"
+					+ $"    {nameof( b._body._initialActiveState )} : {b._body._initialActiveState}\n"
 					+ $")\n";
 			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
