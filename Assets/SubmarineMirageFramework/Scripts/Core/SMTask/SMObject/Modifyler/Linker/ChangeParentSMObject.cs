@@ -10,6 +10,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
+	using UTask;
 	using Extension;
 	using Debug;
 
@@ -23,6 +24,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public override ModifyType _type => ModifyType.Linker;
 		Transform _parent;
 		bool _isWorldPositionStays;
+		LockSMObject _lockData;
 
 
 
@@ -51,8 +53,20 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				string.Join( "\n", lastTopDebug._objects._objects.Select( pair =>
 					$"    {pair.Key} : {pair.Value?.ToLineString()}" ) )
 			) );
-
 #endif
+
+// TODO : LockSMObjectだと、同時に複数の子供を追加する際に、最初の子を追加後に、解除してしまう
+/*
+			var parentObject = (
+				_parent.GetComponent<SMMonoBehaviour>() ??
+				_parent.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
+			)?._object;
+			_lockData = new LockSMObject( parentObject );
+			parentObject._top._modifyler.Register( _lockData );
+			await UTask.WaitWhile( _object._asyncCanceler, () => !_lockData._isRunning && !_lockData._isCancel );
+*/
+
+
 			_object._owner.transform.SetParent( _parent, _isWorldPositionStays );
 
 			UnLinkObject( _object );
@@ -66,10 +80,11 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			var lastTop = _object._top;
 			SetTopObject( _object );
 
-// TODO : 親も子も、順番を保ったまま、移動しないといけない
+// TODO : 親も子も、順番を保ったまま、移動させる（特に孫とか未対応）
 // TODO : ChangeActiveSMObjectを待機中に、移動後のトップがどんどん次を実行して、待機されない
 			lastTop._modifyler.ReRegister( _object );
 
+// TODO : 非活動親の子が、独立した親になった時に活動状態にしない、抜けがある
 			if ( _object._parent != null && _object._owner.activeSelf ) {
 #if TestSMTaskModifyler
 				Log.Debug( string.Join( "\n",
@@ -90,6 +105,12 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				) );
 #endif
 			}
+
+
+
+//			_lockData.Cancel();
+
+
 
 #if TestSMTaskModifyler
 			Log.Debug( string.Join( "\n",

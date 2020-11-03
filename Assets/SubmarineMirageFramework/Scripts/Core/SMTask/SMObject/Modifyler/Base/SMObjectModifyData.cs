@@ -20,13 +20,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public abstract class SMObjectModifyData {
 		public enum ModifyType {
+			Interrupter,
 			Linker,
 			Runner,
 		}
 
-		public abstract ModifyType _type	{ get; }
 		static uint s_idCount;
 		public uint _id			{ get; private set; }
+		public abstract ModifyType _type	{ get; }
 		public SMObject _object	{ get; private set; }
 
 

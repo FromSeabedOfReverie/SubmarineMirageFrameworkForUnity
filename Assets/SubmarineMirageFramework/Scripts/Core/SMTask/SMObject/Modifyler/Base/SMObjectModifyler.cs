@@ -42,6 +42,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public void Register( SMObjectModifyData data ) {
 			switch( data._type ) {
+				case SMObjectModifyData.ModifyType.Interrupter:
+					_data.Push( data );
+					break;
+
 				case SMObjectModifyData.ModifyType.Linker:
 					_data.AddBefore(
 						data,
