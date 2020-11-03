@@ -29,6 +29,6 @@ namespace SubmarineMirage.FSM {
 		void StopActiveAsync();
 		UniTask RunStateEvent( FiniteStateMachineRunState state );
 		UniTask ChangeActive( bool isActive );
-		UniTask RunBehaviourStateEvent( SMTaskRanState state );
+		UniTask RunBehaviourStateEvent( SMTaskRunState state );
 	}
 }

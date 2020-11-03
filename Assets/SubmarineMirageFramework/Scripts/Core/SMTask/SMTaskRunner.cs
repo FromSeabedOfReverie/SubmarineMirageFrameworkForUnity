@@ -4,13 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMTask
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using FSM;
+	using Modifyler;
 	using Singleton;
 	using Scene;
 	using Main;
@@ -65,10 +66,10 @@ namespace SubmarineMirage.SMTask {
 #endif
 
 // TODO : デバッグ用、暫定
-			await SceneManager.s_instance.RunStateEvent( SMTaskRanState.Creating );
-			await SceneManager.s_instance.RunStateEvent( SMTaskRanState.Loading );
-			await SceneManager.s_instance.RunStateEvent( SMTaskRanState.Initializing );
-			await SceneManager.s_instance.RunActiveEvent();
+			await RunStateSMBehaviour.RegisterAndRun( SceneManager.s_instance, SMTaskRunState.Create );
+			await RunStateSMBehaviour.RegisterAndRun( SceneManager.s_instance, SMTaskRunState.SelfInitializing );
+			await RunStateSMBehaviour.RegisterAndRun( SceneManager.s_instance, SMTaskRunState.Initializing );
+			await ChangeActiveSMBehaviour.RegisterAndRunInitial( SceneManager.s_instance );
 
 #if TestSMTask
 			Log.Debug( $"{nameof( SMTaskRunner )}.{nameof( RunForeverTasks )} : end" );
@@ -91,33 +92,33 @@ namespace SubmarineMirage.SMTask {
 			return;
 			if ( _isDispose )	{ return; }
 
-			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.FixedUpdate ).Forget();
-			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.FixedUpdate ).Forget();
+			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.FixedUpdate ).Forget();
+			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.FixedUpdate ).Forget();
 
-			_currentScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.FixedUpdate ).Forget();
-			_currentScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.FixedUpdate ).Forget();
+			_currentScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.FixedUpdate ).Forget();
+			_currentScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.FixedUpdate ).Forget();
 		}
 
 		void Update() {
 			return;
 			if ( _isDispose )	{ return; }
 
-			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Update ).Forget();
-			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Update ).Forget();
+			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Update ).Forget();
+			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Update ).Forget();
 
-			_currentScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Update ).Forget();
-			_currentScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Update ).Forget();
+			_currentScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Update ).Forget();
+			_currentScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Update ).Forget();
 		}
 
 		void LateUpdate() {
 			return;
 			if ( _isDispose )	{ return; }
 
-			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.LateUpdate ).Forget();
-			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.LateUpdate ).Forget();
+			_foreverScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.LateUpdate ).Forget();
+			_foreverScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.LateUpdate ).Forget();
 
-			_currentScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.LateUpdate ).Forget();
-			_currentScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRanState.LateUpdate ).Forget();
+			_currentScene._objects.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.LateUpdate ).Forget();
+			_currentScene._objects.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.LateUpdate ).Forget();
 		}
 
 #if DEVELOP

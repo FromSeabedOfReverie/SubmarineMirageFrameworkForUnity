@@ -32,7 +32,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				switch ( smObject._type ) {
 					case SMTaskType.FirstWork:
 						foreach ( var b in smObject.GetBehaviours() ) {
-							events.AddLast( _ => b.RunActiveEvent() );
+							events.AddLast( _ => ChangeActiveSMBehaviour.RegisterAndRunInitial( b ) );
 						}
 						events.AddLast( async _ => {
 							foreach ( var o in smObject.GetChildren() ) {
@@ -43,7 +43,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 					case SMTaskType.Work:
 						events.AddLast( async _ =>
-							await smObject.GetBehaviours().Select( b => b.RunActiveEvent() )
+							await smObject.GetBehaviours()
+								.Select( b => ChangeActiveSMBehaviour.RegisterAndRunInitial( b ) )
 								.Concat( smObject.GetChildren().Select( o => RunActiveEvent( o ) ) )
 						);
 						break;

@@ -28,7 +28,7 @@ namespace SubmarineMirage.FSM {
 		SMTaskActiveState _activeState;
 		SMTaskActiveState? _nextActiveState;
 
-		public bool _isActive =>	_activeState == SMTaskActiveState.Enabled;
+		public bool _isActive =>	_activeState == SMTaskActiveState.Enable;
 		public bool _isDispose =>	_disposables._isDispose;
 
 		protected readonly MultiAsyncEvent _loadEvent = new MultiAsyncEvent();
@@ -71,7 +71,7 @@ namespace SubmarineMirage.FSM {
 			_owner = owner;
 
 			_activeAsyncCanceler.Dispose();
-			_activeAsyncCanceler = _owner._activeAsyncCanceler.CreateChild();
+			_activeAsyncCanceler = _owner._asyncCancelerOnDisable.CreateChild();
 		}
 
 		public void Dispose() => _disposables.Dispose();
@@ -148,8 +148,8 @@ namespace SubmarineMirage.FSM {
 
 			var canceler = (
 				_fsm._isChangingState							? _fsm._changeStateAsyncCanceler :
-				_nextActiveState == SMTaskActiveState.Enabling	? _owner._activeAsyncCanceler :
-				_nextActiveState == SMTaskActiveState.Disabling	? _owner._inActiveAsyncCanceler
+				_nextActiveState == SMTaskActiveState.Enabling	? _owner._asyncCancelerOnDisable :
+				_nextActiveState == SMTaskActiveState.Disabling	? _owner._asyncCancelerOnDispose
 																: default
 			);
 
@@ -161,7 +161,7 @@ namespace SubmarineMirage.FSM {
 							await UTask.WaitWhile( canceler, () => _activeState == SMTaskActiveState.Enabling );
 							return;
 
-						case SMTaskActiveState.Enabled:
+						case SMTaskActiveState.Enable:
 							_nextActiveState = null;
 							return;
 
@@ -170,16 +170,16 @@ namespace SubmarineMirage.FSM {
 							await RunActiveEvent();
 							return;
 
-						case SMTaskActiveState.Disabled:
+						case SMTaskActiveState.Disable:
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Enabling;
 							try {
 								await _enableEvent.Run( canceler );
 							} catch {
-								_activeState = SMTaskActiveState.Disabled;
+								_activeState = SMTaskActiveState.Disable;
 								throw;
 							}
-							_activeState = SMTaskActiveState.Enabled;
+							_activeState = SMTaskActiveState.Enable;
 							if ( _runState == RunState.Update )	{ _runState = RunState.BeforeUpdate; }
 							return;
 					}
@@ -192,7 +192,7 @@ namespace SubmarineMirage.FSM {
 							await UTask.WaitWhile( canceler, () => _activeState == SMTaskActiveState.Disabling );
 							return;
 
-						case SMTaskActiveState.Disabled:
+						case SMTaskActiveState.Disable:
 							_nextActiveState = null;
 							return;
 
@@ -201,38 +201,38 @@ namespace SubmarineMirage.FSM {
 							await RunActiveEvent();
 							return;
 
-						case SMTaskActiveState.Enabled:
+						case SMTaskActiveState.Enable:
 							_nextActiveState = null;
 							_activeState = SMTaskActiveState.Disabling;
 							try {
 								await _disableEvent.Run( canceler );
 							} catch {
-								_activeState = SMTaskActiveState.Enabled;
+								_activeState = SMTaskActiveState.Enable;
 								throw;
 							}
-							_activeState = SMTaskActiveState.Disabled;
+							_activeState = SMTaskActiveState.Disable;
 							return;
 					}
 					return;
 
-				case SMTaskActiveState.Enabled:
-				case SMTaskActiveState.Disabled:
+				case SMTaskActiveState.Enable:
+				case SMTaskActiveState.Disable:
 					throw new ArgumentOutOfRangeException( $"{_nextActiveState}", $"実行不可能な型を指定" );
 			}
 		}
 
 
-		public async UniTask RunBehaviourStateEvent( SMTaskRanState state ) {
+		public async UniTask RunBehaviourStateEvent( SMTaskRunState state ) {
 			switch ( state ) {
-				case SMTaskRanState.Loading:
-					await _loadEvent.Run( _owner._activeAsyncCanceler );
+				case SMTaskRunState.SelfInitializing:
+					await _loadEvent.Run( _owner._asyncCancelerOnDisable );
 					return;
 
-				case SMTaskRanState.Initializing:
-					await _initializeEvent.Run( _owner._activeAsyncCanceler );
+				case SMTaskRunState.Initializing:
+					await _initializeEvent.Run( _owner._asyncCancelerOnDisable );
 					return;
 
-				case SMTaskRanState.FixedUpdate:
+				case SMTaskRunState.FixedUpdate:
 					if ( !_isActive )	{ return; }
 					switch ( _runState ) {
 						case RunState.BeforeUpdate:
@@ -242,7 +242,7 @@ namespace SubmarineMirage.FSM {
 					}
 					return;
 
-				case SMTaskRanState.Update:
+				case SMTaskRunState.Update:
 					if ( !_isActive )	{ return; }
 					switch ( _runState ) {
 						case RunState.BeforeUpdate:
@@ -253,7 +253,7 @@ namespace SubmarineMirage.FSM {
 					}
 					return;
 
-				case SMTaskRanState.LateUpdate:
+				case SMTaskRunState.LateUpdate:
 					if ( !_isActive )	{ return; }
 					switch ( _runState ) {
 						case RunState.BeforeUpdate:
@@ -263,16 +263,16 @@ namespace SubmarineMirage.FSM {
 					}
 					return;
 
-				case SMTaskRanState.Finalizing:
-					await _finalizeEvent.Run( _owner._inActiveAsyncCanceler );
+				case SMTaskRunState.Finalizing:
+					await _finalizeEvent.Run( _owner._asyncCancelerOnDispose );
 					return;
 
-				case SMTaskRanState.None:
-				case SMTaskRanState.Creating:
-				case SMTaskRanState.Created:
-				case SMTaskRanState.Loaded:
-				case SMTaskRanState.Initialized:
-				case SMTaskRanState.Finalized:
+				case SMTaskRunState.None:
+				case SMTaskRunState.Create:
+				case SMTaskRunState.Create:
+				case SMTaskRunState.SelfInitialized:
+				case SMTaskRunState.Initialized:
+				case SMTaskRunState.Finalized:
 					throw new ArgumentOutOfRangeException( $"{state}", $"実行不可能な型を指定" );
 			}
 		}

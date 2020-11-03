@@ -38,16 +38,18 @@ namespace SubmarineMirage.SMTask {
 		public SMObjectManager _objects => _scene?._objects;
 
 		public GameObject _owner		{ get; private set; }
+
+// TODO : _top、_modifylerをGroup内に移植
 		public SMObjectModifyler _modifyler	{ get; private set; }
+		public SMObject _top;
+		public bool _isTop =>		_top == this;
 
 		public ISMBehaviour _behaviour;
 		public SMObject _previous;
 		public SMObject _next;
 		public SMObject _parent;
 		public SMObject _child;
-		public SMObject _top;
 
-		public bool _isTop =>		_top == this;
 		public bool _isDispose =>	_disposables._isDispose;
 
 		public readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
@@ -116,8 +118,8 @@ namespace SubmarineMirage.SMTask {
 
 				b._object = this;
 				if ( _owner != null )	{ ( (SMMonoBehaviour)b ).Constructor(); }
-				b._activeAsyncCanceler.SetParent( _asyncCanceler );
-				b._inActiveAsyncCanceler.SetParent( _asyncCanceler );
+				b._asyncCancelerOnDisable.SetParent( _asyncCanceler );
+				b._asyncCancelerOnDispose.SetParent( _asyncCanceler );
 			} );
 #if TestSMTask
 //			Log.Debug( string.Join( "\n", behaviours.Select( b => b.ToLineString() ) ) );
@@ -294,6 +296,9 @@ namespace SubmarineMirage.SMTask {
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _top._modifyler.Register( new ChangeParentSMObject( this, parent, isWorldPositionStays ) );
 
+		public void ChangeActive( bool isActive )
+			=> _top._modifyler.Register( new ChangeActiveSMObject( this, isActive, true ) );
+
 
 
 		public override string ToString() => string.Join( "\n",
@@ -307,7 +312,7 @@ namespace SubmarineMirage.SMTask {
 			$"    {nameof( GetBehaviours )} : ",
 			string.Join( "\n", GetBehaviours().Select( b => $"        {b.ToLineString()}" ) ),
 
-			$"    {nameof( _top )} : {( _top == this ? "this" : _top?.ToLineString() )}",
+			$"    {nameof( _top )} : {( _isTop ? "this" : _top?.ToLineString() )}",
 			$"    {nameof( _parent )} : {_parent?.ToLineString()}",
 			$"    {nameof( _previous )} : {_previous?.ToLineString()}",
 			$"    {nameof( _next )} : {_next?.ToLineString()}",

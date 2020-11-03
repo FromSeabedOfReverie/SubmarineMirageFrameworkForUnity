@@ -59,7 +59,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				Log.Debug( $"{nameof( ChangeActiveSMObject )} : 待機終了\n{_object}" );
 				Log.Debug( $"{nameof( RunStateSMObject )} : 待機開始\n{_object}" );
 #endif
-				await new RunStateSMObject( _object, SMTaskRanState.Finalizing ).Run();
+				await new RunStateSMObject( _object, SMTaskRunState.Finalizing ).Run();
 #if TestSMTaskModifyler
 				Log.Debug( $"{nameof( RunStateSMObject )} : 待機終了\n{_object}" );
 #endif

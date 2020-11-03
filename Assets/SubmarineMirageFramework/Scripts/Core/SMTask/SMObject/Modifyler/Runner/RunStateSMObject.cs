@@ -17,16 +17,16 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public class RunStateSMObject : SMObjectModifyData {
 		public override ModifyType _type => ModifyType.Runner;
-		SMTaskRanState _state;
+		SMTaskRunState _state;
 
 
-		public RunStateSMObject( SMObject smObject, SMTaskRanState state ) : base( smObject ) {
+		public RunStateSMObject( SMObject smObject, SMTaskRunState state ) : base( smObject ) {
 			_state = state;
 
 			switch ( state ) {
-				case SMTaskRanState.FixedUpdate:
-				case SMTaskRanState.Update:
-				case SMTaskRanState.LateUpdate:
+				case SMTaskRunState.FixedUpdate:
+				case SMTaskRunState.Update:
+				case SMTaskRunState.LateUpdate:
 					throw new ArgumentOutOfRangeException(
 						$"{state}",
 						$"負荷軽減の為、静的関数 {nameof( RunOrRegister )} 以外で、実行不可"
@@ -40,17 +40,17 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public override UniTask Run() => RunStateEvent( _object, _state );
 
 
-		public static void RunOrRegister( SMObject smObject, SMTaskRanState state ) {
+		public static void RunOrRegister( SMObject smObject, SMTaskRunState state ) {
 			switch ( state ) {
-				case SMTaskRanState.FixedUpdate:
-				case SMTaskRanState.Update:
-				case SMTaskRanState.LateUpdate:
+				case SMTaskRunState.FixedUpdate:
+				case SMTaskRunState.Update:
+				case SMTaskRunState.LateUpdate:
 					// 駄目で元々、即時実行する
 					RunStateEvent( smObject, state ).Forget();
 					break;
 
 // TODO : キューに貯まっている他のタスクを無視して、即実行したいけど、逐次実行でも問題ない？
-//				case SMTaskRanState.Finalizing:
+//				case SMTaskRunState.Finalizing:
 //					break;
 
 				default:
@@ -60,12 +60,12 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 
-		static async UniTask RunStateEvent( SMObject smObject, SMTaskRanState state ) {
+		static async UniTask RunStateEvent( SMObject smObject, SMTaskRunState state ) {
 			using ( var events = new MultiAsyncEvent( isCancelByCanceler => isCancelByCanceler ) ) {
 				switch ( smObject._type ) {
 					case SMTaskType.FirstWork:
 						foreach ( var b in smObject.GetBehaviours() ) {
-							events.AddLast( _ => b.RunStateEvent( state ) );
+							events.AddLast( _ => RunStateSMBehaviour.RegisterAndRun( b, state ) );
 						}
 						events.AddLast( async _ => {
 							foreach ( var o in smObject.GetChildren() ) {
@@ -76,20 +76,22 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 					case SMTaskType.Work:
 						events.AddLast( async _ =>
-							await smObject.GetBehaviours().Select( b => b.RunStateEvent( state ) )
+							await smObject.GetBehaviours()
+								.Select( b => RunStateSMBehaviour.RegisterAndRun( b, state ) )
 								.Concat( smObject.GetChildren().Select( o => RunStateEvent( o, state ) ) )
 						);
 						break;
 
 					case SMTaskType.DontWork:
-						if ( state != SMTaskRanState.Creating )	{ break; }
+						if ( state != SMTaskRunState.Create )	{ break; }
 						events.AddLast( async _ =>
-							await smObject.GetBehaviours().Select( b => b.RunStateEvent( state ) )
+							await smObject.GetBehaviours()
+								.Select( b => RunStateSMBehaviour.RegisterAndRun( b, state ) )
 								.Concat( smObject.GetChildren().Select( o => RunStateEvent( o, state ) ) )
 						);
 						break;
 				}
-				if ( state == SMTaskRanState.Finalizing )	{ events.Reverse(); }
+				if ( state == SMTaskRunState.Finalizing )	{ events.Reverse(); }
 				await events.Run( smObject._asyncCanceler );
 			}
 		}

@@ -68,7 +68,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						foreach ( var b in smObject.GetBehaviours() ) {
 							events.AddLast( async _ => {
 								if ( !isCanChangeActive )	{ return; }
-								await b.ChangeActive( isActive );
+								await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive );
 							} );
 						}
 						events.AddLast( async _ => {
@@ -82,7 +82,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					case SMTaskType.Work:
 						events.AddLast( async _ => {
 							if ( !isCanChangeActive )	{ return; }
-							await smObject.GetBehaviours().Select( b => b.ChangeActive( isActive ) )
+							await smObject.GetBehaviours()
+								.Select( b => ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ) )
 								.Concat( smObject.GetChildren().Select( o => ChangeActive( o, isActive, false ) ) );
 						} );
 						break;

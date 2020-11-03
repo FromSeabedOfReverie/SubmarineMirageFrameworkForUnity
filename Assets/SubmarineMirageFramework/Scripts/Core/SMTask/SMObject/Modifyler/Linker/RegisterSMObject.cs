@@ -73,7 +73,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						Log.Debug( $"待機終了 : {this}" );
 #endif
 					}
-					RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Creating );
+					RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Create );
 					break;
 
 				case SMTaskType.Work:
@@ -89,9 +89,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 							Log.Debug( $"待機終了 : {this}" );
 #endif
 						}
-						RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Creating );
-						RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Loading );
-						RunStateSMObject.RunOrRegister( _object, SMTaskRanState.Initializing );
+						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Create );
+						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.SelfInitializing );
+						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Initializing );
 						_object._top._modifyler.Register( new RunActiveSMObject( _object ) );
 					}
 					break;

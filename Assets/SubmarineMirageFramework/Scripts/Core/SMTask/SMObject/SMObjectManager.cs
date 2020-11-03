@@ -112,8 +112,8 @@ namespace SubmarineMirage.SMTask {
 
 
 
-		public async UniTask RunAllStateEvents( SMTaskType type, SMTaskRanState state ) {
-			var os = GetAllTops( type, type == SMTaskType.FirstWork && state == SMTaskRanState.Finalizing );
+		public async UniTask RunAllStateEvents( SMTaskType type, SMTaskRunState state ) {
+			var os = GetAllTops( type, type == SMTaskType.FirstWork && state == SMTaskRunState.Finalizing );
 			switch ( type ) {
 				case SMTaskType.FirstWork:
 					os.ForEach( o => RunStateSMObject.RunOrRegister( o, state ) );
@@ -171,13 +171,13 @@ namespace SubmarineMirage.SMTask {
 //			await UTask.WaitWhile( _activeAsyncCanceler, () => !Input.GetKeyDown( KeyCode.Return ) );
 			_isEnter = true;
 			return;
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Creating );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Loading );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Initializing );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Create );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.SelfInitializing );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Initializing );
 
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Creating );
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Loading );
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Initializing );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Create );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.SelfInitializing );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Initializing );
 
 			await RunAllActiveEvents( SMTaskType.FirstWork );
 			await RunAllActiveEvents( SMTaskType.Work );
@@ -187,8 +187,8 @@ namespace SubmarineMirage.SMTask {
 			await ChangeAllActives( SMTaskType.Work, false );
 			await ChangeAllActives( SMTaskType.FirstWork, false );
 
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRanState.Finalizing );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRanState.Finalizing );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Finalizing );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Finalizing );
 
 			GetAllTops( SMTaskType.Work ).ForEach( o => o.Dispose() );
 			GetAllTops( SMTaskType.FirstWork ).ForEach( o => o.Dispose() );

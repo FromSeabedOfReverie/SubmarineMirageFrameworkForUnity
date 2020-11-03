@@ -30,18 +30,18 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			switch ( _object._type ) {
 				case SMTaskType.DontWork:
 // TODO : 作成直後に実行するとエラーになる為、待機しているが、できれば不要にしたい
-					await UTask.NextFrame( _behaviour._activeAsyncCanceler );
-					await _behaviour.RunStateEvent( SMTaskRanState.Creating );
+					await UTask.NextFrame( _behaviour._asyncCancelerOnDisable );
+					await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Create );
 					return;
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
 					if ( _object._objects._isEnter ) {
 // TODO : 作成直後に実行するとエラーになる為、待機しているが、できれば不要にしたい
-						await UTask.NextFrame( _behaviour._activeAsyncCanceler );
-						await _behaviour.RunStateEvent( SMTaskRanState.Creating );
-						await _behaviour.RunStateEvent( SMTaskRanState.Loading );
-						await _behaviour.RunStateEvent( SMTaskRanState.Initializing );
-						await _behaviour.RunActiveEvent();
+						await UTask.NextFrame( _behaviour._asyncCancelerOnDisable );
+						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Create );
+						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.SelfInitializing );
+						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Initializing );
+						await ChangeActiveSMBehaviour.RegisterAndRunInitial( _behaviour );
 					}
 					return;
 			}
