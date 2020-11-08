@@ -95,7 +95,7 @@ namespace SubmarineMirage.Scene {
 				scenes = _fsm.GetAllScene();
 			}
 			var currents = new Queue<SMObject>( scenes.SelectMany( s => {
-				return s._objects.GetAllTops( taskType );
+				return s._objects.GetAllGroups( taskType );
 			} ) );
 			while ( !currents.IsEmpty() ) {
 				var o = currents.Dequeue();
