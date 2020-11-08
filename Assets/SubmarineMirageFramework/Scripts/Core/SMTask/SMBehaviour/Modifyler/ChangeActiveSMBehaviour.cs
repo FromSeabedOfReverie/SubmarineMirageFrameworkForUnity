@@ -20,7 +20,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		public ChangeActiveSMBehaviour( SMBehaviourBody body, SMTaskActiveState state,
-										ModifyType type = ModifyType.Runner
+										ModifyType type = ModifyType.Operator
 		) : base( body ) {
 			_state = state;
 			_type = type;
@@ -35,13 +35,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		async UniTask ChangeActive() {
 			if ( _body._owner._type == SMTaskType.DontWork )	{ return; }
 			if ( _body._activeState == _state )					{ return; }
-			if ( !_body._isInitialized )						{ return; }
-			if ( _body._ranState == SMTaskRunState.Finalized )	{ return; }
-
+			if ( !_body._isOperable )							{ return; }
 #if TestSMTaskModifyler
 			Log.Debug( $"{_body._owner.GetAboutName()}.{nameof( ChangeActive )} : {_state}\n{_body}" );
 #endif
-
 			switch ( _state ) {
 				case SMTaskActiveState.Enable:
 					_body._enableEvent.Run();
@@ -54,7 +51,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					_body._activeState = SMTaskActiveState.Disable;
 					return;
 			}
-
 			await UTask.DontWait();
 		}
 
@@ -67,8 +63,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public static UniTask RegisterAndRun( ISMBehaviour behaviour, bool isActive )
 			=> RegisterAndRun( behaviour, isActive ? SMTaskActiveState.Enable : SMTaskActiveState.Disable );
 
-		public static UniTask RegisterAndRunInitial( ISMBehaviour behaviour )
-			=> RegisterAndRun( behaviour, behaviour._body._initialActiveState );
+		public static async UniTask RegisterAndRunInitial( ISMBehaviour behaviour ) {
+			behaviour._body._modifyler.Register( new ChangeActiveSMBehaviour(
+				behaviour._body,
+				behaviour._body._initialActiveState,
+				ModifyType.Initializer
+			) );
+			await behaviour._body._modifyler.WaitRunning();
+		}
 
 
 		public override string ToString() => base.ToString().InsertLast( ", ",

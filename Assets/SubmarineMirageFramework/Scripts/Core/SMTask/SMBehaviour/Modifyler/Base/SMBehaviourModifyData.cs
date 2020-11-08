@@ -17,8 +17,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 	public abstract class SMBehaviourModifyData {
 		public enum ModifyType {
-			Interrupter,
-			Runner,
+			Finalizer,
+			Initializer,
+			Operator,
 		}
 
 		static uint s_idCount;
