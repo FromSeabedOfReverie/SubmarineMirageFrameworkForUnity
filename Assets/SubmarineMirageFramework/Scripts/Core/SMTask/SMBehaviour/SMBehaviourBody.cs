@@ -29,6 +29,8 @@ namespace SubmarineMirage.SMTask {
 		public SMTaskActiveState _initialActiveState	{ get; private set; }
 
 		public bool _isInitialized =>	_ranState >= SMTaskRunState.Initialized;
+		public bool _isOperable =>
+			SMTaskRunState.Initialized <= _ranState && _ranState <= SMTaskRunState.LateUpdate;
 		public bool _isActive =>		_activeState == SMTaskActiveState.Enable;
 		public bool _isDispose =>		_disposables._isDispose;
 

@@ -33,6 +33,7 @@ namespace SubmarineMirage.SMTask {
 		public ISMBehaviour _next		{ get; set; }
 
 		public bool _isInitialized =>	_body?._isInitialized ?? false;
+		public bool _isOperable =>		_body?._isOperable ?? false;
 		public bool _isActive =>		_body?._isActive ?? false;
 		public bool _isDispose =>		_body?._isDispose ?? false;
 

@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask {
-	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
 	using Modifyler;
@@ -27,6 +26,7 @@ namespace SubmarineMirage.SMTask {
 		ISMBehaviour _next		{ get; set; }
 
 		bool _isInitialized	{ get; }
+		bool _isOperable	{ get; }
 		bool _isActive		{ get; }
 
 		MultiAsyncEvent _selfInitializeEvent	{ get; }
