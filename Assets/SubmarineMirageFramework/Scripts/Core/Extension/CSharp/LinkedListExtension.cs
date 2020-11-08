@@ -61,14 +61,19 @@ namespace SubmarineMirage.Extension {
 
 
 		public static LinkedListNode<T> FindNode<T>( this LinkedList<T> self, Predicate<T> findEvent,
-														bool isFromLast = false
-		) => self.GetNodes( isFromLast ).FirstOrDefault( n => findEvent( n.Value ) );
+														bool isFromLast = false, bool isFindLast = false
+		) {
+			var nodes = self.GetNodes( isFromLast );
+			if ( isFindLast )	{ return nodes.LastOrDefault( n => findEvent( n.Value ) ); }
+			else				{ return nodes.FirstOrDefault( n => findEvent( n.Value ) ); }
+		}
 
 
 		public static void AddBefore<T>( this LinkedList<T> self, T data, Predicate<T> findEvent,
-											Action notFoundEvent = null, bool isFromLast = false
+											Action notFoundEvent = null, bool isFromLast = false,
+											bool isFindLast = false
 		) {
-			var node = self.FindNode( findEvent, isFromLast );
+			var node = self.FindNode( findEvent, isFromLast, isFindLast );
 			if ( node != null ) {
 				self.AddBefore( node, data );
 			} else {
@@ -77,9 +82,10 @@ namespace SubmarineMirage.Extension {
 		}
 
 		public static void AddAfter<T>( this LinkedList<T> self, T data, Predicate<T> findEvent,
-											Action notFoundEvent = null, bool isFromLast = false
+											Action notFoundEvent = null, bool isFromLast = false,
+											bool isFindLast = false
 		) {
-			var node = self.FindNode( findEvent, isFromLast );
+			var node = self.FindNode( findEvent, isFromLast, isFindLast );
 			if ( node != null ) {
 				self.AddAfter( node, data );
 			} else {
