@@ -19,14 +19,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class SMObjectModifyler : IDisposableExtension {
-		public SMObject _owner	{ get; private set; }
+		public SMObjectGroup _owner	{ get; private set; }
 		readonly LinkedList<SMObjectModifyData> _data = new LinkedList<SMObjectModifyData>();
 		bool _isRunning;
 		public bool _isDispose => _disposables._isDispose;
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public SMObjectModifyler( SMObject owner ) {
+		public SMObjectModifyler( SMObjectGroup owner ) {
 			_owner = owner;
 
 			_disposables.AddLast( () => {
@@ -43,9 +43,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public void Register( SMObjectModifyData data ) {
 			switch( data._type ) {
 				case SMObjectModifyData.ModifyType.Interrupter:
-					_data.Push( data );
+					_data.AddAfter(
+						data,
+						d => d._type == SMObjectModifyData.ModifyType.Interrupter,
+						() => _data.Push( data ),
+						false,
+						true
+					);
 					break;
-
 				case SMObjectModifyData.ModifyType.Linker:
 					_data.AddBefore(
 						data,
@@ -53,18 +58,16 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						() => _data.Enqueue( data )
 					);
 					break;
-
 				case SMObjectModifyData.ModifyType.Runner:
 					_data.Enqueue( data );
 					break;
 			}
-
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
 
 		public void ReRegister( SMObject removeObject ) => _data.RemoveAll(
 			d => d._object == removeObject,
-			d => removeObject._top._modifyler.Register( d )
+			d => removeObject._group._modifyler.Register( d )
 		);
 
 		public void Unregister( SMObject removeObject ) => _data.RemoveAll(
@@ -85,7 +88,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		}
 
 		public UniTask WaitRunning()
-			=> UTask.WaitWhile( _owner._asyncCanceler, () => _isRunning );
+			=> UTask.WaitWhile( _owner._topObject._asyncCanceler, () => _isRunning );
 
 
 		public override string ToString() => string.Join( "\n",

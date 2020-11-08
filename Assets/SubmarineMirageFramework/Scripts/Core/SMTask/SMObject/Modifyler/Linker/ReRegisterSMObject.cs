@@ -67,8 +67,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				) );
 #endif
 			}
-			if ( _lastScene._objects._objects[_lastType] == _object ) {
-				_lastScene._objects._objects[_lastType] = _object._next;
+			if ( _lastScene._objects._groups[_lastType] == _object ) {
+				_lastScene._objects._groups[_lastType] = _object._next;
 			}
 			UnLinkObject( _object );
 			RegisterObject();
