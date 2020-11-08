@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMTask
-//#define TestSMTaskModifyler
+#define TestSMTask
+#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -28,21 +28,20 @@ namespace SubmarineMirage.SMTask {
 
 
 	public class SMObject : IDisposableExtension {
-		public SMTaskType _type;
-		public SMTaskLifeSpan _lifeSpan;
-
 		static uint s_idCount;
 		public uint _id					{ get; private set; }
 
-		public BaseScene _scene;
-		public SMObjectManager _objects => _scene?._objects;
+// TODO : SMObjectGroup内に移植
+//		public SMTaskType _type;
+//		public SMTaskLifeSpan _lifeSpan;
+//		public BaseScene _scene;
+//		public SMObjectManager _objects => _scene?._objects;
+//		public SMObjectModifyler _modifyler	{ get; private set; }
+//		public SMObject _top;
+//		public bool _isTop =>	_group.IsTop( this );
 
+		public SMObjectGroup _group;
 		public GameObject _owner		{ get; private set; }
-
-// TODO : _top、_modifylerをGroup内に移植
-		public SMObjectModifyler _modifyler	{ get; private set; }
-		public SMObject _top;
-		public bool _isTop =>		_top == this;
 
 		public ISMBehaviour _behaviour;
 		public SMObject _previous;
@@ -66,8 +65,6 @@ namespace SubmarineMirage.SMTask {
 #endif
 			_owner = owner;
 
-			_modifyler = new SMObjectModifyler( this );
-
 			SetupBehaviours( behaviours );
 			SetupParent( parent );
 			SetupChildren();
@@ -80,14 +77,13 @@ namespace SubmarineMirage.SMTask {
 				SetupTop();
 			}
 
-			_disposables.AddLast( _modifyler );
 			_disposables.AddLast( () => {
 				GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() );
 				GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() );
 			} );
 			_disposables.AddLast( _asyncCanceler );	// 子が再生成される為、後に解放
 			_disposables.AddLast( () => {
-				_top?._modifyler.Unregister( this );
+				_group._modifyler.Unregister( this );
 				SMObjectModifyData.UnLinkObject( this );
 				if ( _owner != null )	{ UnityObject.Destroy( _owner ); }
 			} );
@@ -166,6 +162,7 @@ namespace SubmarineMirage.SMTask {
 #if TestSMTask
 			Log.Debug( $"{nameof( SetupTop )} : start\n{this}" );
 #endif
+			_group = new SMObjectGroup( this );
 			SMObjectModifyData.SetTopObject( this );
 #if TestSMTask
 			Log.Debug( $"{nameof( SetupTop )} : end\n{this}" );
@@ -286,40 +283,35 @@ namespace SubmarineMirage.SMTask {
 
 		public SMMonoBehaviour AddBehaviour( Type type ) {
 			var data = new AddBehaviourSMObject( this, type );
-			_top._modifyler.Register( data );
+			_group._modifyler.Register( data );
 			return data._behaviour;
 		}
 
 		public void Destroy()
-			=> _top._modifyler.Register( new DestroySMObject( this ) );
+			=> _group._modifyler.Register( new DestroySMObject( this ) );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
-			=> _top._modifyler.Register( new ChangeParentSMObject( this, parent, isWorldPositionStays ) );
+			=> _group._modifyler.Register( new ChangeParentSMObject( this, parent, isWorldPositionStays ) );
 
 		public void ChangeActive( bool isActive )
-			=> _top._modifyler.Register( new ChangeActiveSMObject( this, isActive, true ) );
+			=> _group._modifyler.Register( new ChangeActiveSMObject( this, isActive, true ) );
 
 
 
 		public override string ToString() => string.Join( "\n",
 			$"{nameof( SMObject )}(",
 			$"    {nameof( _id )} : {_id}",
-			$"    {nameof( _type )} : {_type}",
-			$"    {nameof( _lifeSpan )} : {_lifeSpan}",
-			$"    {nameof( _scene )} : {_scene}",
-
+			$"    {nameof( _group )} : {_group}",
 			$"    {nameof( _owner )} : {( _owner != null ? _owner.name : "null" )}",
+
 			$"    {nameof( GetBehaviours )} : ",
 			string.Join( "\n", GetBehaviours().Select( b => $"        {b.ToLineString()}" ) ),
-
-			$"    {nameof( _top )} : {( _isTop ? "this" : _top?.ToLineString() )}",
 			$"    {nameof( _parent )} : {_parent?.ToLineString()}",
 			$"    {nameof( _previous )} : {_previous?.ToLineString()}",
 			$"    {nameof( _next )} : {_next?.ToLineString()}",
 			$"    {nameof( GetChildren )} : ",
 			string.Join( "\n", GetChildren().Select( o => $"        {o.ToLineString()}" ) ),
 
-			$"    {nameof( _modifyler )} : {_modifyler}",
 			"",
 			$"    {nameof( _asyncCanceler )}._isCancel : {_asyncCanceler._isCancel}",
 			$"    {nameof( _isDispose )} : {_isDispose}",
@@ -347,7 +339,7 @@ namespace SubmarineMirage.SMTask {
 			}
 			if ( isViewLink ) {
 				result += string.Join( " ",
-					$"△{_top?._id}",
+					$"△{_group._topObject._id}",
 					$"←{_parent?._id}",
 					$"↑{_previous?._id}",
 					$"↓{_next?._id}",
