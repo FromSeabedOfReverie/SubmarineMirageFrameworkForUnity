@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestSMTask
 namespace SubmarineMirage.SMTask {
 	using System;
 	using System.Linq;
@@ -44,8 +45,9 @@ namespace SubmarineMirage.SMTask {
 		public SMObjectGroup( SMObject top ) {
 			_id = ++s_idCount;
 			_topObject = top;
-
 			_modifyler = new SMObjectModifyler( this );
+
+			SetAllData();
 
 			_disposables.AddLast( _modifyler );
 			_disposables.AddLast( () => {
@@ -59,9 +61,6 @@ namespace SubmarineMirage.SMTask {
 		~SMObjectGroup() => Dispose();
 
 		public void Dispose() => _disposables.Dispose();
-
-
-		public bool IsTop( SMObject smObject ) => smObject == _topObject;
 
 
 
@@ -80,6 +79,83 @@ namespace SubmarineMirage.SMTask {
 			for ( var current = GetFirst(); current != null; current = current._next )	{
 				yield return current;
 			}
+		}
+
+
+
+		public bool IsTop( SMObject smObject ) => smObject == _topObject;
+
+		public void SetTop( SMObject smObject ) {
+			_topObject = smObject.GetTop();
+			SetAllData();
+		}
+
+		public void SetAllData() {
+#if TestSMTask
+			Log.Debug( $"{nameof( SetAllData )} : start\n{this}" );
+#endif
+			var lastType = _type;
+			var lastScene = _scene;
+			var allObjects = _topObject.GetAllChildren();
+			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
+#if TestSMTask
+			Log.Debug( string.Join( "\n",
+				$"{nameof( allObjects )} :",
+				$"{string.Join( "\n", allObjects.Select( o => o?.ToLineString() ) )}"
+			) );
+			Log.Debug( string.Join( "\n",
+				$"{nameof( allBehaviours )} :",
+				$"{string.Join( "\n", allBehaviours.Select( b => b?.ToLineString() ) )}"
+			) );
+#endif
+			_type = (
+				allBehaviours.Any( b => b._type == SMTaskType.FirstWork )	? SMTaskType.FirstWork :
+				allBehaviours.Any( b => b._type == SMTaskType.Work )		? SMTaskType.Work
+																			: SMTaskType.DontWork
+			);
+			_lifeSpan = allBehaviours.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever ) ?
+				SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
+			_scene = (
+				// SceneManager作成時の場合、循環参照になる為、設定出来ない
+				!SceneManager.s_isCreated					? null :
+				_lifeSpan == SMTaskLifeSpan.Forever			? SceneManager.s_instance._fsm._foreverScene :
+				_topObject._owner != null					?
+													SceneManager.s_instance._fsm.Get( _topObject._owner.scene ) :
+				SceneManager.s_instance._fsm._scene != null	? SceneManager.s_instance._fsm._scene
+															: SceneManager.s_instance._fsm._startScene
+			);
+#if TestSMTask
+			Log.Debug( string.Join( "\n",
+				$"{nameof( lastType )} : {lastType}",
+				$"{nameof( lastScene )} : {lastScene}",
+				$"{nameof( _type )} : {_type}",
+				$"{nameof( _lifeSpan )} : {_lifeSpan}",
+				$"{nameof( _scene )} : {_scene}"
+			) );
+#endif
+			allObjects.ForEach( o => o._group = this );
+
+			if ( lastScene == null ) {
+#if TestSMTask
+				Log.Debug( $"Register : {this}" );
+#endif
+				// SceneManager作成時の場合、循環参照になる為、設定出来ない
+				if ( _objects != null ) {
+					_modifyler.Register( new RegisterSMObject( this ) );
+				}
+			} else if ( _type != lastType || _scene != lastScene ) {
+#if TestSMTask
+				Log.Debug( $"ReRegister : {this}" );
+#endif
+				_modifyler.Register( new ReRegisterSMObject( this, lastType, lastScene ) );
+			} else {
+#if TestSMTask
+				Log.Debug( $"DontRegister : {this}" );
+#endif
+			}
+#if TestSMTask
+			Log.Debug( $"{nameof( SetAllData )} : end\n{this}" );
+#endif
 		}
 
 

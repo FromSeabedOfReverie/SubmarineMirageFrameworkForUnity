@@ -61,6 +61,49 @@ namespace SubmarineMirage.SMTask {
 
 
 
+		public void Register( SMObjectGroup add ) {
+#if TestSMTask
+			Log.Debug( $"{nameof( Register )} : start\n{this}" );
+			// 追加前の物一覧を表示
+			Log.Debug( string.Join( "\n", _groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
+#endif
+			var g = _groups[add._type];
+			if ( g == null ) {
+				_groups[add._type] = add;
+			} else {
+				var last = g.GetLast();
+#if TestSMTask
+				Log.Debug( string.Join( "\n",
+					$"{nameof( last )} : {last?.ToLineString()}",
+					$"{nameof( add )} : {add?.ToLineString()}"
+				) );
+#endif
+				add._previous = last;
+				last._next = add;
+#if TestSMTask
+				Log.Debug( string.Join( "\n",
+					$"{nameof( last )} : {last?.ToLineString()}",
+					$"{nameof( add )} : {add?.ToLineString()}"
+				) );
+#endif
+			}
+#if TestSMTask
+			// 追加後の物一覧を表示
+			Log.Debug( string.Join( "\n", _groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
+			Log.Debug( $"{nameof( Register )} : end\n{this}" );
+#endif
+		}
+
+		public void Unregister( SMObjectGroup remove ) {
+			if ( _groups[remove._type] == remove )	{ _groups[remove._type] = remove._next; }
+			if ( remove._previous != null )			{ remove._previous._next = remove._next; }
+			if ( remove._next != null )				{ remove._next._previous = remove._previous; }
+			remove._previous = null;
+			remove._next = null;
+		}
+
+
+
 		public IEnumerable<SMObjectGroup> GetAllGroups( SMTaskType? type = null, bool isReverse = false ) {
 			IEnumerable<SMObjectGroup> result = null;
 			if ( type.HasValue ) {

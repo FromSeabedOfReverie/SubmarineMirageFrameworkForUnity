@@ -33,7 +33,8 @@ namespace SubmarineMirage.Scene {
 			s_instance._fsm = new SceneStateMachine( s_instance );
 			s_instance._fsm._foreverScene.Set( s_instance );
 			s_instance._disposables.AddFirst( s_instance._fsm );
-			SMObjectModifyData.SetAllObjectData( s_instance._object._top );
+// TODO : ここで、SetAllDataする意味が分からない・・・
+			s_instance._object._group.SetAllData();
 		}
 
 #if TestSMTaskModifyler

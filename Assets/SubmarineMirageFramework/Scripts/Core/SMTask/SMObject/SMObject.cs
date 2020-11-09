@@ -163,7 +163,6 @@ namespace SubmarineMirage.SMTask {
 			Log.Debug( $"{nameof( SetupTop )} : start\n{this}" );
 #endif
 			_group = new SMObjectGroup( this );
-			SMObjectModifyData.SetTopObject( this );
 #if TestSMTask
 			Log.Debug( $"{nameof( SetupTop )} : end\n{this}" );
 #endif
@@ -186,6 +185,12 @@ namespace SubmarineMirage.SMTask {
 		}
 		public SMObject GetLastChild()
 			=> _child?.GetLast();
+
+		public SMObject GetTop() {
+			SMObject top;
+			for ( top = this; top._parent != null; top = top._parent ) {}
+			return top;
+		}
 
 		public IEnumerable<SMObject> GetBrothers() {
 			for ( var current = GetFirst(); current != null; current = current._next )	{
