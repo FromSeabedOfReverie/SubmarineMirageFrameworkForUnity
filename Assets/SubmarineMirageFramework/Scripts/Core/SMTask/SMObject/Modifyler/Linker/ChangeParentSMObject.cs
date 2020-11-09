@@ -69,20 +69,24 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 			_object._owner.transform.SetParent( _parent, _isWorldPositionStays );
 
+			var lastGroup = _object._group;
+			var isLastTop = lastGroup.IsTop( _object );
 			UnLinkObject( _object );
-			if ( !_object._isTop )	{ SetAllObjectData( _object._top ); }
+			if ( !isLastTop )	{ lastGroup.SetAllData(); }
 
 			var parent = _object._owner.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
 				?._object;
-			if ( parent != null )	{ AddChildObject( parent, _object ); }
-			else					{ RegisterObject(); }
-
-			var lastTop = _object._top;
-			SetTopObject( _object );
+			if ( parent != null ) {
+				AddChildObject( parent, _object );
+// TODO : 下記で、元のGroupが解放されるので、Dispose削除されないようにする
+				parent._group.SetAllData();
+			} else if ( !isLastTop ) {
+				_object._group = new SMObjectGroup( _object );
+			}
 
 // TODO : 親も子も、順番を保ったまま、移動させる（特に孫とか未対応）
 // TODO : ChangeActiveSMObjectを待機中に、移動後のトップがどんどん次を実行して、待機されない
-			lastTop._modifyler.ReRegister( _object );
+			lastGroup._modifyler.ReRegister( _object );
 
 // TODO : 非活動親の子が、独立した親になった時に活動状態にしない、抜けがある
 			if ( _object._parent != null && _object._owner.activeSelf ) {

@@ -31,8 +31,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			Log.Debug( $"{nameof( _object._top )} : {_object?._top}" );
 			Log.Debug( $"{nameof( _object )} : {_object}" );
 #endif
+			var lastGroup = _object._group;
+			var isLastTop = lastGroup.IsTop( _object );
 			UnLinkObject( _object );
-			if ( !_object._isTop )	{ SetAllObjectData( _object._top ); }
+			if ( !isLastTop )	{ lastGroup.SetAllData(); }
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( _object._top )} : {_object?._top}" );
 			Log.Debug( $"{nameof( _object )} : {_object}" );

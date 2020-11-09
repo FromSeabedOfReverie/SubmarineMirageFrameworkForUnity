@@ -43,18 +43,10 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public void Register( SMBehaviourModifyData data ) {
 			switch( data._type ) {
 				case SMBehaviourModifyData.ModifyType.Finalizer:
-					_data.AddAfter(
-						data,
-						d => d._type == SMBehaviourModifyData.ModifyType.Finalizer,
-						() => _data.Push( data ),
-						false,
-						true
-					);
-					break;
 				case SMBehaviourModifyData.ModifyType.Initializer:
 					_data.AddBefore(
 						data,
-						d => d._type == SMBehaviourModifyData.ModifyType.Operator,
+						d => d._type > data._type,
 						() => _data.Enqueue( data )
 					);
 					break;

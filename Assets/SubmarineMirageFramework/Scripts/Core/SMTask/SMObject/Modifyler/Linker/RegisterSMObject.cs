@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMTaskModifyler
+#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
@@ -22,15 +22,11 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public override ModifyType _type => ModifyType.Linker;
 
 
-		public RegisterSMObject( SMObject smObject ) : base( smObject ) {
-			if ( !_object._isTop ) {
-				throw new NotSupportedException( $"最上階の{nameof( SMObject )}で無い為、登録不可 :\n{_object}" );
-			}
-		}
+		public RegisterSMObject() : base( null )	{}
 
 
 		public override void Cancel() {
-			_object.Dispose();
+			_group.Dispose();
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( Cancel )} : {this}" );
 #endif
@@ -38,30 +34,33 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _object._lifeSpan == SMTaskLifeSpan.Forever && _object._owner != null ) {
-				UnitySceneManager.MoveGameObjectToScene( _object._owner, _object._scene._scene );
+			 // コンストラクタで設定出来ない為、ここで設定
+			_object = _group._topObject;
+
+			if ( _group._lifeSpan == SMTaskLifeSpan.Forever && _object._owner != null ) {
+				UnitySceneManager.MoveGameObjectToScene( _object._owner, _group._scene._scene );
 #if TestSMTaskModifyler
 				Log.Debug( string.Join( "\n",
 					$"{SMTaskLifeSpan.Forever}シーン移動 :",
 					$"{_object?.ToLineString()}",
-					$"{_object?._scene}"
+					$"{_group?._scene}"
 				) );
 			} else {
 				Log.Debug( string.Join( "\n",
 					$"シーン移動なし :",
 					$"{_object?.ToLineString()}",
-					$"{_object?._scene}"
+					$"{_group?._scene}"
 				) );
 #endif
 			}
-			RegisterObject();
+			_group._objects.Register( _group );
 
 			await SetRunObject();
 		}
 
 
 		async UniTask SetRunObject() {
-			switch ( _object._type ) {
+			switch ( _group._type ) {
 				case SMTaskType.DontWork:
 					// Mono未使用の場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
 					if ( _object._owner == null ) {
@@ -78,7 +77,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
-					if ( _object._objects._isEnter ) {
+					if ( _group._objects._isEnter ) {
 						// Mono未使用の場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
 						if ( _object._owner == null ) {
 #if TestSMTaskModifyler
@@ -92,15 +91,15 @@ namespace SubmarineMirage.SMTask.Modifyler {
 						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Create );
 						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.SelfInitializing );
 						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Initializing );
-						_object._top._modifyler.Register( new RunActiveSMObject( _object ) );
+						_owner.Register( new RunActiveSMObject( _object ) );
 					}
 					break;
 			}
 #if TestSMTaskModifyler
 			Log.Debug( string.Join( "\n",
 				$"{nameof( SetRunObject )} :",
-				$"{nameof( _object._objects._isEnter )} : {_object._objects._isEnter}",
-				$"{nameof( _object._top._modifyler )} : {_object._top._modifyler}"
+				$"{nameof( _group._objects._isEnter )} : {_group._objects._isEnter}",
+				$"{nameof( _owner )} : {_owner}"
 			) );
 #endif
 		}

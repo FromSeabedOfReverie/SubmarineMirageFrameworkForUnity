@@ -71,7 +71,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				_lastScene._objects._groups[_lastType] = _object._next;
 			}
 			UnLinkObject( _object );
-			RegisterObject();
+			_group._objects.Register( _group );
 
 			await UTask.DontWait();
 
