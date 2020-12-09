@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
-	using System;
 	using Cysharp.Threading.Tasks;
 	using UTask;
 	using Debug;
@@ -34,14 +33,13 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		public override async UniTask Run() {
-			 // コンストラクタで設定出来ない為、ここで設定
-			_object = _group._topObject;
+			_object = _group._topObject;	// コンストラクタで設定出来ない為、ここで設定
 
-			if ( _group._lifeSpan == SMTaskLifeSpan.Forever && _object._owner != null ) {
-				UnitySceneManager.MoveGameObjectToScene( _object._owner, _group._scene._scene );
+			if ( _group._isGameObject && _group._lifeSpan == SMTaskLifeSpan.Forever ) {
+				UnitySceneManager.MoveGameObjectToScene( _group._gameObject, _group._scene._scene );
 #if TestSMTaskModifyler
 				Log.Debug( string.Join( "\n",
-					$"{SMTaskLifeSpan.Forever}シーン移動 :",
+					$"{_group._lifeSpan}シーン移動 :",
 					$"{_object?.ToLineString()}",
 					$"{_group?._scene}"
 				) );
@@ -55,49 +53,49 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			}
 			_group._objects.Register( _group );
 
-			await SetRunObject();
+			await SetRunEvent();
 		}
 
 
-		async UniTask SetRunObject() {
+		async UniTask SetRunEvent() {
 			switch ( _group._type ) {
 				case SMTaskType.DontWork:
-					// Mono未使用の場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-					if ( _object._owner == null ) {
+					// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
+					if ( !_group._isGameObject ) {
 #if TestSMTaskModifyler
 						Log.Debug( $"待機開始 : {this}" );
 #endif
-						await UTask.NextFrame( _object._asyncCanceler );
+						await UTask.NextFrame( _group._asyncCanceler );
 #if TestSMTaskModifyler
 						Log.Debug( $"待機終了 : {this}" );
 #endif
 					}
-					RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Create );
+					RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.Create );
 					break;
 
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
 					if ( _group._objects._isEnter ) {
-						// Mono未使用の場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-						if ( _object._owner == null ) {
+						// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
+						if ( !_group._isGameObject ) {
 #if TestSMTaskModifyler
 							Log.Debug( $"待機開始 : {this}" );
 #endif
-							await UTask.NextFrame( _object._asyncCanceler );
+							await UTask.NextFrame( _group._asyncCanceler );
 #if TestSMTaskModifyler
 							Log.Debug( $"待機終了 : {this}" );
 #endif
 						}
-						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Create );
-						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.SelfInitializing );
-						RunStateSMObject.RunOrRegister( _object, SMTaskRunState.Initializing );
-						_owner.Register( new RunActiveSMObject( _object ) );
+						RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.Create );
+						RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.SelfInitializing );
+						RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.Initializing );
+						_owner.Register( new RunInitialActiveSMObject( _object ) );
 					}
 					break;
 			}
 #if TestSMTaskModifyler
 			Log.Debug( string.Join( "\n",
-				$"{nameof( SetRunObject )} :",
+				$"{nameof( SetRunEvent )} :",
 				$"{nameof( _group._objects._isEnter )} : {_group._objects._isEnter}",
 				$"{nameof( _owner )} : {_owner}"
 			) );

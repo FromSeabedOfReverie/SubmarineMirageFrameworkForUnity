@@ -67,7 +67,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
-			o._modifyler.Register( new RunActiveSMObject( o ) );
+			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
 			3.Times( () => o._modifyler.Register( new RunData( o ) ) );
@@ -104,7 +104,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
-			o._modifyler.Register( new RunActiveSMObject( o ) );
+			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
 			3.Times( () => o._modifyler.Register( new RunData( o ) ) );
@@ -139,7 +139,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
-			o._modifyler.Register( new RunActiveSMObject( o ) );
+			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
 			3.Times( () => o._modifyler.Register( new RunData( o ) ) );
@@ -184,7 +184,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
-			o._modifyler.Register( new RunActiveSMObject( o ) );
+			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
 			3.Times( () => o._modifyler.Register( new RunData( o ) ) );
@@ -220,7 +220,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
 			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
-			o._modifyler.Register( new RunActiveSMObject( o ) );
+			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
 			try {

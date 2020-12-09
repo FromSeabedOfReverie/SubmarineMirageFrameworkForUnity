@@ -40,6 +40,13 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public void Dispose() => _disposables.Dispose();
 
 
+
+		public void Move( SMObjectModifyler remove ) {
+			remove._data.ForEach( d => Register( d ) );
+			remove._data.Clear();
+			remove.Dispose();
+		}
+
 		public void Register( SMObjectModifyData data ) {
 			data._owner = this;
 			switch( data._type ) {
@@ -58,15 +65,16 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
 
-		public void ReRegister( SMObject removeObject ) => _data.RemoveAll(
-			d => d._object == removeObject,
-			d => removeObject._group._modifyler.Register( d )
+		public void ReRegister( SMObjectGroup register ) => _data.RemoveAll(
+			d => d._object._group == register,
+			d => register._modifyler.Register( d )
 		);
 
-		public void Unregister( SMObject removeObject ) => _data.RemoveAll(
-			d => d._object == removeObject,
+		public void Unregister( SMObject remove ) => _data.RemoveAll(
+			d => d._object == remove,
 			d => d.Cancel()
 		);
+
 
 
 		async UniTask Run() {

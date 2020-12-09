@@ -49,7 +49,7 @@ namespace SubmarineMirage.SMTask {
 
 
 		protected SMBehaviour( bool isDebug = false ) {
-			_body = new SMBehaviourBody( this, SMTaskActiveState.Enable );
+			_body = new SMBehaviourBody( this, true );
 			_object = new SMObject( null, new ISMBehaviour[] { this }, null
 #if TestSMTaskModifyler
 				, isDebug
@@ -65,6 +65,7 @@ namespace SubmarineMirage.SMTask {
 		public void Dispose() => _body.Dispose();
 
 		public abstract void Create();
+
 
 		public void DestroyObject() => _object.Destroy();
 

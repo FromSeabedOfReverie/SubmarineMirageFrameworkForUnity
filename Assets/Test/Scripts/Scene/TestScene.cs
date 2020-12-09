@@ -43,8 +43,8 @@ namespace SubmarineMirage.TestScene {
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
-			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _behaviour == null ) {
+			_disposables.AddLast(Observable.EveryLateUpdate().Subscribe( (Action<long>)(_ => {
+				if (_behaviour == null ) {
 					_text.text = string.Empty;
 					return;
 				}
@@ -54,12 +54,12 @@ namespace SubmarineMirage.TestScene {
 					$"    {nameof( b._isInitialized )} : {b._isInitialized}",
 					$"    {nameof( b._isActive )} : {b._isActive}",
 					$"    {nameof( b._body._ranState )} : {b._body._ranState}",
-					$"    {nameof( b._body._activeState )} : {b._body._activeState}",
-					$"    {nameof( b._body._initialActiveState )} : {b._body._initialActiveState}",
+					$"    {nameof( b._body._isActive )} : {b._body._isActive}",
+					$"    {nameof( b._body._isInitialActive )} : {b._body._isInitialActive}",
 					")",
 					$"{nameof( b._fsm )} : {b._fsm}"
 				);
-			} ) );
+			}) ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
 			_disposables.AddLast( _behaviour );

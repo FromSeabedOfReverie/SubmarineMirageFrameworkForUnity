@@ -45,7 +45,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				case SMTaskRunState.Initialized:
 				case SMTaskRunState.Finalized:
 					throw new ArgumentOutOfRangeException(
-						$"{state}", $"実行状態に、実行後の型を指定した為、実行不可" );
+						$"{_state}", $"実行状態に、実行後の型を指定した為、実行不可" );
 			}
 		}
 
@@ -53,10 +53,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 
-		public override UniTask Run() => RunState( _state );
-
-		async UniTask RunState( SMTaskRunState state ) {
-			switch ( state ) {
+		public override async UniTask Run() {
+			switch ( _state ) {
 				case SMTaskRunState.Create:				Create();				return;
 				case SMTaskRunState.SelfInitializing:	await SelfInitialize();	return;
 				case SMTaskRunState.Initializing:		await Initialize();		return;
@@ -112,10 +110,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 #if TestSMTaskModifyler
 				Log.Debug( $"{_body._owner.GetAboutName()}.{nameof(Finalize)} : Register Disable :\n{_body}" );
 #endif
-				_body._modifyler.Register(
-					new ChangeActiveSMBehaviour( _body, SMTaskActiveState.Disable, ModifyType.Finalizer )
-				);
-				_body._modifyler.Register( new RunStateSMBehaviour( _body, SMTaskRunState.Finalizing ) );
+				_owner.Register( new ChangeActiveSMBehaviour( _body, false, ModifyType.Finalizer ) );
+				_owner.Register( new RunStateSMBehaviour( _body, SMTaskRunState.Finalizing ) );
 				return;
 			}
 
@@ -140,7 +136,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					break;
 			}
 			_body._ranState = SMTaskRunState.Finalized;
-			_body._modifyler.UnregisterAll();
+			_owner.UnregisterAll();
 		}
 
 		static void FixedUpdate( SMBehaviourBody body ) {

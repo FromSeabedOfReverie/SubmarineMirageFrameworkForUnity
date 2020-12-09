@@ -49,7 +49,8 @@ namespace SubmarineMirage.SMTask {
 		public SMObject _parent;
 		public SMObject _child;
 
-		public bool _isDispose =>	_disposables._isDispose;
+		public bool _isGameObject =>	_owner != null;
+		public bool _isDispose =>		_disposables._isDispose;
 
 		public readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
 
@@ -80,12 +81,16 @@ namespace SubmarineMirage.SMTask {
 			_disposables.AddLast( () => {
 				GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() );
 				GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() );
-			} );
-			_disposables.AddLast( _asyncCanceler );	// 子が再生成される為、後に解放
-			_disposables.AddLast( () => {
-				_group._modifyler.Unregister( this );
+
+				_asyncCanceler.Dispose();	// 子が再生成される為、後に解放
+
+				if ( _group.IsTop( this ) ) {
+					_group.Dispose();
+				} else {
+					_group._modifyler.Unregister( this );
+				}
 				SMObjectModifyData.UnLinkObject( this );
-				if ( _owner != null )	{ UnityObject.Destroy( _owner ); }
+				if ( _isGameObject )	{ UnityObject.Destroy( _owner ); }
 			} );
 #if TestSMTask
 			_disposables.AddLast( () => Log.Debug( $"{nameof( SMObject )}.{nameof( Dispose )} : {this}" ) );
@@ -113,7 +118,7 @@ namespace SubmarineMirage.SMTask {
 				last = b;
 
 				b._object = this;
-				if ( _owner != null )	{ ( (SMMonoBehaviour)b ).Constructor(); }
+				if ( _isGameObject )	{ ( (SMMonoBehaviour)b ).Constructor(); }
 				b._asyncCancelerOnDisable.SetParent( _asyncCanceler );
 				b._asyncCancelerOnDispose.SetParent( _asyncCanceler );
 			} );
@@ -124,7 +129,7 @@ namespace SubmarineMirage.SMTask {
 		}
 
 		void SetupParent( SMObject parent ) {
-			if ( _owner == null )	{ return; }
+			if ( !_isGameObject )	{ return; }
 #if TestSMTask
 			Log.Debug( $"{nameof( SetupParent )} : start\n{this}" );
 #endif
@@ -135,7 +140,7 @@ namespace SubmarineMirage.SMTask {
 		}
 
 		void SetupChildren() {
-			if ( _owner == null )	{ return; }
+			if ( !_isGameObject )	{ return; }
 #if TestSMTask
 			Log.Debug( $"{nameof( SetupChildren )} : start\n{this}" );
 #endif
@@ -296,7 +301,8 @@ namespace SubmarineMirage.SMTask {
 			=> _group._modifyler.Register( new DestroySMObject( this ) );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
-			=> _group._modifyler.Register( new ChangeParentSMObject( this, parent, isWorldPositionStays ) );
+			=> _group._modifyler.Register(
+				new ReserveChangeParentSMObject( this, parent, isWorldPositionStays ) );
 
 		public void ChangeActive( bool isActive )
 			=> _group._modifyler.Register( new ChangeActiveSMObject( this, isActive, true ) );

@@ -16,58 +16,46 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class ChangeActiveSMBehaviour : SMBehaviourModifyData {
-		SMTaskActiveState _state;
+		bool _isActive;
 
 
-		public ChangeActiveSMBehaviour( SMBehaviourBody body, SMTaskActiveState state,
-										ModifyType type = ModifyType.Operator
-		) : base( body ) {
-			_state = state;
+		public ChangeActiveSMBehaviour( SMBehaviourBody body, bool isActive, ModifyType type = ModifyType.Operator )
+			: base( body )
+		{
+			_isActive = isActive;
 			_type = type;
 		}
 
 		public override void Cancel() {}
 
 
-		public override UniTask Run() => ChangeActive();
-
-
-		async UniTask ChangeActive() {
+		public override async UniTask Run() {
 			if ( _body._owner._type == SMTaskType.DontWork )	{ return; }
-			if ( _body._activeState == _state )					{ return; }
+			if ( _body._isActive == _isActive )					{ return; }
 			if ( !_body._isOperable )							{ return; }
 #if TestSMTaskModifyler
-			Log.Debug( $"{_body._owner.GetAboutName()}.{nameof( ChangeActive )} : {_state}\n{_body}" );
+			Log.Debug( $"{_body._owner.GetAboutName()}.{nameof( Run )} : {_isActive}\n{_body}" );
 #endif
-			switch ( _state ) {
-				case SMTaskActiveState.Enable:
-					_body._enableEvent.Run();
-					_body._activeState = SMTaskActiveState.Enable;
-					return;
-
-				case SMTaskActiveState.Disable:
-					_body.StopAsyncOnDisable();
-					_body._disableEvent.Run();
-					_body._activeState = SMTaskActiveState.Disable;
-					return;
+			if ( _isActive ) {
+				_body._enableEvent.Run();
+			} else {
+				_body.StopAsyncOnDisable();
+				_body._disableEvent.Run();
 			}
+			_body._isActive = _isActive;
+
 			await UTask.DontWait();
 		}
 
 
-		public static async UniTask RegisterAndRun( ISMBehaviour behaviour, SMTaskActiveState state ) {
-			behaviour._body._modifyler.Register( new ChangeActiveSMBehaviour( behaviour._body, state ) );
+		public static async UniTask RegisterAndRun( ISMBehaviour behaviour, bool isActive ) {
+			behaviour._body._modifyler.Register( new ChangeActiveSMBehaviour( behaviour._body, isActive ) );
 			await behaviour._body._modifyler.WaitRunning();
 		}
 
-		public static UniTask RegisterAndRun( ISMBehaviour behaviour, bool isActive )
-			=> RegisterAndRun( behaviour, isActive ? SMTaskActiveState.Enable : SMTaskActiveState.Disable );
-
 		public static async UniTask RegisterAndRunInitial( ISMBehaviour behaviour ) {
 			behaviour._body._modifyler.Register( new ChangeActiveSMBehaviour(
-				behaviour._body,
-				behaviour._body._initialActiveState,
-				ModifyType.Initializer
+				behaviour._body, behaviour._body._isInitialActive, ModifyType.Initializer
 			) );
 			await behaviour._body._modifyler.WaitRunning();
 		}
@@ -75,7 +63,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		public override string ToString() => base.ToString().InsertLast( ", ",
 			string.Join( ", ",
-				_state
+				_isActive
 			)
 			+ ", "
 		);

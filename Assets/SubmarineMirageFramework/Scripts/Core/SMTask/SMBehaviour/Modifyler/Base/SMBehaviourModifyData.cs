@@ -26,6 +26,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public uint _id			{ get; private set; }
 		public ModifyType _type	{ get; protected set; }
 		public SMBehaviourBody _body	{ get; private set; }
+		public SMBehaviourModifyler _owner;
+
 
 
 		public SMBehaviourModifyData( SMBehaviourBody body ) {

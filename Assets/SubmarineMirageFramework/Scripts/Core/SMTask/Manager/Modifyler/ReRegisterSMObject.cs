@@ -4,9 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMTaskModifyler
+#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
-	using System;
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using UTask;
@@ -25,64 +24,74 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		BaseScene _lastScene;
 
 
-		public ReRegisterSMObject( SMObject smObject, SMTaskType lastType, BaseScene lastScene )
-			: base( smObject )
-		{
-			if ( !_object._isTop ) {
-				throw new NotSupportedException( $"最上階の{nameof( SMObject )}で無い為、再登録不可 :\n{_object}" );
-			}
+		public ReRegisterSMObject( SMTaskType lastType, BaseScene lastScene ) : base( null ) {
 			_lastType = lastType;
 			_lastScene = lastScene;
 		}
 
-		public override void Cancel() {}
+		public override void Cancel()	{}
 
 
 		public override async UniTask Run() {
+			_object = _group._topObject;	// コンストラクタで設定出来ない為、ここで設定
+
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( Run )} : start\n{this}" );
-			if ( _object?._objects != null ) {
-				Log.Debug( $"{nameof( _object )} :\n" + string.Join( "\n",
-					_object._objects._objects.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
+			if ( _group._objects != null ) {
+				Log.Debug( string.Join( "\n",
+					$"{nameof( _group )} :",
+					string.Join( "\n",
+						_group._objects._groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" )
+					)
+				) );
 			}
 			if ( _lastScene?._objects != null ) {
-				Log.Debug( $"{nameof( _lastScene )} :\n" + string.Join( "\n",
-					_lastScene._objects._objects.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
+				Log.Debug( string.Join( "\n",
+					$"{nameof( _lastScene )} :",
+					string.Join( "\n",
+						_lastScene._objects._groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" )
+					)
+				) );
 			}
 #endif
 
-			if ( _object._scene != _lastScene && _object._owner != null ) {
-				UnitySceneManager.MoveGameObjectToScene( _object._owner, _object._scene._scene );
+			if ( _group._isGameObject && _group._scene != _lastScene ) {
+				UnitySceneManager.MoveGameObjectToScene( _group._gameObject, _group._scene._scene );
 #if TestSMTaskModifyler
 				Log.Debug( string.Join( "\n",
-					$"シーン移動 :",
+					$"{_group._lifeSpan}シーン移動 :",
 					$"{_object?.ToLineString()}",
-					$"{_object?._scene}"
+					$"{_group?._scene}"
 				) );
 			} else {
 				Log.Debug( string.Join( "\n",
 					$"シーン移動なし :",
 					$"{_object?.ToLineString()}",
-					$"{_object?._scene}"
+					$"{_group?._scene}"
 				) );
 #endif
 			}
-			if ( _lastScene._objects._groups[_lastType] == _object ) {
-				_lastScene._objects._groups[_lastType] = _object._next;
-			}
-			UnLinkObject( _object );
+			_lastScene._objects.Unregister( _group, _lastType );
 			_group._objects.Register( _group );
 
 			await UTask.DontWait();
 
 #if TestSMTaskModifyler
-			if ( _object?._objects != null ) {
-				Log.Debug( $"{nameof( _object )} :\n" + string.Join( "\n",
-					_object._objects._objects.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
+			if ( _group._objects != null ) {
+				Log.Debug( string.Join( "\n",
+					$"{nameof( _group )} :",
+					string.Join( "\n",
+						_group._objects._groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" )
+					)
+				) );
 			}
 			if ( _lastScene?._objects != null ) {
-				Log.Debug( $"{nameof( _lastScene )} :\n" + string.Join( "\n",
-					_lastScene._objects._objects.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
+				Log.Debug( string.Join( "\n",
+					$"{nameof( _lastScene )} :",
+					string.Join( "\n",
+						_lastScene._objects._groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" )
+					)
+				) );
 			}
 			Log.Debug( $"{nameof( Run )} : end\n{this}" );
 #endif

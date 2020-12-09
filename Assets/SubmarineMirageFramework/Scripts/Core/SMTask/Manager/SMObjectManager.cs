@@ -94,13 +94,15 @@ namespace SubmarineMirage.SMTask {
 #endif
 		}
 
-		public void Unregister( SMObjectGroup remove ) {
-			if ( _groups[remove._type] == remove )	{ _groups[remove._type] = remove._next; }
-			if ( remove._previous != null )			{ remove._previous._next = remove._next; }
-			if ( remove._next != null )				{ remove._next._previous = remove._previous; }
+		public void Unregister( SMObjectGroup remove, SMTaskType lastType ) {
+			if ( _groups[lastType] == remove )	{ _groups[lastType] = remove._next; }
+			if ( remove._previous != null )		{ remove._previous._next = remove._next; }
+			if ( remove._next != null )			{ remove._next._previous = remove._previous; }
 			remove._previous = null;
 			remove._next = null;
 		}
+
+		public void Unregister( SMObjectGroup remove ) => Unregister( remove, remove._type );
 
 
 

@@ -53,10 +53,7 @@ namespace SubmarineMirage.SMTask {
 
 
 		public void Constructor() {
-			_body = new SMBehaviourBody(
-				this,
-				isActiveAndEnabled ? SMTaskActiveState.Enable : SMTaskActiveState.Disable
-			);
+			_body = new SMBehaviourBody( this, isActiveAndEnabled );
 #if TestSMTask
 			_disposables.AddLast( () =>
 				Log.Debug( $"{nameof( SMMonoBehaviour )}.{nameof( Dispose )} : {this}" )

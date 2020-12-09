@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
-	using System;
 	using Cysharp.Threading.Tasks;
 	using UTask;
 	using Debug;

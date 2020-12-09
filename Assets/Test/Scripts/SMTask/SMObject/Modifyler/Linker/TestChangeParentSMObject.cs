@@ -113,14 +113,14 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			var c = p._next;
 			p._owner.transform.position = Vector3.one;
 			c._owner.transform.position = Vector3.one * 2;
-			c._top._modifyler.Register( new ChangeParentSMObject( c, p._owner.transform, true ) );
+			c._top._modifyler.Register( new ReserveChangeParentSMObject( c, p._owner.transform, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = p._next;
 			c = p._next;
 			p._owner.transform.position = Vector3.one;
 			c._owner.transform.position = Vector3.one * 2;
-			c._top._modifyler.Register( new ChangeParentSMObject( c, p._owner.transform, false ) );
+			c._top._modifyler.Register( new ReserveChangeParentSMObject( c, p._owner.transform, false ) );
 			await c._top._modifyler.WaitRunning();
 
 
@@ -129,14 +129,14 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			c = p._child;
 			p._owner.transform.position = Vector3.one;
 			c._owner.transform.position = Vector3.one * 2;
-			c._top._modifyler.Register( new ChangeParentSMObject( c, null, true ) );
+			c._top._modifyler.Register( new ReserveChangeParentSMObject( c, null, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = p._next;
 			c = p._child;
 			p._owner.transform.position = Vector3.one;
 			c._owner.transform.position = Vector3.one * 2;
-			c._top._modifyler.Register( new ChangeParentSMObject( c, null, false ) );
+			c._top._modifyler.Register( new ReserveChangeParentSMObject( c, null, false ) );
 			await c._top._modifyler.WaitRunning();
 
 
@@ -191,7 +191,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			var p = SceneManager.s_instance.GetBehaviour<M1>()._object;
 			var nextP = p._next._next;
 			var c = p._next;
-			c._top._modifyler.Register( new ChangeParentSMObject( c, p._owner.transform, true ) );
+			c._top._modifyler.Register( new ReserveChangeParentSMObject( c, p._owner.transform, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			Log.Debug( "・b" );
@@ -199,7 +199,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			p = nextP;
 			nextP = p._next;
 			c = SceneManager.s_instance.GetBehaviour<M3>()._object;
-			c._top._modifyler.Register( new ChangeParentSMObject( c, p._owner.transform.GetChild( 0 ), true ) );
+			c._top._modifyler.Register( new ReserveChangeParentSMObject( c, p._owner.transform.GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 
 			Log.Debug( "・c" );
@@ -207,7 +207,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			p = nextP;
 			nextP = p._next;
 			c = SceneManager.s_instance.GetBehaviour<M6>()._object;
-			c._top._modifyler.Register( new ChangeParentSMObject(
+			c._top._modifyler.Register( new ReserveChangeParentSMObject(
 				c, p._owner.transform.GetChild( 0 ).GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 
@@ -216,19 +216,19 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			p = nextP;
 			nextP = p._next._next;
 			c = p._next;
-			c._top._modifyler.Register( new ChangeParentSMObject( c, p._child._owner.transform, true ) );
+			c._top._modifyler.Register( new ReserveChangeParentSMObject( c, p._child._owner.transform, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = nextP;
 			nextP = p._next;
 			c = SceneManager.s_instance.GetBehaviour<M3>()._object;
-			c._top._modifyler.Register( new ChangeParentSMObject(
+			c._top._modifyler.Register( new ReserveChangeParentSMObject(
 				c, p._child._owner.transform.GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = nextP;
 			c = SceneManager.s_instance.GetBehaviour<M6>()._object;
-			c._top._modifyler.Register( new ChangeParentSMObject(
+			c._top._modifyler.Register( new ReserveChangeParentSMObject(
 				c, p._child._next._owner.transform.parent.GetChild( 0 ).GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 

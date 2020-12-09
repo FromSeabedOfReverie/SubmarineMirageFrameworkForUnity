@@ -155,7 +155,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
 				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
 				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
-				o._modifyler.Register( new RunActiveSMObject( o ) );
+				o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 				o._modifyler.Register( new AddBehaviourSMObject( o, typeof( M3 ) ) );
 				await o._modifyler.WaitRunning();
 				o.Dispose();
@@ -167,7 +167,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
 				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initializing ) );
 				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitializing ) );
-				o._modifyler.Register( new RunActiveSMObject( o ) );
+				o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 				o._modifyler.Register( new AddBehaviourSMObject( o, typeof( B3 ) ) );
 				await o._modifyler.WaitRunning();
 				o.Dispose();

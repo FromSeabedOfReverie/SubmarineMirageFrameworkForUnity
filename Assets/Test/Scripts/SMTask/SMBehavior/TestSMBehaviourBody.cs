@@ -44,9 +44,9 @@ namespace SubmarineMirage.TestSMTask {
 					$"    {nameof( _viewBehaviour._object._owner )} : "
 						+ $"{_viewBehaviour._object._owner}( {_viewBehaviour._object._id} )",
 					$"    {nameof( _viewBehaviour._body._ranState )} : {_viewBehaviour._body._ranState}",
-					$"    {nameof( _viewBehaviour._body._activeState )} : {_viewBehaviour._body._activeState}",
-					$"    {nameof( _viewBehaviour._body._initialActiveState )} : "
-						+ $"{_viewBehaviour._body._initialActiveState}",
+					$"    {nameof( _viewBehaviour._body._isActive )} : {_viewBehaviour._body._isActive}",
+					$"    {nameof( _viewBehaviour._body._isInitialActive )} : "
+						+ $"{_viewBehaviour._body._isInitialActive}",
 					$"    {nameof( _viewBehaviour._isInitialized )} : {_viewBehaviour._isInitialized}",
 					$"    {nameof( _viewBehaviour._isActive )} : {_viewBehaviour._isActive}"
 				);

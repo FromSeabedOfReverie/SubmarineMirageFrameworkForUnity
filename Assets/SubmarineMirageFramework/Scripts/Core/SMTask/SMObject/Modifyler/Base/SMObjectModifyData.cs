@@ -7,10 +7,7 @@
 #define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
-	using System.Linq;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
-	using Scene;
 	using Extension;
 	using Debug;
 
@@ -27,7 +24,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 		static uint s_idCount;
 		public uint _id			{ get; private set; }
-		public abstract ModifyType _type	{ get; }
+		public ModifyType _type	{ get; protected set; }
 		public SMObject _object	{ get; protected set; }
 		public SMObjectModifyler _owner;
 		protected SMObjectGroup _group => _owner?._owner;
@@ -85,14 +82,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public static void UnLinkObject( SMObject smObject ) {
 #if TestSMTaskModifyler
 			Log.Debug( $"{nameof( UnLinkObject )} : start" );
-			var groups = smObject?._group?._objects?._groups;
 			var parent = smObject?._parent;
 			var previous = smObject?._previous;
 			var next = smObject?._next;
-			if ( groups != null ) {
-				Log.Debug( string.Join( "\n",
-					groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
-			}
 			Log.Debug( string.Join( "\n",
 				$"{nameof( smObject )} : {smObject?.ToLineString()}",
 				$"{nameof( parent )} : {parent?.ToLineString()}",
@@ -100,11 +92,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				$"{nameof( next )} : {next?.ToLineString()}"
 			) );
 #endif
-// TODO : ↓　これ要る？
-			if ( smObject._group.IsTop( smObject ) ) {
-				smObject._group._objects.Unregister( smObject._group );
-			}
-
 			if ( smObject._parent?._child == smObject ) {
 				smObject._parent._child = smObject._next;
 			}
@@ -115,10 +102,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			smObject._previous = null;
 			smObject._next = null;
 #if TestSMTaskModifyler
-			if ( groups != null ) {
-				Log.Debug( string.Join( "\n",
-					groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
-			}
 			Log.Debug( string.Join( "\n",
 				$"{nameof( smObject )} : {smObject?.ToLineString()}",
 				$"{nameof( parent )} : {parent?.ToLineString()}",
@@ -128,6 +111,14 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			Log.Debug( $"{nameof( UnLinkObject )} : end" );
 #endif
 		}
+
+		protected bool IsCanChangeActive( SMObject smObject, bool isChangeOwner ) {
+			if ( !smObject._isGameObject )													{ return true; }
+			if ( smObject._parent != null && !smObject._parent._owner.activeInHierarchy )	{ return false; }
+			if ( !isChangeOwner && !smObject._owner.activeSelf )							{ return false; }
+			return true;
+		}
+
 
 
 		public override string ToString() => string.Join( " ",

@@ -9,8 +9,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using System.Linq;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using MultiEvent;
-	using UTask;
 	using Extension;
 	using Debug;
 
@@ -19,8 +17,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 	public class ChangeActiveSMObject : SMObjectModifyData {
-		static readonly string EVENT_KEY = $"{nameof( ChangeActiveSMObject )}.{nameof( ChangeActive )}";
-		public override ModifyType _type => ModifyType.Runner;
 		bool _isActive;
 		bool _isChangeOwner;
 
@@ -28,77 +24,64 @@ namespace SubmarineMirage.SMTask.Modifyler {
 		public ChangeActiveSMObject( SMObject smObject, bool isActive, bool isChangeOwner ) : base( smObject ) {
 			_isActive = isActive;
 			_isChangeOwner = isChangeOwner;
+			_type = ModifyType.Runner;
 		}
 
 		public override void Cancel() {}
 
 
-		public override UniTask Run() => ChangeActive( _object, _isActive, _isChangeOwner );
 
-
-		bool IsCanChangeActive( SMObject smObject, bool isChangeOwner ) {
-			if ( smObject._parent?._owner != null && !smObject._parent._owner.activeInHierarchy )	{ return false; }
-			if ( !isChangeOwner && smObject._owner != null && !smObject._owner.activeSelf )			{ return false; }
-			return true;
-		}
-
-
-		async UniTask ChangeActive( SMObject smObject, bool isActive, bool isChangeOwner ) {
-			using ( var events = new MultiAsyncEvent( isCancelByCanceler => isCancelByCanceler ) ) {
-				var isCanChangeActive = false;
-				if ( isChangeOwner && smObject._owner != null && smObject._type != SMTaskType.DontWork ) {
-					events.AddLast( async _ => {
-// TODO : Disable時でも、Activeにしてしまうが、Managerの方で呼ばないはず、確認する
-						smObject._owner.SetActive( isActive );
-						await UTask.DontWait();
-#if TestSMTaskModifyler
-						Log.Debug( $"{smObject._owner.GetAboutName()}.SetActive : {isActive}" );
-#endif
-					} );
-				}
-				if ( isActive ) {
-					events.AddLast( async _ => {
-						isCanChangeActive = IsCanChangeActive( smObject, isChangeOwner );
-						await UTask.DontWait();
-					} );
-				}
-
-				switch ( smObject._type ) {
-					case SMTaskType.FirstWork:
-						foreach ( var b in smObject.GetBehaviours() ) {
-							events.AddLast( async _ => {
-								if ( !isCanChangeActive )	{ return; }
-								await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive );
-							} );
-						}
-						events.AddLast( async _ => {
-							if ( !isCanChangeActive )	{ return; }
-							foreach ( var o in smObject.GetChildren() ) {
-								await ChangeActive( o, isActive, false );
-							}
-						} );
-						break;
-
-					case SMTaskType.Work:
-						events.AddLast( async _ => {
-							if ( !isCanChangeActive )	{ return; }
-							await smObject.GetBehaviours()
-								.Select( b => ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ) )
-								.Concat( smObject.GetChildren().Select( o => ChangeActive( o, isActive, false ) ) );
-						} );
-						break;
-				}
-
-				if ( !isActive ) {
-					events.AddLast( async _ => {
-						isCanChangeActive = IsCanChangeActive( smObject, isChangeOwner );
-						await UTask.DontWait();
-					} );
-					events.Reverse();
-				}
-				await events.Run( smObject._asyncCanceler );
+		public override async UniTask Run() {
+			if ( _group._type == SMTaskType.DontWork )	{ return; }
+			if ( !_object._isGameObject ) {
+				await ChangeActiveSMBehaviour.RegisterAndRun( _object._behaviour, _isActive );
+				return;
 			}
+			if ( !IsCanChangeActive( _object, _isChangeOwner ) )	{ return; }
+
+			if ( _isActive )	{ ChangeActiveOfGameObject(); }
+			switch ( _group._type ) {
+				case SMTaskType.FirstWork:
+					if ( _isActive )	{ await SequentialRun( _object, _isActive ); }
+					else				{ await ReverseRun( _object, _isActive ); }
+					break;
+				case SMTaskType.Work:
+					await ParallelRun( _object, _isActive );
+					break;
+			}
+			if ( !_isActive )	{ ChangeActiveOfGameObject(); }
 		}
+
+		void ChangeActiveOfGameObject() {
+			if ( !_isChangeOwner )	{ return; }
+			_object._owner.SetActive( _isActive );
+#if TestSMTaskModifyler
+			Log.Debug( $"{nameof( ChangeActiveOfGameObject )} : {_isActive}\n{_object}" );
+#endif
+		}
+
+		async UniTask SequentialRun( SMObject smObject, bool isActive ) {
+			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			foreach ( var b in smObject.GetBehaviours() )
+													{ await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ); }
+			foreach ( var o in smObject.GetChildren() )	{ await SequentialRun( o, isActive ); }
+		}
+
+		async UniTask ReverseRun( SMObject smObject, bool isActive ) {
+			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			foreach ( var o in smObject.GetChildren().Reverse() )	{ await ReverseRun( o, isActive ); }
+			foreach ( var b in smObject.GetBehaviours().Reverse() )
+													{ await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ); }
+		}
+
+		async UniTask ParallelRun( SMObject smObject, bool isActive ) {
+			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			await Enumerable.Empty<UniTask>()
+				.Concat(
+					smObject.GetBehaviours().Select( b => ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ) ) )
+				.Concat( smObject.GetChildren().Select( o => ParallelRun( o, isActive ) ) );
+		}
+
 
 
 		public override string ToString() => base.ToString().InsertLast( ", ",

@@ -41,6 +41,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 
 
 		public void Register( SMBehaviourModifyData data ) {
+			data._owner = this;
 			switch( data._type ) {
 				case SMBehaviourModifyData.ModifyType.Finalizer:
 				case SMBehaviourModifyData.ModifyType.Initializer:
@@ -57,8 +58,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
 
-		public void Unregister( SMBehaviourModifyData removeData ) => _data.RemoveAll(
-			d => d == removeData,
+		public void Unregister( SMBehaviourModifyData remove ) => _data.RemoveAll(
+			d => d == remove,
 			d => d.Cancel()
 		);
 

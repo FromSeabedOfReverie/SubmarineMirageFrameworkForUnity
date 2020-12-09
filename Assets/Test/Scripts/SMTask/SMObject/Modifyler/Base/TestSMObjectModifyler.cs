@@ -33,8 +33,8 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
 			UnityObject.DontDestroyOnLoad( go );
 			_text = go.GetComponentInChildren<Text>();
-			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
-				if ( _behaviour._object == null ) {
+			_disposables.AddLast(Observable.EveryLateUpdate().Subscribe( (System.Action<long>)(_ => {
+				if (_behaviour._object == null ) {
 					_text.text = string.Empty;
 					return;
 				}
@@ -45,10 +45,10 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 					+ $"    {nameof( b._isInitialized )} : {b._isInitialized}\n"
 					+ $"    {nameof( b._isActive )} : {b._isActive}\n"
 					+ $"    {nameof( b._body._ranState )} : {b._body._ranState}\n"
-					+ $"    {nameof( b._body._activeState )} : {b._body._activeState}\n"
-					+ $"    {nameof( b._body._initialActiveState )} : {b._body._initialActiveState}\n"
+					+ $"    {nameof( b._body._isActive )} : {b._body._isActive}\n"
+					+ $"    {nameof( b._body._isInitialActive )} : {b._body._isInitialActive}\n"
 					+ $")\n";
-			} ) );
+			}) ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
 			_createEvent.AddLast( async canceler => {

@@ -23,10 +23,6 @@ namespace SubmarineMirage.SMTask {
 		Finalizing,
 		Finalized,
 	}
-	public enum SMTaskActiveState {
-		Disable,
-		Enable,
-	}
 	public enum SMTaskType {
 		DontWork,
 		Work,

@@ -33,31 +33,31 @@ namespace SubmarineMirage.TestSMTask {
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
 					Log.Warning( $"key down {SMTaskRunState.Create}" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Create );
+					RunStateSMObject.RegisterAndRun( smObject, SMTaskRunState.Create );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
 					Log.Warning( $"key down {SMTaskRunState.SelfInitializing}" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.SelfInitializing );
+					RunStateSMObject.RegisterAndRun( smObject, SMTaskRunState.SelfInitializing );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
 					Log.Warning( $"key down {SMTaskRunState.Initializing}" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Initializing );
+					RunStateSMObject.RegisterAndRun( smObject, SMTaskRunState.Initializing );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
 					Log.Warning( $"key down {SMTaskRunState.FixedUpdate}" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.FixedUpdate );
+					RunStateSMObject.RegisterAndRun( smObject, SMTaskRunState.FixedUpdate );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
 					Log.Warning( $"key down {SMTaskRunState.Update}" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Update );
+					RunStateSMObject.RegisterAndRun( smObject, SMTaskRunState.Update );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
 					Log.Warning( $"key down {SMTaskRunState.LateUpdate}" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.LateUpdate );
+					RunStateSMObject.RegisterAndRun( smObject, SMTaskRunState.LateUpdate );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
 					Log.Warning( $"key down {SMTaskRunState.Finalizing}" );
-					RunStateSMObject.RunOrRegister( smObject, SMTaskRunState.Finalizing );
+					RunStateSMObject.RegisterAndRun( smObject, SMTaskRunState.Finalizing );
 				} )
 			);
 			disposables.AddLast(
@@ -78,8 +78,8 @@ namespace SubmarineMirage.TestSMTask {
 					smObject._top._modifyler.Register( new ChangeActiveSMObject( smObject, false, false ) );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.C ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( RunActiveSMObject )}" );
-					smObject._top._modifyler.Register( new RunActiveSMObject( smObject ) );
+					Log.Warning( $"key down {nameof( RunInitialActiveSMObject )}" );
+					smObject._top._modifyler.Register( new RunInitialActiveSMObject( smObject ) );
 				} )
 			);
 			disposables.AddLast(

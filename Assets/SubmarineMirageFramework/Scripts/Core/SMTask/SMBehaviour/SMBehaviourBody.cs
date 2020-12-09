@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestSMTask
 namespace SubmarineMirage.SMTask {
-	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using UTask;
 	using Modifyler;
@@ -25,13 +24,11 @@ namespace SubmarineMirage.SMTask {
 		public uint _id			{ get; private set; }
 
 		public SMTaskRunState _ranState;
-		public SMTaskActiveState _activeState;
-		public SMTaskActiveState _initialActiveState	{ get; private set; }
-
 		public bool _isInitialized =>	_ranState >= SMTaskRunState.Initialized;
 		public bool _isOperable =>
 			SMTaskRunState.Initialized <= _ranState && _ranState <= SMTaskRunState.LateUpdate;
-		public bool _isActive =>		_activeState == SMTaskActiveState.Enable;
+		public bool _isActive;
+		public bool _isInitialActive	{ get; private set; }
 		public bool _isDispose =>		_disposables._isDispose;
 
 		public ISMBehaviour _owner	{ get; private set; }
@@ -52,30 +49,31 @@ namespace SubmarineMirage.SMTask {
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public SMBehaviourBody( ISMBehaviour owner, SMTaskActiveState initialActiveState ) {
+		public SMBehaviourBody( ISMBehaviour owner, bool isInitialActive ) {
 			_id = ++s_idCount;
 
 			_owner = owner;
-			_initialActiveState = initialActiveState;
+			_isInitialActive = isInitialActive;
 			_modifyler = new SMBehaviourModifyler( this );
 
-			_disposables.AddLast( _modifyler );
-			_disposables.AddLast(
-				_asyncCancelerOnDisable,
-				_asyncCancelerOnDispose,
-				_selfInitializeEvent,
-				_initializeEvent,
-				_enableEvent,
-				_fixedUpdateEvent,
-				_updateEvent,
-				_lateUpdateEvent,
-				_disableEvent,
-				_finalizeEvent
-			);
 			_disposables.AddLast( () => {
+				_modifyler.Dispose();
+
+				_asyncCancelerOnDisable.Dispose();
+				_asyncCancelerOnDispose.Dispose();
+
+				_selfInitializeEvent.Dispose();
+				_initializeEvent.Dispose();
+				_enableEvent.Dispose();
+				_fixedUpdateEvent.Dispose();
+				_updateEvent.Dispose();
+				_lateUpdateEvent.Dispose();
+				_disableEvent.Dispose();
+				_finalizeEvent.Dispose();
+
 				SMBehaviourModifyData.UnLinkBehaviour( this );
 				if ( _owner._object != null ) {
-					if ( _owner._object._owner != null )	{ UnityObject.Destroy( (SMMonoBehaviour)_owner ); }
+					if ( _owner._object._isGameObject )			{ UnityObject.Destroy( (SMMonoBehaviour)_owner ); }
 					if ( _owner._object._behaviour == null )	{ _owner._object.Dispose(); }
 				}
 			} );
@@ -99,8 +97,8 @@ namespace SubmarineMirage.SMTask {
 			$"        {nameof( _id )} : {_id} ↑{_owner._previous?._id} ↓{_owner._next?._id}",
 			$"        {nameof( _owner )} : {_owner._id} {_owner.GetAboutName()}",
 			$"        {nameof( _ranState )} : {_ranState}",
-			$"        {nameof( _activeState )} : {_activeState}",
-			$"        {nameof( _initialActiveState )} : {_initialActiveState}",
+			$"        {nameof( _isActive )} : {_isActive}",
+			$"        {nameof( _isInitialActive )} : {_isInitialActive}",
 			"",
 			$"        {nameof( _asyncCancelerOnDisable )}._isCancel : {_asyncCancelerOnDisable._isCancel}",
 			$"        {nameof( _asyncCancelerOnDispose )}._isCancel : {_asyncCancelerOnDispose._isCancel}",
@@ -134,8 +132,8 @@ namespace SubmarineMirage.SMTask {
 			behaviour._id,
 			behaviour.GetAboutName(),
 			behaviour._body?._ranState,
-			behaviour._body?._activeState,
-			behaviour._body?._initialActiveState,
+			behaviour._body?._isActive,
+			behaviour._body?._isInitialActive,
 			$"↑{behaviour._previous?._id}",
 			$"↓{behaviour._next?._id}",
 			behaviour._isDispose ? "Dispose" : ""

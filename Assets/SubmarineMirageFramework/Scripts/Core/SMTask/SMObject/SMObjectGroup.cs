@@ -6,11 +6,12 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestSMTask
 namespace SubmarineMirage.SMTask {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
+	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using UTask;
 	using MultiEvent;
 	using Modifyler;
 	using Scene;
@@ -35,10 +36,12 @@ namespace SubmarineMirage.SMTask {
 		public SMObjectGroup _next;
 
 		public SMObject _topObject;
-		public readonly LinkedList<SMObject> _addObjects = new LinkedList<SMObject>();
-		public readonly LinkedList<SMObject> _removeObjects = new LinkedList<SMObject>();
+		public GameObject _gameObject => _topObject._owner;
 
-		public bool _isDispose =>	_disposables._isDispose;
+		public bool _isGameObject =>	_gameObject != null;
+		public bool _isDispose =>		_disposables._isDispose;
+
+		public UTaskCanceler _asyncCanceler =>	_topObject._asyncCanceler;
 		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
@@ -49,12 +52,10 @@ namespace SubmarineMirage.SMTask {
 
 			SetAllData();
 
-			_disposables.AddLast( _modifyler );
 			_disposables.AddLast( () => {
-				_topObject.Dispose();
-				_addObjects.ForEach( o => o.Dispose() );
-				_removeObjects.ForEach( o => o.Dispose() );
-// TODO : _previous、_next、Managerへのリンク変更を行う
+				_modifyler.Dispose();
+				_topObject?.Dispose();
+				_objects.Unregister( this );
 			} );
 		}
 
@@ -79,6 +80,15 @@ namespace SubmarineMirage.SMTask {
 			for ( var current = GetFirst(); current != null; current = current._next )	{
 				yield return current;
 			}
+		}
+
+
+
+		public void Move( SMObjectGroup remove ) {
+			_modifyler.Move( remove._modifyler );
+			remove._topObject.GetAllChildren().ForEach( o => o._group = this );
+			remove._topObject = null;
+			remove.Dispose();
 		}
 
 
@@ -119,8 +129,7 @@ namespace SubmarineMirage.SMTask {
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				!SceneManager.s_isCreated					? null :
 				_lifeSpan == SMTaskLifeSpan.Forever			? SceneManager.s_instance._fsm._foreverScene :
-				_topObject._owner != null					?
-													SceneManager.s_instance._fsm.Get( _topObject._owner.scene ) :
+				_topObject._isGameObject		? SceneManager.s_instance._fsm.Get( _topObject._owner.scene ) :
 				SceneManager.s_instance._fsm._scene != null	? SceneManager.s_instance._fsm._scene
 															: SceneManager.s_instance._fsm._startScene
 			);
@@ -141,13 +150,13 @@ namespace SubmarineMirage.SMTask {
 #endif
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				if ( _objects != null ) {
-					_modifyler.Register( new RegisterSMObject( this ) );
+					_modifyler.Register( new RegisterSMObject() );
 				}
 			} else if ( _type != lastType || _scene != lastScene ) {
 #if TestSMTask
 				Log.Debug( $"ReRegister : {this}" );
 #endif
-				_modifyler.Register( new ReRegisterSMObject( this, lastType, lastScene ) );
+				_modifyler.Register( new ReRegisterSMObject( lastType, lastScene ) );
 			} else {
 #if TestSMTask
 				Log.Debug( $"DontRegister : {this}" );
@@ -161,7 +170,7 @@ namespace SubmarineMirage.SMTask {
 
 
 		public async UniTask RunStateEvent( SMTaskRunState state ) {
-			RunStateSMObject.RunOrRegister( _topObject, state );
+			RunStateSMObject.RegisterAndRun( this, state );
 			await _modifyler.WaitRunning();
 		}
 
@@ -171,7 +180,7 @@ namespace SubmarineMirage.SMTask {
 		}
 
 		public async UniTask RunInitialActive() {
-			_modifyler.Register( new RunActiveSMObject( _topObject ) );
+			_modifyler.Register( new RunInitialActiveSMObject( _topObject ) );
 			await _modifyler.WaitRunning();
 		}
 
@@ -189,10 +198,6 @@ namespace SubmarineMirage.SMTask {
 			$"    {nameof( _next )} : {_next?.ToLineString()}",
 
 			$"    {nameof( _topObject )} : {_topObject.ToLineString()}",
-			$"    {nameof( _addObjects )} : ",
-			string.Join( "\n", _addObjects.Select( o => $"        {o.ToLineString()}" ) ),
-			$"    {nameof( _removeObjects )} : ",
-			string.Join( "\n", _removeObjects.Select( o => $"        {o.ToLineString()}" ) ),
 
 			$"    {nameof( _isDispose )} : {_isDispose}",
 			")"
@@ -211,9 +216,7 @@ namespace SubmarineMirage.SMTask {
 				result += string.Join( " ",
 					$"↑{_previous?._id}",
 					$"↓{_next?._id}",
-					$"△{_topObject._id}",
-					$"＋{string.Join( ",", _addObjects.Select( o => o._id ) )}",
-					$"－{string.Join( ",", _removeObjects.Select( o => o._id ) )}"
+					$"△{_topObject._id}"
 				);
 			}
 			return result;
