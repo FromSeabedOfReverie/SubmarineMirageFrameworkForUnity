@@ -21,7 +21,7 @@ namespace SubmarineMirage.TestUTask {
 	// 非同期停止の試験を行う
 
 
-	public partial class TestUniTask : Test {
+	public partial class TestUniTask : SMStandardTest {
 		int _id;
 		TestLoader _loader = new TestLoader();
 		CancellationTokenSource _canceler = new CancellationTokenSource();

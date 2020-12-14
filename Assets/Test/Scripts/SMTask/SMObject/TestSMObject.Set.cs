@@ -23,7 +23,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-	public partial class TestSMObject : Test {
+	public partial class TestSMObject : SMStandardTest {
 /*
 		・単体作成テスト
 		_type、_lifeSpan、_sceneが、適切に設定されるか？

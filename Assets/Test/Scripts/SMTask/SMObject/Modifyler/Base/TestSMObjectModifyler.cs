@@ -21,7 +21,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 
 
-	public class TestSMObjectModifyler : Test {
+	public class TestSMObjectModifyler : SMStandardTest {
 		Text _text;
 		ISMBehaviour _behaviour;
 

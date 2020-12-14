@@ -19,7 +19,7 @@ namespace SubmarineMirage.TestUTask {
 	using Test;
 
 
-	public partial class TestUTask : Test {
+	public partial class TestUTask : SMStandardTest {
 		UTaskCanceler _canceler = new UTaskCanceler();
 
 

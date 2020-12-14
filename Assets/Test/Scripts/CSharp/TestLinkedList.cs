@@ -19,7 +19,7 @@ namespace SubmarineMirage.TestCSharp {
 
 
 
-	public partial class TestLinkedList : Test {
+	public partial class TestLinkedList : SMStandardTest {
 		LinkedList<float> _list = new LinkedList<float>( new float[] { 0, 1, 2, 3, 4 } );
 
 

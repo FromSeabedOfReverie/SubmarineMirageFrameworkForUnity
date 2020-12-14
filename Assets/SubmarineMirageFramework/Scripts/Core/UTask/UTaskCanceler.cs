@@ -11,6 +11,7 @@ namespace SubmarineMirage.UTask {
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
 	using KoganeUnityLib;
+	using Base;
 	using MultiEvent;
 	using Extension;
 	using Debug;
@@ -21,24 +22,17 @@ namespace SubmarineMirage.UTask {
 
 
 
-	public class UTaskCanceler : IDisposableExtension {
-		static uint s_idCount;
-		public uint _id	{ get; private set; }
+	public class UTaskCanceler : SMStandardBase {
 		CancellationTokenSource _canceler = new CancellationTokenSource();
 		public CancellationToken _lastCanceledToken	{ get; private set; }
 		public MultiSubject _cancelEvent	{ get; private set; } = new MultiSubject();
-		public bool _isCancel =>	_isDispose || _canceler.IsCancellationRequested;
-		public bool _isDispose =>	_disposables._isDispose;
+		public bool _isCancel	=> _isDispose || _canceler.IsCancellationRequested;
 
 		UTaskCanceler _parent;
 		public readonly List<UTaskCanceler> _children = new List<UTaskCanceler>();
 
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
-
 
 		public UTaskCanceler() {
-			_id = ++s_idCount;
-
 			_disposables.AddLast( () => {
 				CancelBody( false );
 				_canceler.Dispose();
@@ -55,10 +49,6 @@ namespace SubmarineMirage.UTask {
 			_disposables.AddLast( () => Log.Debug( $"{nameof( UTaskCanceler )}.{nameof( Dispose )}\n{this}" ) );
 #endif
 		}
-
-		~UTaskCanceler() => Dispose();
-
-		public void Dispose() => _disposables.Dispose();
 
 		void UnLink() {
 			if ( _parent != null ) {
@@ -145,17 +135,12 @@ namespace SubmarineMirage.UTask {
 		}
 
 
-		public override string ToString() => string.Join( "\n",
-			$"{nameof( UTaskCanceler )}(",
-			$"    {nameof( _id )} : {_id}",
-			$"    {nameof( _isCancel )} : {_isCancel}",
-			$"    {nameof( _isDispose )} : {_isDispose}",
-			$"    {nameof( _parent )} : {( _parent != null ? 1 : 0 )}",
-			$"    {nameof( _children )} : {_children.Count}",
-			$"    {nameof( _canceler )} : {_canceler?.GetHashCode()}",
-			$"    {nameof( _lastCanceledToken )} : {_lastCanceledToken.GetHashCode()}",
-			$"    {nameof( _cancelEvent )} : {_cancelEvent}",
-			$")"
-		);
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.SetValue( nameof( _parent ), i => $"{( _parent != null ? 1 : 0 )}" );
+			_toStringer.SetValue( nameof( _children ), i => $"{_children.Count}" );
+			_toStringer.SetValue( nameof( _canceler ), i => $"{_canceler?.GetHashCode()}" );
+			_toStringer.SetValue( nameof( _lastCanceledToken ), i => $"{_lastCanceledToken.GetHashCode()}" );
+		}
 	}
 }

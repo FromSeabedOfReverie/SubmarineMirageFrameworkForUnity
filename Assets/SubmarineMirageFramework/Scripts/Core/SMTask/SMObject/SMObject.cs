@@ -13,11 +13,11 @@ namespace SubmarineMirage.SMTask {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using MultiEvent;
+	using Base;
 	using UTask;
 	using Modifyler;
-	using Scene;
 	using Extension;
+	using Utility;
 	using Debug;
 	using UnityObject = UnityEngine.Object;
 
@@ -27,10 +27,7 @@ namespace SubmarineMirage.SMTask {
 
 
 
-	public class SMObject : IDisposableExtension {
-		static uint s_idCount;
-		public uint _id					{ get; private set; }
-
+	public class SMObject : SMStandardBase {
 // TODO : SMObjectGroup内に移植
 //		public SMTaskType _type;
 //		public SMTaskLifeSpan _lifeSpan;
@@ -38,29 +35,26 @@ namespace SubmarineMirage.SMTask {
 //		public SMObjectManager _objects => _scene?._objects;
 //		public SMObjectModifyler _modifyler	{ get; private set; }
 //		public SMObject _top;
-//		public bool _isTop =>	_group.IsTop( this );
+//		public bool _isTop	=> _group.IsTop( this );
 
-		public SMObjectGroup _group;
-		public GameObject _owner		{ get; private set; }
+		[ShowLine] public SMGroup _group;
+		[ShowLine] public GameObject _owner		{ get; private set; }
 
-		public ISMBehaviour _behaviour;
-		public SMObject _previous;
-		public SMObject _next;
-		public SMObject _parent;
-		public SMObject _child;
+		[ShowLine] public ISMBehaviour _behaviour;
+		[ShowLine] public SMObject _previous;
+		[ShowLine] public SMObject _next;
+		[ShowLine] public SMObject _parent;
+		[ShowLine] public SMObject _child;
 
-		public bool _isGameObject =>	_owner != null;
-		public bool _isDispose =>		_disposables._isDispose;
+		[Hide] public bool _isGameObject	=> _owner != null;
 
 		public readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
 
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent,
 							bool isDebug = false
 		) {
-			_id = ++s_idCount;
 #if TestSMTask
 			Log.Debug( $"{nameof( SMObject )}() : start\n{this}" );
 #endif
@@ -97,10 +91,6 @@ namespace SubmarineMirage.SMTask {
 			Log.Debug( $"{nameof( SMObject )}() : end\n{this}" );
 #endif
 		}
-
-		~SMObject() => Dispose();
-
-		public void Dispose() => _disposables.Dispose();
 
 
 
@@ -167,7 +157,7 @@ namespace SubmarineMirage.SMTask {
 #if TestSMTask
 			Log.Debug( $"{nameof( SetupTop )} : start\n{this}" );
 #endif
-			_group = new SMObjectGroup( this );
+			_group = new SMGroup( this );
 #if TestSMTask
 			Log.Debug( $"{nameof( SetupTop )} : end\n{this}" );
 #endif
@@ -309,55 +299,40 @@ namespace SubmarineMirage.SMTask {
 
 
 
-		public override string ToString() => string.Join( "\n",
-			$"{nameof( SMObject )}(",
-			$"    {nameof( _id )} : {_id}",
-			$"    {nameof( _group )} : {_group}",
-			$"    {nameof( _owner )} : {( _owner != null ? _owner.name : "null" )}",
+		public override void SetToString() {
+			base.SetToString();
 
-			$"    {nameof( GetBehaviours )} : ",
-			string.Join( "\n", GetBehaviours().Select( b => $"        {b.ToLineString()}" ) ),
-			$"    {nameof( _parent )} : {_parent?.ToLineString()}",
-			$"    {nameof( _previous )} : {_previous?.ToLineString()}",
-			$"    {nameof( _next )} : {_next?.ToLineString()}",
-			$"    {nameof( GetChildren )} : ",
-			string.Join( "\n", GetChildren().Select( o => $"        {o.ToLineString()}" ) ),
 
-			"",
-			$"    {nameof( _asyncCanceler )}._isCancel : {_asyncCanceler._isCancel}",
-			$"    {nameof( _isDispose )} : {_isDispose}",
-			")"
-		);
+			_toStringer.SetValue( nameof( _owner ), i => _owner != null ? _owner.name : "null" );
+			_toStringer.SetValue( nameof( _behaviour ), i => "\n" + string.Join( ",\n",
+				GetBehaviours().Select( b => $"{StringSMUtility.IndentSpace( i )}{b.ToLineString()}" )
+			) );
+			_toStringer.SetValue( nameof( _parent ), i => _parent?.ToLineString() );
+			_toStringer.SetValue( nameof( _previous ), i => _previous?.ToLineString() );
+			_toStringer.SetValue( nameof( _next ), i => _next?.ToLineString() );
+			_toStringer.SetValue( nameof( _child ), i => "\n" + string.Join( ",\n",
+				 GetChildren().Select( o => $"{StringSMUtility.IndentSpace( i )}{o.ToLineString()}" )
+			) );
+			_toStringer.SetValue( nameof( _asyncCanceler ), i => $"_isCancel : {_asyncCanceler._isCancel}" );
 
-		public string ToLineString( bool isViewLink = true ) {
-			var bs = GetBehaviours().ToArray();
-			var isDispose = bs.All( b => b._isDispose );
 
-			var result = string.Join( " ",
-				_id,
-				_owner != null ? _owner.name : "null",
-				$"({string.Join( ", ", bs.Select( b => b.GetAboutName() ) )})",
-				""
-			);
-			if ( isDispose ) {
-				result += "Dispose ";
-			} else {
-				result += string.Join( " ",
-					bs.Max( b => b._body._ranState ),
-					bs.Any( b => b._isActive ) ? "◯" : "×",
-					""
-				);
-			}
-			if ( isViewLink ) {
-				result += string.Join( " ",
-					$"△{_group._topObject._id}",
-					$"←{_parent?._id}",
-					$"↑{_previous?._id}",
-					$"↓{_next?._id}",
-					$"→{string.Join( ",", GetChildren().Select( o => o._id ) )}"
-				);
-			}
-			return result;
+			_toStringer.SetLineValue( nameof( _owner ), () => _owner != null ? _owner.name : "null" );
+			_toStringer.SetLineValue( nameof( _behaviour ), () => string.Join( ",",
+				GetBehaviours().Select( b => b.GetAboutName() )
+			) );
+			_toStringer.SetLineValue( nameof( _isDispose ), () =>
+				GetBehaviours().All( b => b._isDispose ) ? nameof( Dispose ) : "" );
+			_toStringer.SetLineValue( nameof( _group ), () => $"△{_group._topObject._id}" );
+			_toStringer.SetLineValue( nameof( _parent ), () => $"←{_parent?._id}" );
+			_toStringer.SetLineValue( nameof( _previous ), () => $"↑{_previous?._id}" );
+			_toStringer.SetLineValue( nameof( _next ), () => $"↓{_next?._id}" );
+			_toStringer.SetLineValue( nameof( _child ), () => "→" + string.Join( ",",
+				GetChildren().Select( o => o._id )
+			) );
+			_toStringer.AddLine( nameof( _behaviour._body._ranState ), () =>
+				GetBehaviours().Max( b => b._body._ranState ).ToString() );
+			_toStringer.AddLine( nameof( _behaviour._isActive ), () =>
+				GetBehaviours().Any( b => b._isActive ) ? "◯" : "×" );
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace SubmarineMirage.TestCSharp {
 	using Debug;
 	using Test;
 
-	public partial class TestQueue : Test {
+	public partial class TestQueue : SMStandardTest {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 		}

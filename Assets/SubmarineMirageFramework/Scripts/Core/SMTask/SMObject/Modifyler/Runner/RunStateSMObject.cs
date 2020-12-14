@@ -101,7 +101,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			}
 		}
 
-		public static void RegisterAndRun( SMObjectGroup group, SMTaskRunState state )
+		public static void RegisterAndRun( SMGroup group, SMTaskRunState state )
 			=> RegisterAndRun( group._topObject, state );
 
 

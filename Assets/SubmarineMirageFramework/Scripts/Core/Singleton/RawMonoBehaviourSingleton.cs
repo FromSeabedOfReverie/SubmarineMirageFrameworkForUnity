@@ -5,8 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton {
+	using UniRx;
 	using KoganeUnityLib;
-	using MultiEvent;
+	using Base;
 	using Extension;
 	using Debug;
 
@@ -16,13 +17,13 @@ namespace SubmarineMirage.Singleton {
 
 
 
-	public abstract class RawMonoBehaviourSingleton<T> : MonoBehaviourExtension, ISingleton, IDisposableExtension
-		where T : MonoBehaviourExtension, ISingleton, IDisposableExtension
+	public abstract class RawMonoBehaviourSingleton<T> : MonoBehaviourSMExtension, ISingleton, ISMRawBase
+		where T : MonoBehaviourSMExtension, ISingleton, ISMRawBase
 	{
+		[Hide] public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
+		public bool _isDispose => _disposables.IsDisposed;
 		protected static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
-		public bool _isDispose => _disposables._isDispose;
 
 
 		public static T s_instance {
@@ -44,8 +45,8 @@ namespace SubmarineMirage.Singleton {
 
 			s_instanceObject = MonoBehaviourSingletonManager.s_instance.AddComponent<T>();
 			Log.Debug( $"作成（{nameof( SMTask )}） : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton );
-			s_instanceObject._disposables.AddLast(
-				() => Log.Debug( $"{nameof( Dispose )} : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton )
+			s_instanceObject._disposables.Add( () =>
+				Log.Debug( $"{nameof( Dispose )} : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton )
 			);
 		}
 
@@ -57,8 +58,6 @@ namespace SubmarineMirage.Singleton {
 			s_instanceObject = null;
 		}
 
-		public void Dispose() => _disposables.Dispose();
-
-		void OnDestroy() => Dispose();
+		public override void Dispose() => _disposables.Dispose();
 	}
 }

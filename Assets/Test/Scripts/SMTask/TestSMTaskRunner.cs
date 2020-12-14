@@ -25,7 +25,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-	public class TestSMTaskRunner : Test {
+	public class TestSMTaskRunner : SMStandardTest {
 		SMTaskRunner _taskRunner;
 		Text _text;
 

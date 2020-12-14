@@ -19,7 +19,7 @@ namespace SubmarineMirage.TestMultiEvent {
 	using Test;
 
 
-	public class TestMultiAsyncEvent : Test {
+	public class TestMultiAsyncEvent : SMStandardTest {
 		MultiAsyncEvent _events = new MultiAsyncEvent();
 
 

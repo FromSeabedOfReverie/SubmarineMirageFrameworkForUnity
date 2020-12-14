@@ -25,7 +25,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 
 
-	public partial class TestRunStateSMObject : Test {
+	public partial class TestRunStateSMObject : SMStandardTest {
 		Text _text;
 		ISMBehaviour _behaviour;
 

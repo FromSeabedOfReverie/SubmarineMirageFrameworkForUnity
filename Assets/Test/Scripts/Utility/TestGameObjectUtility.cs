@@ -29,7 +29,7 @@ namespace SubmarineMirage.TestUtility {
 
 
 
-	public class TestGameObjectUtility : Test {
+	public class TestGameObjectUtility : SMStandardTest {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 

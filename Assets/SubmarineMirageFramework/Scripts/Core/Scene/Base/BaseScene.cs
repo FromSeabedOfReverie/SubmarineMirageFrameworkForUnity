@@ -25,15 +25,15 @@ namespace SubmarineMirage.Scene {
 		protected string _registerKey	{ get; private set; }
 
 		public Scene _scene	{ get; protected set; }
-		public SMObjectManager _objects	{ get; private set; }
+		public SMGroupManager _groups	{ get; private set; }
 
 
 		public BaseScene() {
 			_name = this.GetAboutName().RemoveAtLast( "Scene" );
 			_registerKey = nameof( BaseScene );
 			ResetScene();
-			_objects = new SMObjectManager( this );
-			_disposables.AddLast( _objects );
+			_groups = new SMGroupManager( this );
+			_disposables.AddLast( _groups );
 
 			_enterEvent.AddFirst( _registerKey, async canceler => {
 				if ( _fsm._isSkipLoadForFirstScene ) {
@@ -43,11 +43,11 @@ namespace SubmarineMirage.Scene {
 				}
 				ResetScene();
 				UnitySceneManager.SetActiveScene( _scene );
-				await _objects.Enter();
+				await _groups.Enter();
 			} );
 
 			_exitEvent.AddFirst( _registerKey, async canceler => {
-				await _objects.Exit();
+				await _groups.Exit();
 // TODO : DOTween全停止による、音停止を、シーン内の文字列登録文だけ停止させる事で、流し続ける
 //				DOTween.KillAll();
 //				GameAudioManager.s_instance.StopAll();

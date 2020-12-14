@@ -28,9 +28,9 @@ namespace SubmarineMirage.Main {
 
 
 		public SubmarineMirage() {
-			_disposables.AddLast( _canceler );
-			_disposables.AddLast( _createTestEvent );
-			_disposables.AddLast( () => {
+			_disposables.Add( () => {
+				_canceler.Dispose();
+				_createTestEvent.Dispose();
 				SMTaskRunner.DisposeInstance();
 				SceneManager.DisposeInstance();
 				DecorationManager.DisposeInstance();

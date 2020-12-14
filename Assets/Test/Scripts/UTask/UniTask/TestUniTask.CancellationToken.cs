@@ -24,7 +24,7 @@ namespace SubmarineMirage.TestUTask {
 	// 停止識別子の試験
 
 
-	public partial class TestUniTask : Test {
+	public partial class TestUniTask : SMStandardTest {
 
 		[UnityTest]
 		[Timeout( int.MaxValue )]

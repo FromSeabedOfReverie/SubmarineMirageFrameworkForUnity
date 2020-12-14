@@ -18,7 +18,7 @@ namespace SubmarineMirage.TestMultiEvent {
 	using Debug;
 	using Test;
 
-	public class TestMultiDisposable : Test {
+	public class TestMultiDisposable : SMStandardTest {
 		MultiDisposable _events = new MultiDisposable();
 
 

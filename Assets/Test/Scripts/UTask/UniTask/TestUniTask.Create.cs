@@ -18,7 +18,7 @@ namespace SubmarineMirage.TestUTask {
 
 
 
-	public partial class TestUniTask : Test {
+	public partial class TestUniTask : SMStandardTest {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 		}

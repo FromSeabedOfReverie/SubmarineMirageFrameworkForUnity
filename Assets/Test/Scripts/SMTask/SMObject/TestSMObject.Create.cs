@@ -21,7 +21,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-	public partial class TestSMObject : Test {
+	public partial class TestSMObject : SMStandardTest {
 		Text _text;
 		ISMBehaviour _behaviour;
 

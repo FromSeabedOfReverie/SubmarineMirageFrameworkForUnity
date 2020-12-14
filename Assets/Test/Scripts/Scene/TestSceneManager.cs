@@ -30,7 +30,7 @@ namespace SubmarineMirage.TestScene {
 
 
 
-	public class TestSceneManager : Test {
+	public class TestSceneManager : SMStandardTest {
 		Text _text;
 		SceneManager _sceneManager;
 

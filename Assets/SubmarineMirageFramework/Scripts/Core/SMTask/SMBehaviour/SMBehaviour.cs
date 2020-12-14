@@ -7,7 +7,7 @@
 #define TestSMTask
 //#define TestSMTaskModifyler
 namespace SubmarineMirage.SMTask {
-	using Cysharp.Threading.Tasks;
+	using Base;
 	using MultiEvent;
 	using UTask;
 	using Modifyler;
@@ -17,35 +17,31 @@ namespace SubmarineMirage.SMTask {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMBehaviour : ISMBehaviour {
+	public abstract class SMBehaviour : SMStandardBase, ISMBehaviour {
 		public virtual SMTaskType _type => SMTaskType.Work;
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
-		public uint _id => _body._id;
 		public SMObject _object			{ get; set; }
 		public SMBehaviourBody _body	{ get; protected set; }
-		public SMBehaviourModifyler _modifyler => _body._modifyler;
-		public ISMBehaviour _previous	{ get; set; }	// 常に無
-		public ISMBehaviour _next		{ get; set; }	// 常に無
+		[Hide] public SMBehaviourModifyler _modifyler => _body._modifyler;
+		[ShowLine] public ISMBehaviour _previous	{ get; set; }	// 常に無
+		[ShowLine] public ISMBehaviour _next		{ get; set; }	// 常に無
 
-		public bool _isInitialized =>	_body._isInitialized;
-		public bool _isOperable =>		_body._isOperable;
-		public bool _isActive =>		_body._isActive;
-		public bool _isDispose =>		_body._isDispose;
+		[Hide] public bool _isInitialized	=> _body._isInitialized;
+		[Hide] public bool _isOperable		=> _body._isOperable;
+		[Hide] public bool _isActive		=> _body._isActive;
 
-		public MultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
-		public MultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
-		public MultiSubject _enableEvent			=> _body._enableEvent;
-		public MultiSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
-		public MultiSubject _updateEvent			=> _body._updateEvent;
-		public MultiSubject _lateUpdateEvent		=> _body._lateUpdateEvent;
-		public MultiSubject _disableEvent			=> _body._disableEvent;
-		public MultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
+		[Hide] public MultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
+		[Hide] public MultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
+		[Hide] public MultiSubject _enableEvent				=> _body._enableEvent;
+		[Hide] public MultiSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
+		[Hide] public MultiSubject _updateEvent				=> _body._updateEvent;
+		[Hide] public MultiSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
+		[Hide] public MultiSubject _disableEvent			=> _body._disableEvent;
+		[Hide] public MultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 
-		public UTaskCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
-		public UTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
-
-		public MultiDisposable _disposables	=> _body._disposables;
+		[Hide] public UTaskCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
+		[Hide] public UTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 
 		protected SMBehaviour( bool isDebug = false ) {
@@ -58,11 +54,8 @@ namespace SubmarineMirage.SMTask {
 #if TestSMTask
 			Log.Debug( $"{nameof( SMBehaviour )}() : {this}" );
 #endif
+			_disposables.AddLast( _body );
 		}
-
-		~SMBehaviour() => Dispose();
-
-		public void Dispose() => _body.Dispose();
 
 		public abstract void Create();
 
@@ -73,8 +66,10 @@ namespace SubmarineMirage.SMTask {
 
 		public void StopAsyncOnDisable() => _body.StopAsyncOnDisable();
 
-		public override string ToString() => SMBehaviourBody.BehaviourToString( this );
 
-		public string ToLineString() => SMBehaviourBody.BehaviourToLineString( this );
+		public override void SetToString() {
+			base.SetToString();
+			SMBehaviourBody.SetBehaviourToString( this );
+		}
 	}
 }

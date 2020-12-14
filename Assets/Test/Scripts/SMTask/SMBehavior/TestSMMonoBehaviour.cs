@@ -25,7 +25,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-	public class TestSMMonoBehaviour : Test {
+	public class TestSMMonoBehaviour : SMStandardTest {
 		TestSMBehaviourBody _testBody;
 		Text _text;
 

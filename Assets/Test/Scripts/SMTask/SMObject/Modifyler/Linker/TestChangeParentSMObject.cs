@@ -24,7 +24,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 
 
-	public class TestChangeParentSMObject : Test {
+	public class TestChangeParentSMObject : SMStandardTest {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 

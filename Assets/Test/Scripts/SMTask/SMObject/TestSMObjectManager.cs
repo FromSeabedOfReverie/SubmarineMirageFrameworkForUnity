@@ -29,7 +29,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-	public class TestSMObjectManager : Test {
+	public class TestSMObjectManager : SMStandardTest {
 		Text _text;
 		SceneManager _sceneManager;
 
@@ -101,66 +101,66 @@ namespace SubmarineMirage.TestSMTask {
 
 			Log.Debug( "・全取得テスト" );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups() );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups() );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups( null, true ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups( null, true ) );
 
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._scene._objects.GetAllGroups() );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._scene._groups.GetAllGroups() );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._scene._objects.GetAllGroups( null, true ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._scene._groups.GetAllGroups( null, true ) );
 
 
 			Log.Debug( $"・{SMTaskType.DontWork} 取得テスト" );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups( SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups( SMTaskType.DontWork ) );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups( SMTaskType.DontWork, true ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups( SMTaskType.DontWork, true ) );
 
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.DontWork ) );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.DontWork, true ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.DontWork, true ) );
 
 
 			Log.Debug( $"・{SMTaskType.Work} 取得テスト" );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups( SMTaskType.Work ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups( SMTaskType.Work ) );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups( SMTaskType.Work, true ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups( SMTaskType.Work, true ) );
 
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.Work ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.Work ) );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.Work, true ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.Work, true ) );
 
 
 			Log.Debug( $"・{SMTaskType.FirstWork} 取得テスト" );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups( SMTaskType.FirstWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups( SMTaskType.FirstWork ) );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._foreverScene._objects.GetAllGroups( SMTaskType.FirstWork, true ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._foreverScene._groups.GetAllGroups( SMTaskType.FirstWork, true ) );
 
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.FirstWork ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.FirstWork ) );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.FirstWork, true ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.FirstWork, true ) );
 
 
 			await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKey( KeyCode.Return ) );
@@ -169,20 +169,20 @@ namespace SubmarineMirage.TestSMTask {
 			Log.Debug( $"・取得不可テスト" );
 			_sceneManager.GetBehaviour<M1>()._object.Dispose();
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.DontWork ) );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._scene._objects.GetAllGroups( SMTaskType.DontWork, true ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._scene._groups.GetAllGroups( SMTaskType.DontWork, true ) );
 
 			_sceneManager.GetBehaviour<M2>()._object.Dispose();
 			_sceneManager.GetBehaviour<M3>()._object.Dispose();
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )}",
-				_sceneManager._fsm._scene._objects.GetAllGroups() );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )}",
+				_sceneManager._fsm._scene._groups.GetAllGroups() );
 			TestSMObjectUtility.LogObjects(
-				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMObjectManager.GetAllGroups )},isReverse",
-				_sceneManager._fsm._scene._objects.GetAllGroups( null, true ) );
+				$"{nameof( _sceneManager._fsm._scene )}.{nameof( SMGroupManager.GetAllGroups )},isReverse",
+				_sceneManager._fsm._scene._groups.GetAllGroups( null, true ) );
 
 
 			await UTask.Never( _asyncCanceler );
@@ -208,76 +208,76 @@ namespace SubmarineMirage.TestSMTask {
 
 			Log.Debug( "・単体取得テスト" );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}<M4>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour<M4>() );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}<M4>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour<M4>() );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}<M4>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour<M4>( SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}<M4>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour<M4>( SMTaskType.DontWork ) );
 
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}(M4)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour( typeof( M4 ) ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}(M4)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour( typeof( M4 ) ) );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}(M4)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour( typeof( M4 ), SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}(M4)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour( typeof( M4 ), SMTaskType.DontWork ) );
 
 
 			Log.Debug( "・複数取得テスト" );
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}<M4>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours<M4>() );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}<M4>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours<M4>() );
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}<M4>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours<M4>( SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}<M4>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours<M4>( SMTaskType.DontWork ) );
 
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}(M4)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours( typeof( M4 ) ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}(M4)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours( typeof( M4 ) ) );
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}(M4)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours( typeof( M4 ), SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}(M4)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours( typeof( M4 ), SMTaskType.DontWork ) );
 
 
 			Log.Debug( "・取得不可テスト" );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}<M2>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour<M2>() );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}<M2>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour<M2>() );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}<M2>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour<M2>( SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}<M2>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour<M2>( SMTaskType.DontWork ) );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}<M4>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour<M4>( SMTaskType.Work ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}<M4>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour<M4>( SMTaskType.Work ) );
 
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}(M2)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour( typeof( M2 ) ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}(M2)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour( typeof( M2 ) ) );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}(M2)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour( typeof( M2 ), SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}(M2)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour( typeof( M2 ), SMTaskType.DontWork ) );
 			TestSMBehaviourUtility.LogBehaviour(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviour )}(M4)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviour( typeof( M4 ), SMTaskType.Work ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviour )}(M4)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviour( typeof( M4 ), SMTaskType.Work ) );
 
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}<M2>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours<M2>() );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}<M2>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours<M2>() );
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}<M2>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours<M2>( SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}<M2>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours<M2>( SMTaskType.DontWork ) );
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}<M4>",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours<M4>( SMTaskType.Work ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}<M4>",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours<M4>( SMTaskType.Work ) );
 
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}(M2)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours( typeof( M2 ) ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}(M2)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours( typeof( M2 ) ) );
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}(M2)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours( typeof( M2 ), SMTaskType.DontWork ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}(M2)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours( typeof( M2 ), SMTaskType.DontWork ) );
 			TestSMBehaviourUtility.LogBehaviours(
-				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMObjectManager.GetBehaviours )}(M4)",
-				_sceneManager._fsm._foreverScene._objects.GetBehaviours( typeof( M4 ), SMTaskType.Work ) );
+				$"{nameof( _sceneManager._fsm._foreverScene )}.{nameof( SMGroupManager.GetBehaviours )}(M4)",
+				_sceneManager._fsm._foreverScene._groups.GetBehaviours( typeof( M4 ), SMTaskType.Work ) );
 
 
 			await UTask.Never( _asyncCanceler );

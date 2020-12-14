@@ -23,7 +23,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 
 
-	public class TestUnregisterSMObject : Test {
+	public class TestUnregisterSMObject : SMStandardTest {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 
@@ -53,13 +53,13 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 
 			var o = new B1()._object;
-			o._modifyler.Register( new UnregisterSMObject( o ) );
+			o._modifyler.Register( new UnregisterSMGroup( o ) );
 			await UTask.DelayFrame( _asyncCanceler, 3 );
 
 
 			var b = (SMMonoBehaviour)TestSMBehaviourUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null );
-			new UnregisterSMObject( o ).Run().Forget();
+			new UnregisterSMGroup( o ).Run().Forget();
 
 
 			b = (SMMonoBehaviour)TestSMBehaviourUtility.CreateBehaviours( @"
@@ -67,7 +67,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 					M1,
 			" );
 			o = new SMObject( b.gameObject, new [] { b }, null );
-			new UnregisterSMObject( o ).Run().Forget();
+			new UnregisterSMGroup( o ).Run().Forget();
 
 
 			await UTask.Never( _asyncCanceler );
@@ -86,14 +86,14 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			Log.Debug( $"{nameof( TestError )}" );
 
 			try {
-				new UnregisterSMObject( null ).Run().Forget();
+				new UnregisterSMGroup( null ).Run().Forget();
 			} catch ( Exception e )	{ Log.Error( e ); }
 
 			try {
 				var b = (SMMonoBehaviour)TestSMBehaviourUtility.CreateBehaviours( "M1" );
 				var o = new SMObject( b.gameObject, new [] { b }, null );
 				o._top = null;
-				new UnregisterSMObject( o ).Run().Forget();
+				new UnregisterSMGroup( o ).Run().Forget();
 			} catch ( Exception e )	{ Log.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );

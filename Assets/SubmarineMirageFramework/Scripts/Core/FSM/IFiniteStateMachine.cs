@@ -7,15 +7,15 @@
 namespace SubmarineMirage.FSM {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using MultiEvent;
+	using Base;
 	using UTask;
-	using Extension;
+	using MultiEvent;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface IFiniteStateMachine : IDisposableExtension {
+	public interface IFiniteStateMachine : ISMStandardBase {
 		bool _isActive				{ get; }
 		string _registerEventName	{ get; }
 		bool _isChangingState		{ get; }

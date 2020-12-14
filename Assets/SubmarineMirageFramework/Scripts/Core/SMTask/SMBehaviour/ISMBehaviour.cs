@@ -5,20 +5,19 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.SMTask {
+	using Base;
 	using MultiEvent;
 	using UTask;
 	using Modifyler;
-	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface ISMBehaviour : IDisposableExtension {
+	public interface ISMBehaviour : ISMStandardBase {
 		SMTaskType _type			{ get; }
 		SMTaskLifeSpan _lifeSpan	{ get; }
 
-		uint _id				{ get; }
 		SMObject _object		{ get; set; }
 		SMBehaviourBody _body	{ get; }
 		SMBehaviourModifyler _modifyler	{ get; }
@@ -45,7 +44,5 @@ namespace SubmarineMirage.SMTask {
 		void DestroyObject();
 		void ChangeActiveObject( bool isActive );
 		void StopAsyncOnDisable();
-		string ToString();
-		string ToLineString();
 	}
 }

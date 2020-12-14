@@ -20,7 +20,7 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-	public partial class TestSMObject : Test {
+	public partial class TestSMObject : SMStandardTest {
 /*
 		・SMObject取得テスト
 		GetFirst、GetLast、GetLastChild、動作確認

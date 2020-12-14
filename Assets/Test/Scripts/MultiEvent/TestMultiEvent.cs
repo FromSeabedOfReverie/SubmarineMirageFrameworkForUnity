@@ -16,7 +16,7 @@ namespace SubmarineMirage.TestMultiEvent {
 	using Test;
 
 
-	public class TestMultiEvent : Test {
+	public class TestMultiEvent : SMStandardTest {
 		MultiEvent _events = new MultiEvent();
 
 

@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Singleton {
-	using MultiEvent;
+	using Base;
 	using Extension;
 	using Debug;
 
@@ -13,13 +13,9 @@ namespace SubmarineMirage.Singleton {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class RawSingleton<T> : ISingleton, IDisposableExtension
-		where T : class, ISingleton, IDisposableExtension, new()
-	{
+	public abstract class RawSingleton<T> : SMRawBase, ISingleton where T : SMRawBase, ISingleton, new() {
 		static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
-		public bool _isDispose => _disposables._isDispose;
 
 
 		public static T s_instance {
@@ -34,8 +30,8 @@ namespace SubmarineMirage.Singleton {
 			if ( s_isCreated )	{ return; }
 			s_instanceObject = new T();
 			Log.Debug( $"作成 : { s_instanceObject.GetAboutName() }", Log.Tag.Singleton );
-			s_instanceObject._disposables.AddLast(
-				() => Log.Debug( $"{nameof( Dispose )} : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton )
+			s_instanceObject._disposables.Add( () =>
+				Log.Debug( $"{nameof( Dispose )} : {s_instanceObject.GetAboutName()}", Log.Tag.Singleton )
 			);
 		}
 
@@ -44,9 +40,5 @@ namespace SubmarineMirage.Singleton {
 			s_instanceObject.Dispose();
 			s_instanceObject = null;
 		}
-
-		public void Dispose() => _disposables.Dispose();
-
-		~RawSingleton() => Dispose();
 	}
 }

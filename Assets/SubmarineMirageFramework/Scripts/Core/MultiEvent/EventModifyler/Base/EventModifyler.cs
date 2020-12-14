@@ -5,39 +5,34 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
 	using KoganeUnityLib;
+	using Base;
 	using Extension;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class EventModifyler<T> : IRawDisposableExtension {
-		BaseMultiEvent<T> _owner;
+	public class EventModifyler<T> : SMRawBase {
+		[Hide] BaseMultiEvent<T> _owner;
 		readonly Queue< EventModifyData<T> > _data = new Queue< EventModifyData<T> >();
 		bool _isRunning;
-		public bool _isDispose => _disposables.IsDisposed;
-		readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 
 		public EventModifyler( BaseMultiEvent<T> owner ) {
 			_owner = owner;
 
-			_disposables.Add( Disposable.Create( () => {
+			_disposables.Add( () => {
 				_data
 					.Where( data => data._function != null )
 					.ForEach( data => _owner.OnRemove( data._function ) );
 				_data.Clear();
-			} ) );
+			} );
 		}
-
-		~EventModifyler() => Dispose();
-
-		public void Dispose() => _disposables.Dispose();
 
 
 		public void Register( EventModifyData<T> data ) {

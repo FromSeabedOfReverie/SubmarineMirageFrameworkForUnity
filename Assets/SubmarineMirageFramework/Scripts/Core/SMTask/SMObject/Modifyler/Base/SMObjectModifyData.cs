@@ -8,31 +8,28 @@
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Extension;
+	using Base;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMObjectModifyData {
+	public abstract class SMObjectModifyData : SMLightBase {
 		public enum ModifyType {
 			Interrupter,
 			Linker,
 			Runner,
 		}
 
-		static uint s_idCount;
-		public uint _id			{ get; private set; }
-		public ModifyType _type	{ get; protected set; }
-		public SMObject _object	{ get; protected set; }
+		[ShowLine] public ModifyType _type	{ get; protected set; }
+		[ShowLine] public SMObject _object	{ get; protected set; }
 		public SMObjectModifyler _owner;
-		protected SMObjectGroup _group => _owner?._owner;
+		protected SMGroup _group => _owner?._owner;
 
 
 
 		public SMObjectModifyData( SMObject smObject ) {
-			_id = ++s_idCount;
 			_object = smObject;
 			
 			if ( _object != null && _object._isDispose ) {
@@ -43,6 +40,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			Log.Debug( $"{nameof( SMObjectModifyData )}() : {this}" );
 #endif
 		}
+
+		public override void Dispose()	{}
+
 
 		public abstract void Cancel();
 
@@ -118,17 +118,5 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			if ( !isChangeOwner && !smObject._owner.activeSelf )							{ return false; }
 			return true;
 		}
-
-
-
-		public override string ToString() => string.Join( " ",
-			$"{this.GetAboutName()}(",
-			string.Join( ", ",
-				_id,
-				_type,
-				_object?.ToLineString()
-			),
-			")"
-		);
 	}
 }

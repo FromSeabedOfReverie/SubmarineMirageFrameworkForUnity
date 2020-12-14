@@ -30,7 +30,7 @@ namespace SubmarineMirage.TestUTask {
 	///			・await でエラー出ると以降実行されない、.Forget() で投げっぱなし実行だと以降も実行される
 	/// </summary>
 	///====================================================================================================
-	public partial class TestUniTask : Test {
+	public partial class TestUniTask : SMStandardTest {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestMonoBehaviour() => From( TestMonoBehaviourSub() );
@@ -42,7 +42,7 @@ namespace SubmarineMirage.TestUTask {
 
 
 
-		public class TestMono : MonoBehaviourExtension {
+		public class TestMono : MonoBehaviourSMExtension {
 			async void Start() {				// UniTaskだと、エラーが全く出なくなる
 //				throw new Exception();			// エラーが出る
 				ShowTime( "Start 1" );
@@ -79,6 +79,9 @@ namespace SubmarineMirage.TestUTask {
 
 
 			void ShowTime( string name ) => Log.Debug( $"{name} : {Time.frameCount}" );
+
+
+			public override void Dispose()	{}
 		}
 	}
 }

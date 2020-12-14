@@ -10,20 +10,19 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using MultiEvent;
+	using Base;
 	using UTask;
 	using Extension;
+	using Utility;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SMBehaviourModifyler : IDisposableExtension {
+	public class SMBehaviourModifyler : SMStandardBase {
 		public SMBehaviourBody _owner	{ get; private set; }
 		readonly LinkedList<SMBehaviourModifyData> _data = new LinkedList<SMBehaviourModifyData>();
 		bool _isRunning;
-		public bool _isDispose => _disposables._isDispose;
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
 		public SMBehaviourModifyler( SMBehaviourBody owner ) {
@@ -34,11 +33,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				_data.Clear();
 			} );
 		}
-
-		~SMBehaviourModifyler() => Dispose();
-
-		public void Dispose() => _disposables.Dispose();
-
 
 		public void Register( SMBehaviourModifyData data ) {
 			data._owner = this;
@@ -84,13 +78,12 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			=> UTask.WaitWhile( _owner._asyncCancelerOnDispose, () => _isRunning );
 
 
-		public override string ToString() => string.Join( "\n",
-			$"    {this.GetAboutName()}(",
-			$"        {nameof( _owner )} : {_owner._owner.ToLineString()}",
-			$"        {nameof( _isRunning )} : {_isRunning}",
-			$"        {nameof( _data )} :",
-			string.Join( "\n", _data.Select( d => $"            {d}" ) ),
-			"    )"
-		);
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.SetValue( nameof( _owner ), i => _owner._owner.ToLineString() );
+			_toStringer.SetValue( nameof( _data ), i => "\n" + string.Join( ",\n",
+				_data.Select( d => $"{StringSMUtility.IndentSpace( i )}{d}" )
+			) );
+		}
 	}
 }

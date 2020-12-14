@@ -6,15 +6,15 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
 	using Cysharp.Threading.Tasks;
+	using Base;
 	using UTask;
 	using SMTask;
-	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface IState<TFSM, TOwner> : IDisposableExtension
+	public interface IState<TFSM, TOwner> : ISMStandardBase
 		where TFSM : IFiniteStateMachine
 		where TOwner : IFiniteStateMachineOwner<TFSM>
 	{

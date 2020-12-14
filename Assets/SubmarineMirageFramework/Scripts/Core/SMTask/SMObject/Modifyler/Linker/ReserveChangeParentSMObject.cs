@@ -49,8 +49,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			Log.Debug( string.Join( "\n",
 				$"{nameof( _object )} : {_object}",
 				$"{nameof( _object._group )} : {_object._group}",
-				$"{nameof( _object._group._objects )}",
-				string.Join( "\n", _object._group._objects._groups.Select(
+				$"{nameof( _object._group._groups )}",
+				string.Join( "\n", _object._group._groups._groups.Select(
 					pair => $"    {pair.Key} : {pair.Value?.ToLineString()}"
 				) )
 			) );
@@ -88,7 +88,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			// 新親が居らず、元グループで子だった場合
 			} else if ( !_group.IsTop( _object ) ) {
 				// 新グループ作成し、アクティブ変更を予約（親の影響で無効だった場合は、有効化の必要あり）
-				var g = new SMObjectGroup( _object );
+				var g = new SMGroup( _object );
 
 				g._modifyler.Register( new ChangeActiveSMObject( _object, _object._owner.activeSelf, false ) );
 // TODO : ChangeActiveSMObjectより前に、再登録されると、変になるので、上記を割り込みタイプにする
@@ -103,8 +103,8 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				$"{nameof( _object )} : {_object}",
 				$"{nameof( parentObject )} : {parentObject}",
 				$"{nameof( _object._group )} : {_object._group}",
-				$"{nameof( _object._group._objects )} :",
-				string.Join( "\n", _object._group._objects._groups.Select(
+				$"{nameof( _object._group._groups )} :",
+				string.Join( "\n", _object._group._groups._groups.Select(
 					pair => $"    {pair.Key} : {pair.Value?.ToLineString()}"
 				) )
 			) );

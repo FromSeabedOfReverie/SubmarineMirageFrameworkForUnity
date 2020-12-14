@@ -19,7 +19,7 @@ namespace SubmarineMirage.TestMultiEvent {
 	using Test;
 
 
-	public class TestMultiSubject : Test {
+	public class TestMultiSubject : SMStandardTest {
 		MultiSubject _events = new MultiSubject();
 
 

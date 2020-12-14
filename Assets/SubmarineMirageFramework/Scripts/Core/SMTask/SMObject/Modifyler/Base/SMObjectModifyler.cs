@@ -10,23 +10,22 @@ namespace SubmarineMirage.SMTask.Modifyler {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using MultiEvent;
+	using Base;
 	using UTask;
 	using Extension;
+	using Utility;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SMObjectModifyler : IDisposableExtension {
-		public SMObjectGroup _owner	{ get; private set; }
+	public class SMObjectModifyler : SMStandardBase {
+		public SMGroup _owner	{ get; private set; }
 		readonly LinkedList<SMObjectModifyData> _data = new LinkedList<SMObjectModifyData>();
 		bool _isRunning;
-		public bool _isDispose => _disposables._isDispose;
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
 
 
-		public SMObjectModifyler( SMObjectGroup owner ) {
+		public SMObjectModifyler( SMGroup owner ) {
 			_owner = owner;
 
 			_disposables.AddLast( () => {
@@ -34,10 +33,6 @@ namespace SubmarineMirage.SMTask.Modifyler {
 				_data.Clear();
 			} );
 		}
-
-		~SMObjectModifyler() => Dispose();
-
-		public void Dispose() => _disposables.Dispose();
 
 
 
@@ -65,7 +60,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
 
-		public void ReRegister( SMObjectGroup register ) => _data.RemoveAll(
+		public void ReRegister( SMGroup register ) => _data.RemoveAll(
 			d => d._object._group == register,
 			d => register._modifyler.Register( d )
 		);
@@ -92,13 +87,12 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			=> UTask.WaitWhile( _owner._topObject._asyncCanceler, () => _isRunning );
 
 
-		public override string ToString() => string.Join( "\n",
-			$"    {this.GetAboutName()}(",
-			$"        {nameof( _owner )} : {_owner.ToLineString()}",
-			$"        {nameof( _isRunning )} : {_isRunning}",
-			$"        {nameof( _data )} :",
-			string.Join( "\n", _data.Select( d => $"            {d}" ) ),
-			"    )"
-		);
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.SetValue( nameof( _owner ), i => _owner.ToLineString() );
+			_toStringer.SetValue( nameof( _data ), i => "\n" + string.Join( ",\n",
+				_data.Select( d => $"{StringSMUtility.IndentSpace( i )}{d}" )
+			) );
+		}
 	}
 }

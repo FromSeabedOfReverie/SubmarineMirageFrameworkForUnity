@@ -34,7 +34,7 @@ namespace SubmarineMirage.SMTask.Modifyler {
 					return;
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
-					if ( _group._objects._isEnter ) {
+					if ( _group._groups._isEnter ) {
 // TODO : 作成直後に実行するとエラーになる為、待機しているが、できれば不要にしたい
 						await UTask.NextFrame( _behaviour._asyncCancelerOnDisable );
 						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Create );

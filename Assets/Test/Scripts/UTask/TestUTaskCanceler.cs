@@ -17,7 +17,7 @@ namespace SubmarineMirage.TestUTask {
 	using Debug;
 	using Test;
 
-	public partial class TestUTaskCanceler : Test {
+	public partial class TestUTaskCanceler : SMStandardTest {
 		Stopwatch _stopwatch = new Stopwatch();
 		int _index;
 

@@ -11,48 +11,48 @@ namespace SubmarineMirage.FSM {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using MultiEvent;
+	using Base;
 	using UTask;
+	using MultiEvent;
 	using SMTask;
 	using Extension;
+	using Utility;
+	using Debug;
 	using RunState = FiniteStateMachineRunState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class FiniteStateMachine<TFSM, TOwner, TState> : IFiniteStateMachine
+	public abstract class FiniteStateMachine<TFSM, TOwner, TState> : SMStandardBase, IFiniteStateMachine
 		where TFSM : IFiniteStateMachine
 		where TOwner : IFiniteStateMachineOwner<TFSM>
 		where TState : class, IState<TFSM, TOwner>
 	{
 		protected TOwner _owner	{ get; private set; }
-		RunState? _runState => _state?._runState;
+		[Hide] RunState? _runState => _state?._runState;
 		public string _registerEventName	{ get; private set; }
 
 		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 		public TState _state	{ get; private set; }
 		protected TState _nextState;
-		protected Type _startState;
+		[Hide] protected Type _startState;
 
-		public bool _isActive =>	_owner._isActive;
-		bool _isInitialized;
+		[Hide] public bool _isActive	=> _owner._isActive;
+		[Hide] bool _isInitialized;
 		bool _isRequestNextState;
-		public bool _isChangingState	{ get; private set; }
-		public bool _isDispose =>	_disposables._isDispose;
+		[Hide] public bool _isChangingState	{ get; private set; }
 
-		public MultiAsyncEvent _loadEvent		=> _owner._selfInitializeEvent;
-		public MultiAsyncEvent _initializeEvent	=> _owner._initializeEvent;
-		public MultiAsyncEvent _enableEvent		=> _owner._enableEvent;
-		public MultiSubject _fixedUpdateEvent	=> _owner._fixedUpdateEvent;
-		public MultiSubject _updateEvent		=> _owner._updateEvent;
-		public MultiSubject _lateUpdateEvent	=> _owner._lateUpdateEvent;
-		public MultiAsyncEvent _disableEvent	=> _owner._disableEvent;
-		public MultiAsyncEvent _finalizeEvent	=> _owner._finalizeEvent;
+		[Hide] public MultiAsyncEvent _loadEvent		=> _owner._selfInitializeEvent;
+		[Hide] public MultiAsyncEvent _initializeEvent	=> _owner._initializeEvent;
+		[Hide] public MultiAsyncEvent _enableEvent		=> _owner._enableEvent;
+		[Hide] public MultiSubject _fixedUpdateEvent	=> _owner._fixedUpdateEvent;
+		[Hide] public MultiSubject _updateEvent		=> _owner._updateEvent;
+		[Hide] public MultiSubject _lateUpdateEvent	=> _owner._lateUpdateEvent;
+		[Hide] public MultiAsyncEvent _disableEvent	=> _owner._disableEvent;
+		[Hide] public MultiAsyncEvent _finalizeEvent	=> _owner._finalizeEvent;
 
-		public UTaskCanceler _changeStateAsyncCanceler	{ get; private set; } = new UTaskCanceler();
-
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
+		[Hide] public UTaskCanceler _changeStateAsyncCanceler	{ get; private set; } = new UTaskCanceler();
 
 
 		public FiniteStateMachine( TOwner owner, IEnumerable<TState> states, Type startState = null ) {
@@ -104,18 +104,14 @@ namespace SubmarineMirage.FSM {
 				}
 			} );
 
-			_disposables.AddLast( _changeStateAsyncCanceler );
 			_disposables.AddLast( () => {
+				_changeStateAsyncCanceler.Dispose();
 				_states.ForEach( pair => pair.Value.Dispose() );
 				_states.Clear();
 				_state = null;
 				_nextState = null;
 			} );
 		}
-
-		public void Dispose() => _disposables.Dispose();
-
-		~FiniteStateMachine() => Dispose();
 
 
 		public async UniTask ChangeState<T>() where T : TState
@@ -124,7 +120,6 @@ namespace SubmarineMirage.FSM {
 		public async UniTask ChangeState( Type state ) {
 			switch ( _owner._body._ranState ) {
 				case SMTaskRunState.None:
-				case SMTaskRunState.Create:
 				case SMTaskRunState.Create:
 				case SMTaskRunState.SelfInitializing:
 				case SMTaskRunState.SelfInitialized:
@@ -204,17 +199,12 @@ namespace SubmarineMirage.FSM {
 		}
 
 
-		public override string ToString() {
-			var result = $"{this.GetAboutName()}(\n"
-				+ $"    {nameof( _owner )} : {_owner.GetAboutName()}\n"
-				+ $"    {nameof( _registerEventName )} : {_registerEventName}\n"
-				+ $"    {nameof( _state )} : {_state}\n"
-				+ $"    {nameof( _nextState )} : {_nextState}\n"
-				+ $"    {nameof( _isRequestNextState )} : {_isRequestNextState}\n"
-				+ $"    {nameof( _states )} : \n";
-			_states.ForEach( pair => result += $"        {pair.Value}\n" );
-			result += ")";
-			return result;
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.SetValue( nameof( _owner ), i => _owner.GetAboutName() );
+			_toStringer.SetValue( nameof( _states ), i => "\n" + string.Join( ",\n",
+				_states.Select( pair => $"{StringSMUtility.IndentSpace( i )}{pair.Value}" )
+			) );
 		}
 	}
 }

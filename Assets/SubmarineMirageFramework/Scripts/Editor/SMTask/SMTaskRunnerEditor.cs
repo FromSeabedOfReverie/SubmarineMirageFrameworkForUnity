@@ -50,9 +50,9 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
-				scene._objects._groups.ForEach( pair => {
+				scene._groups._groups.ForEach( pair => {
 					ShowHeading2( pair.Key.ToString() );
-					scene._objects.GetAllGroups( pair.Key ).ForEach( o => ShowObject( o ) );
+					scene._groups.GetAllGroups( pair.Key ).ForEach( o => ShowObject( o ) );
 				} );
 				EditorGUI.indentLevel--;
 			} );

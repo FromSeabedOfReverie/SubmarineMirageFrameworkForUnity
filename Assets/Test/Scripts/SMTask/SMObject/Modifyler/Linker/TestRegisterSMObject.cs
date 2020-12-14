@@ -25,7 +25,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 
 
 
-	public class TestRegisterSMObject : Test {
+	public class TestRegisterSMObject : SMStandardTest {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 
@@ -138,13 +138,13 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			var o = new B1( true )._object;
 			o._top = o;
 			o._scene = SceneManager.s_instance._fsm._scene;
-			var d = new RegisterSMObject( o );
+			var d = new RegisterSMGroup( o );
 			d.Cancel();
 
 			o = new B1( true )._object;
 			o._top = o;
 			o._scene = SceneManager.s_instance._fsm._scene;
-			d = new RegisterSMObject( o );
+			d = new RegisterSMGroup( o );
 			d.Run().Forget();
 			d.Cancel();
 			await UTask.NextFrame( _asyncCanceler );
@@ -152,7 +152,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o = new B1( true )._object;
 			o._top = o;
 			o._scene = SceneManager.s_instance._fsm._scene;
-			d = new RegisterSMObject( o );
+			d = new RegisterSMGroup( o );
 			await d.Run();
 			d.Cancel();
 
@@ -163,14 +163,14 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o = new SMObject( b.gameObject, new [] { b }, null, true );
 			o._top = o;
 			o._scene = SceneManager.s_instance._fsm._scene;
-			d = new RegisterSMObject( o );
+			d = new RegisterSMGroup( o );
 			d.Cancel();
 
 			b = (SMMonoBehaviour)TestSMBehaviourUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null, true );
 			o._top = o;
 			o._scene = SceneManager.s_instance._fsm._scene;
-			d = new RegisterSMObject( o );
+			d = new RegisterSMGroup( o );
 			d.Run().Forget();
 			d.Cancel();
 			await UTask.NextFrame( _asyncCanceler );
@@ -179,7 +179,7 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			o = new SMObject( b.gameObject, new [] { b }, null, true );
 			o._top = o;
 			o._scene = SceneManager.s_instance._fsm._scene;
-			d = new RegisterSMObject( o );
+			d = new RegisterSMGroup( o );
 			await d.Run();
 			d.Cancel();
 
@@ -203,13 +203,13 @@ namespace SubmarineMirage.TestSMTask.Modifyler {
 			Log.Debug( $"{nameof( TestError )}" );
 
 			try {
-				new RegisterSMObject( null );
+				new RegisterSMGroup( null );
 			} catch ( Exception e )	{ Log.Error( e ); }
 
 			try {
 				var b = (SMMonoBehaviour)TestSMBehaviourUtility.CreateBehaviours( "M1" );
 				var o = new SMObject( b.gameObject, new [] { b }, null, true );
-				new RegisterSMObject( o );
+				new RegisterSMGroup( o );
 			} catch ( Exception e )	{ Log.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );

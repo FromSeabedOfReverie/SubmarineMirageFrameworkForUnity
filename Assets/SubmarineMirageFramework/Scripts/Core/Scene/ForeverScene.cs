@@ -16,9 +16,9 @@ namespace SubmarineMirage.Scene {
 			_scene = UnitySceneManager.CreateScene( _name );
 
 			_enterEvent.Remove( _registerKey );
-			_enterEvent.AddFirst( _registerKey, async canceler => await _objects.Enter() );
+			_enterEvent.AddFirst( _registerKey, async canceler => await _groups.Enter() );
 			_exitEvent.Remove( _registerKey );
-			_exitEvent.AddFirst( _registerKey, async canceler => await _objects.Exit() );
+			_exitEvent.AddFirst( _registerKey, async canceler => await _groups.Exit() );
 		}
 	}
 }

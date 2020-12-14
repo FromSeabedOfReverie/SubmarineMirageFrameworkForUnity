@@ -9,34 +9,26 @@ namespace SubmarineMirage.MultiEvent {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
+	using Base;
 	using Extension;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseMultiEvent<T> : IRawDisposableExtension {
-		static uint s_idCount;
-		public uint _id					{ get; private set; }
+	public abstract class BaseMultiEvent<T> : SMRawBase {
 		public readonly List< KeyValuePair<string, T> > _events = new List< KeyValuePair<string, T> >();
 		protected EventModifyler<T> _modifyler	{ get; private set; }
-		protected readonly CompositeDisposable _disposables = new CompositeDisposable();
-		public bool _isDispose => _disposables.IsDisposed;
 
 
 		public BaseMultiEvent() {
-			_id = ++s_idCount;
 			_modifyler = new EventModifyler<T>( this );
-			_disposables.Add( _modifyler );
-			_disposables.Add( Disposable.Create( () => {
+			_disposables.Add( () => {
+				_modifyler.Dispose();
 				_events.ForEach( pair => OnRemove( pair.Value ) );
 				_events.Clear();
-			} ) );
+			} );
 		}
-
-		public virtual void Dispose() => _disposables.Dispose();
-
-		~BaseMultiEvent() => Dispose();
 
 
 		protected void Register( EventModifyData<T> data ) => _modifyler.Register( data );

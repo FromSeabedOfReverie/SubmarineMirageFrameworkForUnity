@@ -7,29 +7,30 @@
 namespace SubmarineMirage.FSM {
 	using System;
 	using Cysharp.Threading.Tasks;
+	using Base;
 	using MultiEvent;
 	using UTask;
 	using SMTask;
 	using Extension;
+	using Debug;
 	using RunState = FiniteStateMachineRunState;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class State<TFSM, TOwner> : IState<TFSM, TOwner>
+	public abstract class State<TFSM, TOwner> : SMStandardBase, IState<TFSM, TOwner>
 		where TFSM : IFiniteStateMachine
 		where TOwner : IFiniteStateMachineOwner<TFSM>
 	{
 		public TFSM _fsm		{ get; private set; }
 		public TOwner _owner	{ get; private set; }
 
-		public RunState _runState	{ get; private set; } = RunState.Exited;
-		SMTaskActiveState _activeState;
-		SMTaskActiveState? _nextActiveState;
+		[ShowLine] public RunState _runState	{ get; private set; } = RunState.Exited;
+		[ShowLine] SMTaskActiveState _activeState;
+		[ShowLine] SMTaskActiveState? _nextActiveState;
 
-		public bool _isActive =>	_activeState == SMTaskActiveState.Enable;
-		public bool _isDispose =>	_disposables._isDispose;
+		public bool _isActive	=> _activeState == SMTaskActiveState.Enable;
 
 		protected readonly MultiAsyncEvent _loadEvent = new MultiAsyncEvent();
 		protected readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
@@ -45,25 +46,24 @@ namespace SubmarineMirage.FSM {
 
 		public UTaskCanceler _activeAsyncCanceler	{ get; private set; } = new UTaskCanceler();
 
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
-
 
 		public State() {
-			// TODO : 代入物が変わる場合、_disposables.AddLast( _activeAsyncCanceler );で破棄できないか、確認する
-			_disposables.AddLast( () => _activeAsyncCanceler.Dispose() );
-			_disposables.AddLast(
-				_loadEvent,
-				_initializeEvent,
-				_enableEvent,
-				_enterEvent,
-				_updateEvent,
-				_fixedUpdateDeltaEvent,
-				_updateDeltaEvent,
-				_lateUpdateDeltaEvent,
-				_exitEvent,
-				_disableEvent,
-				_finalizeEvent
-			);
+			_disposables.AddLast( () => {
+				// TODO : 代入物が変わる場合、_disposables.AddLast( _activeAsyncCanceler );で破棄できないか、確認する
+				_activeAsyncCanceler.Dispose();
+
+				_loadEvent.Dispose();
+				_initializeEvent.Dispose();
+				_enableEvent.Dispose();
+				_enterEvent.Dispose();
+				_updateEvent.Dispose();
+				_fixedUpdateDeltaEvent.Dispose();
+				_updateDeltaEvent.Dispose();
+				_lateUpdateDeltaEvent.Dispose();
+				_exitEvent.Dispose();
+				_disableEvent.Dispose();
+				_finalizeEvent.Dispose();
+			} );
 		}
 
 		public void Set( TOwner owner ) {
@@ -73,10 +73,6 @@ namespace SubmarineMirage.FSM {
 			_activeAsyncCanceler.Dispose();
 			_activeAsyncCanceler = _owner._asyncCancelerOnDisable.CreateChild();
 		}
-
-		public void Dispose() => _disposables.Dispose();
-
-		~State() => Dispose();
 
 
 		public void StopActiveAsync() => _activeAsyncCanceler.Cancel();
@@ -269,7 +265,6 @@ namespace SubmarineMirage.FSM {
 
 				case SMTaskRunState.None:
 				case SMTaskRunState.Create:
-				case SMTaskRunState.Create:
 				case SMTaskRunState.SelfInitialized:
 				case SMTaskRunState.Initialized:
 				case SMTaskRunState.Finalized:
@@ -278,7 +273,11 @@ namespace SubmarineMirage.FSM {
 		}
 
 
-		public override string ToString()
-			=> $"{this.GetAboutName()}( {_runState}, {_activeState}, next:{_nextActiveState} )";
+
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.SetLineValue( nameof( _nextActiveState ), () =>
+				$"next:{_nextActiveState?.ToString() ?? "null"}" );
+		}
 	}
 }

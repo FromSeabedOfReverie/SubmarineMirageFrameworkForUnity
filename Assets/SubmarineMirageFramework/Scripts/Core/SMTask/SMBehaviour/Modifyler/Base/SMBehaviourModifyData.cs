@@ -8,30 +8,27 @@
 namespace SubmarineMirage.SMTask.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Extension;
+	using Base;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMBehaviourModifyData {
+	public abstract class SMBehaviourModifyData : SMLightBase {
 		public enum ModifyType {
 			Finalizer,
 			Initializer,
 			Operator,
 		}
 
-		static uint s_idCount;
-		public uint _id			{ get; private set; }
-		public ModifyType _type	{ get; protected set; }
-		public SMBehaviourBody _body	{ get; private set; }
+		[ShowLine] public ModifyType _type	{ get; protected set; }
+		[ShowLine] public SMBehaviourBody _body	{ get; private set; }
 		public SMBehaviourModifyler _owner;
 
 
 
 		public SMBehaviourModifyData( SMBehaviourBody body ) {
-			_id = ++s_idCount;
 			_body = body;
 			
 			if ( _body == null || _body._isDispose ) {
@@ -42,6 +39,9 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			Log.Debug( $"{nameof( SMBehaviourModifyData )}() : {this}" );
 #endif
 		}
+
+		public override void Dispose()	{}
+
 
 		public abstract void Cancel();
 
@@ -74,16 +74,5 @@ namespace SubmarineMirage.SMTask.Modifyler {
 			Log.Debug( $"{nameof( SMBehaviourBody )}.{nameof( UnLinkBehaviour )} : end\n{b}" );
 #endif
 		}
-
-
-		public override string ToString() => string.Join( " ",
-			$"{this.GetAboutName()}(",
-			string.Join( ", ",
-				_id,
-				_type,
-				_body?._owner.ToLineString()
-			),
-			")"
-		);
 	}
 }

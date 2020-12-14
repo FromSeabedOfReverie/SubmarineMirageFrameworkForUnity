@@ -12,11 +12,11 @@ namespace SubmarineMirage.TestSMTask {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using UTask;
-	using MultiEvent;
 	using SMTask;
 	using SMTask.Modifyler;
 	using Extension;
 	using Debug;
+	using Test;
 
 
 
@@ -24,14 +24,12 @@ namespace SubmarineMirage.TestSMTask {
 
 
 
-	public class TestSMBehaviourBody : IDisposableExtension {
+	public class TestSMBehaviourBody : SMStandardTest {
 		ISMBehaviour _viewBehaviour;
 		public string _viewText	{ get; private set; }
-		public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
-		public bool _isDispose => _disposables._isDispose;
 
 
-		public TestSMBehaviourBody() {
+		protected override void Create() {
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
 				if ( _viewBehaviour == null ) {
 					_viewText = string.Empty;
@@ -50,18 +48,13 @@ namespace SubmarineMirage.TestSMTask {
 					$"    {nameof( _viewBehaviour._isInitialized )} : {_viewBehaviour._isInitialized}",
 					$"    {nameof( _viewBehaviour._isActive )} : {_viewBehaviour._isActive}"
 				);
-				if ( _viewBehaviour is MonoBehaviourExtension ) {
-					var mb = (MonoBehaviourExtension)_viewBehaviour;
-					_viewText += $"\n    {nameof( mb.isActiveAndEnabled )} : {mb.isActiveAndEnabled}";
+				if ( _viewBehaviour is MonoBehaviourSMExtension mb ) {
+					_viewText += $"\n    {nameof(mb.isActiveAndEnabled)} : {mb.isActiveAndEnabled}";
 				}
 				_viewText += "\n)";
 			} ) );
 			_disposables.AddLast( () => _viewText = string.Empty );
 		}
-
-		public void Dispose() => _disposables.Dispose();
-
-		~TestSMBehaviourBody() => Dispose();
 
 
 		ISMBehaviour CreateBehaviour( Type type, bool isGameObjectActive = true, bool isComponentEnabled = true ) {
