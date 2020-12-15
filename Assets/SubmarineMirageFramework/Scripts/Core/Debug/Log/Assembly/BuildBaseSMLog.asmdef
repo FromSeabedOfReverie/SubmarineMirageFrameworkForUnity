@@ -1,0 +1,14 @@
+{
+    "name": "BuildBaseSMLog",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "XboxOne"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

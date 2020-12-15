@@ -11,7 +11,7 @@ namespace SubmarineMirage.TestCSharp {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using KoganeUnityLib;
-	using UTask;
+	using Utility;
 	using Debug;
 	using Test;
 
@@ -35,7 +35,7 @@ namespace SubmarineMirage.TestCSharp {
 
 			while ( !q.IsEmpty() ) {
 				var i = q.Dequeue();
-				Log.Debug( i );
+				SMLog.Debug( i );
 				if ( i % 2 == 0 ) {
 					var n = Random.Range( 10, 100 );
 					if ( n % 2 == 0 )	{ n += 1; }

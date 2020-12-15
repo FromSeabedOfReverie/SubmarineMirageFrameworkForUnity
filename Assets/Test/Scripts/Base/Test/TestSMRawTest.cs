@@ -9,8 +9,8 @@ namespace SubmarineMirage.Test {
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UTask;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -19,29 +19,29 @@ namespace SubmarineMirage.Test {
 
 	public class TestSMRawTest : SMRawTest {
 		protected override void Create() {
-			Log.Debug( $"{nameof( Create )}" );
+			SMLog.Debug( $"{nameof( Create )}" );
 
 			_createEvent += async canceler => {
-				Log.Debug( $"{nameof( _createEvent )} : start" );
+				SMLog.Debug( $"{nameof( _createEvent )} : start" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"{nameof( _createEvent )} : end" );
+				SMLog.Debug( $"{nameof( _createEvent )} : end" );
 			};
 
 			_initializeEvent += async canceler => {
-				Log.Debug( $"{nameof( _initializeEvent )} : start" );
+				SMLog.Debug( $"{nameof( _initializeEvent )} : start" );
 				await UTask.Delay( canceler, 1000 );
-				Log.Debug( $"{nameof( _initializeEvent )} : end" );
+				SMLog.Debug( $"{nameof( _initializeEvent )} : end" );
 			};
 
-			_finalizeEvent.Subscribe( _ => Log.Debug( $"{nameof( _finalizeEvent )}" ) );
+			_finalizeEvent.Subscribe( _ => SMLog.Debug( $"{nameof( _finalizeEvent )}" ) );
 
-			_disposables.Add( () => Log.Debug( $"{nameof( Dispose )}" ) );
+			_disposables.Add( () => SMLog.Debug( $"{nameof( Dispose )}" ) );
 		}
 
 
 		[UnityTest]
 		public IEnumerator Test() => From( async () => {
-			Log.Debug( $"{nameof( Test )}" );
+			SMLog.Debug( $"{nameof( Test )}" );
 			await UTask.DontWait();
 		} );
 	}

@@ -14,13 +14,13 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UniRx;
 	using KoganeUnityLib;
 	using MultiEvent;
-	using UTask;
+	using Utility;
 	using Debug;
 	using Test;
 
 
 	public class TestMultiSubject : SMStandardTest {
-		MultiSubject _events = new MultiSubject();
+		SMMultiSubject _events = new SMMultiSubject();
 
 
 		protected override void Create() {
@@ -35,22 +35,22 @@ namespace SubmarineMirage.TestMultiEvent {
 			var ss = new List< Subject<Unit> >();
 			2.Times( i => {
 				var s = new Subject<Unit>();
-				s.Subscribe( _ => Log.Debug( $"{i} a" ) );
-				s.Subscribe( _ => Log.Debug( $"{i} b" ) );
+				s.Subscribe( _ => SMLog.Debug( $"{i} a" ) );
+				s.Subscribe( _ => SMLog.Debug( $"{i} b" ) );
 				ss.Add( s );
 			} );
 
 			var d = Observable.EveryUpdate().Subscribe( _ => {
-				Log.Debug( "・EveryUpdate" );
+				SMLog.Debug( "・EveryUpdate" );
 				ss.ForEach( s => s.OnNext( Unit.Default ) );
 			} );
 			await UTask.Delay( _asyncCanceler, 500 );
 
-			Log.Debug( "・OnCompleted" );
+			SMLog.Debug( "・OnCompleted" );
 			ss.ForEach( s => s.OnCompleted() );
 			await UTask.Delay( _asyncCanceler, 500 );
 
-			Log.Debug( "・解放" );
+			SMLog.Debug( "・解放" );
 			d.Dispose();
 			ss.ForEach( s => s.Dispose() );
 			await UTask.Delay( _asyncCanceler, 500 );
@@ -69,42 +69,42 @@ namespace SubmarineMirage.TestMultiEvent {
 				},
 				startName => {
 					var ifName = $"{nameof( _events.InsertFirst )}";
-					Log.Debug( $"・{ifName}" );
-					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => Log.Debug( $"{ifName} 10" ) );
-					Log.Debug( _events );
-					_events.InsertFirst( startName ).Subscribe( _ => Log.Debug( $"{ifName} 20" ) );
-					Log.Debug( _events );
+					SMLog.Debug( $"・{ifName}" );
+					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => SMLog.Debug( $"{ifName} 10" ) );
+					SMLog.Debug( _events );
+					_events.InsertFirst( startName ).Subscribe( _ => SMLog.Debug( $"{ifName} 20" ) );
+					SMLog.Debug( _events );
 
 					var ilName = $"{nameof( _events.InsertLast )}";
-					Log.Debug( $"・{ilName}" );
-					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => Log.Debug( $"{ilName} 10" ) );
-					Log.Debug( _events );
-					_events.InsertLast( startName ).Subscribe( _ => Log.Debug( $"{ilName} 20" ) );
-					Log.Debug( _events );
+					SMLog.Debug( $"・{ilName}" );
+					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => SMLog.Debug( $"{ilName} 10" ) );
+					SMLog.Debug( _events );
+					_events.InsertLast( startName ).Subscribe( _ => SMLog.Debug( $"{ilName} 20" ) );
+					SMLog.Debug( _events );
 
 					var afName = $"{nameof( _events.AddFirst )}";
-					Log.Debug( $"・{afName}" );
-					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => Log.Debug( $"{afName} 10" ) );
-					Log.Debug( _events );
-					_events.AddFirst().Subscribe( _ => Log.Debug( $"{afName} 20" ) );
-					Log.Debug( _events );
+					SMLog.Debug( $"・{afName}" );
+					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => SMLog.Debug( $"{afName} 10" ) );
+					SMLog.Debug( _events );
+					_events.AddFirst().Subscribe( _ => SMLog.Debug( $"{afName} 20" ) );
+					SMLog.Debug( _events );
 
 					var alName = $"{nameof( _events.AddLast )}";
-					Log.Debug( $"・{alName}" );
-					_events.AddLast( $"{alName} 10" ).Subscribe( _ => Log.Debug( $"{alName} 10" ) );
-					Log.Debug( _events );
-					_events.AddLast().Subscribe( _ => Log.Debug( $"{alName} 20" ) );
-					Log.Debug( _events );
+					SMLog.Debug( $"・{alName}" );
+					_events.AddLast( $"{alName} 10" ).Subscribe( _ => SMLog.Debug( $"{alName} 10" ) );
+					SMLog.Debug( _events );
+					_events.AddLast().Subscribe( _ => SMLog.Debug( $"{alName} 20" ) );
+					SMLog.Debug( _events );
 				}
 			);
 
-			Log.Debug( "・実行" );
+			SMLog.Debug( "・実行" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・解放" );
+			SMLog.Debug( "・解放" );
 			_events.Dispose();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
 			await UTask.DontWait();
 		} );
@@ -121,35 +121,35 @@ namespace SubmarineMirage.TestMultiEvent {
 					return s;
 				},
 				startName => {
-					Log.Debug( _events );
+					SMLog.Debug( _events );
 
 					var ifName = $"{nameof( _events.InsertFirst )}";
-					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => Log.Debug( $"{ifName} 10" ) );
-					_events.InsertFirst( startName ).Subscribe( _ => Log.Debug( $"{ifName} 20" ) );
+					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => SMLog.Debug( $"{ifName} 10" ) );
+					_events.InsertFirst( startName ).Subscribe( _ => SMLog.Debug( $"{ifName} 20" ) );
 
 					var ilName = $"{nameof( _events.InsertLast )}";
-					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => Log.Debug( $"{ilName} 10" ) );
-					_events.InsertLast( startName ).Subscribe( _ => Log.Debug( $"{ilName} 20" ) );
+					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => SMLog.Debug( $"{ilName} 10" ) );
+					_events.InsertLast( startName ).Subscribe( _ => SMLog.Debug( $"{ilName} 20" ) );
 
 					var afName = $"{nameof( _events.AddFirst )}";
-					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => Log.Debug( $"{afName} 10" ) );
-					_events.AddFirst().Subscribe( _ => Log.Debug( $"{afName} 20" ) );
+					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => SMLog.Debug( $"{afName} 10" ) );
+					_events.AddFirst().Subscribe( _ => SMLog.Debug( $"{afName} 20" ) );
 
 					var alName = $"{nameof( _events.AddLast )}";
-					_events.AddLast( $"{alName} 10" ).Subscribe( _ => Log.Debug( $"{alName} 10" ) );
-					_events.AddLast().Subscribe( _ => Log.Debug( $"{alName} 20" ) );
+					_events.AddLast( $"{alName} 10" ).Subscribe( _ => SMLog.Debug( $"{alName} 10" ) );
+					_events.AddLast().Subscribe( _ => SMLog.Debug( $"{alName} 20" ) );
 
-					Log.Debug( _events );
+					SMLog.Debug( _events );
 				}
 			);
 
-			Log.Debug( "・実行 1" );
+			SMLog.Debug( "・実行 1" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・実行 2" );
+			SMLog.Debug( "・実行 2" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
 			await UTask.DontWait();
 		} );

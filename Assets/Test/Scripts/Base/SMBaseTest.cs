@@ -14,9 +14,11 @@ namespace SubmarineMirage.Test {
 	using Cysharp.Threading.Tasks;
 	using Main;
 	using Base;
-	using UTask;
+	using Task;
 	using Extension;
-	using Editor;
+	using Utility;
+	using Editor.EditorExtension;
+	using Editor.EditorUtility;
 	using Debug;
 
 
@@ -26,19 +28,19 @@ namespace SubmarineMirage.Test {
 	public abstract class SMBaseTest : SMBase, IPrebuildSetup {
 		protected string _testName => TestContext.CurrentContext.Test.Name;
 		protected bool _isInitialized;
-		[Hide] protected readonly UTaskCanceler _asyncCanceler = new UTaskCanceler();
+		[SMHide] protected readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
 
 
 		public void Setup() {
-			ConsoleEditorUtility.Clear();
+			ConsoleEditorSMUtility.Clear();
 			SubmarineMirage.DisposeInstance();
 			SMTestManager.DisposeInstance();
-			PlayerExtensionEditorManager.instance._playType = PlayerExtensionEditor.PlayType.Test;
+			PlayerSMExtensionEditorManager.instance._playType = PlayerSMExtensionEditor.PlayType.Test;
 		}
 
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static void Main() {
-			if ( PlayerExtensionEditorManager.instance._playType == PlayerExtensionEditor.PlayType.Test ) {
+			if ( PlayerSMExtensionEditorManager.instance._playType == PlayerSMExtensionEditor.PlayType.Test ) {
 				SubmarineMirage.s_instance._isRegisterCreateTestEvent = false;
 			}
 		}
@@ -53,7 +55,7 @@ namespace SubmarineMirage.Test {
 				} catch ( OperationCanceledException ) {
 					throw;
 				} catch ( Exception e ) {
-					Log.Error( e );
+					SMLog.Error( e );
 					throw;
 				}
 			} );
@@ -73,7 +75,7 @@ namespace SubmarineMirage.Test {
 			} catch ( OperationCanceledException ) {
 				throw;
 			} catch ( Exception e ) {
-				Log.Error( e );
+				SMLog.Error( e );
 				throw;
 			}
 		}
@@ -86,7 +88,7 @@ namespace SubmarineMirage.Test {
 			} catch ( OperationCanceledException ) {
 				throw;
 			} catch ( Exception e ) {
-				Log.Error( e );
+				SMLog.Error( e );
 				throw;
 			}
 		} );
@@ -100,7 +102,7 @@ namespace SubmarineMirage.Test {
 			var disposable = Observable.FromCoroutine( () => coroutine )
 				.DoOnError( e => {
 					if ( !( e is OperationCanceledException ) ) {
-						Log.Error( e );
+						SMLog.Error( e );
 					}
 					isRunning = false;
 				} )

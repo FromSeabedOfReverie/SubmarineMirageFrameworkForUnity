@@ -56,10 +56,10 @@ namespace SubmarineMirage.TestUTask {
 			_canceler = new CancellationTokenSource();
 			_id = _canceler.GetHashCode();
 
-			Log.Debug( $"{nameof( Play )} Start : {_id}" );
+			SMLog.Debug( $"{nameof( Play )} Start : {_id}" );
 			await _loader.Load( _canceler );
 			await UniTask.Delay( 10000, cancellationToken: _canceler.Token );
-			Log.Debug( $"{nameof( Play )} End : {_id}" );
+			SMLog.Debug( $"{nameof( Play )} End : {_id}" );
 		}
 
 
@@ -68,10 +68,10 @@ namespace SubmarineMirage.TestUTask {
 			_canceler = new CancellationTokenSource();
 			_id = _canceler.GetHashCode();
 
-			Log.Debug( $"{nameof( Stop )} Start : {_id}" );
+			SMLog.Debug( $"{nameof( Stop )} Start : {_id}" );
 			await UniTask.Delay( 10000, cancellationToken: _canceler.Token );
 			_loader.Unload();
-			Log.Debug( $"{nameof( Stop )} End : {_id}" );
+			SMLog.Debug( $"{nameof( Stop )} End : {_id}" );
 		}
 
 
@@ -86,42 +86,42 @@ namespace SubmarineMirage.TestUTask {
 				_canceler.Cancel();
 				_canceler = canceler != null ? canceler : new CancellationTokenSource();
 				_id = _canceler.GetHashCode();
-				Log.Debug( $"{nameof( Load )} Start : {_id}" );
+				SMLog.Debug( $"{nameof( Load )} Start : {_id}" );
 
 				try {
 					if ( !_canceler.IsCancellationRequested ) {
 						await LoadSub();
 					}
 				} catch ( OperationCanceledException ) {
-					Log.Debug( "例外を捻り潰した" );
+					SMLog.Debug( "例外を捻り潰した" );
 				}
 
 				if ( _data.IsNullOrEmpty() ) {
-					Log.Debug( $"読み込み失敗 : Cancel : {canceler.IsCancellationRequested}" );
+					SMLog.Debug( $"読み込み失敗 : Cancel : {canceler.IsCancellationRequested}" );
 					throw new OperationCanceledException( _canceler.Token );
 				}
-				Log.Debug( $"{nameof( Load )} End : {_id}" );
+				SMLog.Debug( $"{nameof( Load )} End : {_id}" );
 			}
 
 
 			async UniTask LoadSub() {
-				Log.Debug( $"{nameof( LoadSub )} Start : {_id}" );
+				SMLog.Debug( $"{nameof( LoadSub )} Start : {_id}" );
 				await UniTask.Delay( 10000, cancellationToken: _canceler.Token );
 	//			throw new NullReferenceException();
 				_data = "Data";
-				Log.Debug( $"{nameof( LoadSub )} End : {_id}" );
+				SMLog.Debug( $"{nameof( LoadSub )} End : {_id}" );
 			}
 
 
 			public void Unload() {
-				Log.Debug( $"{nameof( Unload )} : {_id}" );
+				SMLog.Debug( $"{nameof( Unload )} : {_id}" );
 				_canceler.Cancel();
 				_data = null;
 			}
 
 			public void ShowCancelLog() {
 				// そのフレームのDelay後に発行される
-				Log.Debug( $"Cancel : {_id}" );
+				SMLog.Debug( $"Cancel : {_id}" );
 			}
 		}
 	}

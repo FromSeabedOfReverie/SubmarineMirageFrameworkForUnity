@@ -11,7 +11,8 @@ namespace SubmarineMirage.TestCSharp {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using UTask;
+	using Task;
+	using Utility;
 	using Debug;
 	using Test;
 
@@ -29,12 +30,12 @@ namespace SubmarineMirage.TestCSharp {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestException() => From( async () => {
 			try {
-				using ( var c = new UTaskCanceler() ) {
-					c._cancelEvent.AddLast().Subscribe( _ => Log.Debug( "停止" ) );
+				using ( var c = new SMTaskCanceler() ) {
+					c._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( "停止" ) );
 					throw new Exception();
 				}
 			} catch {}
-			Log.Debug( "end" );
+			SMLog.Debug( "end" );
 			await UTask.DontWait();
 		} );
 	}

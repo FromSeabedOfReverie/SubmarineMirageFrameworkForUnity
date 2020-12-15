@@ -14,13 +14,14 @@ namespace SubmarineMirage.TestMultiEvent {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
-	using UTask;
+	using Task;
+	using Utility;
 	using Debug;
 	using Test;
 
 
 	public class TestMultiAsyncEvent : SMStandardTest {
-		MultiAsyncEvent _events = new MultiAsyncEvent();
+		SMMultiAsyncEvent _events = new SMMultiAsyncEvent();
 
 
 		protected override void Create() {
@@ -31,28 +32,28 @@ namespace SubmarineMirage.TestMultiEvent {
 
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestDispose() => From( async () => {
-			Log.Debug( $"{nameof( TestDispose )}" );
-			var canceler = new UTaskCanceler();
+			SMLog.Debug( $"{nameof( TestDispose )}" );
+			var canceler = new SMTaskCanceler();
 			
 
 
-			Log.Debug( "・即削除テスト" );
-			var asyncEvent = new MultiAsyncEvent();
-			Log.Debug( asyncEvent );
+			SMLog.Debug( "・即削除テスト" );
+			var asyncEvent = new SMMultiAsyncEvent();
+			SMLog.Debug( asyncEvent );
 			asyncEvent.Dispose();
-			Log.Debug( asyncEvent );
+			SMLog.Debug( asyncEvent );
 
 
-			Log.Debug( "・停止テスト" );
-			asyncEvent = new MultiAsyncEvent();
+			SMLog.Debug( "・停止テスト" );
+			asyncEvent = new SMMultiAsyncEvent();
 			2.Times( i => asyncEvent.AddLast( async c => {
-				Log.Debug( $"{nameof( MultiAsyncEvent )} : 待機開始 {i}" );
+				SMLog.Debug( $"{nameof( SMMultiAsyncEvent )} : 待機開始 {i}" );
 				await UTask.Delay( c, 1000 );
-				Log.Debug( $"{nameof( MultiAsyncEvent )} : 待機終了 {i}" );
+				SMLog.Debug( $"{nameof( SMMultiAsyncEvent )} : 待機終了 {i}" );
 			} ) );
 			UTask.Void( async () => {
 				await UTask.Delay( canceler, 500 );
-				Log.Debug( "停止" );
+				SMLog.Debug( "停止" );
 				canceler.Cancel();
 			} );
 			try {
@@ -61,21 +62,21 @@ namespace SubmarineMirage.TestMultiEvent {
 			asyncEvent.Dispose();
 
 
-			Log.Debug( "・実行中削除テスト" );
-			asyncEvent = new MultiAsyncEvent();
+			SMLog.Debug( "・実行中削除テスト" );
+			asyncEvent = new SMMultiAsyncEvent();
 			2.Times( i => asyncEvent.AddLast( async c => {
-				Log.Debug( $"{nameof( MultiAsyncEvent )} : 待機開始 {i}" );
+				SMLog.Debug( $"{nameof( SMMultiAsyncEvent )} : 待機開始 {i}" );
 				await UTask.Delay( c, 1000 );
-				Log.Debug( $"{nameof( MultiAsyncEvent )} : 待機終了 {i}" );
+				SMLog.Debug( $"{nameof( SMMultiAsyncEvent )} : 待機終了 {i}" );
 			} ) );
 			UTask.Void( async () => {
-				Log.Debug( "待機開始" );
+				SMLog.Debug( "待機開始" );
 				await UTask.Delay( canceler, 2000 );
-				Log.Debug( "待機終了" );
+				SMLog.Debug( "待機終了" );
 			} );
 			UTask.Void( async () => {
 				await UTask.Delay( canceler, 500 );
-				Log.Debug( "削除" );
+				SMLog.Debug( "削除" );
 				asyncEvent.Dispose();
 			} );
 			try {
@@ -92,17 +93,17 @@ namespace SubmarineMirage.TestMultiEvent {
 		public IEnumerator TestModifyler() => From( async () => {
 			TestMultiEventUtility.SetModifyler(
 				_events,
-				a => new Func<UTaskCanceler, UniTask>( async canceler => {
+				a => new Func<SMTaskCanceler, UniTask>( async canceler => {
 					a();
-					Log.Debug( "start" );
+					SMLog.Debug( "start" );
 					await UTask.Delay( canceler, 500 );
-					Log.Debug( "end" );
+					SMLog.Debug( "end" );
 				} )
 			);
 
-			Log.Debug( "・実行" );
+			SMLog.Debug( "・実行" );
 			await _events.Run( _asyncCanceler );
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 		} );
 
 
@@ -110,52 +111,52 @@ namespace SubmarineMirage.TestMultiEvent {
 		public IEnumerator TestChangeWhileRunning() => From( async () => {
 			TestMultiEventUtility.SetChangeWhileRunning(
 				_events,
-				a => new Func<UTaskCanceler, UniTask>( async canceler => {
+				a => new Func<SMTaskCanceler, UniTask>( async canceler => {
 					a();
-					Log.Debug( "start" );
+					SMLog.Debug( "start" );
 					await UTask.Delay( canceler, 500 );
-					Log.Debug( "end" );
+					SMLog.Debug( "end" );
 				} )
 			);
 
-			Log.Debug( "・実行 1" );
+			SMLog.Debug( "・実行 1" );
 			await _events.Run( _asyncCanceler );
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・実行 2" );
+			SMLog.Debug( "・実行 2" );
 			await _events.Run( _asyncCanceler );
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 		} );
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestManual() => From( async () => {
-			var canceler = new UTaskCanceler();
+			var canceler = new SMTaskCanceler();
 			_disposables.AddLast( canceler );
 
 			_disposables.AddLast(
 				TestMultiEventUtility.SetKey(
 					_events,
-					a => new Func<UTaskCanceler, UniTask>( async c => {
+					a => new Func<SMTaskCanceler, UniTask>( async c => {
 						a();
-						Log.Debug( "start" );
+						SMLog.Debug( "start" );
 						await UTask.Delay( c, 1000 );
-						Log.Debug( "end" );
+						SMLog.Debug( "end" );
 					} )
 				),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( _events.Run )}" );
+					SMLog.Warning( $"key down {nameof( _events.Run )}" );
 					UTask.Void( async () => {
-						Log.Debug( _events );
+						SMLog.Debug( _events );
 						await _events.Run( canceler );
-						Log.Debug( _events );
+						SMLog.Debug( _events );
 					} );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( canceler.Cancel )}" );
-					Log.Debug( _events );
+					SMLog.Warning( $"key down {nameof( canceler.Cancel )}" );
+					SMLog.Debug( _events );
 					canceler.Cancel();
-					Log.Debug( _events );
+					SMLog.Debug( _events );
 				} )
 			);
 

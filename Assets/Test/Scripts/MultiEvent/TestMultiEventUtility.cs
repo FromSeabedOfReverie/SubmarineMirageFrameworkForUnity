@@ -13,86 +13,86 @@ namespace SubmarineMirage.TestMultiEvent {
 
 
 	public static class TestMultiEventUtility {
-		public static void SetModifyler<T>( BaseMultiEvent<T> events, Func<Action, T> function,
+		public static void SetModifyler<T>( BaseSMMultiEvent<T> events, Func<Action, T> function,
 											Action<string> addEvent = null
 		) {
-			Log.Debug( "・生成" );
-			Log.Debug( events );
+			SMLog.Debug( "・生成" );
+			SMLog.Debug( events );
 
 			var startName = "start";
-			Log.Debug( $"・{startName}" );
-			events.AddLast( startName, function( () => Log.Debug( startName ) ) );
-			Log.Debug( events );
+			SMLog.Debug( $"・{startName}" );
+			events.AddLast( startName, function( () => SMLog.Debug( startName ) ) );
+			SMLog.Debug( events );
 
 			var ifName = $"{nameof( events.InsertFirst )}";
-			Log.Debug( $"・{ifName}" );
-			events.InsertFirst( startName, $"{ifName} 1", function( () => Log.Debug( $"{ifName} 1" ) ) );
-			Log.Debug( events );
-			events.InsertFirst( startName, function( () => Log.Debug( $"{ifName} 2" ) ) );
-			Log.Debug( events );
+			SMLog.Debug( $"・{ifName}" );
+			events.InsertFirst( startName, $"{ifName} 1", function( () => SMLog.Debug( $"{ifName} 1" ) ) );
+			SMLog.Debug( events );
+			events.InsertFirst( startName, function( () => SMLog.Debug( $"{ifName} 2" ) ) );
+			SMLog.Debug( events );
 
 			var ilName = $"{nameof( events.InsertLast )}";
-			Log.Debug( $"・{ilName}" );
-			events.InsertLast( startName, $"{ilName} 1", function( () => Log.Debug( $"{ilName} 1" ) ) );
-			Log.Debug( events );
-			events.InsertLast( startName, function( () => Log.Debug( $"{ilName} 2" ) ) );
-			Log.Debug( events );
+			SMLog.Debug( $"・{ilName}" );
+			events.InsertLast( startName, $"{ilName} 1", function( () => SMLog.Debug( $"{ilName} 1" ) ) );
+			SMLog.Debug( events );
+			events.InsertLast( startName, function( () => SMLog.Debug( $"{ilName} 2" ) ) );
+			SMLog.Debug( events );
 
 			var afName = $"{nameof( events.AddFirst )}";
-			Log.Debug( $"・{afName}" );
-			events.AddFirst( $"{afName} 1", function( () => Log.Debug( $"{afName} 1" ) ) );
-			Log.Debug( events );
-			events.AddFirst( function( () => Log.Debug( $"{afName} 2" ) ) );
-			Log.Debug( events );
+			SMLog.Debug( $"・{afName}" );
+			events.AddFirst( $"{afName} 1", function( () => SMLog.Debug( $"{afName} 1" ) ) );
+			SMLog.Debug( events );
+			events.AddFirst( function( () => SMLog.Debug( $"{afName} 2" ) ) );
+			SMLog.Debug( events );
 
 			var alName = $"{nameof( events.AddLast )}";
-			Log.Debug( $"・{alName}" );
-			events.AddLast( $"{alName} 1", function( () => Log.Debug( $"{alName} 1" ) ) );
-			Log.Debug( events );
-			events.AddLast( function( () => Log.Debug( $"{alName} 2" ) ) );
-			Log.Debug( events );
+			SMLog.Debug( $"・{alName}" );
+			events.AddLast( $"{alName} 1", function( () => SMLog.Debug( $"{alName} 1" ) ) );
+			SMLog.Debug( events );
+			events.AddLast( function( () => SMLog.Debug( $"{alName} 2" ) ) );
+			SMLog.Debug( events );
 
 			addEvent?.Invoke( startName );
 
-			Log.Debug( $"・{nameof( events.Reverse )}" );
+			SMLog.Debug( $"・{nameof( events.Reverse )}" );
 			events.Reverse();
-			Log.Debug( events );
+			SMLog.Debug( events );
 
-			Log.Debug( $"・{nameof( events.Remove )}" );
+			SMLog.Debug( $"・{nameof( events.Remove )}" );
 			events.Remove( startName );
-			Log.Debug( events );
+			SMLog.Debug( events );
 		}
 
 
-		public static void SetChangeWhileRunning<T>( BaseMultiEvent<T> events, Func<Action, T> function,
+		public static void SetChangeWhileRunning<T>( BaseSMMultiEvent<T> events, Func<Action, T> function,
 														Action<string> addEvent = null
 		) {
-			Log.Debug( "・生成" );
-			Log.Debug( events );
+			SMLog.Debug( "・生成" );
+			SMLog.Debug( events );
 
-			Log.Debug( "・追加中に変更を登録" );
+			SMLog.Debug( "・追加中に変更を登録" );
 			var tcwrName = "TestChangeWhileRunning";
 			events.AddLast( tcwrName, function( () => {
-				Log.Debug( events );
+				SMLog.Debug( events );
 
 				var startName = "start";
-				events.AddLast( startName, function( () => Log.Debug( startName ) ) );
+				events.AddLast( startName, function( () => SMLog.Debug( startName ) ) );
 
 				var ifName = $"{nameof( events.InsertFirst )}";
-				events.InsertFirst( startName, $"{ifName} 1", function( () => Log.Debug( $"{ifName} 1" ) ) );
-				events.InsertFirst( startName, function( () => Log.Debug( $"{ifName} 2" ) ) );
+				events.InsertFirst( startName, $"{ifName} 1", function( () => SMLog.Debug( $"{ifName} 1" ) ) );
+				events.InsertFirst( startName, function( () => SMLog.Debug( $"{ifName} 2" ) ) );
 
 				var ilName = $"{nameof( events.InsertLast )}";
-				events.InsertLast( startName, $"{ilName} 1", function( () => Log.Debug( $"{ilName} 1" ) ) );
-				events.InsertLast( startName, function( () => Log.Debug( $"{ilName} 2" ) ) );
+				events.InsertLast( startName, $"{ilName} 1", function( () => SMLog.Debug( $"{ilName} 1" ) ) );
+				events.InsertLast( startName, function( () => SMLog.Debug( $"{ilName} 2" ) ) );
 
 				var afName = $"{nameof( events.AddFirst )}";
-				events.AddFirst( $"{afName} 1", function( () => Log.Debug( $"{afName} 1" ) ) );
-				events.AddFirst( function( () => Log.Debug( $"{afName} 2" ) ) );
+				events.AddFirst( $"{afName} 1", function( () => SMLog.Debug( $"{afName} 1" ) ) );
+				events.AddFirst( function( () => SMLog.Debug( $"{afName} 2" ) ) );
 
 				var alName = $"{nameof( events.AddLast )}";
-				events.AddLast( $"{alName} 1", function( () => Log.Debug( $"{alName} 1" ) ) );
-				events.AddLast( function( () => Log.Debug( $"{alName} 2" ) ) );
+				events.AddLast( $"{alName} 1", function( () => SMLog.Debug( $"{alName} 1" ) ) );
+				events.AddLast( function( () => SMLog.Debug( $"{alName} 2" ) ) );
 
 				addEvent?.Invoke( startName );
 
@@ -101,38 +101,38 @@ namespace SubmarineMirage.TestMultiEvent {
 				events.Remove( startName );
 				events.Remove( tcwrName );
 
-				Log.Debug( events );
+				SMLog.Debug( events );
 			} ) );
-			Log.Debug( events );
+			SMLog.Debug( events );
 		}
 
 
-		public static MultiDisposable SetKey<T>( BaseMultiEvent<T> events, Func<Action, T> function ) {
-			var disposables = new MultiDisposable();
+		public static SMMultiDisposable SetKey<T>( BaseSMMultiEvent<T> events, Func<Action, T> function ) {
+			var disposables = new SMMultiDisposable();
 			var count = 0;
 
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( events.AddLast )}" );
-					Log.Debug( events );
+					SMLog.Warning( $"key down {nameof( events.AddLast )}" );
+					SMLog.Debug( events );
 					var i = count++;
-					events.AddLast( $"{i}", function( () => Log.Debug( $"{i}" ) ) );
-					Log.Debug( events );
+					events.AddLast( $"{i}", function( () => SMLog.Debug( $"{i}" ) ) );
+					SMLog.Debug( events );
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( events.Remove )}" );
-					Log.Debug( events );
+					SMLog.Warning( $"key down {nameof( events.Remove )}" );
+					SMLog.Debug( events );
 					count--;
 					events.Remove( $"{count}" );
-					Log.Debug( events );
+					SMLog.Debug( events );
 				} )
 			);
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( events.Dispose )}" );
-					Log.Debug( events );
+					SMLog.Warning( $"key down {nameof( events.Dispose )}" );
+					SMLog.Debug( events );
 					events.Dispose();
-					Log.Debug( events );
+					SMLog.Debug( events );
 				} )
 			);
 

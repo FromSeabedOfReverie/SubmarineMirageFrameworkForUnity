@@ -9,7 +9,7 @@ namespace SubmarineMirage.Test {
 	using Main;
 	using Base;
 	using MultiEvent;
-	using UTask;
+	using Utility;
 	using Debug.ToString;
 	using Debug;
 
@@ -18,17 +18,18 @@ namespace SubmarineMirage.Test {
 
 
 	public abstract class SMStandardTest : SMBaseTest, ISMStandardBase {
-		[Hide] public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
+		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
 		public bool _isDispose => _disposables._isDispose;
-		[Hide] public SMToStringer _toStringer	{ get; private set; }
-		[Hide] protected readonly MultiAsyncEvent _createEvent = new MultiAsyncEvent();
-		[Hide] protected readonly MultiAsyncEvent _initializeEvent = new MultiAsyncEvent();
-		[Hide] protected readonly MultiSubject _finalizeEvent = new MultiSubject();
+		[SMHide] public SMToStringer _toStringer	{ get; private set; }
+		[SMHide] protected readonly SMMultiAsyncEvent _createEvent = new SMMultiAsyncEvent();
+		[SMHide] protected readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
+		[SMHide] protected readonly SMMultiSubject _finalizeEvent = new SMMultiSubject();
 
 
 		public SMStandardTest() {
 			_toStringer = new SMToStringer( this );
 			SetToString();
+			_disposables.AddLast( _toStringer );
 		}
 
 		protected override async UniTask AwakeSub() {

@@ -4,7 +4,8 @@
         "GameDevWare.Serialization",
         "KoganeUnityLib",
         "UniRx",
-        "UniTask"
+        "UniTask",
+        "BuildBaseSMLog"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

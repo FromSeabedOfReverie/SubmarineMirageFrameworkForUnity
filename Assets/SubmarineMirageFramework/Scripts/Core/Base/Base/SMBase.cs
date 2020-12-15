@@ -13,11 +13,11 @@ namespace SubmarineMirage.Base {
 
 
 	public abstract class SMBase : ISMBase {
-		[ShowLine] public uint _id	{ get; set; }
+		[SMShowLine] public uint _id	{ get; private set; }
 
 
 		public SMBase() {
-			if ( !( this is SMBaseManager ) )	{ SMBaseManager.s_instance.SetID( this ); }
+			if ( !( this is SMBaseManager ) )	{ _id = SMBaseManager.s_instance.GetNewID( this ); }
 		}
 
 		public abstract void Dispose();

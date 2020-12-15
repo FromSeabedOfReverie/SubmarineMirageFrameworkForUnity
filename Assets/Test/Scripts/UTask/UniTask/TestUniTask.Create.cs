@@ -28,13 +28,13 @@ namespace SubmarineMirage.TestUTask {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestYield() => From( async () => {
-			Log.Debug( 1 );
+			SMLog.Debug( 1 );
 			UniTask.Void( async () => {
-				Log.Debug( 2 );
+				SMLog.Debug( 2 );
 				await UniTask.Yield();
-				Log.Debug( 3 );
+				SMLog.Debug( 3 );
 			} );
-			Log.Debug( 4 );
+			SMLog.Debug( 4 );
 
 			await UniTask.Yield();
 		} );
@@ -42,13 +42,13 @@ namespace SubmarineMirage.TestUTask {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestNextFrame() => From( async () => {
-			Log.Debug( 1 );
+			SMLog.Debug( 1 );
 			UniTask.Void( async () => {
-				Log.Debug( 2 );
+				SMLog.Debug( 2 );
 				await UniTask.NextFrame();
-				Log.Debug( 3 );
+				SMLog.Debug( 3 );
 			} );
-			Log.Debug( 4 );
+			SMLog.Debug( 4 );
 
 			await UniTask.Yield();
 		} );
@@ -56,13 +56,13 @@ namespace SubmarineMirage.TestUTask {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestEmpty() => From( async () => {
-			Log.Debug( 1 );
+			SMLog.Debug( 1 );
 			UniTask.Void( async () => {
-				Log.Debug( 2 );
+				SMLog.Debug( 2 );
 				await new UniTask();
-				Log.Debug( 3 );
+				SMLog.Debug( 3 );
 			} );
-			Log.Debug( 4 );
+			SMLog.Debug( 4 );
 
 			await UniTask.Yield();
 		} );
@@ -71,15 +71,15 @@ namespace SubmarineMirage.TestUTask {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestEmpty2() => From( async () => {
 			var empty = new UniTask();
-			Log.Debug( 1 );
+			SMLog.Debug( 1 );
 			UniTask.Void( async () => {
-				Log.Debug( 2 );
+				SMLog.Debug( 2 );
 				await empty;
-				Log.Debug( 3 );
+				SMLog.Debug( 3 );
 				await empty;
-				Log.Debug( 4 );
+				SMLog.Debug( 4 );
 			} );
-			Log.Debug( 5 );
+			SMLog.Debug( 5 );
 
 			await UniTask.Yield();
 		} );
@@ -89,14 +89,14 @@ namespace SubmarineMirage.TestUTask {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestLinq() => From( async () => {
-			Log.Debug( $"{nameof( TestLinq )} : start" );
+			SMLog.Debug( $"{nameof( TestLinq )} : start" );
 
 			await Enumerable
 				.Range( 0, 10 )
 				.Select( _ => new TestAsyncObject() )
 				.Select( a => a.Initialize() );
 
-			Log.Debug( $"{nameof( TestLinq )} : end" );
+			SMLog.Debug( $"{nameof( TestLinq )} : end" );
 		} );
 
 
@@ -107,9 +107,9 @@ namespace SubmarineMirage.TestUTask {
 			public TestAsyncObject() => _id = s_maxID++;
 
 			public async UniTask Initialize() {
-				Log.Debug( $"{this.GetAboutName()}( {_id} ).{nameof( Initialize )} : start" );
+				SMLog.Debug( $"{this.GetAboutName()}( {_id} ).{nameof( Initialize )} : start" );
 				await UniTask.Delay( 1000 );
-				Log.Debug( $"{this.GetAboutName()}( {_id} ).{nameof( Initialize )} : end" );
+				SMLog.Debug( $"{this.GetAboutName()}( {_id} ).{nameof( Initialize )} : end" );
 			}
 		}
 	}

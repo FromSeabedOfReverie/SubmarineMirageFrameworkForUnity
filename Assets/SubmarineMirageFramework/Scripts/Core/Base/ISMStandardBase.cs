@@ -14,7 +14,7 @@ namespace SubmarineMirage.Base {
 
 
 	public interface ISMStandardBase : ISMBase, IDisposableSMExtension {
-		MultiDisposable _disposables	{ get; }
+		SMMultiDisposable _disposables	{ get; }
 		SMToStringer _toStringer	{ get; }
 
 		void SetToString();

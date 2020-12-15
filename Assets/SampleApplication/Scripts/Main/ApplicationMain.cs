@@ -9,7 +9,7 @@ namespace SubmarineMirage.Main {
 	using DG.Tweening;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using UTask;
+	using Utility;
 	using Debug;
 	using UnityObject = UnityEngine.Object;
 

@@ -10,13 +10,13 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using MultiEvent;
-	using UTask;
+	using Utility;
 	using Debug;
 	using Test;
 
 
 	public class TestEventModifyler : SMStandardTest {
-		MultiEvent _events = new MultiEvent();
+		SMMultiEvent _events = new SMMultiEvent();
 
 
 		protected override void Create() {
@@ -28,32 +28,32 @@ namespace SubmarineMirage.TestMultiEvent {
 		[UnityTest]
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestChangeWhileRunning() => From( async () => {
-			Log.Debug( "・生成テスト" );
-			Log.Debug( _events );
+			SMLog.Debug( "・生成テスト" );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・追加テスト" );
-			_events.AddLast( "b", () => Log.Debug( "b" ) );
-			Log.Debug( _events );
+			SMLog.Debug( "・追加テスト" );
+			_events.AddLast( "b", () => SMLog.Debug( "b" ) );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・追加中に変更を登録" );
+			SMLog.Debug( "・追加中に変更を登録" );
 			_events.AddLast( "start", () => {
-				_events.AddLast( "c", () => Log.Debug( "c" ) );
-				_events.AddFirst( "a", () => Log.Debug( "a" ) );
-				_events.InsertLast( "b", "b.5", () => Log.Debug( "b.5" ) );
-				_events.InsertFirst( "b", "a.5", () => Log.Debug( "a.5" ) );
+				_events.AddLast( "c", () => SMLog.Debug( "c" ) );
+				_events.AddFirst( "a", () => SMLog.Debug( "a" ) );
+				_events.InsertLast( "b", "b.5", () => SMLog.Debug( "b.5" ) );
+				_events.InsertFirst( "b", "a.5", () => SMLog.Debug( "a.5" ) );
 				_events.Reverse();
 				_events.Remove( "start" );
-				Log.Debug( _events );
+				SMLog.Debug( _events );
 			} );
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・実行1" );
+			SMLog.Debug( "・実行1" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・実行2" );
+			SMLog.Debug( "・実行2" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
 			await UTask.DontWait();
 		} );

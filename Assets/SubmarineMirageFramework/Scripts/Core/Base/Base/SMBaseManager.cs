@@ -14,16 +14,16 @@ namespace SubmarineMirage.Base {
 	// TODO : コメント追加、整頓
 
 
-	public class SMBaseManager : RawSingleton<SMBaseManager> {
+	public class SMBaseManager : SMRawSingleton<SMBaseManager> {
 		readonly Dictionary<Type, uint> _idCounts = new Dictionary<Type, uint>();
 
 
 		public uint GetLastID( Type type )
 			=> _idCounts.GetOrDefault( type );
 
-		public void SetID( ISMBase smBase ) {
+		public uint GetNewID( ISMBase smBase ) {
 			var type = smBase.GetType();
-			smBase._id = _idCounts[type] = GetLastID( type ) + 1;
+			return _idCounts[type] = GetLastID( type ) + 1;
 		}
 	}
 }

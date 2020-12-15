@@ -15,7 +15,6 @@ namespace SubmarineMirage.Utility {
 	///====================================================================================================
 	/// <summary>
 	/// ■ シリアル化の便利クラス
-	///----------------------------------------------------------------------------------------------------
 	/// </summary>
 	///====================================================================================================
 	public static class SerializerSMUtility {
@@ -68,7 +67,7 @@ namespace SubmarineMirage.Utility {
 			// 基底クラスや辞書等、複製されない物、多数
 			} catch ( Exception e ) {
 #if DEVELOP
-				Log.Warning( e );
+				SMLog.Warning( e );
 #endif
 				var json = JsonUtility.ToJson( data );
 				return JsonUtility.FromJson<T>( json );
@@ -91,7 +90,7 @@ namespace SubmarineMirage.Utility {
 			// 失敗した場合
 			} catch ( Exception e ) {
 #if DEVELOP
-				Log.Warning( e );
+				SMLog.Warning( e );
 #endif
 				return string.Empty;
 

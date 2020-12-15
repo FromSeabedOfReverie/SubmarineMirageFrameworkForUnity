@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
 	using UnityEngine;
-	using SMTask;
+	using Task;
 	using Extension;
 	using UnityObject = UnityEngine.Object;
 

@@ -4,12 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Editor.EditorSMTask {
+namespace SubmarineMirage.Editor.EditorTask {
 	using System.Linq;
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
-	using SMTask;
+	using Task;
 	using Scene;
 	using Extension;
 	using Debug;
@@ -29,7 +29,7 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 			base.OnInspectorGUI();
 
 			if ( target == null )				{ return; }
-			if ( !SceneManager.s_isCreated )	{ return; }
+			if ( !SMSceneManager.s_isCreated )	{ return; }
 
 			_instance = (SMTaskRunner)target;
 
@@ -46,7 +46,7 @@ namespace SubmarineMirage.Editor.EditorSMTask {
 
 
 		void ShowAllObjects() {
-			SceneManager.s_instance._fsm.GetAllScene().ForEach( scene => {
+			SMSceneManager.s_instance._fsm.GetAllScene().ForEach( scene => {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;

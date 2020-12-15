@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
 	using Base;
+	using Debug;
 
 
 
@@ -17,7 +18,6 @@ namespace SubmarineMirage.Extension {
 	///====================================================================================================
 	/// <summary>
 	/// ■ モノ動作の拡張クラス
-	///----------------------------------------------------------------------------------------------------
 	///		MonoBehaviourを使うときは、必ずこれを継承する。
 	/// </summary>
 	///====================================================================================================
@@ -25,28 +25,29 @@ namespace SubmarineMirage.Extension {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public uint _id	{ get; set; }
+		/// <summary>識別番号</summary>
+		[SMShowLine] public uint _id	{ get; private set; }
 
 		/// <summary>変形のキャッシュ</summary>
-		Transform _transform;
+		[SMHide] Transform _transform;
 		/// <summary>変形のキャッシュを取得</summary>
-		public new Transform transform {
+		[SMHide] public new Transform transform {
 			get {
 				if ( _transform == null )	{ _transform = base.transform; }
 				return _transform;
 			}
 		}
 		/// <summary>ゲーム物のキャッシュ</summary>
-		GameObject _gameObject;
+		[SMHide] GameObject _gameObject;
 		/// <summary>ゲーム物のキャッシュを取得</summary>
-		public new GameObject gameObject {
+		[SMHide] public new GameObject gameObject {
 			get {
 				if ( _gameObject == null )	{ _gameObject = base.gameObject; }
 				return _gameObject;
 			}
 		}
 
-		protected virtual void Awake() => SMBaseManager.s_instance.SetID( this );
+		protected virtual void Awake() => _id = SMBaseManager.s_instance.GetNewID( this );
 
 		public abstract void Dispose();
 

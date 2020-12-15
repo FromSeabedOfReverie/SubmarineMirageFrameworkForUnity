@@ -15,8 +15,8 @@ namespace SubmarineMirage.TestScene {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using SMTask;
-	using SMTask.Modifyler;
+	using Task;
+	using Task.Modifyler;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -31,13 +31,13 @@ namespace SubmarineMirage.TestScene {
 
 
 	public class TestScene : SMStandardTest {
-		SceneManager _behaviour;
+		SMSceneManager _behaviour;
 		Text _text;
 
 
 		protected override void Create() {
 			Application.targetFrameRate = 30;
-			_behaviour = SceneManager.s_instance;
+			_behaviour = SMSceneManager.s_instance;
 
 			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
 			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
@@ -71,72 +71,72 @@ namespace SubmarineMirage.TestScene {
 		public IEnumerator TestManual() {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskRunState.Create}" );
+					SMLog.Warning( $"key down {SMTaskRunState.Create}" );
 					RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Create ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskRunState.SelfInitializing}" );
+					SMLog.Warning( $"key down {SMTaskRunState.SelfInitializing}" );
 					RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.SelfInitializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskRunState.Initializing}" );
+					SMLog.Warning( $"key down {SMTaskRunState.Initializing}" );
 					RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Initializing ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskRunState.FixedUpdate}" );
+					SMLog.Warning( $"key down {SMTaskRunState.FixedUpdate}" );
 					RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.FixedUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskRunState.Update}" );
+					SMLog.Warning( $"key down {SMTaskRunState.Update}" );
 					RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Update ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskRunState.LateUpdate}" );
+					SMLog.Warning( $"key down {SMTaskRunState.LateUpdate}" );
 					RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.LateUpdate ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskRunState.Finalizing}" );
+					SMLog.Warning( $"key down {SMTaskRunState.Finalizing}" );
 					RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Finalizing ).Forget();
 				} )
 			);
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskActiveState.Enable}" );
+					SMLog.Warning( $"key down {SMTaskActiveState.Enable}" );
 					ChangeActiveSMBehaviour.RegisterAndRun( _behaviour, true ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.X ) ).Subscribe( _ => {
-					Log.Warning( $"key down {SMTaskActiveState.Disable}" );
+					SMLog.Warning( $"key down {SMTaskActiveState.Disable}" );
 					ChangeActiveSMBehaviour.RegisterAndRun( _behaviour, false ).Forget();
 				} ),
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.C ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( ChangeActiveSMBehaviour.RegisterAndRunInitial )}" );
+					SMLog.Warning( $"key down {nameof( ChangeActiveSMBehaviour.RegisterAndRunInitial )}" );
 					ChangeActiveSMBehaviour.RegisterAndRunInitial( _behaviour ).Forget();
 				} )
 			);
 			var i = 0;
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( _behaviour._fsm.ChangeScene )}" );
+					SMLog.Warning( $"key down {nameof( _behaviour._fsm.ChangeScene )}" );
 					i = (i + 1) % 2;
 					switch ( i ) {
 						case 0:
-							Log.Debug( $"{this.GetAboutName()} change TestChange1Scene" );
+							SMLog.Debug( $"{this.GetAboutName()} change TestChange1Scene" );
 							_behaviour._fsm.ChangeScene<TestChange1Scene>().Forget();
 							break;
 						case 1:
-							Log.Debug( $"{this.GetAboutName()} change TestChange2Scene" );
+							SMLog.Debug( $"{this.GetAboutName()} change TestChange2Scene" );
 							_behaviour._fsm.ChangeScene<TestChange2Scene>().Forget();
 							break;
 						case 2:
-							Log.Debug( $"{this.GetAboutName()} change UnknownScene" );
-							_behaviour._fsm.ChangeScene<UnknownScene>().Forget();
+							SMLog.Debug( $"{this.GetAboutName()} change UnknownScene" );
+							_behaviour._fsm.ChangeScene<UnknownSMScene>().Forget();
 							break;
 					}
 				} )
 			);
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Backspace ) ).Subscribe( _ => {
-					Log.Warning( $"key down {nameof( _behaviour.Dispose )}" );
+					SMLog.Warning( $"key down {nameof( _behaviour.Dispose )}" );
 					_behaviour.Dispose();
 					_behaviour = null;
 				} )
@@ -148,6 +148,6 @@ namespace SubmarineMirage.TestScene {
 
 
 
-	public class TestChange1Scene : BaseScene {}
-	public class TestChange2Scene : BaseScene {}
+	public class TestChange1Scene : SMScene {}
+	public class TestChange2Scene : SMScene {}
 }

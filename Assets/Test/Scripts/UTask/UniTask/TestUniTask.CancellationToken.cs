@@ -15,8 +15,8 @@ namespace SubmarineMirage.TestUTask {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using UTask;
 	using Extension;
+	using Utility;
 	using Debug;
 	using Test;
 
@@ -38,13 +38,13 @@ namespace SubmarineMirage.TestUTask {
 					c.Dispose();
 				} );
 				cancelers.Clear();
-				Log.Debug( "-----------------" );
+				SMLog.Debug( "-----------------" );
 				cancelers.Add( new CancellationTokenSource() );
 				cancelers.Add( new CancellationTokenSource() );
 				cancelers.Add( cancelers[0].Token.Link( cancelers[1].Token ) );
-				cancelers.ForEach( ( c, i ) => c.Token.Register( () => Log.Debug( $"callback {i}" ) ) );
+				cancelers.ForEach( ( c, i ) => c.Token.Register( () => SMLog.Debug( $"callback {i}" ) ) );
 			} );
-			var logEvent = new Action<string>( logText => Log.Debug(
+			var logEvent = new Action<string>( logText => SMLog.Debug(
 				$"{logText}\n"
 				+ string.Join( "\n", cancelers.Select( ( c, i ) => $"{i} : {c.IsCancellationRequested}" ) )
 			) );
@@ -53,7 +53,7 @@ namespace SubmarineMirage.TestUTask {
 			logEvent( "初期状態" );
 
 			resetEvent();
-			cancelers[0].Token.Register( () => Log.Debug( $"other token callback {0}" ) );
+			cancelers[0].Token.Register( () => SMLog.Debug( $"other token callback {0}" ) );
 			cancelers[0].Cancel();
 			logEvent( "別Tokenの、callbackが実行されるか？" );
 
@@ -79,7 +79,7 @@ namespace SubmarineMirage.TestUTask {
 			resetEvent();
 			UniTask.Void( async () => {
 				while ( true ) {
-					Log.Debug( "waiting" );
+					SMLog.Debug( "waiting" );
 					await UniTask.Delay( 200, cancellationToken: cancelers[2].Token );
 				}
 			} );

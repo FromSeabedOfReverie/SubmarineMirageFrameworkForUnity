@@ -78,7 +78,7 @@ namespace SubmarineMirage.TestUTask {
 			}
 
 
-			void ShowTime( string name ) => Log.Debug( $"{name} : {Time.frameCount}" );
+			void ShowTime( string name ) => SMLog.Debug( $"{name} : {Time.frameCount}" );
 
 
 			public override void Dispose()	{}

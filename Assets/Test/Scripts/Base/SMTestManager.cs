@@ -13,7 +13,7 @@ namespace SubmarineMirage.Test {
 	// TODO : コメント追加、整頓
 
 
-	public class SMTestManager : RawSingleton<SMTestManager> {
+	public class SMTestManager : SMRawSingleton<SMTestManager> {
 		readonly List<SMBaseTest> _tests = new List<SMBaseTest>();
 
 

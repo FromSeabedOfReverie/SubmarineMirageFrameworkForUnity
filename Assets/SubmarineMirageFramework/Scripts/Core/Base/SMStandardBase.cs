@@ -14,14 +14,15 @@ namespace SubmarineMirage.Base {
 
 
 	public abstract class SMStandardBase : SMBase, ISMStandardBase {
-		[Hide] public MultiDisposable _disposables	{ get; private set; } = new MultiDisposable();
-		[ShowLine] public bool _isDispose => _disposables._isDispose;
-		[Hide] public SMToStringer _toStringer	{ get; private set; }
+		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
+		[SMShowLine] public bool _isDispose => _disposables._isDispose;
+		[SMHide] public SMToStringer _toStringer	{ get; private set; }
 
 
 		public SMStandardBase() {
 			_toStringer = new SMToStringer( this );
 			SetToString();
+			_disposables.AddLast( _toStringer );
 		}
 
 		public override void Dispose() => _disposables.Dispose();

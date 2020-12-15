@@ -45,14 +45,14 @@ namespace SubmarineMirage.Extension {
 			if ( isReverse ) {
 				for ( var n = self.Last; n != null; n = n.Previous ) {
 #if TestLinkedList
-					Log.Debug( n.Value );
+					SMLog.Debug( n.Value );
 #endif
 					yield return n;
 				}
 			} else {
 				for ( var n = self.First; n != null; n = n.Next ) {
 #if TestLinkedList
-					Log.Debug( n.Value );
+					SMLog.Debug( n.Value );
 #endif
 					yield return n;
 				}

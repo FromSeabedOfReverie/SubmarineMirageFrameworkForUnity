@@ -10,11 +10,9 @@ namespace SubmarineMirage.Utility {
 	using UnityEngine;
 	using UniRx;
 	using KoganeUnityLib;
-	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲーム物の便利クラス
-	///----------------------------------------------------------------------------------------------------
 	///		ゲーム物、部品の拡張関数から、呼ばれる。
 	/// </summary>
 	///====================================================================================================
@@ -24,8 +22,8 @@ namespace SubmarineMirage.Utility {
 		/// ● 指定層の子達のゲーム物を全取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static IEnumerable<GameObject> GetChildrenInLayer( GameObject gameObject, LayerManager.Name layer ) {
-			var id = LayerManager.s_instance.ToInt( layer );
+		public static IEnumerable<GameObject> GetChildrenInLayer( GameObject gameObject, SMLayerManager.Name layer ) {
+			var id = SMLayerManager.s_instance.ToInt( layer );
 			return gameObject.GetChildren()
 				.Where( go => go.layer == id );
 		}
@@ -128,8 +126,8 @@ namespace SubmarineMirage.Utility {
 		/// ● 指定付箋ゲーム物から、部品を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static T FindComponentWithTag<T>( TagManager.Name tag ) where T : Component {
-			var s = TagManager.s_instance.Get( tag );
+		public static T FindComponentWithTag<T>( SMTagManager.Name tag ) where T : Component {
+			var s = SMTagManager.s_instance.Get( tag );
 			var go = GameObject.FindWithTag( s );
 			return go != null ? go.GetComponent<T>() : null;
 		}

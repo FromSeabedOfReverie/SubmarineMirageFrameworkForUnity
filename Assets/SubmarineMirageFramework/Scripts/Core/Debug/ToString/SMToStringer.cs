@@ -22,7 +22,7 @@ namespace SubmarineMirage.Debug.ToString {
 
 
 
-	public class SMToStringer {
+	public class SMToStringer : SMLightBase {
 		object _owner	{ get; set; }
 		readonly Dictionary<string, SMToStringData> _toStrings = new Dictionary<string, SMToStringData>();
 		readonly Dictionary<string, SMToLineStringData> _toLineStrings =
@@ -31,18 +31,27 @@ namespace SubmarineMirage.Debug.ToString {
 
 		public SMToStringer( object owner ) {
 			_owner = owner;
-			_owner.GetType().GetAllNotAttributeMembers<HideAttribute>().ForEach( i =>
+			_owner.GetType().GetAllNotAttributeMembers<SMHideAttribute>().ForEach( i =>
 				_toStrings[i.Name] = new SMToStringData(
 					i.Name,
 					indent => DefaultValue( i.GetValue( _owner ), indent )
 				)
 			);
-			_owner.GetType().GetAllAttributeMembers<ShowLineAttribute>().ForEach( i =>
+			_owner.GetType().GetAllAttributeMembers<SMShowLineAttribute>().ForEach( i =>
 				_toLineStrings[i.Name] = new SMToLineStringData(
 					() => DefaultLineValue( i.GetValue( _owner ) )
 				)
 			);
 		}
+
+		public override void Dispose() {
+			_owner = null;
+			_toStrings.ForEach( pair => pair.Value.Dispose() );
+			_toStrings.Clear();
+			_toLineStrings.ForEach( pair => pair.Value.Dispose() );
+			_toLineStrings.Clear();
+		}
+
 
 		public string DefaultValue( object value, int indent ) {
 			switch ( value ) {

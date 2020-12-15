@@ -13,7 +13,7 @@ namespace SubmarineMirage.Debug.ToString.Data {
 
 
 
-	public class SMToLineStringData : SMBaseToStringData {
+	public class SMToLineStringData : BaseSMToStringData {
 		public Func<string> _valueEvent	{ get; set; }
 		public SMToLineStringData( Func<string> valueEvent )
 			=> _valueEvent = valueEvent;

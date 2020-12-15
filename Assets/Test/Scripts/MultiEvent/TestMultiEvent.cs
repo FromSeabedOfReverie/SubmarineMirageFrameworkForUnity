@@ -11,13 +11,13 @@ namespace SubmarineMirage.TestMultiEvent {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using MultiEvent;
-	using UTask;
+	using Utility;
 	using Debug;
 	using Test;
 
 
 	public class TestMultiEvent : SMStandardTest {
-		MultiEvent _events = new MultiEvent();
+		SMMultiEvent _events = new SMMultiEvent();
 
 
 		protected override void Create() {
@@ -31,9 +31,9 @@ namespace SubmarineMirage.TestMultiEvent {
 		public IEnumerator TestModifyler() => From( async () => {
 			TestMultiEventUtility.SetModifyler( _events, a => a );
 
-			Log.Debug( "・実行" );
+			SMLog.Debug( "・実行" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
 			await UTask.DontWait();
 		} );
@@ -44,13 +44,13 @@ namespace SubmarineMirage.TestMultiEvent {
 		public IEnumerator TestChangeWhileRunning() => From( async () => {
 			TestMultiEventUtility.SetChangeWhileRunning( _events, a => a );
 
-			Log.Debug( "・実行 1" );
+			SMLog.Debug( "・実行 1" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
-			Log.Debug( "・実行 2" );
+			SMLog.Debug( "・実行 2" );
 			_events.Run();
-			Log.Debug( _events );
+			SMLog.Debug( _events );
 
 			await UTask.DontWait();
 		} );

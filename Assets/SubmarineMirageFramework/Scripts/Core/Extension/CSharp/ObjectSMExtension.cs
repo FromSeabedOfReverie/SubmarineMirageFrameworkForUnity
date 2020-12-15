@@ -12,7 +12,6 @@ namespace SubmarineMirage.Extension {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 物の拡張クラス
-	///----------------------------------------------------------------------------------------------------
 	/// </summary>
 	///====================================================================================================
 	public static class ObjectSMExtension {
@@ -73,7 +72,7 @@ namespace SubmarineMirage.Extension {
 
 			return string.Join( "\n",
 				$"{nameI}{self.GetAboutName()}(",
-				string.Join( ",\n", self.GetType().GetAllNotAttributeMembers<HideAttribute>().Select( i =>
+				string.Join( ",\n", self.GetType().GetAllNotAttributeMembers<SMHideAttribute>().Select( i =>
 					$"{memberI}{i.Name} : {i.GetValue( self )}"
 				) ),
 				$"{nameI})"
@@ -89,7 +88,7 @@ namespace SubmarineMirage.Extension {
 
 			return string.Join( " ",
 				$"{nameI}{self.GetAboutName()}(",
-				string.Join( " ", self.GetType().GetAllAttributeMembers<ShowLineAttribute>().Select( i =>
+				string.Join( " ", self.GetType().GetAllAttributeMembers<SMShowLineAttribute>().Select( i =>
 					$"{i.GetValue( self )}"
 				) ),
 				")"

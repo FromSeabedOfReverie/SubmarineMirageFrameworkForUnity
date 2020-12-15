@@ -12,7 +12,7 @@ namespace SubmarineMirage.Base {
 
 
 	public interface ISMBase : IDisposable {
-		uint _id		{ get; set; }
+		uint _id	{ get; }
 
 		string ToString( int indent );
 		string ToLineString( int indent = 0 );

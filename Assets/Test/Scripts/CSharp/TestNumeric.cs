@@ -9,7 +9,7 @@ namespace SubmarineMirage.TestCSharp {
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
-	using UTask;
+	using Utility;
 	using Debug;
 	using Test;
 
@@ -27,21 +27,21 @@ namespace SubmarineMirage.TestCSharp {
 		public IEnumerator TestOverflow() => From( async () => {
 			var min = uint.MinValue;
 			var max = uint.MaxValue;
-			Log.Debug( string.Join( "\n",
+			SMLog.Debug( string.Join( "\n",
 				$"{nameof( min )} : {min}",
 				$"{nameof( max )} : {max}"
 			) );
 
 			min--;
 			max++;
-			Log.Debug( string.Join( "\n",
+			SMLog.Debug( string.Join( "\n",
 				$"{nameof( min )} : {min}",
 				$"{nameof( max )} : {max}"
 			) );
 
 			min--;
 			max++;
-			Log.Debug( string.Join( "\n",
+			SMLog.Debug( string.Join( "\n",
 				$"{nameof( min )} : {min}",
 				$"{nameof( max )} : {max}"
 			) );
