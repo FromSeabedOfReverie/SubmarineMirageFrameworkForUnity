@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Editor.EditorUtility {
+namespace SubmarineMirage.EditorUtility {
 	using System.Reflection;
 	using UnityEditor;
 

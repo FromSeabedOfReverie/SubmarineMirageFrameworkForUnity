@@ -13,7 +13,7 @@ namespace SubmarineMirage.Base {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMStandardBase : SMBase, ISMStandardBase {
+	public abstract class SMStandardBase : BaseSM, ISMStandardBase {
 		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;
 		[SMHide] public SMToStringer _toStringer	{ get; private set; }

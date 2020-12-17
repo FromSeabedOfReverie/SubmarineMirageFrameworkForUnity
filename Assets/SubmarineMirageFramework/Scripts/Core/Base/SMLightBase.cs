@@ -10,6 +10,6 @@ namespace SubmarineMirage.Base {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMLightBase : SMBase, ISMLightBase {
+	public abstract class SMLightBase : BaseSM, ISMLightBase {
 	}
 }

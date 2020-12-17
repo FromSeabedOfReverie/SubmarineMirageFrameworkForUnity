@@ -11,6 +11,6 @@ namespace SubmarineMirage.Singleton {
 	// TODO : コメント追加、整頓
 
 
-	public interface ISMSingleton : ISMBase {
+	public interface ISMSingleton : IBaseSM {
 	}
 }

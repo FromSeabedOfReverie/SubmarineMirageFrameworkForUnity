@@ -12,7 +12,7 @@ namespace SubmarineMirage.Base {
 	// TODO : コメント追加、整頓
 
 
-	public interface ISMRawBase : ISMBase, IDisposableSMExtension {
+	public interface ISMRawBase : IBaseSM, IDisposableSMExtension {
 		CompositeDisposable _disposables	{ get; }
 	}
 }

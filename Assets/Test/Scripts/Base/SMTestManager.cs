@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Test {
+namespace SubmarineMirage.TestBase {
 	using System.Collections.Generic;
 	using Singleton;
 	using Extension;
@@ -14,7 +14,7 @@ namespace SubmarineMirage.Test {
 
 
 	public class SMTestManager : SMRawSingleton<SMTestManager> {
-		readonly List<SMBaseTest> _tests = new List<SMBaseTest>();
+		readonly List<BaseSMTest> _tests = new List<BaseSMTest>();
 
 
 		public SMTestManager() {
@@ -25,8 +25,8 @@ namespace SubmarineMirage.Test {
 		}
 
 
-		public void Register( SMBaseTest test ) => _tests.Add( test );
+		public void Register( BaseSMTest test ) => _tests.Add( test );
 
-		public void Unregister( SMBaseTest test ) => _tests.Remove( test );
+		public void Unregister( BaseSMTest test ) => _tests.Remove( test );
 	}
 }

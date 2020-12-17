@@ -21,7 +21,7 @@ namespace SubmarineMirage.Extension {
 	///		MonoBehaviourを使うときは、必ずこれを継承する。
 	/// </summary>
 	///====================================================================================================
-	public abstract class MonoBehaviourSMExtension : MonoBehaviour, ISMBase {
+	public abstract class MonoBehaviourSMExtension : MonoBehaviour, IBaseSM {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ namespace SubmarineMirage.Extension {
 			}
 		}
 
-		protected virtual void Awake() => _id = SMBaseManager.s_instance.GetNewID( this );
+		protected virtual void Awake() => _id = BaseSMManager.s_instance.GetNewID( this );
 
 		public abstract void Dispose();
 

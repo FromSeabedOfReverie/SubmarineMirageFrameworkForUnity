@@ -39,7 +39,7 @@ namespace SubmarineMirage.Debug {
 				false
 #endif
 		) {
-			_id = SMBaseManager.s_instance.GetNewID( this );
+			_id = BaseSMManager.s_instance.GetNewID( this );
 
 #if TestSMLog
 			SMLog.Debug( SMLogTag.Task,				SMLogTag.Task );

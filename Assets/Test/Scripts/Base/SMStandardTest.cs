@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Test {
+namespace SubmarineMirage.TestBase {
 	using Cysharp.Threading.Tasks;
 	using Main;
 	using Base;
@@ -17,7 +17,7 @@ namespace SubmarineMirage.Test {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMStandardTest : SMBaseTest, ISMStandardBase {
+	public abstract class SMStandardTest : BaseSMTest, ISMStandardBase {
 		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
 		public bool _isDispose => _disposables._isDispose;
 		[SMHide] public SMToStringer _toStringer	{ get; private set; }

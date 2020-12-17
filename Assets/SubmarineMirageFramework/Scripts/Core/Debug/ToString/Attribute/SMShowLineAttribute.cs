@@ -22,7 +22,7 @@ namespace SubmarineMirage.Debug {
 		public uint _id	{ get; private set; }
 
 		public SMShowLineAttribute()
-			=> _id = SMBaseManager.s_instance.GetNewID( this );
+			=> _id = BaseSMManager.s_instance.GetNewID( this );
 
 		public void Dispose() {}
 

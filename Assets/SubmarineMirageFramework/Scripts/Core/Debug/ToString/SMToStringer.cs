@@ -55,8 +55,8 @@ namespace SubmarineMirage.Debug.ToString {
 
 		public string DefaultValue( object value, int indent ) {
 			switch ( value ) {
-				case ISMBase smBase:
-					return smBase.ToString( indent );
+				case IBaseSM baseSM:
+					return baseSM.ToString( indent );
 /*
 				case KeyValuePair<> pair:
 					var v = DefaultValue( indent, pair.Value );
@@ -84,8 +84,8 @@ namespace SubmarineMirage.Debug.ToString {
 
 		public string DefaultLineValue( object value ) {
 			switch ( value ) {
-				case ISMBase smBase:
-					return smBase.ToLineString();
+				case IBaseSM baseSM:
+					return baseSM.ToLineString();
 /*
 				case KeyValuePair<> pair:
 					return pair.Key;

@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Test {
+namespace SubmarineMirage.TestBase {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
@@ -19,11 +19,11 @@ namespace SubmarineMirage.Test {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMRawTest : SMBaseTest, ISMRawBase {
+	public abstract class SMRawTest : BaseSMTest, ISMRawBase {
 		[SMHide] public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
 		public bool _isDispose => _disposables.IsDisposed;
-		[SMHide] protected Func<SMTaskCanceler, UniTask> _createEvent;
-		[SMHide] protected Func<SMTaskCanceler, UniTask> _initializeEvent;
+		[SMHide] protected Func<SMTaskCanceler, UniTask> _createEvent	{ get; set; }
+		[SMHide] protected Func<SMTaskCanceler, UniTask> _initializeEvent	{ get; set; }
 		[SMHide] protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
 
 

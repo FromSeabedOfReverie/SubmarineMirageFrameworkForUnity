@@ -15,7 +15,7 @@ namespace SubmarineMirage.TestTask {
 	using Task;
 	using Extension;
 	using Debug;
-	using Test;
+	using TestBase;
 	using UnityObject = UnityEngine.Object;
 
 
@@ -25,8 +25,8 @@ namespace SubmarineMirage.TestTask {
 
 
 	public class TestSMTaskRunner : SMStandardTest {
-		SMTaskRunner _taskRunner;
-		Text _text;
+		SMTaskRunner _taskRunner	{ get; set; }
+		Text _text	{ get; set; }
 
 
 		protected override void Create() {
