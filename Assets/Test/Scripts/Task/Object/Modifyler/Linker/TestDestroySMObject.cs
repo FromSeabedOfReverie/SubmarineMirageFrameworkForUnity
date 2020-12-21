@@ -12,7 +12,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	using UnityEngine;
 	using KoganeUnityLib;
 	using Task;
-	using Task.Modifyler;
+	using Task.Object.Modifyler;
 	using Scene;
 	using Utility;
 	using Debug;
@@ -31,7 +31,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			_createEvent.AddLast( async canceler => {
 				SMLog.Debug( $"start {nameof( Create )}{_testName}" );
 				switch ( _testName ) {
-					case nameof( TestUnLink ):	CreateTestUnLink();	break;
+					case nameof( TestUnlink ):	CreateTestUnlink();	break;
 					case nameof( TestRun1 ):	CreateTestRun1();	break;
 					case nameof( TestRun2 ):	CreateTestRun2();	break;
 					case nameof( TestRun3 ):	CreateTestRun3();	break;
@@ -48,16 +48,16 @@ namespace SubmarineMirage.TestTask.Modifyler {
 		・変更者テスト
 		Run、_object、_top、_modifyler、確認
 */
-		void CreateTestUnLink() => TestSMBehaviourSMUtility.CreateBehaviours( @"
+		void CreateTestUnlink() => TestSMBehaviourSMUtility.CreateBehaviours( @"
 			M1,
 				M2,
 					M6,
 		" );
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestUnLink() => From( async () => {
+		public IEnumerator TestUnlink() => From( async () => {
 			await UTask.NextFrame( _asyncCanceler );
-			SMLog.Debug( $"{nameof( TestUnLink )}" );
+			SMLog.Debug( $"{nameof( TestUnlink )}" );
 
 			var o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			TestSMBehaviourSMUtility.SetEvent( o._behaviour );
@@ -203,7 +203,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 /*
 		・失敗テスト
-		DestroySMObject、null、既にリンク切れのobject、確認
+		DestroySMGroup、null、既にリンク切れのobject、確認
 */
 		void CreateTestError() => TestSMBehaviourSMUtility.CreateBehaviours( @"
 			M3,

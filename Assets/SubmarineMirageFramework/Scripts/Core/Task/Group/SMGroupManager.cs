@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
-namespace SubmarineMirage.Task {
+#define TestGroup
+namespace SubmarineMirage.Task.Group {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -15,32 +15,44 @@ namespace SubmarineMirage.Task {
 	using KoganeUnityLib;
 	using Base;
 	using Scene;
+	using Modifyler;
+	using Task.Modifyler;
+	using Behaviour;
+	using Object;
 	using Extension;
 	using Utility;
 	using Debug;
 
 
+
 	// TODO : コメント追加、整頓
 
 
-	public class SMGroupManager : SMStandardBase {
+
+	public class SMGroupManager : SMStandardBase, IBaseSMTaskModifylerOwner<SMGroupModifyler> {
 		static readonly SMTaskType[] GET_ALL_TOPS_TASK_TYPES =
 			new SMTaskType[] { SMTaskType.FirstWork, SMTaskType.Work, SMTaskType.DontWork };
 		static readonly SMTaskType[] DISPOSE_TASK_TYPES =
 			new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork };
 
 		public SMScene _owner	{ get; private set; }
+		public SMGroupModifyler _modifyler	{ get; private set; }
 		public readonly Dictionary<SMTaskType, SMGroup> _groups = new Dictionary<SMTaskType, SMGroup>();
 		public bool _isEnter	{ get; private set; }
 
-		public SMTaskCanceler _asyncCancelerOnDisable => _owner._activeAsyncCanceler;
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _owner._activeAsyncCanceler;
+
 
 
 		public SMGroupManager( SMScene owner ) {
 			_owner = owner;
-
+			_modifyler = new SMGroupModifyler( this );
 			EnumUtils.GetValues<SMTaskType>().ForEach( t => _groups[t] = null );
-			_disposables.AddLast( () => DisposeGroups() );
+
+			_disposables.AddLast( () => {
+				_modifyler.Dispose();
+				DisposeGroups();
+			} );
 		}
 
 		void DisposeGroups() {
@@ -51,52 +63,6 @@ namespace SubmarineMirage.Task {
 				.ForEach( g => g.Dispose() );
 			_groups.Clear();
 		}
-
-
-
-		public void Register( SMGroup add ) {
-#if TestTask
-			SMLog.Debug( $"{nameof( Register )} : start\n{this}" );
-			// 追加前の物一覧を表示
-			SMLog.Debug( string.Join( "\n", _groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
-#endif
-			var g = _groups[add._type];
-			if ( g == null ) {
-				_groups[add._type] = add;
-			} else {
-				var last = g.GetLast();
-#if TestTask
-				SMLog.Debug( string.Join( "\n",
-					$"{nameof( last )} : {last?.ToLineString()}",
-					$"{nameof( add )} : {add?.ToLineString()}"
-				) );
-#endif
-				add._previous = last;
-				last._next = add;
-#if TestTask
-				SMLog.Debug( string.Join( "\n",
-					$"{nameof( last )} : {last?.ToLineString()}",
-					$"{nameof( add )} : {add?.ToLineString()}"
-				) );
-#endif
-			}
-#if TestTask
-			// 追加後の物一覧を表示
-			SMLog.Debug( string.Join( "\n", _groups.Select( pair => $"{pair.Key} : {pair.Value?.ToLineString()}" ) ) );
-			SMLog.Debug( $"{nameof( Register )} : end\n{this}" );
-#endif
-		}
-
-		public void Unregister( SMGroup remove, SMTaskType lastType ) {
-			if ( _groups[lastType] == remove )	{ _groups[lastType] = remove._next; }
-			if ( remove._previous != null )		{ remove._previous._next = remove._next; }
-			if ( remove._next != null )			{ remove._next._previous = remove._previous; }
-			remove._previous = null;
-			remove._next = null;
-		}
-
-		public void Unregister( SMGroup remove ) => Unregister( remove, remove._type );
-
 
 
 		public IEnumerable<SMGroup> GetAllGroups( SMTaskType? type = null, bool isReverse = false ) {
@@ -110,11 +76,11 @@ namespace SubmarineMirage.Task {
 					.SelectMany( g => g.GetBrothers() );
 			}
 			if ( isReverse ) {
-#if TestTask
+#if TestGroup
 				SMLog.Debug( $"Start Reverse :\n{string.Join( "\n", result.Select( g => g.ToLineString() ) )}" );
 #endif
 				result = result.Reverse();
-#if TestTask
+#if TestGroup
 				SMLog.Debug( $"End Reverse :\n{string.Join( "\n", result.Select( g => g.ToLineString() ) )}" );
 				SMLog.Debug(
 					$"Don't Reverse :\n{string.Join( "\n", GetAllGroups( type ).Select( g => g.ToLineString() ) )}" );
@@ -154,28 +120,19 @@ namespace SubmarineMirage.Task {
 
 
 
-		public async UniTask RunAllStateEvents( SMTaskType type, SMTaskRunState state ) {
-			var gs = GetAllGroups( type, type == SMTaskType.FirstWork && state == SMTaskRunState.Finalizing );
-			switch ( type ) {
-				case SMTaskType.FirstWork:	foreach ( var g in gs )	{ await g.RunStateEvent( state ); }	return;
-				case SMTaskType.Work:		await gs.Select( g => g.RunStateEvent( state ) );			return;
-			}
+		public async UniTask RunAllStateEvents( SMTaskType type, SMTaskRunState state, bool isWait = true ) {
+			RunStateSMGroup.RegisterAndRun( this, type, state );
+			if ( isWait )	{ await _modifyler.WaitRunning(); }
 		}
 
-		public async UniTask ChangeAllActives( SMTaskType type, bool isActive ) {
-			var gs = GetAllGroups( type, type == SMTaskType.FirstWork && !isActive );
-			switch ( type ) {
-				case SMTaskType.FirstWork:	foreach ( var g in gs )	{ await g.ChangeActive( isActive ); }	return;
-				case SMTaskType.Work:		await gs.Select( g => g.ChangeActive( isActive ) );				return;
-			}
+		public async UniTask ChangeAllActives( SMTaskType taskType, bool isActive, bool isWait = true ) {
+			_modifyler.Register( new ChangeActiveSMGroup( taskType, isActive ) );
+			if ( isWait )	{ await _modifyler.WaitRunning(); }
 		}
 
-		public async UniTask RunAllInitialActives( SMTaskType type ) {
-			var gs = GetAllGroups( type );
-			switch ( type ) {
-				case SMTaskType.FirstWork:	foreach ( var g in gs )	{ await g.RunInitialActive(); }	return;
-				case SMTaskType.Work:		await gs.Select( g => g.RunInitialActive() );			return;
-			}
+		public async UniTask RunAllInitialActives( SMTaskType taskType, bool isWait = true ) {
+			_modifyler.Register( new RunInitialActiveSMGroup( taskType ) );
+			if ( isWait )	{ await _modifyler.WaitRunning(); }
 		}
 
 
@@ -234,6 +191,19 @@ namespace SubmarineMirage.Task {
 			}
 
 			SMLog.Debug( $"{nameof( Load )} {_owner.GetAboutName()} : {SMTimeManager.s_instance.StopMeasure()}秒" );
+		}
+
+
+
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetValue( nameof( _groups ), i => {
+				var arrayI = StringSMUtility.IndentSpace( i + 1 );
+				return "\n" + string.Join( ",\n", _groups.Select( pair =>
+					$"{arrayI}{pair.Key} : {pair.Value.ToLineString()}"
+				) );
+			} );
 		}
 	}
 }

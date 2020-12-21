@@ -11,7 +11,7 @@ namespace SubmarineMirage.TestTask {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using KoganeUnityLib;
-	using Task;
+	using Task.Behaviour;
 	using Extension;
 	using Utility;
 	using Debug;

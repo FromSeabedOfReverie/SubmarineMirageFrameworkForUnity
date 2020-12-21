@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+#define TestGroupModifyler
+namespace SubmarineMirage.Task.Group.Modifyler {
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
 	using Utility;
@@ -18,86 +18,84 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class RegisterSMGroup : SMGroupModifyData {
-		public override ModifyType _type => ModifyType.Linker;
+		public RegisterSMGroup( SMGroup target ) : base( target )
+			=> _type = SMTaskModifyType.Linker;
 
 
-		public RegisterSMGroup() : base( null )	{}
-
-
-		public override void Cancel() {
-			_group.Dispose();
-#if TestSMTaskModifyler
+		protected override void Cancel() {
+			_target.Dispose();
+#if TestGroupModifyler
 			SMLog.Debug( $"{nameof( Cancel )} : {this}" );
 #endif
 		}
 
 
 		public override async UniTask Run() {
-			_object = _group._topObject;	// コンストラクタで設定出来ない為、ここで設定
-
-			if ( _group._isGameObject && _group._lifeSpan == SMTaskLifeSpan.Forever ) {
-				SceneManager.MoveGameObjectToScene( _group._gameObject, _group._scene._scene );
-#if TestSMTaskModifyler
+			if ( _target._isGameObject && _target._lifeSpan == SMTaskLifeSpan.Forever ) {
+				SceneManager.MoveGameObjectToScene( _target._gameObject, _owner._owner._scene );
+#if TestGroupModifyler
 				SMLog.Debug( string.Join( "\n",
-					$"{_group._lifeSpan}シーン移動 :",
-					$"{_object?.ToLineString()}",
-					$"{_group?._scene}"
+					"シーン移動 :",
+					_target._lifeSpan,
+					_target.ToLineString(),
+					_target._scene._scene
 				) );
 			} else {
 				SMLog.Debug( string.Join( "\n",
-					$"シーン移動なし :",
-					$"{_object?.ToLineString()}",
-					$"{_group?._scene}"
+					"シーン移動なし :",
+					_target._lifeSpan,
+					_target.ToLineString(),
+					_target._scene._scene
 				) );
 #endif
 			}
-			_group._groups.Register( _group );
+			SMGroupApplyer.Link( _owner, _target );
 
 			await SetRunEvent();
 		}
 
 
 		async UniTask SetRunEvent() {
-			switch ( _group._type ) {
+			switch ( _target._type ) {
 				case SMTaskType.DontWork:
 					// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-					if ( !_group._isGameObject ) {
-#if TestSMTaskModifyler
+					if ( !_target._isGameObject ) {
+#if TestGroupModifyler
 						SMLog.Debug( $"待機開始 : {this}" );
 #endif
-						await UTask.NextFrame( _group._asyncCanceler );
-#if TestSMTaskModifyler
+						await UTask.NextFrame( _target._asyncCanceler );
+#if TestGroupModifyler
 						SMLog.Debug( $"待機終了 : {this}" );
 #endif
 					}
-					RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.Create );
+					await _target.RunStateEvent( SMTaskRunState.Create, false );
 					break;
 
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
-					if ( _group._groups._isEnter ) {
+					if ( _owner._isEnter ) {
 						// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-						if ( !_group._isGameObject ) {
-#if TestSMTaskModifyler
+						if ( !_target._isGameObject ) {
+#if TestGroupModifyler
 							SMLog.Debug( $"待機開始 : {this}" );
 #endif
-							await UTask.NextFrame( _group._asyncCanceler );
-#if TestSMTaskModifyler
+							await UTask.NextFrame( _target._asyncCanceler );
+#if TestGroupModifyler
 							SMLog.Debug( $"待機終了 : {this}" );
 #endif
 						}
-						RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.Create );
-						RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.SelfInitializing );
-						RunStateSMObject.RegisterAndRun( _group, SMTaskRunState.Initializing );
-						_owner.Register( new RunInitialActiveSMObject( _object ) );
+						await _target.RunStateEvent( SMTaskRunState.Create, false );
+						await _target.RunStateEvent( SMTaskRunState.SelfInitializing, false );
+						await _target.RunStateEvent( SMTaskRunState.Initializing, false );
+						await _target.RunInitialActive( false );
 					}
 					break;
 			}
-#if TestSMTaskModifyler
+#if TestGroupModifyler
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( SetRunEvent )} :",
-				$"{nameof( _group._groups._isEnter )} : {_group._groups._isEnter}",
-				$"{nameof( _owner )} : {_owner}"
+				$"{nameof( _owner._isEnter )} : {_owner._isEnter}",
+				$"{nameof( _modifyler )} : {_modifyler}"
 			) );
 #endif
 		}

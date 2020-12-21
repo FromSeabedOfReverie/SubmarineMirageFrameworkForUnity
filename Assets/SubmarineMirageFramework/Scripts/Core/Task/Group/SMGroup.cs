@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
-namespace SubmarineMirage.Task {
+#define TestGroup
+namespace SubmarineMirage.Task.Group {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
@@ -13,14 +13,20 @@ namespace SubmarineMirage.Task {
 	using KoganeUnityLib;
 	using Base;
 	using Modifyler;
+	using Task.Modifyler;
+	using Object;
+	using Object.Modifyler;
 	using Scene;
+	using Utility;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SMGroup : SMStandardBase {
+	public class SMGroup
+		: SMStandardBase, IBaseSMTaskModifylerOwner<SMObjectModifyler>, IBaseSMTaskModifyDataTarget
+	{
 		public SMTaskType _type			{ get; set; }
 		public SMTaskLifeSpan _lifeSpan	{ get; set; }
 		public SMScene _scene		{ get; set; }
@@ -46,7 +52,8 @@ namespace SubmarineMirage.Task {
 			_disposables.AddLast( () => {
 				_modifyler.Dispose();
 				_topObject?.Dispose();
-				_groups.Unregister( this );
+				_groups._modifyler.Unregister( this );
+				SMGroupApplyer.Unlink( _groups, this );
 			} );
 		}
 
@@ -88,14 +95,14 @@ namespace SubmarineMirage.Task {
 		}
 
 		public void SetAllData() {
-#if TestTask
+#if TestGroup
 			SMLog.Debug( $"{nameof( SetAllData )} : start\n{this}" );
 #endif
 			var lastType = _type;
 			var lastScene = _scene;
 			var allObjects = _topObject.GetAllChildren();
 			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
-#if TestTask
+#if TestGroup
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( allObjects )} :",
 				$"{string.Join( "\n", allObjects.Select( o => o?.ToLineString() ) )}"
@@ -120,7 +127,7 @@ namespace SubmarineMirage.Task {
 				SMSceneManager.s_instance._fsm._scene != null	? SMSceneManager.s_instance._fsm._scene
 															: SMSceneManager.s_instance._fsm._startScene
 			);
-#if TestTask
+#if TestGroup
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( lastType )} : {lastType}",
 				$"{nameof( lastScene )} : {lastScene}",
@@ -132,43 +139,43 @@ namespace SubmarineMirage.Task {
 			allObjects.ForEach( o => o._group = this );
 
 			if ( lastScene == null ) {
-#if TestTask
+#if TestGroup
 				SMLog.Debug( $"Register : {this}" );
 #endif
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				if ( _groups != null ) {
-					_modifyler.Register( new RegisterSMGroup() );
+					_groups._modifyler.Register( new RegisterSMGroup( this ) );
 				}
 			} else if ( _type != lastType || _scene != lastScene ) {
-#if TestTask
-				SMLog.Debug( $"ReRegister : {this}" );
+#if TestGroup
+				SMLog.Debug( $"Reregister : {this}" );
 #endif
-				_modifyler.Register( new ReRegisterSMGroup( lastType, lastScene ) );
+				lastScene._groups._modifyler.Register( new SendReregisterSMGroup( this, lastType ) );
 			} else {
-#if TestTask
+#if TestGroup
 				SMLog.Debug( $"DontRegister : {this}" );
 #endif
 			}
-#if TestTask
+#if TestGroup
 			SMLog.Debug( $"{nameof( SetAllData )} : end\n{this}" );
 #endif
 		}
 
 
 
-		public async UniTask RunStateEvent( SMTaskRunState state ) {
+		public async UniTask RunStateEvent( SMTaskRunState state, bool isWait = true ) {
 			RunStateSMObject.RegisterAndRun( this, state );
-			await _modifyler.WaitRunning();
+			if ( isWait )	{ await _modifyler.WaitRunning(); }
 		}
 
-		public async UniTask ChangeActive( bool isActive ) {
+		public async UniTask ChangeActive( bool isActive, bool isWait = true ) {
 			_modifyler.Register( new ChangeActiveSMObject( _topObject, isActive, true ) );
-			await _modifyler.WaitRunning();
+			if ( isWait )	{ await _modifyler.WaitRunning(); }
 		}
 
-		public async UniTask RunInitialActive() {
+		public async UniTask RunInitialActive( bool isWait = true ) {
 			_modifyler.Register( new RunInitialActiveSMObject( _topObject ) );
-			await _modifyler.WaitRunning();
+			if ( isWait )	{ await _modifyler.WaitRunning(); }
 		}
 
 

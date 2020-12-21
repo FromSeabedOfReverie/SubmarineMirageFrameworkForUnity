@@ -12,7 +12,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using Task;
-	using Task.Modifyler;
+	using Task.Behaviour;
+	using Task.Object;
+	using Task.Group.Modifyler;
 	using Scene;
 	using Utility;
 	using Debug;
@@ -138,14 +140,14 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
 			var d = new RegisterSMGroup( o );
-			d.Cancel();
+			d.Dispose();
 
 			o = new B1( true )._object;
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
 			d = new RegisterSMGroup( o );
 			d.Run().Forget();
-			d.Cancel();
+			d.Dispose();
 			await UTask.NextFrame( _asyncCanceler );
 
 			o = new B1( true )._object;
@@ -153,7 +155,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o._scene = SMSceneManager.s_instance._fsm._scene;
 			d = new RegisterSMGroup( o );
 			await d.Run();
-			d.Cancel();
+			d.Dispose();
 
 			o = new B1( true )._object;
 
@@ -163,7 +165,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
 			d = new RegisterSMGroup( o );
-			d.Cancel();
+			d.Dispose();
 
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null, true );
@@ -171,7 +173,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o._scene = SMSceneManager.s_instance._fsm._scene;
 			d = new RegisterSMGroup( o );
 			d.Run().Forget();
-			d.Cancel();
+			d.Dispose();
 			await UTask.NextFrame( _asyncCanceler );
 
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
@@ -180,7 +182,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o._scene = SMSceneManager.s_instance._fsm._scene;
 			d = new RegisterSMGroup( o );
 			await d.Run();
-			d.Cancel();
+			d.Dispose();
 
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null, true );

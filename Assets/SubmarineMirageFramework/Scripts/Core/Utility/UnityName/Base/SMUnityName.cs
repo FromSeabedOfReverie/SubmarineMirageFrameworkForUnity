@@ -9,7 +9,7 @@ namespace SubmarineMirage.Utility {
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Task;
+	using Task.Behaviour;
 	using Singleton;
 	///====================================================================================================
 	/// <summary>

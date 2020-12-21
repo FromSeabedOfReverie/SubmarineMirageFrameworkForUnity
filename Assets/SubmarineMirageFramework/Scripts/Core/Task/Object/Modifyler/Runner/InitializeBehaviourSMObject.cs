@@ -4,8 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.Task.Object.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Behaviour;
+	using Behaviour.Modifyler;
+	using Object;
 	using Utility;
 	using Debug;
 
@@ -17,16 +20,16 @@ namespace SubmarineMirage.Task.Modifyler {
 		[SMShowLine] SMMonoBehaviour _behaviour	{ get; set; }
 
 
-		public InitializeBehaviourSMObject( SMObject smObject, SMMonoBehaviour behaviour ) : base( smObject ) {
+		public InitializeBehaviourSMObject( SMObject target, SMMonoBehaviour behaviour ) : base( target ) {
+			_type = SMTaskModifyType.Runner;
 			_behaviour = behaviour;
-			_type = ModifyType.Runner;
 		}
 
-		public override void Cancel() {}
+		protected override void Cancel() {}
 
 
 		public override async UniTask Run() {
-			switch ( _group._type ) {
+			switch ( _owner._type ) {
 				case SMTaskType.DontWork:
 // TODO : 作成直後に実行するとエラーになる為、待機しているが、できれば不要にしたい
 					await UTask.NextFrame( _behaviour._asyncCancelerOnDisable );
@@ -34,7 +37,7 @@ namespace SubmarineMirage.Task.Modifyler {
 					return;
 				case SMTaskType.Work:
 				case SMTaskType.FirstWork:
-					if ( _group._groups._isEnter ) {
+					if ( _owner._groups._isEnter ) {
 // TODO : 作成直後に実行するとエラーになる為、待機しているが、できれば不要にしたい
 						await UTask.NextFrame( _behaviour._asyncCancelerOnDisable );
 						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Create );

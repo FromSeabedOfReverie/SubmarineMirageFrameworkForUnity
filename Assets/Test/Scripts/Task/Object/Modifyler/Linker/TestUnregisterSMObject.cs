@@ -11,8 +11,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	using UnityEngine.TestTools;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using Task;
-	using Task.Modifyler;
+	using Task.Behaviour;
+	using Task.Object;
+	using Task.Group.Modifyler;
 	using Utility;
 	using Debug;
 	using TestBase;

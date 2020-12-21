@@ -4,11 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+#define TestObjectModifyler
+namespace SubmarineMirage.Task.Object.Modifyler {
 	using System.Linq;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using Behaviour.Modifyler;
+	using Object;
 	using Debug;
 
 
@@ -20,65 +22,75 @@ namespace SubmarineMirage.Task.Modifyler {
 		[SMShowLine] bool _isChangeOwner	{ get; set; }
 
 
-		public ChangeActiveSMObject( SMObject smObject, bool isActive, bool isChangeOwner ) : base( smObject ) {
+		public ChangeActiveSMObject( SMObject target, bool isActive, bool isChangeOwner ) : base( target ) {
+			_type = SMTaskModifyType.Runner;
 			_isActive = isActive;
 			_isChangeOwner = isChangeOwner;
-			_type = ModifyType.Runner;
 		}
 
-		public override void Cancel() {}
+		protected override void Cancel() {}
 
 
 
 		public override async UniTask Run() {
-			if ( _group._type == SMTaskType.DontWork )	{ return; }
-			if ( !_object._isGameObject ) {
-				await ChangeActiveSMBehaviour.RegisterAndRun( _object._behaviour, _isActive );
+			if ( _owner._type == SMTaskType.DontWork )	{ return; }
+			if ( !_target._isGameObject ) {
+				await ChangeActiveSMBehaviour.RegisterAndRun( _target._behaviour, _isActive );
 				return;
 			}
-			if ( !IsCanChangeActive( _object, _isChangeOwner ) )	{ return; }
+			if ( !IsCanChange( _target, _isChangeOwner ) )	{ return; }
 
 			if ( _isActive )	{ ChangeActiveOfGameObject(); }
-			switch ( _group._type ) {
+			switch ( _owner._type ) {
 				case SMTaskType.FirstWork:
-					if ( _isActive )	{ await SequentialRun( _object, _isActive ); }
-					else				{ await ReverseRun( _object, _isActive ); }
+					if ( _isActive )	{ await SequentialRun( _target, _isActive ); }
+					else				{ await ReverseRun( _target, _isActive ); }
 					break;
 				case SMTaskType.Work:
-					await ParallelRun( _object, _isActive );
+					await ParallelRun( _target, _isActive );
 					break;
 			}
 			if ( !_isActive )	{ ChangeActiveOfGameObject(); }
 		}
 
+
 		void ChangeActiveOfGameObject() {
 			if ( !_isChangeOwner )	{ return; }
-			_object._owner.SetActive( _isActive );
-#if TestSMTaskModifyler
-			SMLog.Debug( $"{nameof( ChangeActiveOfGameObject )} : {_isActive}\n{_object}" );
+			_target._owner.SetActive( _isActive );
+#if TestObjectModifyler
+			SMLog.Debug( $"{nameof( ChangeActiveOfGameObject )} : {_isActive}\n{_target}" );
 #endif
 		}
 
 		async UniTask SequentialRun( SMObject smObject, bool isActive ) {
-			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			if ( !IsCanChange( smObject, false ) )	{ return; }
 			foreach ( var b in smObject.GetBehaviours() )
 													{ await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ); }
 			foreach ( var o in smObject.GetChildren() )	{ await SequentialRun( o, isActive ); }
 		}
 
 		async UniTask ReverseRun( SMObject smObject, bool isActive ) {
-			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			if ( !IsCanChange( smObject, false ) )	{ return; }
 			foreach ( var o in smObject.GetChildren().Reverse() )	{ await ReverseRun( o, isActive ); }
 			foreach ( var b in smObject.GetBehaviours().Reverse() )
 													{ await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ); }
 		}
 
 		async UniTask ParallelRun( SMObject smObject, bool isActive ) {
-			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			if ( !IsCanChange( smObject, false ) )	{ return; }
 			await Enumerable.Empty<UniTask>()
 				.Concat(
 					smObject.GetBehaviours().Select( b => ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ) ) )
 				.Concat( smObject.GetChildren().Select( o => ParallelRun( o, isActive ) ) );
+		}
+
+
+
+		public static bool IsCanChange( SMObject smObject, bool isChangeOwner ) {
+			if ( !smObject._isGameObject )													{ return true; }
+			if ( smObject._parent != null && !smObject._parent._owner.activeInHierarchy )	{ return false; }
+			if ( !isChangeOwner && !smObject._owner.activeSelf )							{ return false; }
+			return true;
 		}
 	}
 }

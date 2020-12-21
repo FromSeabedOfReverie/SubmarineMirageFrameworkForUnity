@@ -10,6 +10,8 @@ namespace SubmarineMirage.EditorTask {
 	using UnityEditor;
 	using KoganeUnityLib;
 	using Task;
+	using Task.Object;
+	using Task.Group;
 	using Scene;
 	using Extension;
 	using Debug;
@@ -38,7 +40,7 @@ namespace SubmarineMirage.EditorTask {
 			_instance = (SMTaskRunner)target;
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
-			ShowAllObjects();
+			ShowAllGroups();
 			EditorGUILayout.EndScrollView();
 			ShowDetail();
 
@@ -49,41 +51,59 @@ namespace SubmarineMirage.EditorTask {
 		}
 
 
-		void ShowAllObjects() {
+		void ShowAllGroups() {
 			SMSceneManager.s_instance._fsm.GetAllScene().ForEach( scene => {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
 				scene._groups._groups.ForEach( pair => {
 					ShowHeading2( pair.Key.ToString() );
-					scene._groups.GetAllGroups( pair.Key ).ForEach( o => ShowObject( o ) );
+					scene._groups.GetAllGroups( pair.Key ).ForEach( g => ShowGroup( g ) );
 				} );
 				EditorGUI.indentLevel--;
 			} );
 			EditorGUILayout.Space();
 		}
 
+		void ShowGroup( SMGroup group ) {
+			EditorGUI.indentLevel++;
+
+			GUI.SetNextControlName( string.Join( "\n",
+				$"{group._id}, {group._type}, {group._lifeSpan}( {group._scene.GetAboutName()} )",
+				$"↑ {group._previous?.ToLineString()}",
+				$"↓ {group._next?.ToLineString()}",
+
+				$"{( group._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
+					+ $"{( group._isDispose ? "Dispose" : "" )}"
+			) );
+
+			EditorGUILayout.SelectableLabel( group.ToLineString(), GUILayout.Height( 16 ) );
+
+			ShowObject( group._topObject );
+
+			EditorGUI.indentLevel--;
+		}
+
 		void ShowObject( SMObject smObject ) {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( string.Join( "\n",
-				$"{smObject._id}, {smObject._type}, {smObject._lifeSpan}( {smObject._scene.GetAboutName()} )",
+				$"{smObject._id}",
 
 				$"{( smObject._owner != null ? smObject._owner.name : "null" )}",
 				string.Join( "\n", smObject.GetBehaviours().Select( b => $"    {b.ToLineString()}" ) ),
 
-				$"△ {( smObject._isTop ? "this" : smObject._top?.ToLineString( false ) )}",
-				$"← {smObject._parent?.ToLineString( false )}",
-				$"↑ {smObject._previous?.ToLineString( false )}",
-				$"↓ {smObject._next?.ToLineString( false )}",
+				$"← {smObject._parent?.ToLineString()}",
+				$"↑ {smObject._previous?.ToLineString()}",
+				$"↓ {smObject._next?.ToLineString()}",
 				$"→",
-				string.Join( "\n", smObject.GetChildren().Select( o => $"    {o.ToLineString( false )}" ) ),
+				string.Join( "\n", smObject.GetChildren().Select( o => $"    {o.ToLineString()}" ) ),
 
 				$"{( smObject._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
 					+ $"{( smObject._isDispose ? "Dispose" : "" )}"
 			) );
 
-			EditorGUILayout.SelectableLabel( smObject.ToLineString( false ), GUILayout.Height( 16 ) );
+			EditorGUILayout.SelectableLabel( smObject.ToLineString(), GUILayout.Height( 16 ) );
 
 			smObject.GetChildren().ForEach( child => ShowObject( child ) );
 

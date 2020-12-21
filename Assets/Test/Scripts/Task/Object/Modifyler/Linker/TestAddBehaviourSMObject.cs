@@ -14,7 +14,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Task;
-	using Task.Modifyler;
+	using Task.Behaviour;
+	using Task.Object;
+	using Task.Object.Modifyler;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -100,12 +102,12 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M3" );
 			var o = new SMObject( b.gameObject, new [] { b }, null );
 			var d = new AddBehaviourSMObject( o, typeof( M3 ) );
-			d.Cancel();
+			d.Dispose();
 
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null );
 			d = new AddBehaviourSMObject( o, typeof( M6 ) );
-			d.Cancel();
+			d.Dispose();
 
 
 			SMLog.Debug( "・実行中、停止" );
@@ -114,7 +116,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			await o._top._modifyler.WaitRunning();
 			d = new AddBehaviourSMObject( o, typeof( M3 ) );
 			o._top._modifyler.Register( d );
-			d.Cancel();
+			d.Dispose();
 
 			// _modifylerで、再登録してシーン移動するが、そもそも実行中や実行後に停止できない
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
@@ -122,7 +124,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			await o._top._modifyler.WaitRunning();
 			d = new AddBehaviourSMObject( o, typeof( M6 ) );
 			o._top._modifyler.Register( d );
-			d.Cancel();
+			d.Dispose();
 
 
 			SMLog.Debug( "・実行後、停止" );
@@ -130,7 +132,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o = new SMObject( b.gameObject, new [] { b }, null );
 			d = new AddBehaviourSMObject( o, typeof( M3 ) );
 			await d.Run();
-			d.Cancel();
+			d.Dispose();
 
 
 			await UTask.Never( _asyncCanceler );
@@ -139,7 +141,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 /*
 		・エラーテスト
-		AddBehaviourSMObject、SMMonoBehaviour以外、typeを変なのにする
+		AddBehaviourSMGroup、SMMonoBehaviour以外、typeを変なのにする
 */
 		void CreateTestError() => TestSMBehaviourSMUtility.CreateBehaviours( @"
 			M3

@@ -201,9 +201,12 @@ namespace SubmarineMirage.FSM {
 		public override void SetToString() {
 			base.SetToString();
 			_toStringer.SetValue( nameof( _owner ), i => _owner.GetAboutName() );
-			_toStringer.SetValue( nameof( _states ), i => "\n" + string.Join( ",\n",
-				_states.Select( pair => $"{StringSMUtility.IndentSpace( i )}{pair.Value}" )
-			) );
+			_toStringer.SetValue( nameof( _states ), i => {
+				var arrayI = StringSMUtility.IndentSpace( i + 1 );
+				return "\n" + string.Join( ",\n", _states.Select( pair =>
+					$"{arrayI}{pair.Key} : {pair.Value.ToLineString()}"
+				) );
+			} );
 		}
 	}
 }

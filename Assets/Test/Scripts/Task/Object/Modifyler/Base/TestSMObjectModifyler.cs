@@ -8,7 +8,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
-	using Task;
+	using Task.Behaviour;
 	using Extension;
 	using Utility;
 	using Debug;

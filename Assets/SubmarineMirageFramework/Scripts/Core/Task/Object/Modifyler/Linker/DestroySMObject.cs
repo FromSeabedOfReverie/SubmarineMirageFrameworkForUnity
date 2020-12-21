@@ -4,9 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+#define TestObjectModifyler
+namespace SubmarineMirage.Task.Object.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Object;
 	using Debug;
 
 
@@ -16,43 +17,42 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class DestroySMObject : SMObjectModifyData {
-		public DestroySMObject( SMObject smObject ) : base( smObject ) {
-			_type = ModifyType.Linker;
-		}
+		public DestroySMObject( SMObject target ) : base( target )
+			=> _type = SMTaskModifyType.Linker;
 
-		public override void Cancel() {}
+		protected override void Cancel() {}
 
 
 		public override async UniTask Run() {
-#if TestSMTaskModifyler
+#if TestObjectModifyler
 			SMLog.Debug( $"{nameof( Run )} : start\n{this}" );
-			SMLog.Debug( $"{nameof( _group )} : {_group}" );
 			SMLog.Debug( $"{nameof( _owner )} : {_owner}" );
-			SMLog.Debug( $"{nameof( _object )} : {_object}" );
+			SMLog.Debug( $"{nameof( _modifyler )} : {_modifyler}" );
+			SMLog.Debug( $"{nameof( _target )} : {_target}" );
 #endif
 
-			if ( !_group.IsTop( _object ) ) {
-				UnLinkObject( _object );
-				_group.SetAllData();
+			if ( !_owner.IsTop( _target ) ) {
+				SMObjectApplyer.Unlink( _target );
+				_owner.SetAllData();
 			}
 
-#if TestSMTaskModifyler
-			SMLog.Debug( $"{nameof( _group )} : {_group}" );
-			SMLog.Debug( $"{nameof( _object )} : {_object}" );
+#if TestObjectModifyler
+			SMLog.Debug( $"{nameof( _owner )} : {_owner}" );
+			SMLog.Debug( $"{nameof( _target )} : {_target}" );
 #endif
 
 			try {
-				await new ChangeActiveSMObject( _object, false, true ).Run();
-				await new RunStateSMObject( _object, SMTaskRunState.Finalizing ).Run();
+				await new ChangeActiveSMObject( _target, false, true ).Run();
+				await new RunStateSMObject( _target, SMTaskRunState.Finalizing ).Run();
 			} finally {
-				_object.Dispose();
-#if TestSMTaskModifyler
-				SMLog.Debug( $"finally : {_object}" );
+				_target.Dispose();
+#if TestObjectModifyler
+				SMLog.Debug( $"finally : {_target}" );
 #endif
 			}
 
-#if TestSMTaskModifyler
-			SMLog.Debug( $"{nameof( _owner )} : {_owner}" );
+#if TestObjectModifyler
+			SMLog.Debug( $"{nameof( _modifyler )} : {_modifyler}" );
 			SMLog.Debug( $"{nameof( Run )} : end\n{this}" );
 #endif
 		}

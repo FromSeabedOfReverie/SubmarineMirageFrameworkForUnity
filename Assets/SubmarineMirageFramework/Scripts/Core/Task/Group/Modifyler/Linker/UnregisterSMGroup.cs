@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+#define TestGroupModifyler
+namespace SubmarineMirage.Task.Group.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Utility;
 	using Debug;
@@ -15,18 +15,16 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class UnregisterSMGroup : SMGroupModifyData {
-		public override ModifyType _type => ModifyType.Linker;
+		public UnregisterSMGroup( SMGroup target ) : base( target )
+			=> _type = SMTaskModifyType.Linker;
 
-
-		public UnregisterSMGroup() : base( null )	{}
-
-		public override void Cancel()	{}
+		protected override void Cancel() {}
 
 
 		public override async UniTask Run() {
-			_group.Dispose();
+			_target.Dispose();
 			await UTask.DontWait();
-#if TestSMTaskModifyler
+#if TestGroupModifyler
 			SMLog.Debug( $"{nameof( Run )} : {this}" );
 #endif
 		}

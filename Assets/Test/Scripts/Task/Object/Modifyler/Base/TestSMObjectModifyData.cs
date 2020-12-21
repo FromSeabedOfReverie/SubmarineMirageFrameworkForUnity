@@ -12,7 +12,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	using UnityEngine;
 	using KoganeUnityLib;
 	using Task;
-	using Task.Modifyler;
+	using Task.Behaviour;
+	using Task.Object;
+	using Task.Object.Modifyler;
 	using Scene;
 	using Utility;
 	using Debug;
@@ -33,7 +35,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 				switch ( _testName ) {
 					case nameof( TestRegisterAddChildObject ):	CreateTestRegisterAddChildObject();	break;
 					case nameof( TestSetTopAllObjectData ):		CreateTestSetTopAllObjectData();	break;
-					case nameof( TestUnLinkObject ):			CreateTestUnLinkObject();			break;
+					case nameof( TestUnlinkObject ):			CreateTestUnlinkObject();			break;
 				}
 				SMLog.Debug( $"end {nameof( Create )}{_testName}" );
 
@@ -243,9 +245,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 /*
 		・リンク解除テスト
-		UnLinkObject、を確認
+		UnlinkObject、を確認
 */
-		void CreateTestUnLinkObject() => TestSMBehaviourSMUtility.CreateBehaviours( @"
+		void CreateTestUnlinkObject() => TestSMBehaviourSMUtility.CreateBehaviours( @"
 			M1,
 			M1,
 			M1,
@@ -261,48 +263,48 @@ namespace SubmarineMirage.TestTask.Modifyler {
 		" );
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestUnLinkObject() => From( async () => {
-			SMLog.Debug( $"{nameof( TestUnLinkObject )}" );
+		public IEnumerator TestUnlinkObject() => From( async () => {
+			SMLog.Debug( $"{nameof( TestUnlinkObject )}" );
 
 			SMLog.Debug( "・兄弟解除テスト" );
 			var o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._next;
-			SMObjectModifyData.UnLinkObject( o );
+			SMObjectModifyData.UnlinkObject( o );
 
 			SMLog.Debug( "・登録最初解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
-			SMObjectModifyData.UnLinkObject( o );
+			SMObjectModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・子供兄弟解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._child._next;
-			SMObjectModifyData.UnLinkObject( o );
+			SMObjectModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・子供最初解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._child;
-			SMObjectModifyData.UnLinkObject( o );
+			SMObjectModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・親解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
-			SMObjectModifyData.UnLinkObject( o );
+			SMObjectModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・中間子解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._child;
-			SMObjectModifyData.UnLinkObject( o );
+			SMObjectModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・孫解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._next._child._child;
-			SMObjectModifyData.UnLinkObject( o );
+			SMObjectModifyData.UnlinkObject( o );
 
 
 			await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKey( KeyCode.Return ) );
 
 			SMLog.Debug( $"・エラーテスト" );
 			try {
-				SMObjectModifyData.UnLinkObject( null );
+				SMObjectModifyData.UnlinkObject( null );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );

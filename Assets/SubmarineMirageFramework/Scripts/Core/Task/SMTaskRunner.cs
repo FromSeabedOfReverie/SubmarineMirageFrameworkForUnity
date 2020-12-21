@@ -4,14 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
+#define TestTaskRunner
 namespace SubmarineMirage.Task {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
+	using Behaviour.Modifyler;
 	using FSM;
-	using Modifyler;
 	using Singleton;
 	using Scene;
 	using Main;
@@ -44,25 +44,25 @@ namespace SubmarineMirage.Task {
 
 
 		public async UniTask RunForeverTasks( Func<UniTask> registerBehaviours ) {
-#if TestTask
+#if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( RunForeverTasks )} : start" );
 #endif
 
-#if TestTask
+#if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( registerBehaviours )} : start" );
 #endif
 			await registerBehaviours();
-#if TestTask
+#if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( registerBehaviours )} : end" );
 #endif
 //			return;
 
-#if TestTask
+#if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( _foreverScene )}.Entering : start" );
 #endif
 // TODO : シーン読込後に、テストオブジェクトを作成してしまう
 			await _foreverScene.RunStateEvent( SMFSMRunState.Entering );
-#if TestTask
+#if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( _foreverScene )}.Entering : end" );
 #endif
 
@@ -72,7 +72,7 @@ namespace SubmarineMirage.Task {
 			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.Initializing );
 			await ChangeActiveSMBehaviour.RegisterAndRunInitial( SMSceneManager.s_instance );
 
-#if TestTask
+#if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( RunForeverTasks )} : end" );
 #endif
 

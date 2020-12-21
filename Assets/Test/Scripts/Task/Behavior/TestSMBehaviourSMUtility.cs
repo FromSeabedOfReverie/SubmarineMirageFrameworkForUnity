@@ -14,7 +14,8 @@ namespace SubmarineMirage.TestTask {
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Task;
-	using Task.Modifyler;
+	using Task.Behaviour;
+	using Task.Behaviour.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;

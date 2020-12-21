@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
-#define TestSMTaskModifyler
-namespace SubmarineMirage.Task {
+#define TestObject
+#define TestObjectModifyler
+namespace SubmarineMirage.Task.Object {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -15,6 +15,9 @@ namespace SubmarineMirage.Task {
 	using KoganeUnityLib;
 	using Base;
 	using Modifyler;
+	using Task.Modifyler;
+	using Behaviour;
+	using Group;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -26,9 +29,9 @@ namespace SubmarineMirage.Task {
 
 
 
-	public class SMObject : SMStandardBase {
+	public class SMObject : SMStandardBase, IBaseSMTaskModifyDataTarget {
 		[SMShowLine] public SMGroup _group	{ get; set; }
-		[SMShowLine] public GameObject _owner		{ get; private set; }
+		[SMShowLine] public GameObject _owner	{ get; private set; }
 
 		[SMShowLine] public ISMBehaviour _behaviour	{ get; set; }
 		[SMShowLine] public SMObject _previous	{ get; set; }
@@ -45,7 +48,7 @@ namespace SubmarineMirage.Task {
 		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent,
 							bool isDebug = false
 		) {
-#if TestTask
+#if TestObject
 			SMLog.Debug( $"{nameof( SMObject )}() : start\n{this}" );
 #endif
 			_owner = owner;
@@ -55,7 +58,7 @@ namespace SubmarineMirage.Task {
 			SetupChildren();
 
 			if ( !isDebug
-#if !TestSMTaskModifyler
+#if !TestObjectModifyler
 					|| true
 #endif
 			) {
@@ -73,10 +76,10 @@ namespace SubmarineMirage.Task {
 				} else {
 					_group._modifyler.Unregister( this );
 				}
-				SMObjectModifyData.UnLinkObject( this );
+				SMObjectApplyer.Unlink( this );
 				if ( _isGameObject )	{ UnityObject.Destroy( _owner ); }
 			} );
-#if TestTask
+#if TestObject
 			_disposables.AddLast( () => SMLog.Debug( $"{nameof( SMObject )}.{nameof( Dispose )} : {this}" ) );
 			SMLog.Debug( $"{nameof( SMObject )}() : end\n{this}" );
 #endif
@@ -85,7 +88,7 @@ namespace SubmarineMirage.Task {
 
 
 		void SetupBehaviours( IEnumerable<ISMBehaviour> behaviours ) {
-#if TestTask
+#if TestObject
 			SMLog.Debug( $"{nameof( SetupBehaviours )} : start\n{this}" );
 #endif
 			_behaviour = behaviours.First();
@@ -102,7 +105,7 @@ namespace SubmarineMirage.Task {
 				b._asyncCancelerOnDisable.SetParent( _asyncCanceler );
 				b._asyncCancelerOnDispose.SetParent( _asyncCanceler );
 			} );
-#if TestTask
+#if TestObject
 //			SMLog.Debug( string.Join( "\n", behaviours.Select( b => b.ToLineString() ) ) );
 			SMLog.Debug( $"{nameof( SetupBehaviours )} : end\n{this}" );
 #endif
@@ -110,18 +113,18 @@ namespace SubmarineMirage.Task {
 
 		void SetupParent( SMObject parent ) {
 			if ( !_isGameObject )	{ return; }
-#if TestTask
+#if TestObject
 			SMLog.Debug( $"{nameof( SetupParent )} : start\n{this}" );
 #endif
-			if ( parent != null )	{ SMObjectModifyData.AddChildObject( parent, this ); }
-#if TestTask
+			if ( parent != null )	{ SMObjectApplyer.LinkChild( parent, this ); }
+#if TestObject
 			SMLog.Debug( $"{nameof( SetupParent )} : end\n{this}" );
 #endif
 		}
 
 		void SetupChildren() {
 			if ( !_isGameObject )	{ return; }
-#if TestTask
+#if TestObject
 			SMLog.Debug( $"{nameof( SetupChildren )} : start\n{this}" );
 #endif
 			var currents = new Queue<Transform>();
@@ -136,7 +139,7 @@ namespace SubmarineMirage.Task {
 					}
 				}
 			}
-#if TestTask
+#if TestObject
 			SMLog.Debug( $"{nameof( SetupChildren )} : end\n{this}" );
 #endif
 		}
@@ -144,11 +147,11 @@ namespace SubmarineMirage.Task {
 		void SetupTop() {
 			if ( _parent != null )	{ return; }
 
-#if TestTask
+#if TestObject
 			SMLog.Debug( $"{nameof( SetupTop )} : start\n{this}" );
 #endif
 			_group = new SMGroup( this );
-#if TestTask
+#if TestObject
 			SMLog.Debug( $"{nameof( SetupTop )} : end\n{this}" );
 #endif
 		}
@@ -282,7 +285,7 @@ namespace SubmarineMirage.Task {
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _group._modifyler.Register(
-				new ReserveChangeParentSMObject( this, parent, isWorldPositionStays ) );
+				new SendChangeParentSMObject( this, parent, isWorldPositionStays ) );
 
 		public void ChangeActive( bool isActive )
 			=> _group._modifyler.Register( new ChangeActiveSMObject( this, isActive, true ) );
@@ -295,13 +298,13 @@ namespace SubmarineMirage.Task {
 
 			_toStringer.SetValue( nameof( _owner ), i => _owner != null ? _owner.name : "null" );
 			_toStringer.SetValue( nameof( _behaviour ), i => "\n" + string.Join( ",\n",
-				GetBehaviours().Select( b => $"{StringSMUtility.IndentSpace( i )}{b.ToLineString()}" )
+				GetBehaviours().Select( b => b.ToLineString( i + 1 ) )
 			) );
 			_toStringer.SetValue( nameof( _parent ), i => _parent?.ToLineString() );
 			_toStringer.SetValue( nameof( _previous ), i => _previous?.ToLineString() );
 			_toStringer.SetValue( nameof( _next ), i => _next?.ToLineString() );
 			_toStringer.SetValue( nameof( _child ), i => "\n" + string.Join( ",\n",
-				 GetChildren().Select( o => $"{StringSMUtility.IndentSpace( i )}{o.ToLineString()}" )
+				 GetChildren().Select( o => o.ToLineString( i + 1 ) )
 			) );
 			_toStringer.SetValue( nameof( _asyncCanceler ), i => $"_isCancel : {_asyncCanceler._isCancel}" );
 

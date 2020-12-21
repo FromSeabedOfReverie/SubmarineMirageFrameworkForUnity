@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
-namespace SubmarineMirage.Task {
+#define TestBehaviour
+namespace SubmarineMirage.Task.Behaviour {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -13,6 +13,7 @@ namespace SubmarineMirage.Task {
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using Modifyler;
+	using Object;
 	using Extension;
 	using Debug;
 	using Debug.ToString;
@@ -65,7 +66,7 @@ namespace SubmarineMirage.Task {
 
 		public void Constructor() {
 			_body = new SMBehaviourBody( this, isActiveAndEnabled );
-#if TestTask
+#if TestBehaviour
 			_disposables.AddLast( () =>
 				SMLog.Debug( $"{nameof( SMMonoBehaviour )}.{nameof( Dispose )} : {this}" )
 			);

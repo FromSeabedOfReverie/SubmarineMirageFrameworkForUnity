@@ -7,7 +7,8 @@
 namespace SubmarineMirage.TestTask.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Task;
-	using Task.Modifyler;
+	using Task.Object;
+	using Task.Object.Modifyler;
 	using Utility;
 	using Debug;
 
@@ -25,11 +26,11 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	public abstract class TestModifyData : SMObjectModifyData {
 		public TestModifyData( SMObject smObject ) : base( smObject ) {}
 
-		public override void Cancel() => SMLog.Debug( $"{nameof( Cancel )} : {this}" );
+		protected override void Cancel() => SMLog.Debug( $"{nameof( Cancel )} : {this}" );
 
 		public override async UniTask Run() {
 			SMLog.Debug( $"start {nameof( Run )} : {this}" );
-			await UTask.Delay( _object._asyncCanceler, 1000 );
+			await UTask.Delay( _target._asyncCanceler, 1000 );
 			SMLog.Debug( $"end {nameof( Run )} : {this}" );
 		}
 
@@ -38,17 +39,17 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	}
 
 	public class InterruptData : TestModifyData {
-		public override ModifyType _type => ModifyType.Interrupter;
-		public InterruptData( SMObject smObject ) : base( smObject ) {}
+		public InterruptData( SMObject smObject ) : base( smObject )
+			=> _type = SMTaskModifyType.Interrupter;
 	}
 
 	public class LinkData : TestModifyData {
-		public override ModifyType _type => ModifyType.Linker;
-		public LinkData( SMObject smObject ) : base( smObject ) {}
+		public LinkData( SMObject smObject ) : base( smObject )
+			=> _type = SMTaskModifyType.Linker;
 	}
 
 	public class RunData : TestModifyData {
-		public override ModifyType _type => ModifyType.Runner;
-		public RunData( SMObject smObject ) : base( smObject ) {}
+		public RunData( SMObject smObject ) : base( smObject )
+			=> _type = SMTaskModifyType.Runner;
 	}
 }

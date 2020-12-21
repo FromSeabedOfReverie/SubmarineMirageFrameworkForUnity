@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMTaskModifyler
+#define TestScene
 namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
@@ -12,7 +12,8 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
 	using Task;
-	using Task.Modifyler;
+	using Task.Behaviour;
+	using Task.Object;
 	using FSM;
 	using Singleton;
 	using Debug;
@@ -37,12 +38,12 @@ namespace SubmarineMirage.Scene {
 			s_instance._object._group.SetAllData();
 		}
 
-#if TestSMTaskModifyler
-		public SceneManager() => SMLog.Debug( $"{nameof( SceneManager )}() : {this}" );
+#if TestScene
+		public SMSceneManager() => SMLog.Debug( $"{nameof( SceneManager )}() : {this}" );
 #endif
 
 		public override void Create() {
-#if TestSMTaskModifyler
+#if TestScene
 			SMLog.Debug( $"{nameof( Create )} : {this}" );
 #endif
 		}
@@ -96,7 +97,7 @@ namespace SubmarineMirage.Scene {
 				scenes = _fsm.GetAllScene();
 			}
 			var currents = new Queue<SMObject>( scenes.SelectMany( s => {
-				return s._groups.GetAllGroups( taskType );
+				return s._groups.GetAllTops( taskType );
 			} ) );
 			while ( !currents.IsEmpty() ) {
 				var o = currents.Dequeue();

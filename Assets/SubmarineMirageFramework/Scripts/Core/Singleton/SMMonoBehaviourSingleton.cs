@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Singleton {
 	using Cysharp.Threading.Tasks;
 	using Task;
+	using Task.Behaviour;
 	using Utility;
 
 

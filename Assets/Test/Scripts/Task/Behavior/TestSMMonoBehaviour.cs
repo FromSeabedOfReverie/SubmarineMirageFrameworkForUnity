@@ -11,7 +11,7 @@ namespace SubmarineMirage.TestTask {
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
-	using Task;
+	using Task.Behaviour;
 	using Scene;
 	using Utility;
 	using Debug;

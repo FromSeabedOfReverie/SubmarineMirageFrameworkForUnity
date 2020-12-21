@@ -4,11 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
-namespace SubmarineMirage.Task {
+#define TestBehaviour
+namespace SubmarineMirage.Task.Behaviour {
 	using Base;
 	using MultiEvent;
 	using Modifyler;
+	using Task.Modifyler;
 	using Extension;
 	using Debug;
 	using UnityObject = UnityEngine.Object;
@@ -19,7 +20,9 @@ namespace SubmarineMirage.Task {
 
 
 
-	public class SMBehaviourBody : SMStandardBase {
+	public class SMBehaviourBody
+		: SMStandardBase, IBaseSMTaskModifylerOwner<SMBehaviourModifyler>, IBaseSMTaskModifyDataTarget
+	{
 		public SMTaskRunState _ranState	{ get; set; }
 		public bool _isInitialized => _ranState >= SMTaskRunState.Initialized;
 		public bool _isOperable =>
@@ -63,13 +66,13 @@ namespace SubmarineMirage.Task {
 				_disableEvent.Dispose();
 				_finalizeEvent.Dispose();
 
-				SMBehaviourModifyData.UnLinkBehaviour( this );
+				SMBehaviourApplyer.Unlink( this );
 				if ( _owner._object != null ) {
 					if ( _owner._object._isGameObject )			{ UnityObject.Destroy( (SMMonoBehaviour)_owner ); }
 					if ( _owner._object._behaviour == null )	{ _owner._object.Dispose(); }
 				}
 			} );
-#if TestTask
+#if TestBehaviour
 			_disposables.AddLast( () =>
 				SMLog.Debug( $"{nameof( SMBehaviourBody )}.{nameof( Dispose )} : {this}" )
 			);
@@ -83,50 +86,50 @@ namespace SubmarineMirage.Task {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue(
-				nameof( _id ), i => $"{_id} ↑{_owner._previous?._id} ↓{_owner._next?._id}" );
-			_toStringer.SetValue(
-				nameof( _owner ), i => $"{_owner._id} {_owner.GetAboutName()}" );
-			_toStringer.SetValue(
-				nameof( _asyncCancelerOnDisable ), i => $"_isCancel : {_asyncCancelerOnDisable._isCancel}" );
-			_toStringer.SetValue(
-				nameof( _asyncCancelerOnDispose ), i => $"_isCancel : {_asyncCancelerOnDispose._isCancel}" );
-			_toStringer.SetValue(
-				nameof( _selfInitializeEvent ), i => $"_isRunning : {_selfInitializeEvent._isRunning}" );
-			_toStringer.SetValue(
-				nameof( _initializeEvent ), i => $"_isRunning : {_initializeEvent._isRunning}" );
-			_toStringer.SetValue(
-				nameof( _enableEvent ), i => $"Count : {_enableEvent._events.Count}" );
-			_toStringer.SetValue(
-				nameof( _fixedUpdateEvent ), i => $"Count : {_fixedUpdateEvent._events.Count}" );
-			_toStringer.SetValue(
-				nameof( _updateEvent ), i => $"Count : {_updateEvent._events.Count}" );
-			_toStringer.SetValue(
-				nameof( _lateUpdateEvent ), i => $"Count : {_lateUpdateEvent._events.Count}" );
-			_toStringer.SetValue(
-				nameof( _disableEvent ), i => $"Count : {_disableEvent._events.Count}" );
-			_toStringer.SetValue(
-				nameof( _finalizeEvent ), i => $"_isRunning : {_finalizeEvent._isRunning}" );
+			_toStringer.SetValue( nameof( _id ), i =>
+				$"{_id} ↑{_owner._previous?._id} ↓{_owner._next?._id}" );
+			_toStringer.SetValue( nameof( _owner ), i =>
+				$"{_owner._id} {_owner.GetAboutName()}" );
+			_toStringer.SetValue( nameof( _asyncCancelerOnDisable ), i =>
+				$"_isCancel : {_asyncCancelerOnDisable._isCancel}" );
+			_toStringer.SetValue( nameof( _asyncCancelerOnDispose ), i =>
+				$"_isCancel : {_asyncCancelerOnDispose._isCancel}" );
+			_toStringer.SetValue( nameof( _selfInitializeEvent ), i =>
+				$"_isRunning : {_selfInitializeEvent._isRunning}" );
+			_toStringer.SetValue( nameof( _initializeEvent ), i =>
+				$"_isRunning : {_initializeEvent._isRunning}" );
+			_toStringer.SetValue( nameof( _enableEvent ), i =>
+				$"Count : {_enableEvent._events.Count}" );
+			_toStringer.SetValue( nameof( _fixedUpdateEvent ), i =>
+				$"Count : {_fixedUpdateEvent._events.Count}" );
+			_toStringer.SetValue( nameof( _updateEvent ), i =>
+				$"Count : {_updateEvent._events.Count}" );
+			_toStringer.SetValue( nameof( _lateUpdateEvent ), i =>
+				$"Count : {_lateUpdateEvent._events.Count}" );
+			_toStringer.SetValue( nameof( _disableEvent ), i =>
+				$"Count : {_disableEvent._events.Count}" );
+			_toStringer.SetValue( nameof( _finalizeEvent ), i =>
+				$"_isRunning : {_finalizeEvent._isRunning}" );
 		}
 
 		public static void SetBehaviourToString( ISMBehaviour behaviour ) {
-			behaviour._toStringer.SetValue(
-				nameof( behaviour._object ), i => behaviour._object?.ToLineString() );
-			behaviour._toStringer.SetValue(
-				nameof( behaviour._previous ), i => behaviour._previous?.ToLineString() );
-			behaviour._toStringer.SetValue(
-				nameof( behaviour._next ), i => behaviour._next?.ToLineString() );
+			behaviour._toStringer.SetValue( nameof( behaviour._object ), i =>
+				behaviour._object?.ToLineString() );
+			behaviour._toStringer.SetValue( nameof( behaviour._previous ), i =>
+				behaviour._previous?.ToLineString() );
+			behaviour._toStringer.SetValue( nameof( behaviour._next ), i =>
+				behaviour._next?.ToLineString() );
 
-			behaviour._toStringer.SetLineValue(
-				nameof( behaviour._previous ), () => $"↑{behaviour._previous?._id}" );
-			behaviour._toStringer.SetLineValue(
-				nameof( behaviour._next ), () => $"↓{behaviour._next?._id}" );
-			behaviour._toStringer.AddLine(
-				nameof( behaviour._body._ranState ), () => $"{behaviour._body?._ranState}" );
-			behaviour._toStringer.AddLine(
-				nameof( behaviour._body._isActive ), () => $"{behaviour._body?._isActive}" );
-			behaviour._toStringer.AddLine(
-				nameof( behaviour._body._isInitialActive ), () => $"{behaviour._body?._isInitialActive}" );
+			behaviour._toStringer.SetLineValue( nameof( behaviour._previous ), () =>
+				$"↑{behaviour._previous?._id}" );
+			behaviour._toStringer.SetLineValue( nameof( behaviour._next ), () =>
+				$"↓{behaviour._next?._id}" );
+			behaviour._toStringer.AddLine( nameof( behaviour._body._ranState ), () =>
+				$"{behaviour._body?._ranState}" );
+			behaviour._toStringer.AddLine( nameof( behaviour._body._isActive ), () =>
+				$"{behaviour._body?._isActive}" );
+			behaviour._toStringer.AddLine( nameof( behaviour._body._isInitialActive ), () =>
+				$"{behaviour._body?._isInitialActive}" );
 		}
 	}
 }

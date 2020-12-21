@@ -4,11 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+#define TestObjectModifyler
+namespace SubmarineMirage.Task.Object.Modifyler {
 	using System;
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using Behaviour;
+	using Object;
 	using Utility;
 	using Debug;
 
@@ -20,20 +22,20 @@ namespace SubmarineMirage.Task.Modifyler {
 		[SMShowLine] public SMMonoBehaviour _behaviour	{ get; private set; }
 
 
-		public AddBehaviourSMObject( SMObject smObject, Type type ) : base( smObject ) {
-			_type = ModifyType.Linker;
+		public AddBehaviourSMObject( SMObject target, Type type ) : base( target ) {
+			_type = SMTaskModifyType.Linker;
 
-			if ( !_object._isGameObject ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_object}" );
+			if ( !_target._isGameObject ) {
+				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_target}" );
 			}
-			_behaviour = (SMMonoBehaviour)_object._owner.AddComponent( type );
+			_behaviour = (SMMonoBehaviour)_target._owner.AddComponent( type );
 			if ( _behaviour == null ) {
 				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{type}" );
 			}
 		}
 
-		public override void Cancel() {
-#if TestSMTaskModifyler
+		protected override void Cancel() {
+#if TestObjectModifyler
 			var o = _behaviour?._object;
 			var go = _behaviour?.gameObject;
 			var bs = go?.GetComponents<SMMonoBehaviour>() ?? new SMMonoBehaviour[0];
@@ -43,11 +45,11 @@ namespace SubmarineMirage.Task.Modifyler {
 				$"{nameof( _behaviour._object )} : {o}",
 				$"{nameof( go.GetComponents )} : ",
 				string.Join( "\n", bs.Select( b => $"    {b.ToLineString()}" ) ),
-				$"{nameof( _owner )} : {_owner}"
+				$"{nameof( _modifyler )} : {_modifyler}"
 			) );
 #endif
 			_behaviour.Dispose();
-#if TestSMTaskModifyler
+#if TestObjectModifyler
 			bs = go?.GetComponents<SMMonoBehaviour>() ?? new SMMonoBehaviour[0];
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( Cancel )} end :",
@@ -55,39 +57,39 @@ namespace SubmarineMirage.Task.Modifyler {
 				$"{nameof( _behaviour._object )} : {o}",
 				$"{nameof( go.GetComponents )} : ",
 				string.Join( "\n", bs.Select( b => $"    {b.ToLineString()}" ) ),
-				$"{nameof( _owner )} : {_owner}"
+				$"{nameof( _modifyler )} : {_modifyler}"
 			) );
 #endif
 		}
 
 
 		public override async UniTask Run() {
-			var last = _object.GetBehaviourAtLast();
-#if TestSMTaskModifyler
+			var last = _target.GetBehaviourAtLast();
+#if TestObjectModifyler
 			SMLog.Debug( $"{nameof( Run )} : start" );
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( last )} : {last}",
 				$"{nameof( _behaviour )} : {_behaviour}",
-				$"{nameof( _object )} : {_object}",
-				$"{nameof( _owner )} : {_owner}"
+				$"{nameof( _target )} : {_target}",
+				$"{nameof( _modifyler )} : {_modifyler}"
 			) );
 #endif
 			last._next = _behaviour;
 			_behaviour._previous = last;
-			_behaviour._object = _object;
-			_group.SetAllData();
+			_behaviour._object = _target;
+			_owner.SetAllData();
 
 			_behaviour.Constructor();
-			_owner.Register( new InitializeBehaviourSMObject( _object, _behaviour ) );
+			_modifyler.Register( new InitializeBehaviourSMObject( _target, _behaviour ) );
 
 			await UTask.DontWait();
 
-#if TestSMTaskModifyler
+#if TestObjectModifyler
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( last )} : {last}",
 				$"{nameof( _behaviour )} : {_behaviour}",
-				$"{nameof( _object )} : {_object}",
-				$"{nameof( _owner )} : {_owner}"
+				$"{nameof( _target )} : {_target}",
+				$"{nameof( _modifyler )} : {_modifyler}"
 			) );
 			SMLog.Debug( $"{nameof( Run )} : end" );
 #endif

@@ -8,7 +8,7 @@ namespace SubmarineMirage.TestTask {
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
-	using Task;
+	using Task.Object;
 	using Scene;
 	using Utility;
 	using Debug;

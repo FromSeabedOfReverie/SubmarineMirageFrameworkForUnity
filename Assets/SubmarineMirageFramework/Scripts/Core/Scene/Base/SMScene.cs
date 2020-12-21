@@ -9,7 +9,7 @@ namespace SubmarineMirage.Scene {
 	using Cysharp.Threading.Tasks;
 	using DG.Tweening;
 	using KoganeUnityLib;
-	using Task;
+	using Task.Group;
 	using FSM;
 	using Extension;
 	using Utility;

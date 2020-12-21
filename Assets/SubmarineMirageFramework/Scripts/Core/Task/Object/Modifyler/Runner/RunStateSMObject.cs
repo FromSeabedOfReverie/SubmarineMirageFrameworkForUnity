@@ -4,10 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.Task.Object.Modifyler {
 	using System;
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using Behaviour.Modifyler;
+	using Object;
+	using Group;
 	using Debug;
 
 
@@ -18,9 +21,9 @@ namespace SubmarineMirage.Task.Modifyler {
 		[SMShowLine] SMTaskRunState _state	{ get; set; }
 
 
-		public RunStateSMObject( SMObject smObject, SMTaskRunState state ) : base( smObject ) {
+		public RunStateSMObject( SMObject target, SMTaskRunState state ) : base( target ) {
+			_type = SMTaskModifyType.Runner;
 			_state = state;
-			_type = ModifyType.Runner;
 
 			switch ( _state ) {
 				case SMTaskRunState.FixedUpdate:
@@ -39,22 +42,22 @@ namespace SubmarineMirage.Task.Modifyler {
 			}
 		}
 
-		public override void Cancel() {}
+		protected override void Cancel() {}
 
 
 
 		public override async UniTask Run() {
-			switch ( _group._type ) {
+			switch ( _owner._type ) {
 				case SMTaskType.FirstWork:
-					if ( _state != SMTaskRunState.Finalizing )	{ await SequentialRun( _object, _state ); }
-					else										{ await ReverseRun( _object, _state ); }
+					if ( _state != SMTaskRunState.Finalizing )	{ await SequentialRun( _target, _state ); }
+					else										{ await ReverseRun( _target, _state ); }
 					return;
 				case SMTaskType.Work:
-					await ParallelRun( _object, _state );
+					await ParallelRun( _target, _state );
 					return;
 				case SMTaskType.DontWork:
 					if ( _state != SMTaskRunState.Create )	{ return; }
-					SyncRun( _object, SMTaskRunState.Create );
+					SyncRun( _target, SMTaskRunState.Create );
 					return;
 			}
 		}

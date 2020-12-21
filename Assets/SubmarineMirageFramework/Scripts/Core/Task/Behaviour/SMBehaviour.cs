@@ -4,12 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
-//#define TestSMTaskModifyler
-namespace SubmarineMirage.Task {
+#define TestBehaviour
+//#define TestBehaviourModifyler
+namespace SubmarineMirage.Task.Behaviour {
 	using Base;
 	using MultiEvent;
 	using Modifyler;
+	using Object;
 	using Debug;
 
 
@@ -46,11 +47,11 @@ namespace SubmarineMirage.Task {
 		protected SMBehaviour( bool isDebug = false ) {
 			_body = new SMBehaviourBody( this, true );
 			_object = new SMObject( null, new ISMBehaviour[] { this }, null
-#if TestSMTaskModifyler
+#if TestBehaviourModifyler
 				, isDebug
 #endif
 			);
-#if TestTask
+#if TestBehaviour
 			SMLog.Debug( $"{nameof( SMBehaviour )}() : {this}" );
 #endif
 			_disposables.AddLast( _body );

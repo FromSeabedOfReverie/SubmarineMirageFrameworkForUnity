@@ -4,10 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task {
+namespace SubmarineMirage.Task.Behaviour {
 	using Base;
 	using MultiEvent;
 	using Modifyler;
+	using Object;
 
 
 	// TODO : コメント追加、整頓

@@ -4,58 +4,57 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestSMTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+#define TestObjectModifyler
+namespace SubmarineMirage.Task.Object.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
+	using Behaviour;
+	using Object;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ApplyAddChildSMObject : SMObjectModifyData {
+	public class ReceiveChangeParentSMObject : SMObjectModifyData {
 		[SMShowLine] SMObject _parent	{ get; set; }
 
 
-		public ApplyAddChildSMObject( SMObject smObject, SMObject parent ) : base( smObject ) {
+		public ReceiveChangeParentSMObject( SMObject target, SMObject parent ) : base( target ) {
+			_type = SMTaskModifyType.Interrupter;
 			_parent = parent;
-			_type = ModifyType.Interrupter;
 
-			if ( !_object._isGameObject || !_parent._isGameObject ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_object}" );
+			if ( !_target._isGameObject || !_parent._isGameObject ) {
+				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_target}" );
 			}
 		}
 
-
-		public override void Cancel() {
-			_object.Dispose();
-		}
+		protected override void Cancel() => _target.Dispose();
 
 
 		public override async UniTask Run() {
-			AddChildObject( _parent, _object );
+			SMObjectApplyer.LinkChild( _parent, _target );
 			_parent._group.SetAllData();
 
-			if ( _object._owner.activeSelf ) {
-#if TestSMTaskModifyler
+			if ( _target._owner.activeSelf ) {
+#if TestObjectModifyler
 				SMLog.Debug( string.Join( "\n",
 					$"{nameof( ChangeActiveSMObject )} : start",
-					$"isActive : {_object._owner.activeSelf}",
+					$"isActive : {_target._owner.activeSelf}",
 					$"isParentActive : {_parent._owner.activeInHierarchy}",
-					$"{nameof( _object )} : {_object}"
+					$"{nameof( _target )} : {_target}"
 				) );
 #endif
 
 				var isParentActive = _parent._owner.activeInHierarchy;
-				await new ChangeActiveSMObject( _object, isParentActive, false ).Run();
+				await new ChangeActiveSMObject( _target, isParentActive, false ).Run();
 
-#if TestSMTaskModifyler
+#if TestObjectModifyler
 				SMLog.Debug( string.Join( "\n",
 					$"{nameof( ChangeActiveSMObject )} : end",
-					$"isActive : {_object._owner.activeSelf}",
+					$"isActive : {_target._owner.activeSelf}",
 					$"isParentActive : {_parent._owner.activeInHierarchy}",
-					$"{nameof( _object )} : {_object}"
+					$"{nameof( _target )} : {_target}"
 				) );
 #endif
 			}

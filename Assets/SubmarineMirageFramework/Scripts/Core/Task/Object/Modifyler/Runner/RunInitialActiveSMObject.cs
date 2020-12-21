@@ -4,39 +4,42 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.Task.Object.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using Behaviour.Modifyler;
+	using Object;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class RunInitialActiveSMObject : SMObjectModifyData {
-		public RunInitialActiveSMObject( SMObject smObject ) : base( smObject ) {
-			_type = ModifyType.Runner;
-		}
 
-		public override void Cancel() {}
+	public class RunInitialActiveSMObject : SMObjectModifyData {
+		public RunInitialActiveSMObject( SMObject target ) : base( target )
+			=> _type = SMTaskModifyType.Runner;
+
+		protected override void Cancel() {}
 
 
 
 		public override async UniTask Run() {
-			switch ( _group._type ) {
-				case SMTaskType.FirstWork:	await SequentialRun( _object );	return;
-				case SMTaskType.Work:		await ParallelRun( _object );	return;
+			switch ( _owner._type ) {
+				case SMTaskType.FirstWork:	await SequentialRun( _target );	return;
+				case SMTaskType.Work:		await ParallelRun( _target );	return;
 			}
 		}
 
 		async UniTask SequentialRun( SMObject smObject ) {
-			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			if ( !ChangeActiveSMObject.IsCanChange( smObject, false ) )	{ return; }
 			foreach ( var b in smObject.GetBehaviours() )
 													{ await ChangeActiveSMBehaviour.RegisterAndRunInitial( b ); }
 			foreach ( var o in smObject.GetChildren() )	{ await SequentialRun( o ); }
 		}
 
 		async UniTask ParallelRun( SMObject smObject ) {
-			if ( !IsCanChangeActive( smObject, false ) )	{ return; }
+			if ( !ChangeActiveSMObject.IsCanChange( smObject, false ) )	{ return; }
 			await Enumerable.Empty<UniTask>()
 				.Concat(
 					smObject.GetBehaviours().Select( b => ChangeActiveSMBehaviour.RegisterAndRunInitial( b ) ) )
