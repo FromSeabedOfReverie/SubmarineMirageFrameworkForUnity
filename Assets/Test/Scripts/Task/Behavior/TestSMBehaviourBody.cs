@@ -45,8 +45,8 @@ namespace SubmarineMirage.TestTask {
 						+ $"{_viewBehaviour._object._owner}( {_viewBehaviour._object._id} )",
 					$"    {nameof( _viewBehaviour._body._ranState )} : {_viewBehaviour._body._ranState}",
 					$"    {nameof( _viewBehaviour._body._isActive )} : {_viewBehaviour._body._isActive}",
-					$"    {nameof( _viewBehaviour._body._isInitialActive )} : "
-						+ $"{_viewBehaviour._body._isInitialActive}",
+					$"    {nameof( _viewBehaviour._body._isRunInitialActive )} : "
+						+ $"{_viewBehaviour._body._isRunInitialActive}",
 					$"    {nameof( _viewBehaviour._isInitialized )} : {_viewBehaviour._isInitialized}",
 					$"    {nameof( _viewBehaviour._isActive )} : {_viewBehaviour._isActive}"
 				);
@@ -116,8 +116,8 @@ namespace SubmarineMirage.TestTask {
 		public async UniTask TestRunErrorState<T>() {
 			var behaviour = CreateBehaviour<T>();
 			var errorRunStates = new SMTaskRunState[] {
-				SMTaskRunState.None, SMTaskRunState.SelfInitialized, SMTaskRunState.Initialized,
-				SMTaskRunState.Finalized,
+				SMTaskRunState.None, SMTaskRunState.SelfInitialize, SMTaskRunState.Initialize,
+				SMTaskRunState.Finalize,
 			};
 			foreach ( var state in errorRunStates ) {
 				try						{ await RunStateSMBehaviour.RegisterAndRun( behaviour, state ); }
@@ -137,11 +137,11 @@ namespace SubmarineMirage.TestTask {
 			SMLog.Debug( $"request : {SMTaskRunState.Create}" );
 			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Create );
 
-			SMLog.Debug( $"request : {SMTaskRunState.SelfInitializing}" );
-			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing );
+			SMLog.Debug( $"request : {SMTaskRunState.SelfInitialize}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitialize );
 
-			SMLog.Debug( $"request : {SMTaskRunState.Initializing}" );
-			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing );
+			SMLog.Debug( $"request : {SMTaskRunState.Initialize}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initialize );
 
 			SMLog.Debug( $"request : {nameof( ChangeActiveSMBehaviour.RegisterAndRunInitial )}" );
 			await ChangeActiveSMBehaviour.RegisterAndRunInitial( behaviour );
@@ -161,8 +161,8 @@ namespace SubmarineMirage.TestTask {
 			SMLog.Debug( $"request : {SMTaskRunState.LateUpdate}" );
 			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.LateUpdate );
 
-			SMLog.Debug( $"request : {SMTaskRunState.Finalizing}" );
-			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing );
+			SMLog.Debug( $"request : {SMTaskRunState.Finalize}" );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalize );
 		}
 
 
@@ -208,17 +208,17 @@ namespace SubmarineMirage.TestTask {
 			catch ( OperationCanceledException ) {}
 			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Create );
 
-			SMLog.Debug( $"・Run : {SMTaskRunState.SelfInitializing}" );
+			SMLog.Debug( $"・Run : {SMTaskRunState.SelfInitialize}" );
 			stopActiveAsync( 500 );
-			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitialize ); }
 			catch ( OperationCanceledException ) {}
-			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitialize );
 
-			SMLog.Debug( $"・Run : {SMTaskRunState.Initializing}" );
+			SMLog.Debug( $"・Run : {SMTaskRunState.Initialize}" );
 			stopActiveAsync( 500 );
-			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initialize ); }
 			catch ( OperationCanceledException ) {}
-			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initialize );
 
 			SMLog.Debug( $"・Run : {nameof( ChangeActiveSMBehaviour.RegisterAndRunInitial )}" );
 			stopActiveAsync( 500 );
@@ -256,11 +256,11 @@ namespace SubmarineMirage.TestTask {
 			catch ( OperationCanceledException ) {}
 			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.LateUpdate );
 
-			SMLog.Debug( $"・Run : {SMTaskRunState.Finalizing}" );
+			SMLog.Debug( $"・Run : {SMTaskRunState.Finalize}" );
 			stopActiveAsync( 1500 );
-			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing ); }
+			try { await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalize ); }
 			catch ( OperationCanceledException ) {}
-			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing );
+			await RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalize );
 
 			behaviour.Dispose();
 			canceler.Dispose();

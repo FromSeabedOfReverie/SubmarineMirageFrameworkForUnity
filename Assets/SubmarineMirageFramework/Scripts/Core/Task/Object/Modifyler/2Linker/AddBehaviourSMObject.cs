@@ -19,12 +19,11 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 	public class AddBehaviourSMObject : SMObjectModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 		[SMShowLine] public SMMonoBehaviour _behaviour	{ get; private set; }
 
 
 		public AddBehaviourSMObject( SMObject target, Type type ) : base( target ) {
-			_type = SMTaskModifyType.Linker;
-
 			if ( !_target._isGameObject ) {
 				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_target}" );
 			}

@@ -55,7 +55,7 @@ namespace SubmarineMirage.TestScene {
 					$"    {nameof( b._isActive )} : {b._isActive}",
 					$"    {nameof( b._body._ranState )} : {b._body._ranState}",
 					$"    {nameof( b._body._isActive )} : {b._body._isActive}",
-					$"    {nameof( b._body._isInitialActive )} : {b._body._isInitialActive}",
+					$"    {nameof( b._body._isRunInitialActive )} : {b._body._isRunInitialActive}",
 					")",
 					$"{nameof( b._fsm )} : {b._fsm}"
 				);
@@ -70,34 +70,34 @@ namespace SubmarineMirage.TestScene {
 		[Timeout( int.MaxValue )]
 		public IEnumerator TestManual() {
 			_disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha1 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.Create}" );
-					RunStateSMBehaviour.RegisterAndRun( _sceneManager, SMTaskRunState.Create ).Forget();
+					RunStateSMBehaviour.RegisterAndRun(_sceneManager, SMTaskRunState.Create ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {SMTaskRunState.SelfInitializing}" );
-					RunStateSMBehaviour.RegisterAndRun( _sceneManager, SMTaskRunState.SelfInitializing ).Forget();
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha2 ) ).Subscribe( _ => {
+					SMLog.Warning( $"key down {SMTaskRunState.SelfInitialize}" );
+					RunStateSMBehaviour.RegisterAndRun(_sceneManager, SMTaskRunState.SelfInitialize ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {SMTaskRunState.Initializing}" );
-					RunStateSMBehaviour.RegisterAndRun( _sceneManager, SMTaskRunState.Initializing ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha3 ) ).Subscribe( (Action<long>)(_ => {
+					SMLog.Warning( $"key down {SMTaskRunState.Initialize}" );
+					RunStateSMBehaviour.RegisterAndRun(_sceneManager, (SMTaskRunState)SMTaskRunState.Initialize ).Forget();
+				}) ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha4 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.FixedUpdate}" );
-					RunStateSMBehaviour.RegisterAndRun( _sceneManager, SMTaskRunState.FixedUpdate ).Forget();
+					RunStateSMBehaviour.RegisterAndRun(_sceneManager, SMTaskRunState.FixedUpdate ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha5 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.Update}" );
-					RunStateSMBehaviour.RegisterAndRun( _sceneManager, SMTaskRunState.Update ).Forget();
+					RunStateSMBehaviour.RegisterAndRun(_sceneManager, SMTaskRunState.Update ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha6 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.LateUpdate}" );
-					RunStateSMBehaviour.RegisterAndRun( _sceneManager, SMTaskRunState.LateUpdate ).Forget();
+					RunStateSMBehaviour.RegisterAndRun(_sceneManager, SMTaskRunState.LateUpdate ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {SMTaskRunState.Finalizing}" );
-					RunStateSMBehaviour.RegisterAndRun( _sceneManager, SMTaskRunState.Finalizing ).Forget();
-				} )
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha7 ) ).Subscribe( (Action<long>)(_ => {
+					SMLog.Warning( $"key down {SMTaskRunState.Finalize}" );
+					RunStateSMBehaviour.RegisterAndRun(_sceneManager, (SMTaskRunState)SMTaskRunState.Finalize ).Forget();
+				}) )
 			);
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {

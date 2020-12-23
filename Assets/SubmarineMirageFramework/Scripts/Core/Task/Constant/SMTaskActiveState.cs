@@ -10,16 +10,8 @@ namespace SubmarineMirage.Task {
 	// TODO : コメント追加、整頓
 
 
-	public enum SMTaskRunState {
-		None,
-		Create,
-		SelfInitialize,
-		Initialize,
-		InitialEnable,
-		FixedUpdate,
-		Update,
-		LateUpdate,
-		FinalDisable,
-		Finalize,
+	public enum SMTaskActiveState {
+		Disable,
+		Enable,
 	}
 }

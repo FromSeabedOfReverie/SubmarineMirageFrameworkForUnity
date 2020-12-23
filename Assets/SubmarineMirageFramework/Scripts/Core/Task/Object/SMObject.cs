@@ -281,7 +281,7 @@ namespace SubmarineMirage.Task.Object {
 		}
 
 		public void Destroy()
-			=> _group._modifyler.Register( new DestroySMObject( this ) );
+			=> _group._modifyler.Register( new UnregisterSMObject( this ) );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _group._modifyler.Register(

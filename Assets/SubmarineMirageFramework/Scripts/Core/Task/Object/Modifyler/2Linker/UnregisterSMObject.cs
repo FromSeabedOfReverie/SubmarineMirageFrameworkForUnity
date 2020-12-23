@@ -16,9 +16,11 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 
-	public class DestroySMObject : SMObjectModifyData {
-		public DestroySMObject( SMObject target ) : base( target )
-			=> _type = SMTaskModifyType.Linker;
+	public class UnregisterSMObject : SMObjectModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+
+
+		public UnregisterSMObject( SMObject target ) : base( target ) {}
 
 		protected override void Cancel() {}
 
@@ -43,7 +45,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 			try {
 				await new ChangeActiveSMObject( _target, false, true ).Run();
-				await new RunStateSMObject( _target, SMTaskRunState.Finalizing ).Run();
+				await new RunStateSMObject( _target, SMTaskRunState.Finalize ).Run();
 			} finally {
 				_target.Dispose();
 #if TestObjectModifyler

@@ -60,24 +60,24 @@ namespace SubmarineMirage.FSM {
 			states.ForEach( s => _states[s.GetType()] = s );
 			_startState = startState;
 
-			_loadEvent.AddLast( _registerEventName, async canceler => {
+			_loadEvent.AddLast(_registerEventName, (Func<SMTaskCanceler, UniTask>)(async canceler => {
 				await _states
-					.Select( pair => pair.Value )
-					.Select( state => {
-						state.Set( _owner );
-						return state.RunBehaviourStateEvent( SMTaskRunState.SelfInitializing );
-					} );
-			} );
-			_initializeEvent.AddLast( _registerEventName, async canceler => {
-				await _states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRunState.Initializing ) );
+					.Select( (KeyValuePair<Type, TState> pair) => pair.Value )
+					.Select( (Func<TState, UniTask>)(state => {
+						state.Set(_owner);
+						return state.RunBehaviourStateEvent( (SMTaskRunState)SMTaskRunState.SelfInitialize );
+					}) );
+			}) );
+			_initializeEvent.AddLast(_registerEventName, (Func<SMTaskCanceler, UniTask>)(async canceler => {
+				await _states.Select( (Func<KeyValuePair<Type, TState>, UniTask>)((KeyValuePair<Type, TState> pair) => pair.Value.RunBehaviourStateEvent( (SMTaskRunState)SMTaskRunState.Initialize )) );
 				_isInitialized = true;
 				var state = _startState ?? _states.First().Value.GetType();
 				await ChangeState( state );
-			} );
-			_finalizeEvent.AddFirst( _registerEventName, async canceler => {
+			}) );
+			_finalizeEvent.AddFirst(_registerEventName, (Func<SMTaskCanceler, UniTask>)(async canceler => {
 				await ChangeState( null );
-				await _states.Select( pair => pair.Value.RunBehaviourStateEvent( SMTaskRunState.Finalizing ) );
-			} );
+				await _states.Select( (Func<KeyValuePair<Type, TState>, UniTask>)((KeyValuePair<Type, TState> pair) => pair.Value.RunBehaviourStateEvent( (SMTaskRunState)SMTaskRunState.Finalize )) );
+			}) );
 
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
 				_state?.RunBehaviourStateEvent( SMTaskRunState.FixedUpdate ).Forget()
@@ -97,7 +97,7 @@ namespace SubmarineMirage.FSM {
 			} );
 			_disableEvent.AddFirst( _registerEventName, async canceler => {
 				await UTask.WaitWhile(
-					canceler, () => _isChangingState && _owner._body._ranState != SMTaskRunState.Finalizing );
+					canceler, () => _isChangingState && _owner._body._ranState != SMTaskRunState.Finalize );
 				if ( _state != null ) {
 					await _state.ChangeActive( false );
 				}
@@ -120,16 +120,16 @@ namespace SubmarineMirage.FSM {
 			switch ( _owner._body._ranState ) {
 				case SMTaskRunState.None:
 				case SMTaskRunState.Create:
-				case SMTaskRunState.SelfInitializing:
-				case SMTaskRunState.SelfInitialized:
+				case SMTaskRunState.SelfInitialize:
+				case SMTaskRunState.SelfInitialize:
 					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
-				case SMTaskRunState.Initializing:
+				case SMTaskRunState.Initialize:
 					if ( _isInitialized )	{ break; }
 					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
-				case SMTaskRunState.Finalizing:
+				case SMTaskRunState.Finalize:
 					if ( state == null )	{ break; }
 					throw new InvalidOperationException( $"終了後の呼び出し : {_owner._body._ranState}" );
-				case SMTaskRunState.Finalized:
+				case SMTaskRunState.Finalize:
 					throw new InvalidOperationException( $"終了後の呼び出し : {_owner._body._ranState}" );
 			}
 			if ( state != null && !_states.ContainsKey( state ) ) {
@@ -159,7 +159,7 @@ namespace SubmarineMirage.FSM {
 				await _state.RunStateEvent( RunState.Exiting );
 			}
 
-			if ( _owner._body._ranState == SMTaskRunState.Finalizing ) {
+			if ( _owner._body._ranState == SMTaskRunState.Finalize ) {
 				_nextState = null;
 			}
 			_state = _nextState;
@@ -171,7 +171,7 @@ namespace SubmarineMirage.FSM {
 			}
 
 			await _state.RunStateEvent( RunState.Entering );
-			if ( _owner._body._ranState == SMTaskRunState.Finalizing ) {
+			if ( _owner._body._ranState == SMTaskRunState.Finalize ) {
 				_nextState = null;
 				_isRequestNextState = true;
 			}
@@ -179,7 +179,7 @@ namespace SubmarineMirage.FSM {
 			if ( _owner._isActive && !_isRequestNextState )	{
 				await _state.ChangeActive( true );
 			}
-			if ( _owner._body._ranState == SMTaskRunState.Finalizing ) {
+			if ( _owner._body._ranState == SMTaskRunState.Finalize ) {
 				_nextState = null;
 				_isRequestNextState = true;
 			}

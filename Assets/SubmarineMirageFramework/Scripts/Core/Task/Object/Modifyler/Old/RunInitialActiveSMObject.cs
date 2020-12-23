@@ -25,6 +25,13 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._type == SMTaskType.DontWork )	{ return; }
+			if ( !_target._isGameObject ) {
+				await ChangeActiveSMBehaviour.RegisterAndRunInitial( _target._behaviour );
+				return;
+			}
+			if ( !ChangeActiveSMObject.IsCanChange( _target, false ) )	{ return; }
+
 			switch ( _owner._type ) {
 				case SMTaskType.FirstWork:	await SequentialRun( _target );	return;
 				case SMTaskType.Work:		await ParallelRun( _target );	return;
@@ -32,14 +39,14 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 		}
 
 		async UniTask SequentialRun( SMObject smObject ) {
-			if ( !ChangeActiveSMObject.IsCanChange( smObject, false ) )	{ return; }
+			if ( !smObject._owner.activeSelf )	{ return; }
 			foreach ( var b in smObject.GetBehaviours() )
 													{ await ChangeActiveSMBehaviour.RegisterAndRunInitial( b ); }
 			foreach ( var o in smObject.GetChildren() )	{ await SequentialRun( o ); }
 		}
 
 		async UniTask ParallelRun( SMObject smObject ) {
-			if ( !ChangeActiveSMObject.IsCanChange( smObject, false ) )	{ return; }
+			if ( !smObject._owner.activeSelf )	{ return; }
 			await Enumerable.Empty<UniTask>()
 				.Concat(
 					smObject.GetBehaviours().Select( b => ChangeActiveSMBehaviour.RegisterAndRunInitial( b ) ) )

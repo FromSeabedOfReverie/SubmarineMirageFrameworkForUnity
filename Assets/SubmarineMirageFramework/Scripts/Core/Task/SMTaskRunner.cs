@@ -68,8 +68,8 @@ namespace SubmarineMirage.Task {
 
 // TODO : デバッグ用、暫定
 			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.Create );
-			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.SelfInitializing );
-			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.Initializing );
+			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.SelfInitialize );
+			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.Initialize );
 			await ChangeActiveSMBehaviour.RegisterAndRunInitial( SMSceneManager.s_instance );
 
 #if TestTaskRunner

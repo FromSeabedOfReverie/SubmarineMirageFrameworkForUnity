@@ -46,8 +46,9 @@ namespace SubmarineMirage.Task.Modifyler {
 			data.Set( _owner );
 
 			switch( data._type ) {
-				case SMTaskModifyType.Interrupter:
+				case SMTaskModifyType.FirstLinker:
 				case SMTaskModifyType.Linker:
+				case SMTaskModifyType.FirstRunner:
 					_data.AddBefore(
 						data,
 						d => d._type > data._type,

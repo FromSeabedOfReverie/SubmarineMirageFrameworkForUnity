@@ -220,11 +220,11 @@ namespace SubmarineMirage.FSM {
 
 		public async UniTask RunBehaviourStateEvent( SMTaskRunState state ) {
 			switch ( state ) {
-				case SMTaskRunState.SelfInitializing:
+				case SMTaskRunState.SelfInitialize:
 					await _loadEvent.Run( _owner._asyncCancelerOnDisable );
 					return;
 
-				case SMTaskRunState.Initializing:
+				case SMTaskRunState.Initialize:
 					await _initializeEvent.Run( _owner._asyncCancelerOnDisable );
 					return;
 
@@ -259,15 +259,15 @@ namespace SubmarineMirage.FSM {
 					}
 					return;
 
-				case SMTaskRunState.Finalizing:
+				case SMTaskRunState.Finalize:
 					await _finalizeEvent.Run( _owner._asyncCancelerOnDispose );
 					return;
 
 				case SMTaskRunState.None:
 				case SMTaskRunState.Create:
-				case SMTaskRunState.SelfInitialized:
-				case SMTaskRunState.Initialized:
-				case SMTaskRunState.Finalized:
+				case SMTaskRunState.SelfInitialize:
+				case SMTaskRunState.Initialize:
+				case SMTaskRunState.Finalize:
 					throw new ArgumentOutOfRangeException( $"{state}", $"実行不可能な型を指定" );
 			}
 		}

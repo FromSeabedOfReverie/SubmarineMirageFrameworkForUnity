@@ -16,6 +16,12 @@ namespace SubmarineMirage.Task.Modifyler {
 	public interface IBaseSMTaskModifylerOwner<TModifyler> : ISMStandardBase
 		where TModifyler : IBaseSMTaskModifyler
 	{
+		SMTaskRunState _ranState	{ get; set; }
+		SMTaskActiveState _activeState	{ get; set; }
+		bool _isInitialized	{ get; }
+		bool _isOperable	{ get; }
+		bool _isFinalizing	{ get; set; }
+		bool _isActive	{ get; }
 		TModifyler _modifyler	{ get; }
 	}
 }

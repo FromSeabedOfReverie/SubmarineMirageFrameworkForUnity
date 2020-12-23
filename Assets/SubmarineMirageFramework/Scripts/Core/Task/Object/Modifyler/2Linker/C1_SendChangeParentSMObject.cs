@@ -25,6 +25,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 	public class SendChangeParentSMObject : SMObjectModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 		[SMShowLine] Transform _parent	{ get; set; }
 		[SMShowLine] bool _isWorldPositionStays	{ get; set; }
 
@@ -33,7 +34,6 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 		public SendChangeParentSMObject( SMObject target, Transform parent, bool isWorldPositionStays )
 			: base( target )
 		{
-			_type = SMTaskModifyType.Linker;
 			_parent = parent;
 			_isWorldPositionStays = isWorldPositionStays;
 

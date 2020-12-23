@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
+	using Extension;
 	using Debug;
 
 
@@ -40,6 +41,53 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 */
 			SMLog.Debug( $"{nameof( SMBehaviourBody )}.{nameof( Unlink )} : end\n{b}" );
 #endif
+		}
+
+
+
+		static void FixedUpdate( SMBehaviourBody target ) {
+			if ( target._owner._type == SMTaskType.DontWork )		{ return; }
+			if ( !target._isActive )	{ return; }
+			if ( target._ranState == SMTaskRunState.Initialize )	{ target._ranState = SMTaskRunState.FixedUpdate; }
+			switch ( target._ranState ) {
+				case SMTaskRunState.FixedUpdate:
+				case SMTaskRunState.Update:
+				case SMTaskRunState.LateUpdate:
+#if TestBehaviourModifyler
+					SMLog.Debug( $"{target._owner.GetAboutName()}.{nameof(FixedUpdate)} :\n{target}" );
+#endif
+					target._fixedUpdateEvent.Run();
+					return;
+			}
+		}
+
+		static void Update( SMBehaviourBody target ) {
+			if ( target._owner._type == SMTaskType.DontWork )		{ return; }
+			if ( !target._isActive )	{ return; }
+			if ( target._ranState == SMTaskRunState.FixedUpdate )	{ target._ranState = SMTaskRunState.Update; }
+			switch ( target._ranState ) {
+				case SMTaskRunState.Update:
+				case SMTaskRunState.LateUpdate:
+#if TestBehaviourModifyler
+					SMLog.Debug( $"{target._owner.GetAboutName()}.{nameof(Update)} :\n{target}" );
+#endif
+					target._updateEvent.Run();
+					return;
+			}
+		}
+
+		static void LateUpdate( SMBehaviourBody target ) {
+			if ( target._owner._type == SMTaskType.DontWork )		{ return; }
+			if ( !target._isActive )	{ return; }
+			if ( target._ranState == SMTaskRunState.Update )		{ target._ranState = SMTaskRunState.LateUpdate; }
+			switch ( target._ranState ) {
+				case SMTaskRunState.LateUpdate:
+#if TestBehaviourModifyler
+					SMLog.Debug( $"{target._owner.GetAboutName()}.{nameof(LateUpdate)} :\n{target}" );
+#endif
+					target._lateUpdateEvent.Run();
+					return;
+			}
 		}
 	}
 }

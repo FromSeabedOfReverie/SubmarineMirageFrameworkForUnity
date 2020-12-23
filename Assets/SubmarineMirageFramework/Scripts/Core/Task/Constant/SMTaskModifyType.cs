@@ -11,8 +11,9 @@ namespace SubmarineMirage.Task {
 
 
 	public enum SMTaskModifyType {
-		Interrupter,
+		FirstLinker,
 		Linker,
+		FirstRunner,
 		Runner,
 	}
 }

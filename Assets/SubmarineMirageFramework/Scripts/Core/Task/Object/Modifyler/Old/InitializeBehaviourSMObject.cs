@@ -41,8 +41,8 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 // TODO : 作成直後に実行するとエラーになる為、待機しているが、できれば不要にしたい
 						await UTask.NextFrame( _behaviour._asyncCancelerOnDisable );
 						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Create );
-						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.SelfInitializing );
-						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Initializing );
+						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.SelfInitialize );
+						await RunStateSMBehaviour.RegisterAndRun( _behaviour, SMTaskRunState.Initialize );
 						await ChangeActiveSMBehaviour.RegisterAndRunInitial( _behaviour );
 					}
 					return;

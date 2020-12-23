@@ -13,7 +13,6 @@ namespace SubmarineMirage.Task.Group {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Base;
 	using Scene;
 	using Modifyler;
 	using Task.Modifyler;
@@ -29,14 +28,13 @@ namespace SubmarineMirage.Task.Group {
 
 
 
-	public class SMGroupManager : SMStandardBase, IBaseSMTaskModifylerOwner<SMGroupModifyler> {
+	public class SMGroupManager : BaseSMTaskModifylerOwner<SMGroupModifyler> {
 		static readonly SMTaskType[] GET_ALL_TOPS_TASK_TYPES =
 			new SMTaskType[] { SMTaskType.FirstWork, SMTaskType.Work, SMTaskType.DontWork };
 		static readonly SMTaskType[] DISPOSE_TASK_TYPES =
 			new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork };
 
 		public SMScene _owner	{ get; private set; }
-		public SMGroupModifyler _modifyler	{ get; private set; }
 		public readonly Dictionary<SMTaskType, SMGroup> _groups = new Dictionary<SMTaskType, SMGroup>();
 		public bool _isEnter	{ get; private set; }
 
@@ -50,7 +48,6 @@ namespace SubmarineMirage.Task.Group {
 			EnumUtils.GetValues<SMTaskType>().ForEach( t => _groups[t] = null );
 
 			_disposables.AddLast( () => {
-				_modifyler.Dispose();
 				DisposeGroups();
 			} );
 		}
@@ -145,12 +142,12 @@ namespace SubmarineMirage.Task.Group {
 			_isEnter = true;
 			return;
 			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Create );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.SelfInitializing );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Initializing );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.SelfInitialize );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Initialize );
 
 			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Create );
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.SelfInitializing );
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Initializing );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.SelfInitialize );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Initialize );
 
 			await RunAllInitialActives( SMTaskType.FirstWork );
 			await RunAllInitialActives( SMTaskType.Work );
@@ -160,8 +157,8 @@ namespace SubmarineMirage.Task.Group {
 			await ChangeAllActives( SMTaskType.Work, false );
 			await ChangeAllActives( SMTaskType.FirstWork, false );
 
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Finalizing );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Finalizing );
+			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Finalize );
+			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Finalize );
 
 			DisposeGroups();
 			EnumUtils.GetValues<SMTaskType>().ForEach( t => _groups[t] = null );

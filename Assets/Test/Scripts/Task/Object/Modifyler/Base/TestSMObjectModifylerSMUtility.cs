@@ -40,7 +40,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 	public class InterruptData : TestModifyData {
 		public InterruptData( SMObject smObject ) : base( smObject )
-			=> _type = SMTaskModifyType.Interrupter;
+			=> _type = SMTaskModifyType.FirstLinker;
 	}
 
 	public class LinkData : TestModifyData {

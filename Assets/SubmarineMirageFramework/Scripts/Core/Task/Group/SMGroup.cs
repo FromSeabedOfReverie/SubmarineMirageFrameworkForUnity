@@ -11,7 +11,6 @@ namespace SubmarineMirage.Task.Group {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Base;
 	using Modifyler;
 	using Task.Modifyler;
 	using Object;
@@ -25,13 +24,12 @@ namespace SubmarineMirage.Task.Group {
 
 
 	public class SMGroup
-		: SMStandardBase, IBaseSMTaskModifylerOwner<SMObjectModifyler>, IBaseSMTaskModifyDataTarget
+		: BaseSMTaskModifylerOwner<SMObjectModifyler>, IBaseSMTaskModifyDataTarget
 	{
 		public SMTaskType _type			{ get; set; }
 		public SMTaskLifeSpan _lifeSpan	{ get; set; }
 		public SMScene _scene		{ get; set; }
 		[SMHide] public SMGroupManager _groups => _scene?._groups;
-		public SMObjectModifyler _modifyler	{ get; private set; }
 
 		[SMShowLine] public SMGroup _previous	{ get; set; }
 		[SMShowLine] public SMGroup _next		{ get; set; }
@@ -50,7 +48,6 @@ namespace SubmarineMirage.Task.Group {
 			SetAllData();
 
 			_disposables.AddLast( () => {
-				_modifyler.Dispose();
 				_topObject?.Dispose();
 				_groups._modifyler.Unregister( this );
 				SMGroupApplyer.Unlink( _groups, this );

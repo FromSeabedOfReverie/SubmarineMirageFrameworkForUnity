@@ -18,12 +18,12 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 	public class ChangeActiveSMObject : SMObjectModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 		[SMShowLine] bool _isActive	{ get; set; }
 		[SMShowLine] bool _isChangeOwner	{ get; set; }
 
 
 		public ChangeActiveSMObject( SMObject target, bool isActive, bool isChangeOwner ) : base( target ) {
-			_type = SMTaskModifyType.Runner;
 			_isActive = isActive;
 			_isChangeOwner = isChangeOwner;
 		}
@@ -63,21 +63,21 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 		}
 
 		async UniTask SequentialRun( SMObject smObject, bool isActive ) {
-			if ( !IsCanChange( smObject, false ) )	{ return; }
+			if ( !smObject._owner.activeSelf )	{ return; }
 			foreach ( var b in smObject.GetBehaviours() )
 													{ await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ); }
 			foreach ( var o in smObject.GetChildren() )	{ await SequentialRun( o, isActive ); }
 		}
 
 		async UniTask ReverseRun( SMObject smObject, bool isActive ) {
-			if ( !IsCanChange( smObject, false ) )	{ return; }
+			if ( !smObject._owner.activeSelf )	{ return; }
 			foreach ( var o in smObject.GetChildren().Reverse() )	{ await ReverseRun( o, isActive ); }
 			foreach ( var b in smObject.GetBehaviours().Reverse() )
 													{ await ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ); }
 		}
 
 		async UniTask ParallelRun( SMObject smObject, bool isActive ) {
-			if ( !IsCanChange( smObject, false ) )	{ return; }
+			if ( !smObject._owner.activeSelf )	{ return; }
 			await Enumerable.Empty<UniTask>()
 				.Concat(
 					smObject.GetBehaviours().Select( b => ChangeActiveSMBehaviour.RegisterAndRun( b, isActive ) ) )
@@ -87,7 +87,6 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 		public static bool IsCanChange( SMObject smObject, bool isChangeOwner ) {
-			if ( !smObject._isGameObject )													{ return true; }
 			if ( smObject._parent != null && !smObject._parent._owner.activeInHierarchy )	{ return false; }
 			if ( !isChangeOwner && !smObject._owner.activeSelf )							{ return false; }
 			return true;

@@ -17,11 +17,11 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 	public class ReceiveChangeParentSMObject : SMObjectModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.FirstLinker;
 		[SMShowLine] SMObject _parent	{ get; set; }
 
 
 		public ReceiveChangeParentSMObject( SMObject target, SMObject parent ) : base( target ) {
-			_type = SMTaskModifyType.Interrupter;
 			_parent = parent;
 
 			if ( !_target._isGameObject || !_parent._isGameObject ) {

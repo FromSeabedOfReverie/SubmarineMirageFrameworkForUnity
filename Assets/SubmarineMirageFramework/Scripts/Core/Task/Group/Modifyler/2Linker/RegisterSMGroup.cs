@@ -85,8 +85,8 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 #endif
 						}
 						await _target.RunStateEvent( SMTaskRunState.Create, false );
-						await _target.RunStateEvent( SMTaskRunState.SelfInitializing, false );
-						await _target.RunStateEvent( SMTaskRunState.Initializing, false );
+						await _target.RunStateEvent( SMTaskRunState.SelfInitialize, false );
+						await _target.RunStateEvent( SMTaskRunState.Initialize, false );
 						await _target.RunInitialActive( false );
 					}
 					break;

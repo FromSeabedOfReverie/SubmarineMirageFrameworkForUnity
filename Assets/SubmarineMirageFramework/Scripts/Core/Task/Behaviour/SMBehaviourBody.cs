@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestBehaviour
 namespace SubmarineMirage.Task.Behaviour {
-	using Base;
 	using MultiEvent;
 	using Modifyler;
 	using Task.Modifyler;
@@ -21,17 +20,11 @@ namespace SubmarineMirage.Task.Behaviour {
 
 
 	public class SMBehaviourBody
-		: SMStandardBase, IBaseSMTaskModifylerOwner<SMBehaviourModifyler>, IBaseSMTaskModifyDataTarget
+		: BaseSMTaskModifylerOwner<SMBehaviourModifyler>, IBaseSMTaskModifyDataTarget
 	{
-		public SMTaskRunState _ranState	{ get; set; }
-		public bool _isInitialized => _ranState >= SMTaskRunState.Initialized;
-		public bool _isOperable =>
-			SMTaskRunState.Initialized <= _ranState && _ranState <= SMTaskRunState.LateUpdate;
-		public bool _isActive	{ get; set; }
-		public bool _isInitialActive	{ get; private set; }
-
 		public ISMBehaviour _owner	{ get; private set; }
-		public SMBehaviourModifyler _modifyler	{ get; private set; }
+		public bool _isRunInitialActive	{ get; set; }
+		public bool _isRunFinalize	{ get; set; }
 
 		public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
 		public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
@@ -46,14 +39,12 @@ namespace SubmarineMirage.Task.Behaviour {
 		public readonly SMTaskCanceler _asyncCancelerOnDispose = new SMTaskCanceler();
 
 
-		public SMBehaviourBody( ISMBehaviour owner, bool isInitialActive ) {
+		public SMBehaviourBody( ISMBehaviour owner, bool isRunInitialActive ) {
 			_owner = owner;
-			_isInitialActive = isInitialActive;
+			_isRunInitialActive = isRunInitialActive;
 			_modifyler = new SMBehaviourModifyler( this );
 
 			_disposables.AddLast( () => {
-				_modifyler.Dispose();
-
 				_asyncCancelerOnDisable.Dispose();
 				_asyncCancelerOnDispose.Dispose();
 
@@ -126,10 +117,10 @@ namespace SubmarineMirage.Task.Behaviour {
 				$"↓{behaviour._next?._id}" );
 			behaviour._toStringer.AddLine( nameof( behaviour._body._ranState ), () =>
 				$"{behaviour._body?._ranState}" );
-			behaviour._toStringer.AddLine( nameof( behaviour._body._isActive ), () =>
-				$"{behaviour._body?._isActive}" );
-			behaviour._toStringer.AddLine( nameof( behaviour._body._isInitialActive ), () =>
-				$"{behaviour._body?._isInitialActive}" );
+			behaviour._toStringer.AddLine( nameof( behaviour._body._activeState ), () =>
+				$"{behaviour._body?._activeState}" );
+			behaviour._toStringer.AddLine( nameof( behaviour._body._isRunInitialActive ), () =>
+				$"{behaviour._body?._isRunInitialActive}" );
 		}
 	}
 }

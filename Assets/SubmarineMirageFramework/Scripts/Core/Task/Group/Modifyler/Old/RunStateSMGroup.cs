@@ -35,9 +35,9 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 						$"負荷軽減の為、静的関数 {nameof( RegisterAndRun )} 以外で、実行不可"
 					);
 				case SMTaskRunState.None:
-				case SMTaskRunState.SelfInitialized:
-				case SMTaskRunState.Initialized:
-				case SMTaskRunState.Finalized:
+				case SMTaskRunState.SelfInitialize:
+				case SMTaskRunState.Initialize:
+				case SMTaskRunState.Finalize:
 					throw new ArgumentOutOfRangeException(
 						$"{_state}", $"実行状態に、実行後の型を指定した為、実行不可" );
 			}
@@ -48,7 +48,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 		public override async UniTask Run() {
 			var gs = _owner.GetAllGroups(
-				_taskType, _taskType == SMTaskType.FirstWork && _state == SMTaskRunState.Finalizing );
+				_taskType, _taskType == SMTaskType.FirstWork && _state == SMTaskRunState.Finalize );
 
 			switch ( _taskType ) {
 				case SMTaskType.FirstWork:

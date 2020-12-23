@@ -77,34 +77,34 @@ namespace SubmarineMirage.TestTask {
 			var disposables = new SMMultiDisposable();
 
 			disposables.AddLast(
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha1 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha1 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.Create}" );
 					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Create ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha2 ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {SMTaskRunState.SelfInitializing}" );
-					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitializing ).Forget();
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha2 ) ).Subscribe( _ => {
+					SMLog.Warning( $"key down {SMTaskRunState.SelfInitialize}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.SelfInitialize ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha3 ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {SMTaskRunState.Initializing}" );
-					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Initializing ).Forget();
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha4 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha3 ) ).Subscribe( (Action<long>)(_ => {
+					SMLog.Warning( $"key down {SMTaskRunState.Initialize}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, (SMTaskRunState)SMTaskRunState.Initialize ).Forget();
+				}) ),
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha4 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.FixedUpdate}" );
 					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.FixedUpdate ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha5 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha5 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.Update}" );
 					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Update ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha6 ) ).Subscribe( _ => {
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha6 ) ).Subscribe( _ => {
 					SMLog.Warning( $"key down {SMTaskRunState.LateUpdate}" );
 					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.LateUpdate ).Forget();
 				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Alpha7 ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {SMTaskRunState.Finalizing}" );
-					RunStateSMBehaviour.RegisterAndRun( behaviour, SMTaskRunState.Finalizing ).Forget();
-				} )
+				Observable.EveryUpdate().Where( _ => Input.GetKeyDown(KeyCode.Alpha7 ) ).Subscribe( (Action<long>)(_ => {
+					SMLog.Warning( $"key down {SMTaskRunState.Finalize}" );
+					RunStateSMBehaviour.RegisterAndRun( behaviour, (SMTaskRunState)SMTaskRunState.Finalize ).Forget();
+				}) )
 			);
 			disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Z ) ).Subscribe( _ => {

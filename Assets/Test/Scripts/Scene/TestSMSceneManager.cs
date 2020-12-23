@@ -55,7 +55,7 @@ namespace SubmarineMirage.TestScene {
 					$"    {nameof( _sceneManager._isActive )} : {_sceneManager._isActive}",
 					$"    {nameof( _sceneManager._body._ranState )} : {_sceneManager._body._ranState}",
 					$"    {nameof( _sceneManager._body._isActive )} : {_sceneManager._body._isActive}",
-					$"    {nameof( _sceneManager._body._isInitialActive )} : {_sceneManager._body._isInitialActive}",
+					$"    {nameof( _sceneManager._body._isRunInitialActive )} : {_sceneManager._body._isRunInitialActive}",
 					")",
 					$"{nameof( _sceneManager._fsm )} : {_sceneManager._fsm}"
 				);

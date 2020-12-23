@@ -4,22 +4,28 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task {
+#define TestObjectModifyler
+namespace SubmarineMirage.Task.Object.Modifyler {
+	using Cysharp.Threading.Tasks;
+	using Object;
+	using Debug;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public enum SMTaskRunState {
-		None,
-		Create,
-		SelfInitialize,
-		Initialize,
-		InitialEnable,
-		FixedUpdate,
-		Update,
-		LateUpdate,
-		FinalDisable,
-		Finalize,
+
+	public class FinalizeSMObject : SMObjectModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+
+
+		public FinalizeSMObject( SMObject target ) : base( target ) {}
+
+		protected override void Cancel() {}
+
+
+		public override async UniTask Run() {
+		}
 	}
 }
