@@ -17,17 +17,12 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 
 
-		public SelfInitializeSMBehaviour( SMBehaviourBody target ) : base( target ) {}
-
-		protected override void Cancel() {}
-
-
 		public override async UniTask Run() {
-			if ( _target._owner._type == SMTaskType.DontWork )	{ return; }
-			if ( _target._ranState != SMTaskRunState.Create )	{ return; }
+			if ( _owner._owner._type == SMTaskType.DontWork )	{ return; }
+			if ( _owner._ranState != SMTaskRunState.Create )	{ return; }
 
-			await _target._selfInitializeEvent.Run( _target._asyncCancelerOnDispose );
-			_target._ranState = SMTaskRunState.SelfInitialize;
+			await _owner._selfInitializeEvent.Run( _owner._asyncCancelerOnDispose );
+			_owner._ranState = SMTaskRunState.SelfInitialize;
 		}
 	}
 }

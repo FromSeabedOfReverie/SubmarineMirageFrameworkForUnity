@@ -7,6 +7,7 @@
 #define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Utility;
 	using Debug;
 
 
@@ -15,21 +16,32 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 	public class FinalDisableSMBehaviour : SMBehaviourModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		bool _isActiveInHierarchy	{ get; set; }
 
 
-		public FinalDisableSMBehaviour( SMBehaviourBody target ) : base( target )
-			=> _target._isFinalizing = true;
+		public FinalDisableSMBehaviour( bool isActiveInHierarchy )
+			=> _isActiveInHierarchy = isActiveInHierarchy;
 
-		protected override void Cancel() {}
+		public override void Set( SMBehaviourBody owner ) {
+			base.Set( owner );
+			_owner._isFinalizing = true;
+		}
 
 
 		public override async UniTask Run() {
-			if ( _target._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( _target._ranState >= SMTaskRunState.FinalDisable )	{ return; }
+			if ( _owner._ranState >= SMTaskRunState.FinalDisable )	{ return; }
 
-			await DisableSMBehaviour.Run( _target );
-			_target._isRunFinalize = _target._ranState >= SMTaskRunState.SelfInitialize;
-			_target._ranState = SMTaskRunState.FinalDisable;
+
+			if ( _isActiveInHierarchy && _owner._activeState != SMTaskActiveState.Disable ) {
+				_owner._activeState = SMTaskActiveState.Disable;
+				_owner.StopAsyncOnDisable();
+				_owner._disableEvent.Run();
+			}
+
+			_owner._isRunFinalize = _owner._ranState >= SMTaskRunState.SelfInitialize;
+			_owner._ranState = SMTaskRunState.FinalDisable;
+
+			await UTask.DontWait();
 		}
 	}
 }

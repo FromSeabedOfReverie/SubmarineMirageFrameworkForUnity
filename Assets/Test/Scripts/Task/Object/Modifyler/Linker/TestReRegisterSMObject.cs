@@ -64,19 +64,19 @@ namespace SubmarineMirage.TestTask.Modifyler {
 				var lastType = o._type;
 				var lastScene = o._scene;
 				o._scene = SMSceneManager.s_instance._fsm._foreverScene;
-				var d = new SendReregisterSMGroup( o, lastType, lastScene );
+				var d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 
 				lastType = o._type;
 				lastScene = o._scene;
 				o._scene = SMSceneManager.s_instance._fsm._scene;
-				d = new SendReregisterSMGroup( o, lastType, lastScene );
+				d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 
 				o = SMSceneManager.s_instance.GetBehaviour<B2>()._object;
 				lastType = o._type;
 				lastScene = o._scene;
-				d = new SendReregisterSMGroup( o, lastType, lastScene );
+				d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 			} );
 			SMSceneManager.s_instance.GetBehaviour<B2>()._object.Dispose();
@@ -90,19 +90,19 @@ namespace SubmarineMirage.TestTask.Modifyler {
 				var lastType = o._type;
 				var lastScene = o._scene;
 				o._scene = SMSceneManager.s_instance._fsm._scene;
-				var d = new SendReregisterSMGroup( o, lastType, lastScene );
+				var d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 
 				lastType = o._type;
 				lastScene = o._scene;
 				o._scene = SMSceneManager.s_instance._fsm._foreverScene;
-				d = new SendReregisterSMGroup( o, lastType, lastScene );
+				d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 
 				o = SMSceneManager.s_instance.GetBehaviour<M5>()._object;
 				lastType = o._type;
 				lastScene = o._scene;
-				d = new SendReregisterSMGroup( o, lastType, lastScene );
+				d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 			} );
 
@@ -130,22 +130,22 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 			var lastType = o._type;
 			o._type = SMTaskType.DontWork;
-			var d = new SendReregisterSMGroup( o, lastType, o._scene );
+			var d = new SendReregisterSMGroupManager( o, lastType, o._scene );
 			d.Run().Forget();
 
 			lastType = o._type;
 			o._type = SMTaskType.Work;
-			d = new SendReregisterSMGroup( o, lastType, o._scene );
+			d = new SendReregisterSMGroupManager( o, lastType, o._scene );
 			d.Run().Forget();
 
 			lastType = o._type;
 			o._type = SMTaskType.FirstWork;
-			d = new SendReregisterSMGroup( o, lastType, o._scene );
+			d = new SendReregisterSMGroupManager( o, lastType, o._scene );
 			d.Run().Forget();
 
 			lastType = o._type;
 			o._type = SMTaskType.DontWork;
-			d = new SendReregisterSMGroup( o, lastType, o._scene );
+			d = new SendReregisterSMGroupManager( o, lastType, o._scene );
 			d.Run().Forget();
 
 			await UTask.Never( _asyncCanceler );
@@ -172,21 +172,21 @@ namespace SubmarineMirage.TestTask.Modifyler {
 				var lastScene = o._scene;
 				o._type = SMTaskType.Work;
 				o._scene = SMSceneManager.s_instance._fsm._foreverScene;
-				var d = new SendReregisterSMGroup( o, lastType, lastScene );
+				var d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 
 				lastType = o._type;
 				lastScene = o._scene;
 				o._type = SMTaskType.FirstWork;
 				o._scene = SMSceneManager.s_instance._fsm._scene;
-				d = new SendReregisterSMGroup( o, lastType, lastScene );
+				d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 
 				lastType = o._type;
 				lastScene = o._scene;
 				o._type = SMTaskType.DontWork;
 				o._scene = SMSceneManager.s_instance._fsm._foreverScene;
-				d = new SendReregisterSMGroup( o, lastType, lastScene );
+				d = new SendReregisterSMGroupManager( o, lastType, lastScene );
 				d.Run().Forget();
 			} );
 
@@ -206,23 +206,23 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			SMLog.Debug( $"{nameof( TestError )}" );
 
 			try {
-				new SendReregisterSMGroup( null, default, null ).Run().Forget();
+				new SendReregisterSMGroupManager( null, default, null ).Run().Forget();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
 				var o = new B1()._object;
-				new SendReregisterSMGroup( o, default, null ).Run().Forget();
+				new SendReregisterSMGroupManager( o, default, null ).Run().Forget();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
 				var o = new B1()._object;
-				new SendReregisterSMGroup( o, o._type, null ).Run().Forget();
+				new SendReregisterSMGroupManager( o, o._type, null ).Run().Forget();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
 				var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M5" );
 				var o = new SMObject( b.gameObject, new [] { b }, null, true );
-				new SendReregisterSMGroup( o, o._type, o._scene ).Run().Forget();
+				new SendReregisterSMGroupManager( o, o._type, o._scene ).Run().Forget();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );

@@ -139,13 +139,13 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			var o = new B1( true )._object;
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
-			var d = new RegisterSMGroup( o );
+			var d = new RegisterSMGroupManager( o );
 			d.Dispose();
 
 			o = new B1( true )._object;
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
-			d = new RegisterSMGroup( o );
+			d = new RegisterSMGroupManager( o );
 			d.Run().Forget();
 			d.Dispose();
 			await UTask.NextFrame( _asyncCanceler );
@@ -153,7 +153,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o = new B1( true )._object;
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
-			d = new RegisterSMGroup( o );
+			d = new RegisterSMGroupManager( o );
 			await d.Run();
 			d.Dispose();
 
@@ -164,14 +164,14 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o = new SMObject( b.gameObject, new [] { b }, null, true );
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
-			d = new RegisterSMGroup( o );
+			d = new RegisterSMGroupManager( o );
 			d.Dispose();
 
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null, true );
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
-			d = new RegisterSMGroup( o );
+			d = new RegisterSMGroupManager( o );
 			d.Run().Forget();
 			d.Dispose();
 			await UTask.NextFrame( _asyncCanceler );
@@ -180,7 +180,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			o = new SMObject( b.gameObject, new [] { b }, null, true );
 			o._top = o;
 			o._scene = SMSceneManager.s_instance._fsm._scene;
-			d = new RegisterSMGroup( o );
+			d = new RegisterSMGroupManager( o );
 			await d.Run();
 			d.Dispose();
 
@@ -204,13 +204,13 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			SMLog.Debug( $"{nameof( TestError )}" );
 
 			try {
-				new RegisterSMGroup( null );
+				new RegisterSMGroupManager( null );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
 				var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 				var o = new SMObject( b.gameObject, new [] { b }, null, true );
-				new RegisterSMGroup( o );
+				new RegisterSMGroupManager( o );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );

@@ -63,9 +63,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			TestSMBehaviourSMUtility.SetEvent( o._behaviour );
 			TestSMBehaviourSMUtility.SetEvent( o._child._behaviour );
 			TestSMBehaviourSMUtility.SetEvent( o._child._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initialize ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Initialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.SelfInitialize ) );
 			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -73,9 +73,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			3.Times( () => o._modifyler.Register( new RunData( o._child ) ) );
 			3.Times( () => o._modifyler.Register( new RunData( o._child._child ) ) );
 
-			o._modifyler.Register( new UnregisterSMObject( o._child._child ) );
-			o._modifyler.Register( new UnregisterSMObject( o._child ) );
-			o._modifyler.Register( new UnregisterSMObject( o ) );
+			o._modifyler.Register( new UnregisterSMGroup( o._child._child ) );
+			o._modifyler.Register( new UnregisterSMGroup( o._child ) );
+			o._modifyler.Register( new UnregisterSMGroup( o ) );
 
 			await UTask.Never( _asyncCanceler );
 		} );
@@ -100,9 +100,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			TestSMBehaviourSMUtility.SetEvent( o._behaviour );
 			TestSMBehaviourSMUtility.SetEvent( o._child._behaviour );
 			TestSMBehaviourSMUtility.SetEvent( o._child._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initialize ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Initialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.SelfInitialize ) );
 			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -110,9 +110,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			3.Times( () => o._modifyler.Register( new RunData( o._child ) ) );
 			3.Times( () => o._modifyler.Register( new RunData( o._child._child ) ) );
 
-			o._modifyler.Register( new UnregisterSMObject( o._child ) );
-			o._modifyler.Register( new UnregisterSMObject( o._child._child ) );
-			o._modifyler.Register( new UnregisterSMObject( o ) );
+			o._modifyler.Register( new UnregisterSMGroup( o._child ) );
+			o._modifyler.Register( new UnregisterSMGroup( o._child._child ) );
+			o._modifyler.Register( new UnregisterSMGroup( o ) );
 
 			await UTask.Never( _asyncCanceler );
 		} );
@@ -135,9 +135,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			var o = SMSceneManager.s_instance.GetBehaviour<M3>()._object;
 			TestSMBehaviourSMUtility.SetEvent( o._behaviour );
 			TestSMBehaviourSMUtility.SetEvent( o._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initialize ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Initialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.SelfInitialize ) );
 			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -146,7 +146,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 			UTask.Void( async () => {
 				var c = o._child;
-				o._modifyler.Register( new UnregisterSMObject( o._child ) );
+				o._modifyler.Register( new UnregisterSMGroup( o._child ) );
 				await UTask.Delay( _asyncCanceler, 1500 );
 				SMLog.Debug( "停止" );
 				c._behaviour._asyncCancelerOnDispose.Cancel();
@@ -155,7 +155,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 				c._behaviour._asyncCancelerOnDispose.Cancel();
 			} );
 
-			o._modifyler.Register( new UnregisterSMObject( o ) );
+			o._modifyler.Register( new UnregisterSMGroup( o ) );
 
 			await UTask.Never( _asyncCanceler );
 		} );
@@ -180,9 +180,9 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			TestSMBehaviourSMUtility.SetEvent( o._behaviour );
 			TestSMBehaviourSMUtility.SetEvent( o._child._behaviour );
 			TestSMBehaviourSMUtility.SetEvent( o._child._child._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initialize ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Initialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.SelfInitialize ) );
 			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
@@ -191,7 +191,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			3.Times( () => o._modifyler.Register( new RunData( o._child._child ) ) );
 
 			UTask.Void( async () => {
-				o._modifyler.Register( new UnregisterSMObject( o._child._child ) );
+				o._modifyler.Register( new UnregisterSMGroup( o._child._child ) );
 				await UTask.Delay( _asyncCanceler, 1500 );
 				SMLog.Debug( "親解放" );
 				o.Dispose();
@@ -216,19 +216,19 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 			var o = SMSceneManager.s_instance.GetBehaviour<M3>()._object;
 			TestSMBehaviourSMUtility.SetEvent( o._behaviour );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initialize ) );
-			o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Create ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Initialize ) );
+			o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.SelfInitialize ) );
 			o._modifyler.Register( new RunInitialActiveSMObject( o ) );
 			await o._modifyler.WaitRunning();
 
 			try {
 				o.Dispose();
-				await new UnregisterSMObject( o ).Run();
+				await new UnregisterSMGroup( o ).Run();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
-				await new UnregisterSMObject( null ).Run();
+				await new UnregisterSMGroup( null ).Run();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );

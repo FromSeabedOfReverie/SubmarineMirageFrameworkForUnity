@@ -13,7 +13,6 @@ namespace SubmarineMirage.Task.Object {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Base;
 	using Modifyler;
 	using Task.Modifyler;
 	using Behaviour;
@@ -29,7 +28,7 @@ namespace SubmarineMirage.Task.Object {
 
 
 
-	public class SMObject : SMStandardBase, IBaseSMTaskModifyDataTarget {
+	public class SMObject : BaseSMTaskModifylerOwner<SMObjectModifyler>, IBaseSMTaskModifyDataTarget {
 		[SMShowLine] public SMGroup _group	{ get; set; }
 		[SMShowLine] public GameObject _owner	{ get; private set; }
 
@@ -40,6 +39,7 @@ namespace SubmarineMirage.Task.Object {
 		[SMShowLine] public SMObject _child	{ get; set; }
 
 		[SMHide] public bool _isGameObject	=> _owner != null;
+		public bool _isDisabling	{ get; set; }
 
 		public readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
 
@@ -51,6 +51,7 @@ namespace SubmarineMirage.Task.Object {
 #if TestObject
 			SMLog.Debug( $"{nameof( SMObject )}() : start\n{this}" );
 #endif
+			_modifyler = new SMObjectModifyler( this );
 			_owner = owner;
 
 			SetupBehaviours( behaviours );
@@ -76,7 +77,7 @@ namespace SubmarineMirage.Task.Object {
 				} else {
 					_group._modifyler.Unregister( this );
 				}
-				SMObjectApplyer.Unlink( this );
+				SMGroupApplyer.Unlink( this );
 				if ( _isGameObject )	{ UnityObject.Destroy( _owner ); }
 			} );
 #if TestObject
@@ -116,7 +117,7 @@ namespace SubmarineMirage.Task.Object {
 #if TestObject
 			SMLog.Debug( $"{nameof( SetupParent )} : start\n{this}" );
 #endif
-			if ( parent != null )	{ SMObjectApplyer.LinkChild( parent, this ); }
+			if ( parent != null )	{ SMGroupApplyer.LinkChild( parent, this ); }
 #if TestObject
 			SMLog.Debug( $"{nameof( SetupParent )} : end\n{this}" );
 #endif
@@ -275,17 +276,17 @@ namespace SubmarineMirage.Task.Object {
 			=> (T)AddBehaviour( typeof( T ) );
 
 		public SMMonoBehaviour AddBehaviour( Type type ) {
-			var data = new AddBehaviourSMObject( this, type );
+			var data = new AddBehaviourSMGroup( this, type );
 			_group._modifyler.Register( data );
 			return data._behaviour;
 		}
 
 		public void Destroy()
-			=> _group._modifyler.Register( new UnregisterSMObject( this ) );
+			=> _group._modifyler.Register( new UnregisterSMGroup( this ) );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _group._modifyler.Register(
-				new SendChangeParentSMObject( this, parent, isWorldPositionStays ) );
+				new SendChangeParentSMGroup( this, parent, isWorldPositionStays ) );
 
 		public void ChangeActive( bool isActive )
 			=> _group._modifyler.Register( new ChangeActiveSMObject( this, isActive, true ) );

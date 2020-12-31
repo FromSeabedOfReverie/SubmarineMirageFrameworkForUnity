@@ -7,19 +7,37 @@
 #define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
 	using System;
+	using System.Linq;
+	using System.Collections.Generic;
+	using UniRx;
+	using Cysharp.Threading.Tasks;
 	using Task.Modifyler;
+	using Utility;
+
 
 
 	// TODO : コメント追加、整頓
 
 
+
 	public abstract class SMBehaviourModifyData
-		: BaseSMTaskModifyData<SMBehaviourBody, SMBehaviourModifyler, SMBehaviourBody>
+		: BaseSMTaskModifyData<SMBehaviourBody, SMBehaviourModifyler, SMBehaviourBody, Unit, Unit>
 	{
-		public SMBehaviourModifyData( SMBehaviourBody target ) : base( target ) {
-			if ( _target == null || _target._isDispose ) {
-				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に解放、削除済\n{_target}" );
+		public SMBehaviourModifyData() : base( null ) {}
+
+		public override void Set( SMBehaviourBody owner ) {
+			base.Set( owner );
+			_target = _owner;
+			if ( _owner == null || _owner._isDispose ) {
+				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に解放、削除済\n{_owner}" );
 			}
 		}
+
+
+		protected override UniTask RegisterAndRunLower( Unit lowerTarget, Unit data ) => UTask.DontWait();
+
+		protected override IEnumerable<Unit> GetAllLowers() => Enumerable.Empty<Unit>();
+
+		protected override bool IsTargetLower( Unit lowerTarget, SMTaskType type ) => false;
 	}
 }

@@ -45,7 +45,7 @@ namespace SubmarineMirage.Task.Behaviour {
 
 
 		protected SMBehaviour( bool isDebug = false ) {
-			_body = new SMBehaviourBody( this, true );
+			_body = new SMBehaviourBody( this, _type != SMTaskType.DontWork );
 			_object = new SMObject( null, new ISMBehaviour[] { this }, null
 #if TestBehaviourModifyler
 				, isDebug

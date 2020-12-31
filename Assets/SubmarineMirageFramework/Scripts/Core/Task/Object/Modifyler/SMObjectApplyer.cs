@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestObjectModifyler
 namespace SubmarineMirage.Task.Object.Modifyler {
-	using Object;
 	using Debug;
 
 
@@ -77,6 +76,23 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 			) );
 			SMLog.Debug( $"{nameof( Unlink )} : end" );
 #endif
+		}
+
+
+
+		public static bool IsActiveInHierarchy( SMObject smObject ) {
+			if ( !smObject._isGameObject )	{ return true; }
+
+			return smObject._owner.activeInHierarchy;
+		}
+
+		public static bool IsActiveInParentHierarchy( SMObject smObject ) {
+			if ( !smObject._isGameObject )	{ return true; }
+
+			var parent = smObject._owner.transform.parent;
+			if ( parent == null )	{ return true; }
+
+			return parent.gameObject.activeInHierarchy;
 		}
 	}
 }

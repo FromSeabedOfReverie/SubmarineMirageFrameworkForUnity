@@ -18,24 +18,14 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 
 
-		public DisableSMBehaviour( SMBehaviourBody target ) : base( target ) {}
-
-		protected override void Cancel() {}
-
-
 		public override async UniTask Run() {
-			if ( !_target._isOperable )	{ return; }
+			if ( !_owner._isOperable )	{ return; }
+			if ( _owner._activeState == SMTaskActiveState.Disable )	{ return; }
 
-			await Run( _target );
-		}
+			_owner._activeState = SMTaskActiveState.Disable;
+			_owner.StopAsyncOnDisable();
+			_owner._disableEvent.Run();
 
-		public static async UniTask Run( SMBehaviourBody target ) {
-			if ( target._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( target._activeState == SMTaskActiveState.Disable )	{ return; }
-
-			target._activeState = SMTaskActiveState.Disable;
-			target.StopAsyncOnDisable();
-			target._disableEvent.Run();
 			await UTask.DontWait();
 		}
 	}

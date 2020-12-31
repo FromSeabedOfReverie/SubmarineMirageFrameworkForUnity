@@ -23,7 +23,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 
 
-	public abstract class TestModifyData : SMObjectModifyData {
+	public abstract class TestModifyData : SMGroupModifyData {
 		public TestModifyData( SMObject smObject ) : base( smObject ) {}
 
 		protected override void Cancel() => SMLog.Debug( $"{nameof( Cancel )} : {this}" );

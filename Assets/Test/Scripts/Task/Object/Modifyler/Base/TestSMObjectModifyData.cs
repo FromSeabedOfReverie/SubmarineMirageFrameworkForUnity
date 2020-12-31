@@ -77,7 +77,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 				var p = last._next;
 				var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 				var o = new SMObject( b.gameObject, new [] { b }, null, true );
-				SMObjectModifyData.AddChildObject( p, o );
+				SMGroupModifyData.AddChildObject( p, o );
 				var c = p._child;
 				2.Times( () => {
 					b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
@@ -86,12 +86,12 @@ namespace SubmarineMirage.TestTask.Modifyler {
 				} );
 			}
 
-			SMLog.Debug( $"・{nameof( SMObjectModifyData.AddChildObject )}のテスト" );
+			SMLog.Debug( $"・{nameof( SMGroupModifyData.AddChildObject )}のテスト" );
 			var parent = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			3.Times( () => {
 				var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 				var o = new SMObject( b.gameObject, new [] { b }, null, true );
-				SMObjectModifyData.AddChildObject( parent, o );
+				SMGroupModifyData.AddChildObject( parent, o );
 			} );
 
 
@@ -129,17 +129,17 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			} catch ( Exception e )	{ SMLog.Error( e, SMLogTag.Task ); }
 
 
-			SMLog.Debug( $"・{nameof( SMObjectModifyData.AddChildObject )}のエラーテスト" );
+			SMLog.Debug( $"・{nameof( SMGroupModifyData.AddChildObject )}のエラーテスト" );
 			try {
-				SMObjectModifyData.AddChildObject( null, null );
+				SMGroupModifyData.AddChildObject( null, null );
 			} catch ( Exception e )	{ SMLog.Error( e, SMLogTag.Task ); }
 			try {
-				SMObjectModifyData.AddChildObject( parent, null );
+				SMGroupModifyData.AddChildObject( parent, null );
 			} catch ( Exception e )	{ SMLog.Error( e, SMLogTag.Task ); }
 			try {
 				var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 				var o = new SMObject( b.gameObject, new [] { b }, null, true );
-				SMObjectModifyData.AddChildObject( null, o );
+				SMGroupModifyData.AddChildObject( null, o );
 			} catch ( Exception e )	{ SMLog.Error( e, SMLogTag.Task ); }
 
 
@@ -159,14 +159,14 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			SMLog.Debug( $"{nameof( TestSetTopAllObjectData )}" );
 
 
-			SMLog.Debug( $"・{nameof( SMObjectModifyData.SetTopObject )}のテスト" );
+			SMLog.Debug( $"・{nameof( SMGroupModifyData.SetTopObject )}のテスト" );
 			{
 				SMObject p = null;
 				3.Times( () => {
 					var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
 				} );
-				SMObjectModifyData.SetTopObject( p );
+				SMGroupModifyData.SetTopObject( p );
 			}
 			{
 				SMObject p = null;
@@ -174,7 +174,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 					var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
 				} );
-				SMObjectModifyData.SetTopObject( p._parent );
+				SMGroupModifyData.SetTopObject( p._parent );
 			}
 			{
 				SMObject p = null;
@@ -182,11 +182,11 @@ namespace SubmarineMirage.TestTask.Modifyler {
 					var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
 				} );
-				SMObjectModifyData.SetTopObject( p._parent._parent );
+				SMGroupModifyData.SetTopObject( p._parent._parent );
 			}
 
 
-			SMLog.Debug( $"・{nameof( SMObjectModifyData.SetAllObjectData )}のテスト" );
+			SMLog.Debug( $"・{nameof( SMGroupModifyData.SetAllObjectData )}のテスト" );
 			{
 				SMObject p = null;
 				3.Times( () => {
@@ -194,25 +194,25 @@ namespace SubmarineMirage.TestTask.Modifyler {
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
 				} );
 				var top = p._parent._parent;
-				SMObjectModifyData.SetAllObjectData( top );
-				SMObjectModifyData.SetAllObjectData( top );
+				SMGroupModifyData.SetAllObjectData( top );
+				SMGroupModifyData.SetAllObjectData( top );
 				{
 					var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M2" );
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
-					SMObjectModifyData.SetAllObjectData( top );
+					SMGroupModifyData.SetAllObjectData( top );
 				}
 				{
 					var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M3" );
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
-					SMObjectModifyData.SetAllObjectData( top );
+					SMGroupModifyData.SetAllObjectData( top );
 				}
 				{
 					var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M4" );
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
-					SMObjectModifyData.SetAllObjectData( top );
+					SMGroupModifyData.SetAllObjectData( top );
 				}
 				p.Dispose();
-				SMObjectModifyData.SetAllObjectData( top );
+				SMGroupModifyData.SetAllObjectData( top );
 			}
 
 
@@ -221,11 +221,11 @@ namespace SubmarineMirage.TestTask.Modifyler {
 
 			SMLog.Debug( "・エラーテスト" );
 			try {
-				SMObjectModifyData.SetTopObject( null );
+				SMGroupModifyData.SetTopObject( null );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
-				SMObjectModifyData.SetAllObjectData( null );
+				SMGroupModifyData.SetAllObjectData( null );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
@@ -234,7 +234,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 					var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 					p = new SMObject( b.gameObject, new [] { b }, p, true );
 				} );
-				SMObjectModifyData.SetAllObjectData( p );
+				SMGroupModifyData.SetAllObjectData( p );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 
@@ -269,42 +269,42 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			SMLog.Debug( "・兄弟解除テスト" );
 			var o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._next;
-			SMObjectModifyData.UnlinkObject( o );
+			SMGroupModifyData.UnlinkObject( o );
 
 			SMLog.Debug( "・登録最初解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
-			SMObjectModifyData.UnlinkObject( o );
+			SMGroupModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・子供兄弟解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._child._next;
-			SMObjectModifyData.UnlinkObject( o );
+			SMGroupModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・子供最初解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._child;
-			SMObjectModifyData.UnlinkObject( o );
+			SMGroupModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・親解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
-			SMObjectModifyData.UnlinkObject( o );
+			SMGroupModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・中間子解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._child;
-			SMObjectModifyData.UnlinkObject( o );
+			SMGroupModifyData.UnlinkObject( o );
 
 			SMLog.Debug( $"・孫解除テスト" );
 			o = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			o = o._next._child._child;
-			SMObjectModifyData.UnlinkObject( o );
+			SMGroupModifyData.UnlinkObject( o );
 
 
 			await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKey( KeyCode.Return ) );
 
 			SMLog.Debug( $"・エラーテスト" );
 			try {
-				SMObjectModifyData.UnlinkObject( null );
+				SMGroupModifyData.UnlinkObject( null );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );

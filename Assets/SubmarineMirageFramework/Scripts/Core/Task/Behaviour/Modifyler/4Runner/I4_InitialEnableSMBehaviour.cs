@@ -7,6 +7,7 @@
 #define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Utility;
 	using Debug;
 
 
@@ -15,27 +16,29 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 	public class InitialEnableSMBehaviour : SMBehaviourModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		bool _isActiveInHierarchy	{ get; set; }
 
 
-		public InitialEnableSMBehaviour( SMBehaviourBody target ) : base( target ) {}
-
-		protected override void Cancel() {}
+		public InitialEnableSMBehaviour( bool isActiveInHierarchy )
+			=> _isActiveInHierarchy = isActiveInHierarchy;
 
 
 		public override async UniTask Run() {
-			// 単体でDontWorkじゃなくても、全体でDontWorkになる場合がある為、ここで判定
-			if ( _target._owner._type == SMTaskType.DontWork ) {
-				_target._isRunInitialActive = false;
-				return;
-			}
-			if ( _target._ranState != SMTaskRunState.Initialize )	{ return; }
+			if ( _owner._ranState != SMTaskRunState.Initialize )	{ return; }
 
 
-			if ( _target._isRunInitialActive ) {
-				await EnableSMBehaviour.Run( _target );
-				_target._isRunInitialActive = false;
+			if ( _owner._isRunInitialActive ) {
+				_owner._isRunInitialActive = false;
+
+				if ( _isActiveInHierarchy && _owner._activeState != SMTaskActiveState.Enable ) {
+					_owner._enableEvent.Run();
+					_owner._activeState = SMTaskActiveState.Enable;
+				}
 			}
-			_target._ranState = SMTaskRunState.InitialEnable;
+
+			_owner._ranState = SMTaskRunState.InitialEnable;
+
+			await UTask.DontWait();
 		}
 	}
 }

@@ -45,47 +45,47 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 
-		static void FixedUpdate( SMBehaviourBody target ) {
-			if ( target._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( !target._isActive )	{ return; }
-			if ( target._ranState == SMTaskRunState.Initialize )	{ target._ranState = SMTaskRunState.FixedUpdate; }
-			switch ( target._ranState ) {
+		static void FixedUpdate( SMBehaviourBody body ) {
+			if ( body._owner._type == SMTaskType.DontWork )		{ return; }
+			if ( !body._isActive )	{ return; }
+			if ( body._ranState == SMTaskRunState.Initialize )	{ body._ranState = SMTaskRunState.FixedUpdate; }
+			switch ( body._ranState ) {
 				case SMTaskRunState.FixedUpdate:
 				case SMTaskRunState.Update:
 				case SMTaskRunState.LateUpdate:
 #if TestBehaviourModifyler
-					SMLog.Debug( $"{target._owner.GetAboutName()}.{nameof(FixedUpdate)} :\n{target}" );
+					SMLog.Debug( $"{body._owner.GetAboutName()}.{nameof(FixedUpdate)} :\n{body}" );
 #endif
-					target._fixedUpdateEvent.Run();
+					body._fixedUpdateEvent.Run();
 					return;
 			}
 		}
 
-		static void Update( SMBehaviourBody target ) {
-			if ( target._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( !target._isActive )	{ return; }
-			if ( target._ranState == SMTaskRunState.FixedUpdate )	{ target._ranState = SMTaskRunState.Update; }
-			switch ( target._ranState ) {
+		static void Update( SMBehaviourBody body ) {
+			if ( body._owner._type == SMTaskType.DontWork )		{ return; }
+			if ( !body._isActive )	{ return; }
+			if ( body._ranState == SMTaskRunState.FixedUpdate )	{ body._ranState = SMTaskRunState.Update; }
+			switch ( body._ranState ) {
 				case SMTaskRunState.Update:
 				case SMTaskRunState.LateUpdate:
 #if TestBehaviourModifyler
-					SMLog.Debug( $"{target._owner.GetAboutName()}.{nameof(Update)} :\n{target}" );
+					SMLog.Debug( $"{body._owner.GetAboutName()}.{nameof(Update)} :\n{body}" );
 #endif
-					target._updateEvent.Run();
+					body._updateEvent.Run();
 					return;
 			}
 		}
 
-		static void LateUpdate( SMBehaviourBody target ) {
-			if ( target._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( !target._isActive )	{ return; }
-			if ( target._ranState == SMTaskRunState.Update )		{ target._ranState = SMTaskRunState.LateUpdate; }
-			switch ( target._ranState ) {
+		static void LateUpdate( SMBehaviourBody body ) {
+			if ( body._owner._type == SMTaskType.DontWork )		{ return; }
+			if ( !body._isActive )	{ return; }
+			if ( body._ranState == SMTaskRunState.Update )		{ body._ranState = SMTaskRunState.LateUpdate; }
+			switch ( body._ranState ) {
 				case SMTaskRunState.LateUpdate:
 #if TestBehaviourModifyler
-					SMLog.Debug( $"{target._owner.GetAboutName()}.{nameof(LateUpdate)} :\n{target}" );
+					SMLog.Debug( $"{body._owner.GetAboutName()}.{nameof(LateUpdate)} :\n{body}" );
 #endif
-					target._lateUpdateEvent.Run();
+					body._lateUpdateEvent.Run();
 					return;
 			}
 		}

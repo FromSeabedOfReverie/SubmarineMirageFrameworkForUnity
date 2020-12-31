@@ -65,7 +65,7 @@ namespace SubmarineMirage.Task.Behaviour {
 		}
 
 		public void Constructor() {
-			_body = new SMBehaviourBody( this, isActiveAndEnabled );
+			_body = new SMBehaviourBody( this, _type != SMTaskType.DontWork && isActiveAndEnabled );
 #if TestBehaviour
 			_disposables.AddLast( () =>
 				SMLog.Debug( $"{nameof( SMMonoBehaviour )}.{nameof( Dispose )} : {this}" )

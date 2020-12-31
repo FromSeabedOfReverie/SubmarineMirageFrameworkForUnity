@@ -62,6 +62,11 @@ namespace SubmarineMirage.Task.Modifyler {
 			if ( !_isRunning )	{ Run().Forget(); }
 		}
 
+		public async UniTask RegisterAndRun( TData data ) {
+			Register( data );
+			await WaitRunning();
+		}
+
 		public void Unregister( TTarget remove ) => _data.RemoveAll(
 			d => d._target == remove,
 			d => d.Dispose()

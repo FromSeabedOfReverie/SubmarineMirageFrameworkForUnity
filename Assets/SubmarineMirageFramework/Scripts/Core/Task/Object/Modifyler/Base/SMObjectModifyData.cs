@@ -6,19 +6,44 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Object.Modifyler {
 	using System;
+	using System.Linq;
+	using System.Collections.Generic;
+	using Cysharp.Threading.Tasks;
 	using Task.Modifyler;
-	using Object;
-	using Group;
+	using Behaviour;
+	using Behaviour.Modifyler;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMObjectModifyData : BaseSMTaskModifyData<SMGroup, SMObjectModifyler, SMObject> {
-		public SMObjectModifyData( SMObject target ) : base( target ) {
-			if ( _target != null && _target._isDispose ) {
-				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に解放、削除済\n{_target}" );
+
+	public abstract class SMObjectModifyData
+		: BaseSMTaskModifyData<SMObject, SMObjectModifyler, SMObject, SMBehaviourModifyData, SMBehaviourBody>
+	{
+		protected SMTaskRunAllType _runType	{ get; private set; }
+
+
+		public SMObjectModifyData( SMTaskRunAllType runType ) : base( null )
+			=> _runType = runType;
+
+		public override void Set( SMObject owner ) {
+			base.Set( owner );
+			_target = _owner;
+			if ( _owner == null || _owner._isDispose ) {
+				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に解放、削除済\n{_owner}" );
 			}
 		}
+
+
+		protected override UniTask RegisterAndRunLower( SMBehaviourBody lowerTarget, SMBehaviourModifyData data )
+			=> lowerTarget._modifyler.RegisterAndRun( data );
+
+		protected override IEnumerable<SMBehaviourBody> GetAllLowers()
+			=> _owner.GetBehaviours().Select( b => b._body );
+
+		protected override bool IsTargetLower( SMBehaviourBody lowerTarget, SMTaskType type )
+			=> lowerTarget._owner._type == type;
 	}
 }

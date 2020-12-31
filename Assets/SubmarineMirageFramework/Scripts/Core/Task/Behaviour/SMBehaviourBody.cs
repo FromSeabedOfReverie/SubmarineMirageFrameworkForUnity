@@ -40,9 +40,9 @@ namespace SubmarineMirage.Task.Behaviour {
 
 
 		public SMBehaviourBody( ISMBehaviour owner, bool isRunInitialActive ) {
+			_modifyler = new SMBehaviourModifyler( this );
 			_owner = owner;
 			_isRunInitialActive = isRunInitialActive;
-			_modifyler = new SMBehaviourModifyler( this );
 
 			_disposables.AddLast( () => {
 				_asyncCancelerOnDisable.Dispose();

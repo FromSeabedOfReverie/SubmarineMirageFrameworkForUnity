@@ -64,7 +64,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			async UniTask SetAdds( SMObject smObject ) {
 				var data = new LinkedList< Func<UniTask> >();
 				new [] { typeof( M1 ), typeof( M2 ), typeof( M3 ), typeof( M6 ) }.ForEach( t => {
-					var d = new AddBehaviourSMObject( smObject, t );
+					var d = new AddBehaviourSMGroup( smObject, t );
 					smObject._top._modifyler.Register( d );
 					data.Enqueue( async () => {
 						await UTask.WaitWhile( _asyncCanceler, () => d._behaviour._body == null );
@@ -101,12 +101,12 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			SMLog.Debug( "・生成直後、停止" );
 			var b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M3" );
 			var o = new SMObject( b.gameObject, new [] { b }, null );
-			var d = new AddBehaviourSMObject( o, typeof( M3 ) );
+			var d = new AddBehaviourSMGroup( o, typeof( M3 ) );
 			d.Dispose();
 
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null );
-			d = new AddBehaviourSMObject( o, typeof( M6 ) );
+			d = new AddBehaviourSMGroup( o, typeof( M6 ) );
 			d.Dispose();
 
 
@@ -114,7 +114,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M3" );
 			o = new SMObject( b.gameObject, new [] { b }, null );
 			await o._top._modifyler.WaitRunning();
-			d = new AddBehaviourSMObject( o, typeof( M3 ) );
+			d = new AddBehaviourSMGroup( o, typeof( M3 ) );
 			o._top._modifyler.Register( d );
 			d.Dispose();
 
@@ -122,7 +122,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M1" );
 			o = new SMObject( b.gameObject, new [] { b }, null );
 			await o._top._modifyler.WaitRunning();
-			d = new AddBehaviourSMObject( o, typeof( M6 ) );
+			d = new AddBehaviourSMGroup( o, typeof( M6 ) );
 			o._top._modifyler.Register( d );
 			d.Dispose();
 
@@ -130,7 +130,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			SMLog.Debug( "・実行後、停止" );
 			b = (SMMonoBehaviour)TestSMBehaviourSMUtility.CreateBehaviours( "M3" );
 			o = new SMObject( b.gameObject, new [] { b }, null );
-			d = new AddBehaviourSMObject( o, typeof( M3 ) );
+			d = new AddBehaviourSMGroup( o, typeof( M3 ) );
 			await d.Run();
 			d.Dispose();
 
@@ -154,11 +154,11 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			try {
 				var o = new B3()._object;
 				TestSMBehaviourSMUtility.SetEvent( o._behaviour );
-				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
-				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initialize ) );
-				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitialize ) );
+				o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Create ) );
+				o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Initialize ) );
+				o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.SelfInitialize ) );
 				o._modifyler.Register( new RunInitialActiveSMObject( o ) );
-				o._modifyler.Register( new AddBehaviourSMObject( o, typeof( M3 ) ) );
+				o._modifyler.Register( new AddBehaviourSMGroup( o, typeof( M3 ) ) );
 				await o._modifyler.WaitRunning();
 				o.Dispose();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
@@ -166,17 +166,17 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			try {
 				var o = SMSceneManager.s_instance.GetBehaviour<M3>()._object;
 				TestSMBehaviourSMUtility.SetEvent( o._behaviour );
-				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Create ) );
-				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.Initialize ) );
-				o._modifyler.Register( new RunStateSMObject( o, SMTaskRunState.SelfInitialize ) );
+				o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Create ) );
+				o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.Initialize ) );
+				o._modifyler.Register( new RunStateSMGroup( o, SMTaskRunState.SelfInitialize ) );
 				o._modifyler.Register( new RunInitialActiveSMObject( o ) );
-				o._modifyler.Register( new AddBehaviourSMObject( o, typeof( B3 ) ) );
+				o._modifyler.Register( new AddBehaviourSMGroup( o, typeof( B3 ) ) );
 				await o._modifyler.WaitRunning();
 				o.Dispose();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			try {
-				await new AddBehaviourSMObject( null, null ).Run();
+				await new AddBehaviourSMGroup( null, null ).Run();
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			await UTask.Never( _asyncCanceler );
