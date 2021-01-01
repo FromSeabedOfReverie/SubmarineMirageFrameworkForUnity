@@ -28,7 +28,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 			_owner._isDisabling = false;
 
-			await RunLower( _runType, b => new EnableSMBehaviour() );
+			await RunLower( _runType, () => new EnableSMBehaviour() );
 
 			if ( _runType == SMTaskRunAllType.Parallel )	{ _owner._activeState = SMTaskActiveState.Enable; }
 		}

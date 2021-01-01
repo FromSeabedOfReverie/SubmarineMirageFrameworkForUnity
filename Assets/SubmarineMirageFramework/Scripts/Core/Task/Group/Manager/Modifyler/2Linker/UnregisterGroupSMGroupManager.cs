@@ -14,13 +14,13 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	// TODO : コメント追加、整頓
 
 
-	public class UnregisterSMGroupManager : SMGroupManagerModifyData {
+	public class UnregisterGroupSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		SMGroup _target	{ get; set; }
 
 
-		public UnregisterSMGroupManager( SMGroup target ) : base( target ) {}
-
-		protected override void Cancel() {}
+		public UnregisterGroupSMGroupManager( SMGroup target )
+			=> _target = target;
 
 
 		public override async UniTask Run() {

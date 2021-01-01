@@ -29,13 +29,8 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 
 	public class SMGroupManager : BaseSMTaskModifylerOwner<SMGroupManagerModifyler> {
-		static readonly SMTaskType[] GET_ALL_TOPS_TASK_TYPES =
-			new SMTaskType[] { SMTaskType.FirstWork, SMTaskType.Work, SMTaskType.DontWork };
-		static readonly SMTaskType[] DISPOSE_TASK_TYPES =
-			new SMTaskType[] { SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork };
-
 		public SMScene _owner	{ get; private set; }
-		public readonly Dictionary<SMTaskType, SMGroup> _groups = new Dictionary<SMTaskType, SMGroup>();
+		public SMGroup _topGroup	{ get; set; }
 		public bool _isEnter	{ get; private set; }
 
 		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _owner._activeAsyncCanceler;
@@ -45,7 +40,6 @@ namespace SubmarineMirage.Task.Group.Manager {
 		public SMGroupManager( SMScene owner ) {
 			_modifyler = new SMGroupManagerModifyler( this );
 			_owner = owner;
-			EnumUtils.GetValues<SMTaskType>().ForEach( t => _groups[t] = null );
 
 			_disposables.AddLast( () => {
 				DisposeGroups();
@@ -53,59 +47,42 @@ namespace SubmarineMirage.Task.Group.Manager {
 		}
 
 		void DisposeGroups() {
-			DISPOSE_TASK_TYPES
-				.SelectMany( t => GetAllGroups( t, true ) )
-				.Where( g => g != null )
+			var bs = GetAllTops()
+				.SelectMany( o => o.GetAllChildren() )
+				.SelectMany( o => o.GetBehaviours() )
+				.Reverse()
+				.ToArray();
+			SMGroupManagerApplyer.DISPOSE_TASK_TYPES
+				.SelectMany( t =>
+					bs.Where( b => b._type == t )
+				)
 				.ToArray()
-				.ForEach( g => g.Dispose() );
-			_groups.Clear();
+				.ForEach( b => b.Dispose() );
 		}
 
 
-		public IEnumerable<SMGroup> GetAllGroups( SMTaskType? type = null, bool isReverse = false ) {
-			IEnumerable<SMGroup> result = null;
-			if ( type.HasValue ) {
-				result = _groups[type.Value]?.GetBrothers() ?? Enumerable.Empty<SMGroup>();
-			} else {
-				result = GET_ALL_TOPS_TASK_TYPES
-					.Select( t => _groups.GetOrDefault( t ) )
-					.Where( g => g != null )
-					.SelectMany( g => g.GetBrothers() );
-			}
-			if ( isReverse ) {
-#if TestGroupManager
-				SMLog.Debug( $"Start Reverse :\n{string.Join( "\n", result.Select( g => g.ToLineString() ) )}" );
-#endif
-				result = result.Reverse();
-#if TestGroupManager
-				SMLog.Debug( $"End Reverse :\n{string.Join( "\n", result.Select( g => g.ToLineString() ) )}" );
-				SMLog.Debug(
-					$"Don't Reverse :\n{string.Join( "\n", GetAllGroups( type ).Select( g => g.ToLineString() ) )}" );
-#endif
-			}
-			return result;
-		}
+		public IEnumerable<SMGroup> GetAllGroups()
+			=> _topGroup.GetBrothers();
 
-		public IEnumerable<SMObject> GetAllTops( SMTaskType? type = null, bool isReverse = false )
-			=> GetAllGroups( type, isReverse )
-				.Select( g => g._topObject );
+		public IEnumerable<SMObject> GetAllTops()
+			=> GetAllGroups().Select( g => g._topObject );
 
 
 
-		public T GetBehaviour<T>( SMTaskType? taskType = null ) where T : ISMBehaviour
-			=> GetBehaviours<T>( taskType )
+		public T GetBehaviour<T>() where T : ISMBehaviour
+			=> GetBehaviours<T>()
 				.FirstOrDefault();
 
-		public ISMBehaviour GetBehaviour( Type type, SMTaskType? taskType = null )
-			=> GetBehaviours( type, taskType )
+		public ISMBehaviour GetBehaviour( Type type )
+			=> GetBehaviours( type )
 				.FirstOrDefault();
 
-		public IEnumerable<T> GetBehaviours<T>( SMTaskType? taskType = null ) where T : ISMBehaviour
-			=> GetBehaviours( typeof( T ), taskType )
+		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
+			=> GetBehaviours( typeof( T ) )
 				.Select( b => (T)b );
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, SMTaskType? taskType = null ) {
-			var currents = new Queue<SMObject>( GetAllTops( taskType ) );
+		public IEnumerable<ISMBehaviour> GetBehaviours( Type type ) {
+			var currents = new Queue<SMObject>( GetAllTops() );
 			while ( !currents.IsEmpty() ) {
 				var o = currents.Dequeue();
 				foreach ( var b in o.GetBehaviours( type ) ) {
@@ -117,23 +94,6 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 
 
-		public async UniTask RunAllStateEvents( SMTaskType type, SMTaskRunState state, bool isWait = true ) {
-			RunStateSMGroupManager.RegisterAndRun( this, type, state );
-			if ( isWait )	{ await _modifyler.WaitRunning(); }
-		}
-
-		public async UniTask ChangeAllActives( SMTaskType taskType, bool isActive, bool isWait = true ) {
-			_modifyler.Register( new ChangeActiveSMGroupManager( taskType, isActive ) );
-			if ( isWait )	{ await _modifyler.WaitRunning(); }
-		}
-
-		public async UniTask RunAllInitialActives( SMTaskType taskType, bool isWait = true ) {
-			_modifyler.Register( new RunInitialActiveSMGroupManager( taskType ) );
-			if ( isWait )	{ await _modifyler.WaitRunning(); }
-		}
-
-
-
 		public async UniTask Enter() {
 			await Load();
 //			SMLog.Debug( _modifyler );
@@ -141,27 +101,29 @@ namespace SubmarineMirage.Task.Group.Manager {
 //			await UTask.WaitWhile( _asyncCancelerOnDisable, () => !Input.GetKeyDown( KeyCode.Return ) );
 			_isEnter = true;
 			return;
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Create );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.SelfInitialize );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Initialize );
 
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Create );
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.SelfInitialize );
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Initialize );
-
-			await RunAllInitialActives( SMTaskType.FirstWork );
-			await RunAllInitialActives( SMTaskType.Work );
+			foreach ( var type in SMGroupManagerApplyer.ALL_RUN_TYPES ) {
+				await _modifyler.RegisterAndRun( new CreateSMGroupManager( type ) );
+			}
+			foreach ( var type in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
+				await _modifyler.RegisterAndRun( new SelfInitializeSMGroupManager( type ) );
+			}
+			foreach ( var type in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
+				await _modifyler.RegisterAndRun( new InitializeSMGroupManager( type ) );
+			}
+			foreach ( var type in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
+				await _modifyler.RegisterAndRun( new InitialEnableSMGroupManager( type ) );
+			}
 		}
 
 		public async UniTask Exit() {
-			await ChangeAllActives( SMTaskType.Work, false );
-			await ChangeAllActives( SMTaskType.FirstWork, false );
-
-			await RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Finalize );
-			await RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Finalize );
-
+			foreach ( var type in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				await _modifyler.RegisterAndRun( new FinalDisableSMGroupManager( type ) );
+			}
+			foreach ( var type in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				await _modifyler.RegisterAndRun( new FinalizeSMGroupManager( type ) );
+			}
 			DisposeGroups();
-			EnumUtils.GetValues<SMTaskType>().ForEach( t => _groups[t] = null );
 
 			_isEnter = false;
 		}
@@ -195,12 +157,12 @@ namespace SubmarineMirage.Task.Group.Manager {
 		public override void SetToString() {
 			base.SetToString();
 
-			_toStringer.SetValue( nameof( _groups ), i => {
-				var arrayI = StringSMUtility.IndentSpace( i + 1 );
-				return "\n" + string.Join( ",\n", _groups.Select( pair =>
-					$"{arrayI}{pair.Key} : {pair.Value.ToLineString()}"
-				) );
-			} );
+			_toStringer.SetName( nameof( _topGroup ), nameof( GetAllTops ) );
+			_toStringer.SetValue( nameof( _topGroup ), i => "\n" +
+				string.Join( ",\n", GetAllTops().Select( g =>
+					g.ToLineString( i + 1 )
+				)
+			) );
 		}
 	}
 }

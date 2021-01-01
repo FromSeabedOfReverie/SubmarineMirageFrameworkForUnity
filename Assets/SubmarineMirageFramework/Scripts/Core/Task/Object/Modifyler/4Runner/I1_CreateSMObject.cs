@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Object.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Utility;
+	using Behaviour.Modifyler;
 	using Debug;
 
 
@@ -21,6 +21,12 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._ranState != SMTaskRunState.None )	{ return; }
+
+
+			await RunLower( _runType, () => new CreateSMBehaviour() );
+
+			if ( _runType == SMTaskRunAllType.DontRun )	{ _owner._ranState = SMTaskRunState.Create; }
 		}
 	}
 }

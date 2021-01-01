@@ -17,6 +17,7 @@ namespace SubmarineMirage.Task.Object {
 	using Task.Modifyler;
 	using Behaviour;
 	using Group;
+	using Group.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -28,7 +29,7 @@ namespace SubmarineMirage.Task.Object {
 
 
 
-	public class SMObject : BaseSMTaskModifylerOwner<SMObjectModifyler>, IBaseSMTaskModifyDataTarget {
+	public class SMObject : BaseSMTaskModifylerOwner<SMObjectModifyler> {
 		[SMShowLine] public SMGroup _group	{ get; set; }
 		[SMShowLine] public GameObject _owner	{ get; private set; }
 
@@ -77,7 +78,7 @@ namespace SubmarineMirage.Task.Object {
 				} else {
 					_group._modifyler.Unregister( this );
 				}
-				SMGroupApplyer.Unlink( this );
+				SMObjectApplyer.Unlink( this );
 				if ( _isGameObject )	{ UnityObject.Destroy( _owner ); }
 			} );
 #if TestObject
@@ -117,7 +118,7 @@ namespace SubmarineMirage.Task.Object {
 #if TestObject
 			SMLog.Debug( $"{nameof( SetupParent )} : start\n{this}" );
 #endif
-			if ( parent != null )	{ SMGroupApplyer.LinkChild( parent, this ); }
+			if ( parent != null )	{ SMObjectApplyer.LinkChild( parent, this ); }
 #if TestObject
 			SMLog.Debug( $"{nameof( SetupParent )} : end\n{this}" );
 #endif
@@ -282,14 +283,16 @@ namespace SubmarineMirage.Task.Object {
 		}
 
 		public void Destroy()
-			=> _group._modifyler.Register( new UnregisterSMGroup( this ) );
+			=> _group._modifyler.Register( new UnregisterObjectSMGroup( this ) );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _group._modifyler.Register(
-				new SendChangeParentSMGroup( this, parent, isWorldPositionStays ) );
+				new SendChangeParentObjectSMGroup( this, parent, isWorldPositionStays ) );
 
-		public void ChangeActive( bool isActive )
-			=> _group._modifyler.Register( new ChangeActiveSMObject( this, isActive, true ) );
+		public void ChangeActive( bool isActive ) {
+			if ( isActive )	{ _group._modifyler.Register( new EnableObjectSMGroup( this ) ); }
+			else			{ _group._modifyler.Register( new DisableObjectSMGroup( this ) ); }
+		}
 
 
 

@@ -18,7 +18,6 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._owner._type == SMTaskType.DontWork )		{ return; }
 			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
 
 			_owner.StopAsyncOnDisable();	// 念の為、Disable未実行を考慮
@@ -27,7 +26,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 				await _owner._finalizeEvent.Run( _owner._asyncCancelerOnDispose );
 			}
 			_owner._ranState = SMTaskRunState.Finalize;
-			_modifyler.UnregisterAll();
+			_modifyler.Dispose();
 		}
 	}
 }

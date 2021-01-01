@@ -28,7 +28,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if ( _owner._ranState != SMTaskRunState.Initialize )	{ return; }
 
 
-			await RunLower( _runType, o => new InitialEnableSMObject( _runType ) );
+			await RunLower( _runType, () => new InitialEnableSMObject( _runType ) );
 
 			if ( _runType == SMTaskRunAllType.Parallel ) {
 				_owner._activeState = SMTaskActiveState.Enable;

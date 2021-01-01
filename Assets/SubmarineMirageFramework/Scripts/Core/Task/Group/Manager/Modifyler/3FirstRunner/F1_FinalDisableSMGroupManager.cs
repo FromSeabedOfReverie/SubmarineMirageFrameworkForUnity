@@ -4,25 +4,26 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestBehaviourModifyler
-namespace SubmarineMirage.Task.Behaviour.Modifyler {
+namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Utility;
+	using Group.Modifyler;
 	using Debug;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class FinalDisableSMBehaviour : SMBehaviourModifyData {
+
+	public class FinalDisableSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
-		bool _isActiveInHierarchy	{ get; set; }
+		SMTaskRunAllType _runType	{ get; set; }
 
 
-		public FinalDisableSMBehaviour( bool isActiveInHierarchy )
-			=> _isActiveInHierarchy = isActiveInHierarchy;
+		public FinalDisableSMGroupManager( SMTaskRunAllType runType )
+			=> _runType = runType;
 
-		public override void Set( SMBehaviourBody owner ) {
+		public override void Set( SMGroupManager owner ) {
 			base.Set( owner );
 			_owner._isFinalizing = true;
 		}
@@ -32,18 +33,13 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if ( _owner._ranState >= SMTaskRunState.FinalDisable )	{ return; }
 
 
-			if (	_isActiveInHierarchy && SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) &&
-					_owner._activeState != SMTaskActiveState.Disable
-			) {
-				_owner._activeState = SMTaskActiveState.Disable;
-				_owner.StopAsyncOnDisable();
-				_owner._disableEvent.Run();
+			_owner._activeState = SMTaskActiveState.Disable;
+
+			await RunLower( _runType, () => new FinalDisableSMGroup( _runType ) );
+
+			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
+				_owner._ranState = SMTaskRunState.FinalDisable;
 			}
-
-			_owner._isRunFinalize = _owner._ranState >= SMTaskRunState.SelfInitialize;
-			_owner._ranState = SMTaskRunState.FinalDisable;
-
-			await UTask.DontWait();
 		}
 	}
 }

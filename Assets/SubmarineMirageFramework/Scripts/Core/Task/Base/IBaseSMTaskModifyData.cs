@@ -15,12 +15,10 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public interface IBaseSMTaskModifyData<TOwner, TModifyler, TTarget> : ISMLightBase
+	public interface IBaseSMTaskModifyData<TOwner, TModifyler> : ISMLightBase
 		where TOwner : IBaseSMTaskModifylerOwner<TModifyler>
 		where TModifyler : IBaseSMTaskModifyler
-		where TTarget : IBaseSMTaskModifyDataTarget
 	{
-		TTarget _target	{ get; }
 		SMTaskModifyType _type	{ get; }
 
 		void Set( TOwner owner );

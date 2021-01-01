@@ -19,7 +19,12 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( !_owner._isOperable )	{ return; }
+			if ( !SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) )	{ return; }
+			if ( _owner._isFinalizing )	{ return; }
+			if ( !_owner._isInitialized ) {
+				_owner._isRunInitialActive = false;
+				return;
+			}
 			if ( _owner._activeState == SMTaskActiveState.Disable )	{ return; }
 
 			_owner._activeState = SMTaskActiveState.Disable;

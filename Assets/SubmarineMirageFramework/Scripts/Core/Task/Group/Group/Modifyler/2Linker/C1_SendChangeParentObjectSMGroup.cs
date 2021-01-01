@@ -51,7 +51,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				$"{nameof( _target )} : {_target}",
 				$"{nameof( _target._group )} : {_target._group}",
 				$"{nameof( _target._group._groups )}",
-				string.Join( "\n", _target._group._groups._groups.Select(
+				string.Join( "\n", _target._group._groups._topGroup.Select(
 					pair => $"    {pair.Key} : {pair.Value?.ToLineString()}"
 				) )
 			) );
@@ -105,7 +105,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				$"{nameof( parentObject )} : {parentObject}",
 				$"{nameof( _target._group )} : {_target._group}",
 				$"{nameof( _target._group._groups )} :",
-				string.Join( "\n", _target._group._groups._groups.Select(
+				string.Join( "\n", _target._group._groups._topGroup.Select(
 					pair => $"    {pair.Key} : {pair.Value?.ToLineString()}"
 				) )
 			) );

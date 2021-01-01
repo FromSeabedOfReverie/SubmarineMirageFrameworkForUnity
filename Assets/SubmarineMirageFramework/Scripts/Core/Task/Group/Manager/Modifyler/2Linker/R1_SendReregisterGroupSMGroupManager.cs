@@ -17,18 +17,13 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 
-	public class SendReregisterSMGroupManager : SMGroupManagerModifyData {
+	public class SendReregisterGroupSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
-		[SMShowLine] SMTaskType _lastType	{ get; set; }
+		SMGroup _target	{ get; set; }
 
 
-		public SendReregisterSMGroupManager( SMGroup target, SMTaskType lastType )
-			: base( target )
-		{
-			_lastType = lastType;
-		}
-
-		protected override void Cancel() {}
+		public SendReregisterGroupSMGroupManager( SMGroup target )
+			=> _target = target;
 
 
 		public override async UniTask Run() {
@@ -57,8 +52,8 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 #endif
 			}
 
-			SMGroupManagerApplyer.Unlink( _owner, _target, _lastType );
-			_target._groups._modifyler.Register( new ReceiveReregisterSMGroupManager( _target ) );
+			SMGroupManagerApplyer.Unlink( _owner, _target );
+			_target._groups._modifyler.Register( new ReceiveReregisterGroupSMGroupManager( _target ) );
 			_modifyler.Reregister( _target._groups, _target );
 
 

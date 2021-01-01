@@ -20,29 +20,19 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public abstract class BaseSMTaskModifyData<TOwner, TModifyler, TTarget, TLowerData, TLowerTarget>
-		: SMLightBase, IBaseSMTaskModifyData<TOwner, TModifyler, TTarget>
+	public abstract class BaseSMTaskModifyData<TOwner, TModifyler, TLowerData, TLowerTarget>
+		: SMLightBase, IBaseSMTaskModifyData<TOwner, TModifyler>
 		where TOwner : IBaseSMTaskModifylerOwner<TModifyler>
 		where TModifyler : IBaseSMTaskModifyler
-		where TTarget : IBaseSMTaskModifyDataTarget
 	{
 		protected TOwner _owner	{ get; private set; }
 		protected TModifyler _modifyler	{ get; private set; }
-		[SMShowLine] public TTarget _target	{ get; protected set; }
 		[SMShowLine] public abstract SMTaskModifyType _type	{ get; }
 		bool _isCalledDestructor	{ get; set; }
 
-		protected readonly SMTaskRunAllType[] _sequentialRunOrder = new SMTaskRunAllType[] {
-			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel
-		};
-		protected readonly SMTaskRunAllType[] _reverseSequentialRunOrder = new SMTaskRunAllType[] {
-			SMTaskRunAllType.Parallel, SMTaskRunAllType.ReverseSequential
-		};
 
 
-
-		public BaseSMTaskModifyData( TTarget target ) {
-			_target = target;
+		public BaseSMTaskModifyData() {
 #if TestTaskModifyler
 			SMLog.Debug( $"{this.GetAboutName()}() : {this}" );
 #endif
@@ -65,18 +55,18 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public abstract UniTask Run();
 
-		protected async UniTask RunLower( SMTaskRunAllType type, Func<TLowerTarget, TLowerData> createEvent ) {
+		protected async UniTask RunLower( SMTaskRunAllType type, Func<TLowerData> createEvent ) {
 			var ls = GetLowers( type );
 			switch ( type ) {
 				case SMTaskRunAllType.Sequential:
 				case SMTaskRunAllType.ReverseSequential:
 					foreach ( var l in ls ) {
-						await RegisterAndRunLower( l, createEvent( l ) );
+						await RegisterAndRunLower( l, createEvent() );
 					}
 					return;
 				case SMTaskRunAllType.Parallel:
 					await ls.Select( l =>
-						RegisterAndRunLower( l, createEvent( l ) )
+						RegisterAndRunLower( l, createEvent() )
 					);
 					return;
 			}

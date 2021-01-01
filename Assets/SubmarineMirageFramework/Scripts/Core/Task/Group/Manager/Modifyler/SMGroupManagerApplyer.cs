@@ -15,16 +15,30 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 	public static class SMGroupManagerApplyer {
+		public static readonly SMTaskRunAllType[] SEQUENTIAL_RUN_TYPES = new SMTaskRunAllType[] {
+			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel,
+		};
+		public static readonly SMTaskRunAllType[] REVERSE_SEQUENTIAL_RUN_TYPES = new SMTaskRunAllType[] {
+			SMTaskRunAllType.Parallel, SMTaskRunAllType.ReverseSequential,
+		};
+		public static readonly SMTaskRunAllType[] ALL_RUN_TYPES = new SMTaskRunAllType[] {
+			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel, SMTaskRunAllType.DontRun,
+		};
+		public static readonly SMTaskType[] DISPOSE_TASK_TYPES = new SMTaskType[] {
+			SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork,
+		};
+
+
+
 		public static void Link( SMGroupManager owner, SMGroup add ) {
 #if TestGroupManagerModifyler
 			SMLog.Debug( $"{nameof( Link )} : start" );
 			SMLog.Debug( owner );	// 追加前を表示
 #endif
-			var first = owner._groups[add._type];
-			if ( first == null ) {
-				owner._groups[add._type] = add;
+			if ( owner._topGroup == null ) {
+				owner._topGroup = add;
 			} else {
-				var last = first.GetLast();
+				var last = owner._topGroup.GetLast();
 #if TestGroupManagerModifyler
 				SMLog.Debug( string.Join( "\n",
 					$"{nameof( last )} : {last?.ToLineString()}",
@@ -47,18 +61,12 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 		}
 
 
-		public static void Unlink( SMGroupManager owner, SMGroup remove, SMTaskType lastType ) {
-			if ( owner._groups[lastType] == remove ) {
-				owner._groups[lastType] = remove._next;
-			}
+		public static void Unlink( SMGroupManager owner, SMGroup remove ) {
+			if ( owner._topGroup == remove )	{ owner._topGroup = remove._next; }
 			if ( remove._previous != null )		{ remove._previous._next = remove._next; }
 			if ( remove._next != null )			{ remove._next._previous = remove._previous; }
 			remove._previous = null;
 			remove._next = null;
 		}
-
-
-		public static void Unlink( SMGroupManager owner, SMGroup remove )
-			=> Unlink( owner, remove, remove._type );
 	}
 }

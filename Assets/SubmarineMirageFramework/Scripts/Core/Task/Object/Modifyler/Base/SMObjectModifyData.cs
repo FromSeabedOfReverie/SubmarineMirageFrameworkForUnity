@@ -20,17 +20,16 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 	public abstract class SMObjectModifyData
-		: BaseSMTaskModifyData<SMObject, SMObjectModifyler, SMObject, SMBehaviourModifyData, SMBehaviourBody>
+		: BaseSMTaskModifyData<SMObject, SMObjectModifyler, SMBehaviourModifyData, SMBehaviourBody>
 	{
 		protected SMTaskRunAllType _runType	{ get; private set; }
 
 
-		public SMObjectModifyData( SMTaskRunAllType runType ) : base( null )
+		public SMObjectModifyData( SMTaskRunAllType runType )
 			=> _runType = runType;
 
 		public override void Set( SMObject owner ) {
 			base.Set( owner );
-			_target = _owner;
 			if ( _owner == null || _owner._isDispose ) {
 				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に解放、削除済\n{_owner}" );
 			}

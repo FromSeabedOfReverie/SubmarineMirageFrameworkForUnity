@@ -19,9 +19,7 @@ namespace SubmarineMirage.Task.Behaviour {
 
 
 
-	public class SMBehaviourBody
-		: BaseSMTaskModifylerOwner<SMBehaviourModifyler>, IBaseSMTaskModifyDataTarget
-	{
+	public class SMBehaviourBody : BaseSMTaskModifylerOwner<SMBehaviourModifyler> {
 		public ISMBehaviour _owner	{ get; private set; }
 		public bool _isRunInitialActive	{ get; set; }
 		public bool _isRunFinalize	{ get; set; }

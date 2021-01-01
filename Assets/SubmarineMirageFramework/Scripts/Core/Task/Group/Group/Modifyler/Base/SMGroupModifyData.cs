@@ -19,9 +19,13 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 	public abstract class SMGroupModifyData
-		: BaseSMTaskModifyData<SMGroup, SMGroupModifyler, SMObject, SMObjectModifyData, SMObject>
+		: BaseSMTaskModifyData<SMGroup, SMGroupModifyler, SMObjectModifyData, SMObject>
 	{
-		public SMGroupModifyData( SMObject target ) : base( target ) {}
+		public SMObject _target	{ get; private set; }
+
+
+		public SMGroupModifyData( SMObject target )
+			=> _target = target;
 
 		public override void Set( SMGroup owner ) {
 			base.Set( owner );

@@ -4,8 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.Task.Group.Manager.Modifyler {
+	using Cysharp.Threading.Tasks;
+	using Group.Modifyler;
+	using Debug;
 
 
 
@@ -13,6 +15,16 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public interface IBaseSMTaskModifyDataTarget {
+	public class FinalizeSMGroupManager : SMGroupManagerModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		SMTaskRunAllType _runType	{ get; set; }
+
+
+		public FinalizeSMGroupManager( SMTaskRunAllType runType )
+			=> _runType = runType;
+
+
+		public override async UniTask Run() {
+		}
 	}
 }

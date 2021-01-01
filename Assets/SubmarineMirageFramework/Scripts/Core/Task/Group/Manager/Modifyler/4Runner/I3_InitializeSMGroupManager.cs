@@ -4,10 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestGroupManagerModifyler
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Utility;
 	using Debug;
 
 
@@ -16,26 +14,16 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 
-	public class ReceiveReregisterSMGroupManager : SMGroupManagerModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.FirstLinker;
+	public class InitializeSMGroupManager : SMGroupManagerModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		SMTaskRunAllType _runType	{ get; set; }
 
 
-		public ReceiveReregisterSMGroupManager( SMGroup target ) : base( target ) {}
-
-		protected override void Cancel() => _target.Dispose();
+		public InitializeSMGroupManager( SMTaskRunAllType runType )
+			=> _runType = runType;
 
 
 		public override async UniTask Run() {
-#if TestGroupManagerModifyler
-			SMLog.Debug( $"{nameof( Run )} : start\n{this}" );
-#endif
-			SMGroupManagerApplyer.Link( _owner, _target );
-
-			await UTask.DontWait();
-
-#if TestGroupManagerModifyler
-			SMLog.Debug( $"{nameof( Run )} : end\n{this}" );
-#endif
 		}
 	}
 }

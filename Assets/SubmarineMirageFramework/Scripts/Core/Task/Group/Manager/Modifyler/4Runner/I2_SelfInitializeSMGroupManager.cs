@@ -14,34 +14,16 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 
-	public class ChangeActiveSMGroupManager : SMGroupManagerModifyData {
+	public class SelfInitializeSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
-		[SMShowLine] SMTaskType _taskType	{ get; set; }
-		[SMShowLine] bool _isActive	{ get; set; }
+		SMTaskRunAllType _runType	{ get; set; }
 
 
-		public ChangeActiveSMGroupManager( SMTaskType taskType, bool isActive ) : base( null ) {
-			_taskType = taskType;
-			_isActive = isActive;
-		}
-
-		protected override void Cancel() {}
+		public SelfInitializeSMGroupManager( SMTaskRunAllType runType )
+			=> _runType = runType;
 
 
 		public override async UniTask Run() {
-			var gs = _owner.GetAllGroups( _taskType, _taskType == SMTaskType.FirstWork && !_isActive );
-
-			switch ( _taskType ) {
-				case SMTaskType.FirstWork:
-					foreach ( var g in gs ) {
-						await g.ChangeActive( _isActive );
-					}
-					return;
-
-				case SMTaskType.Work:
-					await gs.Select( g => g.ChangeActive( _isActive ) );
-					return;
-			}
 		}
 	}
 }

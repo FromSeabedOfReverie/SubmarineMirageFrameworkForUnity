@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Group.Modifyler;
 	using Debug;
 
 
@@ -14,31 +15,24 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 
-	public class RunInitialActiveSMGroupManager : SMGroupManagerModifyData {
+	public class InitialEnableSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
-		[SMShowLine] SMTaskType _taskType	{ get; set; }
+		SMTaskRunAllType _runType	{ get; set; }
 
 
-		public RunInitialActiveSMGroupManager( SMTaskType taskType ) : base( null ) {
-			_taskType = taskType;
-		}
-
-		protected override void Cancel() {}
+		public InitialEnableSMGroupManager( SMTaskRunAllType runType )
+			=> _runType = runType;
 
 
 		public override async UniTask Run() {
-			var gs = _owner.GetAllGroups( _taskType );
+			if ( _owner._ranState != SMTaskRunState.Initialize )	{ return; }
 
-			switch ( _taskType ) {
-				case SMTaskType.FirstWork:
-					foreach ( var g in gs ) {
-						await g.RunInitialActive();
-					}
-					return;
 
-				case SMTaskType.Work:
-					await gs.Select( g => g.RunInitialActive() );
-					return;
+			await RunLower( _runType, () => new InitialEnableSMGroup( _runType ) );
+
+			if ( _runType == SMTaskRunAllType.Parallel ) {
+				_owner._activeState = SMTaskActiveState.Enable;
+				_owner._ranState = SMTaskRunState.InitialEnable;
 			}
 		}
 	}

@@ -8,6 +8,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Object;
 	using Object.Modifyler;
+	using Group.Manager.Modifyler;
 	using Debug;
 
 
@@ -31,8 +32,8 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			if ( _owner.IsTop( _target ) )	{ _owner._activeState = SMTaskActiveState.Disable; }
 
-			foreach ( var t in _reverseSequentialRunOrder ) {
-				await RunLower( t, o => new DisableSMObject( t ) );
+			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				await RunLower( t, () => new DisableSMObject( t ) );
 			}
 
 			if ( _target._isGameObject )	{ _target._owner.SetActive( false ); }

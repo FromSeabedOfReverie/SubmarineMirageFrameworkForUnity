@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
-	using KoganeUnityLib;
 	using Task.Modifyler;
 
 
@@ -15,18 +14,12 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 	public class SMBehaviourModifyler
-		: BaseSMTaskModifyler<SMBehaviourBody, SMBehaviourModifyler, SMBehaviourModifyData, SMBehaviourBody>
+		: BaseSMTaskModifyler<SMBehaviourBody, SMBehaviourModifyler, SMBehaviourModifyData>
 	{
 		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
 
 
 		public SMBehaviourModifyler( SMBehaviourBody owner ) : base( owner ) {}
-
-
-		public void UnregisterAll() {
-			_data.ForEach( d => d.Dispose() );
-			_data.Clear();
-		}
 
 
 		public override void SetToString() {

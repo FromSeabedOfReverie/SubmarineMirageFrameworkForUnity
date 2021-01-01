@@ -17,11 +17,13 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 
-	public class RegisterSMGroupManager : SMGroupManagerModifyData {
+	public class RegisterGroupSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		SMGroup _target	{ get; set; }
 
 
-		public RegisterSMGroupManager( SMGroup target ) : base( target ) {}
+		public RegisterGroupSMGroupManager( SMGroup target )
+			=> _target = target;
 
 
 		protected override void Cancel() {

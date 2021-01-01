@@ -30,7 +30,9 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if ( _owner._isRunInitialActive ) {
 				_owner._isRunInitialActive = false;
 
-				if ( _isActiveInHierarchy && _owner._activeState != SMTaskActiveState.Enable ) {
+				if (	_isActiveInHierarchy && SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) &&
+						_owner._activeState != SMTaskActiveState.Enable
+				) {
 					_owner._enableEvent.Run();
 					_owner._activeState = SMTaskActiveState.Enable;
 				}

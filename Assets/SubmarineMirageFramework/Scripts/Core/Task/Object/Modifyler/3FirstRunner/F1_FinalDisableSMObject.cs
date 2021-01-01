@@ -33,7 +33,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 			_owner._isDisabling = true;
 
 			var isActiveInHierarchy = SMObjectApplyer.IsActiveInHierarchy( _owner );
-			await RunLower( _runType, b => new FinalDisableSMBehaviour( isActiveInHierarchy ) );
+			await RunLower( _runType, () => new FinalDisableSMBehaviour( isActiveInHierarchy ) );
 
 			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
 				_owner._isDisabling = false;

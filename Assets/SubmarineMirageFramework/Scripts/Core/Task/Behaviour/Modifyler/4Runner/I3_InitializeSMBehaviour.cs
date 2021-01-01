@@ -18,7 +18,6 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._owner._type == SMTaskType.DontWork )			{ return; }
 			if ( _owner._ranState != SMTaskRunState.SelfInitialize )	{ return; }
 
 			await _owner._initializeEvent.Run( _owner._asyncCancelerOnDispose );

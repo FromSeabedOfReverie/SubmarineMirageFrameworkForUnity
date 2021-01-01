@@ -20,12 +20,11 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public abstract class BaseSMTaskModifyler<TOwner, TModifyler, TData, TTarget>
+	public abstract class BaseSMTaskModifyler<TOwner, TModifyler, TData>
 		: SMStandardBase, IBaseSMTaskModifyler
 		where TOwner : IBaseSMTaskModifylerOwner<TModifyler>
 		where TModifyler : IBaseSMTaskModifyler
-		where TData : class, IBaseSMTaskModifyData<TOwner, TModifyler, TTarget>
-		where TTarget : class, IBaseSMTaskModifyDataTarget
+		where TData : class, IBaseSMTaskModifyData<TOwner, TModifyler>
 	{
 		protected TOwner _owner	{ get; private set; }
 		protected readonly LinkedList<TData> _data = new LinkedList<TData>();
@@ -39,11 +38,16 @@ namespace SubmarineMirage.Task.Modifyler {
 			_disposables.AddLast( () => {
 				_data.ForEach( d => d.Dispose() );
 				_data.Clear();
+				_isRunning = false;
 			} );
 		}
 
 		public void Register( TData data ) {
 			data.Set( _owner );
+			if ( _isDispose ) {
+				data.Dispose();
+				return;
+			}
 
 			switch( data._type ) {
 				case SMTaskModifyType.FirstLinker:
@@ -67,17 +71,13 @@ namespace SubmarineMirage.Task.Modifyler {
 			await WaitRunning();
 		}
 
-		public void Unregister( TTarget remove ) => _data.RemoveAll(
-			d => d._target == remove,
-			d => d.Dispose()
-		);
-
 
 		async UniTask Run() {
 			if ( _isRunning )	{ return; }
 
 			_isRunning = true;
 			while ( !_data.IsEmpty() ) {
+				if ( _isDispose )	{ break; }
 				var d = _data.Dequeue();
 				await d.Run();
 			}

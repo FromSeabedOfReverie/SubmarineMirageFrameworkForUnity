@@ -17,7 +17,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 	public class SMGroupModifyler
-		: BaseSMTaskModifyler<SMGroup, SMGroupModifyler, SMGroupModifyData, SMObject>
+		: BaseSMTaskModifyler<SMGroup, SMGroupModifyler, SMGroupModifyData>
 	{
 		protected override SMTaskCanceler _asyncCanceler => _owner._topObject._asyncCanceler;
 
@@ -36,6 +36,11 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		public void Reregister( SMGroup newOwner ) => _data.RemoveAll(
 			d => d._target._group == newOwner,
 			d => newOwner._modifyler.Register( d )
+		);
+
+		public void Unregister( SMObject remove ) => _data.RemoveAll(
+			d => d._target == remove,
+			d => d.Dispose()
 		);
 	}
 }

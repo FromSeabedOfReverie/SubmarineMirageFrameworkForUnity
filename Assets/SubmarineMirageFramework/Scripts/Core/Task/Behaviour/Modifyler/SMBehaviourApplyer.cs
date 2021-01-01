@@ -89,5 +89,22 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 					return;
 			}
 		}
+
+
+		public static bool IsActiveInMonoBehaviour( SMBehaviourBody body ) {
+			if ( !body._owner._object._isGameObject )	{ return true; }
+
+			var mb = (SMMonoBehaviour)body._owner;
+			return mb.enabled;
+		}
+
+		public static bool IsActiveInHierarchyAndMonoBehaviour( ISMBehaviour behaviour ) {
+			if ( !behaviour._object._isGameObject )	{ return true; }
+
+			var mb = (SMMonoBehaviour)behaviour;
+			return mb.gameObject.activeInHierarchy && mb.enabled;
+		}
+
+		
 	}
 }

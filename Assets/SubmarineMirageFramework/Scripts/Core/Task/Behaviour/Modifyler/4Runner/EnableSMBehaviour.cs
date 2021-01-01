@@ -7,6 +7,7 @@
 #define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Object.Modifyler;
 	using Utility;
 	using Debug;
 
@@ -19,7 +20,12 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( !_owner._isOperable )	{ return; }
+			if ( !SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) )	{ return; }
+			if ( _owner._isFinalizing )	{ return; }
+			if ( !_owner._isInitialized ) {
+				_owner._isRunInitialActive = SMObjectApplyer.IsActiveInHierarchy( _owner._owner._object );
+				return;
+			}
 			if ( _owner._activeState == SMTaskActiveState.Enable )	{ return; }
 
 			_owner._enableEvent.Run();

@@ -14,21 +14,16 @@ namespace SubmarineMirage.Task.Group {
 	using Modifyler;
 	using Task.Modifyler;
 	using Object;
-	using Object.Modifyler;
 	using Group.Manager;
 	using Group.Manager.Modifyler;
 	using Scene;
-	using Utility;
 	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SMGroup
-		: BaseSMTaskModifylerOwner<SMGroupModifyler>, IBaseSMTaskModifyDataTarget
-	{
-		public SMTaskType _type			{ get; set; }
+	public class SMGroup : BaseSMTaskModifylerOwner<SMGroupModifyler> {
 		public SMTaskLifeSpan _lifeSpan	{ get; set; }
 		public SMScene _scene		{ get; set; }
 		[SMHide] public SMGroupManager _groups => _scene?._groups;
@@ -97,7 +92,6 @@ namespace SubmarineMirage.Task.Group {
 #if TestGroup
 			SMLog.Debug( $"{nameof( SetAllData )} : start\n{this}" );
 #endif
-			var lastType = _type;
 			var lastScene = _scene;
 			var allObjects = _topObject.GetAllChildren();
 			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
@@ -111,11 +105,6 @@ namespace SubmarineMirage.Task.Group {
 				$"{string.Join( "\n", allBehaviours.Select( b => b?.ToLineString() ) )}"
 			) );
 #endif
-			_type = (
-				allBehaviours.Any( b => b._type == SMTaskType.FirstWork )	? SMTaskType.FirstWork :
-				allBehaviours.Any( b => b._type == SMTaskType.Work )		? SMTaskType.Work
-																			: SMTaskType.DontWork
-			);
 			_lifeSpan = allBehaviours.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever ) ?
 				SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
 			_scene = (
@@ -128,9 +117,7 @@ namespace SubmarineMirage.Task.Group {
 			);
 #if TestGroup
 			SMLog.Debug( string.Join( "\n",
-				$"{nameof( lastType )} : {lastType}",
 				$"{nameof( lastScene )} : {lastScene}",
-				$"{nameof( _type )} : {_type}",
 				$"{nameof( _lifeSpan )} : {_lifeSpan}",
 				$"{nameof( _scene )} : {_scene}"
 			) );
@@ -143,13 +130,13 @@ namespace SubmarineMirage.Task.Group {
 #endif
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				if ( _groups != null ) {
-					_groups._modifyler.Register( new RegisterSMGroupManager( this ) );
+					_groups._modifyler.Register( new RegisterGroupSMGroupManager( this ) );
 				}
-			} else if ( _type != lastType || _scene != lastScene ) {
+			} else if ( _scene != lastScene ) {
 #if TestGroup
 				SMLog.Debug( $"Reregister : {this}" );
 #endif
-				lastScene._groups._modifyler.Register( new SendReregisterSMGroupManager( this, lastType ) );
+				lastScene._groups._modifyler.Register( new SendReregisterGroupSMGroupManager( this ) );
 			} else {
 #if TestGroup
 				SMLog.Debug( $"DontRegister : {this}" );
@@ -158,23 +145,6 @@ namespace SubmarineMirage.Task.Group {
 #if TestGroup
 			SMLog.Debug( $"{nameof( SetAllData )} : end\n{this}" );
 #endif
-		}
-
-
-
-		public async UniTask RunStateEvent( SMTaskRunState state, bool isWait = true ) {
-			RunStateSMGroup.RegisterAndRun( this, state );
-			if ( isWait )	{ await _modifyler.WaitRunning(); }
-		}
-
-		public async UniTask ChangeActive( bool isActive, bool isWait = true ) {
-			_modifyler.Register( new ChangeActiveSMObject( _topObject, isActive, true ) );
-			if ( isWait )	{ await _modifyler.WaitRunning(); }
-		}
-
-		public async UniTask RunInitialActive( bool isWait = true ) {
-			_modifyler.Register( new RunInitialActiveSMObject( _topObject ) );
-			if ( isWait )	{ await _modifyler.WaitRunning(); }
 		}
 
 
