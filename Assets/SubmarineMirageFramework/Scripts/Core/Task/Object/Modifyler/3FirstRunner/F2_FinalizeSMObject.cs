@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Object.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Behaviour.Modifyler;
 	using Debug;
 
 
@@ -20,6 +21,12 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
+
+
+			await RunLower( _runType, () => new FinalizeSMBehaviour() );
+
+			if ( _runType == SMTaskRunAllType.ReverseSequential )	{ _owner._ranState = SMTaskRunState.Finalize; }
 		}
 	}
 }

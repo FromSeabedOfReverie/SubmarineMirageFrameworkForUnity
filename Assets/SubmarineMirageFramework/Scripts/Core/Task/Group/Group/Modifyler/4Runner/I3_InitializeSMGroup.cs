@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Group.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Object;
+	using Object.Modifyler;
 	using Debug;
 
 
@@ -25,6 +25,12 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._ranState != SMTaskRunState.SelfInitialize )	{ return; }
+
+
+			await RunLower( _runType, () => new InitializeSMObject( _runType ) );
+
+			if ( _runType == SMTaskRunAllType.Parallel )	{ _owner._ranState = SMTaskRunState.Initialize; }
 		}
 	}
 }

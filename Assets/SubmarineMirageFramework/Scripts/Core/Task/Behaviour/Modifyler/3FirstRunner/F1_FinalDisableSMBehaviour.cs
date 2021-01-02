@@ -32,11 +32,13 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if ( _owner._ranState >= SMTaskRunState.FinalDisable )	{ return; }
 
 
+			var lastActiveState = _owner._activeState;
+			_owner._activeState = SMTaskActiveState.Disable;
+			_owner.StopAsyncOnDisable();
+
 			if (	_isActiveInHierarchy && SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) &&
-					_owner._activeState != SMTaskActiveState.Disable
+					lastActiveState != SMTaskActiveState.Disable
 			) {
-				_owner._activeState = SMTaskActiveState.Disable;
-				_owner.StopAsyncOnDisable();
 				_owner._disableEvent.Run();
 			}
 

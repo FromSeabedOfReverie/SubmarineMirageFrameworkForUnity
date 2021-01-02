@@ -20,13 +20,11 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 		public override async UniTask Run() {
 			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
 
-			_owner.StopAsyncOnDisable();	// 念の為、Disable未実行を考慮
-
 			if ( _owner._isRunFinalize ) {
 				await _owner._finalizeEvent.Run( _owner._asyncCancelerOnDispose );
 			}
-			_owner._ranState = SMTaskRunState.Finalize;
 			_modifyler.Dispose();
+			_owner._ranState = SMTaskRunState.Finalize;
 		}
 	}
 }

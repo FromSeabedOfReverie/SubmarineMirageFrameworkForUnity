@@ -25,6 +25,12 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
+
+
+			await RunLower( _runType, () => new FinalizeSMGroup( _runType ) );
+
+			if ( _runType == SMTaskRunAllType.ReverseSequential )	{ _owner._ranState = SMTaskRunState.Finalize; }
 		}
 	}
 }
