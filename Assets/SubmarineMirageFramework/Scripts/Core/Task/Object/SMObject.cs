@@ -68,6 +68,8 @@ namespace SubmarineMirage.Task.Object {
 			}
 
 			_disposables.AddLast( () => {
+				_isFinalizing = true;
+
 				GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() );
 				GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() );
 

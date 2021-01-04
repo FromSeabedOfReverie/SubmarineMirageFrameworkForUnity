@@ -14,6 +14,7 @@ namespace SubmarineMirage.Scene {
 	using Task;
 	using Task.Behaviour;
 	using Task.Object;
+	using Task.Group.Modifyler;
 	using FSM;
 	using Singleton;
 	using Debug;
@@ -35,7 +36,7 @@ namespace SubmarineMirage.Scene {
 			s_instance._fsm._foreverScene.Set( s_instance );
 			s_instance._disposables.AddFirst( s_instance._fsm );
 // TODO : ここで、SetAllDataする意味が分からない・・・
-			s_instance._object._group.SetAllData();
+			SMGroupApplyer.SetAllData( s_instance._object._group );
 		}
 
 #if TestScene

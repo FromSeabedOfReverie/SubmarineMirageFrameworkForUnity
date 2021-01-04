@@ -6,11 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestGroupModifyler
 namespace SubmarineMirage.Task.Group.Modifyler {
-	using System;
 	using Cysharp.Threading.Tasks;
-	using Behaviour;
 	using Object;
 	using Object.Modifyler;
+	using Utility;
 	using Debug;
 
 
@@ -22,43 +21,19 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		[SMShowLine] SMObject _parent	{ get; set; }
 
 
-		public ReceiveChangeParentObjectSMGroup( SMObject target, SMObject parent ) : base( target ) {
-			_parent = parent;
-
-			if ( !_target._isGameObject || !_parent._isGameObject ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_target}" );
-			}
-		}
+		public ReceiveChangeParentObjectSMGroup( SMObject target, SMObject parent ) : base( target )
+			=> _parent = parent;
 
 		protected override void Cancel() => _target.Dispose();
 
 
 		public override async UniTask Run() {
 			SMObjectApplyer.LinkChild( _parent, _target );
-			_parent._group.SetAllData();
+			SMGroupApplyer.SetAllData( _owner );
 
-			if ( _target._owner.activeSelf ) {
-#if TestGroupModifyler
-				SMLog.Debug( string.Join( "\n",
-					$"{nameof( ChangeActiveSMObject )} : start",
-					$"isActive : {_target._owner.activeSelf}",
-					$"isParentActive : {_parent._owner.activeInHierarchy}",
-					$"{nameof( _target )} : {_target}"
-				) );
-#endif
+			_modifyler.Register( new ChangeParentActiveObjectSMGroup( _target ) );
 
-				var isParentActive = _parent._owner.activeInHierarchy;
-				await new ChangeActiveSMObject( _target, isParentActive, false ).Run();
-
-#if TestGroupModifyler
-				SMLog.Debug( string.Join( "\n",
-					$"{nameof( ChangeActiveSMObject )} : end",
-					$"isActive : {_target._owner.activeSelf}",
-					$"isParentActive : {_parent._owner.activeInHierarchy}",
-					$"{nameof( _target )} : {_target}"
-				) );
-#endif
-			}
+			await UTask.DontWait();
 		}
 	}
 }

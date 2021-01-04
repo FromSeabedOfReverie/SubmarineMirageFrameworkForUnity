@@ -43,6 +43,8 @@ namespace SubmarineMirage.Task.Behaviour {
 			_isRunInitialActive = isRunInitialActive;
 
 			_disposables.AddLast( () => {
+				_isFinalizing = true;
+
 				_asyncCancelerOnDisable.Dispose();
 				_asyncCancelerOnDispose.Dispose();
 

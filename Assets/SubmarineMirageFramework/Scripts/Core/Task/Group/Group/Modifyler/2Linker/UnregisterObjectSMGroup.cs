@@ -34,7 +34,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			if ( !_owner.IsTop( _target ) ) {
 				SMObjectApplyer.Unlink( _target );
-				_owner.SetAllData();
+				SMGroupApplyer.SetAllData( _owner );
 			}
 
 #if TestGroupModifyler

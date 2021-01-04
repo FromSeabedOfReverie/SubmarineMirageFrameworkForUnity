@@ -6,11 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestGroup
 namespace SubmarineMirage.Task.Group {
-	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using Modifyler;
 	using Task.Modifyler;
 	using Object;
@@ -42,9 +39,11 @@ namespace SubmarineMirage.Task.Group {
 			_modifyler = new SMGroupModifyler( this );
 			_topObject = top;
 
-			SetAllData();
+			SMGroupApplyer.SetAllData( this );
 
 			_disposables.AddLast( () => {
+				_isFinalizing = true;
+
 				_topObject?.Dispose();
 				_groups._modifyler.Unregister( this );
 				SMGroupManagerApplyer.Unlink( _groups, this );
@@ -72,80 +71,7 @@ namespace SubmarineMirage.Task.Group {
 
 
 
-		public void Move( SMGroup remove ) {
-			_modifyler.Move( remove._modifyler );
-			remove._topObject.GetAllChildren().ForEach( o => o._group = this );
-			remove._topObject = null;
-			remove.Dispose();
-		}
-
-
-
 		public bool IsTop( SMObject smObject ) => smObject == _topObject;
-
-		public void SetTop( SMObject smObject ) {
-			_topObject = smObject.GetTop();
-			SetAllData();
-		}
-
-		public void SetAllData() {
-#if TestGroup
-			SMLog.Debug( $"{nameof( SetAllData )} : start\n{this}" );
-#endif
-			var lastScene = _scene;
-			var allObjects = _topObject.GetAllChildren();
-			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
-#if TestGroup
-			SMLog.Debug( string.Join( "\n",
-				$"{nameof( allObjects )} :",
-				$"{string.Join( "\n", allObjects.Select( o => o?.ToLineString() ) )}"
-			) );
-			SMLog.Debug( string.Join( "\n",
-				$"{nameof( allBehaviours )} :",
-				$"{string.Join( "\n", allBehaviours.Select( b => b?.ToLineString() ) )}"
-			) );
-#endif
-			_lifeSpan = allBehaviours.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever ) ?
-				SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
-			_scene = (
-				// SceneManager作成時の場合、循環参照になる為、設定出来ない
-				!SMSceneManager.s_isCreated					? null :
-				_lifeSpan == SMTaskLifeSpan.Forever			? SMSceneManager.s_instance._fsm._foreverScene :
-				_topObject._isGameObject		? SMSceneManager.s_instance._fsm.Get( _topObject._owner.scene ) :
-				SMSceneManager.s_instance._fsm._scene != null	? SMSceneManager.s_instance._fsm._scene
-															: SMSceneManager.s_instance._fsm._startScene
-			);
-#if TestGroup
-			SMLog.Debug( string.Join( "\n",
-				$"{nameof( lastScene )} : {lastScene}",
-				$"{nameof( _lifeSpan )} : {_lifeSpan}",
-				$"{nameof( _scene )} : {_scene}"
-			) );
-#endif
-			allObjects.ForEach( o => o._group = this );
-
-			if ( lastScene == null ) {
-#if TestGroup
-				SMLog.Debug( $"Register : {this}" );
-#endif
-				// SceneManager作成時の場合、循環参照になる為、設定出来ない
-				if ( _groups != null ) {
-					_groups._modifyler.Register( new RegisterGroupSMGroupManager( this ) );
-				}
-			} else if ( _scene != lastScene ) {
-#if TestGroup
-				SMLog.Debug( $"Reregister : {this}" );
-#endif
-				lastScene._groups._modifyler.Register( new SendReregisterGroupSMGroupManager( this ) );
-			} else {
-#if TestGroup
-				SMLog.Debug( $"DontRegister : {this}" );
-#endif
-			}
-#if TestGroup
-			SMLog.Debug( $"{nameof( SetAllData )} : end\n{this}" );
-#endif
-		}
 
 
 

@@ -30,7 +30,7 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 	public class SMGroupManager : BaseSMTaskModifylerOwner<SMGroupManagerModifyler> {
 		public SMScene _owner	{ get; private set; }
-		public SMGroup _topGroup	{ get; set; }
+		public SMGroup _group	{ get; set; }
 		public bool _isEnter	{ get; private set; }
 
 		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _owner._activeAsyncCanceler;
@@ -42,6 +42,8 @@ namespace SubmarineMirage.Task.Group.Manager {
 			_owner = owner;
 
 			_disposables.AddLast( () => {
+				_isFinalizing = true;
+
 				DisposeGroups();
 			} );
 		}
@@ -62,7 +64,7 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 
 		public IEnumerable<SMGroup> GetAllGroups()
-			=> _topGroup.GetBrothers();
+			=> _group.GetBrothers();
 
 		public IEnumerable<SMObject> GetAllTops()
 			=> GetAllGroups().Select( g => g._topObject );
@@ -157,8 +159,8 @@ namespace SubmarineMirage.Task.Group.Manager {
 		public override void SetToString() {
 			base.SetToString();
 
-			_toStringer.SetName( nameof( _topGroup ), nameof( GetAllTops ) );
-			_toStringer.SetValue( nameof( _topGroup ), i => "\n" +
+			_toStringer.SetName( nameof( _group ), nameof( GetAllTops ) );
+			_toStringer.SetValue( nameof( _group ), i => "\n" +
 				string.Join( ",\n", GetAllTops().Select( g =>
 					g.ToLineString( i + 1 )
 				)

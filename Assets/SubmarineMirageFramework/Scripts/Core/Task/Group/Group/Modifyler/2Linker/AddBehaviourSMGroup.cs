@@ -76,7 +76,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			last._next = _behaviour;
 			_behaviour._previous = last;
 			_behaviour._object = _target;
-			_owner.SetAllData();
+			SMGroupApplyer.SetAllData( _owner );
 
 			_behaviour.Constructor();
 			_modifyler.Register( new InitializeBehaviourSMGroup( _target, _behaviour ) );

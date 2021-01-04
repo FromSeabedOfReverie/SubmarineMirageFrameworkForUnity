@@ -35,10 +35,10 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			SMLog.Debug( $"{nameof( Link )} : start" );
 			SMLog.Debug( owner );	// 追加前を表示
 #endif
-			if ( owner._topGroup == null ) {
-				owner._topGroup = add;
+			if ( owner._group == null ) {
+				owner._group = add;
 			} else {
-				var last = owner._topGroup.GetLast();
+				var last = owner._group.GetLast();
 #if TestGroupManagerModifyler
 				SMLog.Debug( string.Join( "\n",
 					$"{nameof( last )} : {last?.ToLineString()}",
@@ -62,7 +62,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 		public static void Unlink( SMGroupManager owner, SMGroup remove ) {
-			if ( owner._topGroup == remove )	{ owner._topGroup = remove._next; }
+			if ( owner._group == remove )	{ owner._group = remove._next; }
 			if ( remove._previous != null )		{ remove._previous._next = remove._next; }
 			if ( remove._next != null )			{ remove._next._previous = remove._previous; }
 			remove._previous = null;
