@@ -11,6 +11,7 @@ namespace SubmarineMirage.Task {
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using Behaviour.Modifyler;
+	using Group.Manager.Modifyler;
 	using FSM;
 	using Singleton;
 	using Scene;
@@ -67,10 +68,10 @@ namespace SubmarineMirage.Task {
 #endif
 
 // TODO : デバッグ用、暫定
-			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.Create );
-			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.SelfInitialize );
-			await RunStateSMBehaviour.RegisterAndRun( SMSceneManager.s_instance, SMTaskRunState.Initialize );
-			await ChangeActiveSMBehaviour.RegisterAndRunInitial( SMSceneManager.s_instance );
+			await SMSceneManager.s_instance._modifyler.RegisterAndRun( new CreateSMBehaviour() );
+			await SMSceneManager.s_instance._modifyler.RegisterAndRun( new SelfInitializeSMBehaviour() );
+			await SMSceneManager.s_instance._modifyler.RegisterAndRun( new InitializeSMBehaviour() );
+			await SMSceneManager.s_instance._modifyler.RegisterAndRun( new InitialEnableSMBehaviour( true ) );
 
 #if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( RunForeverTasks )} : end" );
@@ -92,34 +93,22 @@ namespace SubmarineMirage.Task {
 		void FixedUpdate() {
 			return;
 			if ( _isDispose )	{ return; }
-
-			_foreverScene._groups.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.FixedUpdate ).Forget();
-			_foreverScene._groups.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.FixedUpdate ).Forget();
-
-			_currentScene._groups.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.FixedUpdate ).Forget();
-			_currentScene._groups.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.FixedUpdate ).Forget();
+			SMGroupManagerApplyer.FixedUpdate( _foreverScene._groups );
+			SMGroupManagerApplyer.FixedUpdate( _currentScene._groups );
 		}
 
 		void Update() {
 			return;
 			if ( _isDispose )	{ return; }
-
-			_foreverScene._groups.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Update ).Forget();
-			_foreverScene._groups.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Update ).Forget();
-
-			_currentScene._groups.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.Update ).Forget();
-			_currentScene._groups.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.Update ).Forget();
+			SMGroupManagerApplyer.Update( _foreverScene._groups );
+			SMGroupManagerApplyer.Update( _currentScene._groups );
 		}
 
 		void LateUpdate() {
 			return;
 			if ( _isDispose )	{ return; }
-
-			_foreverScene._groups.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.LateUpdate ).Forget();
-			_foreverScene._groups.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.LateUpdate ).Forget();
-
-			_currentScene._groups.RunAllStateEvents( SMTaskType.FirstWork, SMTaskRunState.LateUpdate ).Forget();
-			_currentScene._groups.RunAllStateEvents( SMTaskType.Work, SMTaskRunState.LateUpdate ).Forget();
+			SMGroupManagerApplyer.LateUpdate( _foreverScene._groups );
+			SMGroupManagerApplyer.LateUpdate( _currentScene._groups );
 		}
 
 #if DEVELOP

@@ -30,7 +30,10 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			await RunLower( _runType, () => new FinalizeSMObject( _runType ) );
 
-			if ( _runType == SMTaskRunAllType.ReverseSequential )	{ _owner._ranState = SMTaskRunState.Finalize; }
+			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
+				_owner._ranState = SMTaskRunState.Finalize;
+				_owner.Dispose();
+			}
 		}
 	}
 }

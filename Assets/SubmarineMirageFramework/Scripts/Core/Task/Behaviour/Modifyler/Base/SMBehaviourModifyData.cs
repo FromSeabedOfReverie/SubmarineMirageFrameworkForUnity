@@ -25,8 +25,8 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 	{
 		public override void Set( SMBehaviourBody owner ) {
 			base.Set( owner );
-			if ( _owner == null || _owner._isDispose ) {
-				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に解放、削除済\n{_owner}" );
+			if ( _owner == null ) {
+				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に削除済\n{_owner}" );
 			}
 		}
 

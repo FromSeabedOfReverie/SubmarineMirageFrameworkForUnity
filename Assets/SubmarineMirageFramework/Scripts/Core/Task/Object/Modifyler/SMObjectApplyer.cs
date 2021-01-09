@@ -6,6 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestObjectModifyler
 namespace SubmarineMirage.Task.Object.Modifyler {
+	using System.Linq;
+	using KoganeUnityLib;
+	using Behaviour.Modifyler;
+	using Group.Manager.Modifyler;
 	using Debug;
 
 
@@ -15,6 +19,25 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 	public static class SMObjectApplyer {
+		public static void DisposeAll( SMObject smObject ) {
+			var os = smObject.GetAllChildren()
+				.ToArray();
+
+			var bs = os
+				.SelectMany( o => o.GetBehaviours() )
+				.Reverse()
+				.ToArray();
+			SMGroupManagerApplyer.DISPOSE_TASK_TYPES
+				.SelectMany( t =>
+					bs.Where( b => b._type == t )
+				)
+				.ForEach( b => b.Dispose() );
+
+			os.ForEach( o => o.Dispose() );
+		}
+
+
+
 		public static void LinkChild( SMObject parent, SMObject add ) {
 #if TestObjectModifyler
 			SMLog.Debug( $"{nameof( LinkChild )} : start" );
@@ -83,16 +106,62 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 		public static bool IsActiveInHierarchy( SMObject smObject ) {
 			if ( !smObject._isGameObject )	{ return true; }
 
-			return smObject._owner.activeInHierarchy;
+			return smObject._gameObject.activeInHierarchy;
 		}
 
 		public static bool IsActiveInParentHierarchy( SMObject smObject ) {
 			if ( !smObject._isGameObject )	{ return true; }
 
-			var parent = smObject._owner.transform.parent;
+			var parent = smObject._gameObject.transform.parent;
 			if ( parent == null )	{ return true; }
 
 			return parent.gameObject.activeInHierarchy;
+		}
+
+
+
+		public static void FixedUpdate( SMObject smObject, SMTaskType type ) {
+			if ( !smObject._isFinalizing )	{ return; }
+			if ( !smObject._isActive )		{ return; }
+			if ( smObject._ranState < SMTaskRunState.InitialEnable )	{ return; }
+
+			smObject.GetBehaviours()
+				.Where( b => b._type == type )
+				.ForEach( b => SMBehaviourApplyer.FixedUpdate( b._body ) );
+
+			if ( type == SMTaskType.Work && smObject._ranState == SMTaskRunState.InitialEnable ) {
+				smObject._ranState = SMTaskRunState.FixedUpdate;
+			}
+		}
+
+
+		public static void Update( SMObject smObject, SMTaskType type ) {
+			if ( !smObject._isFinalizing )	{ return; }
+			if ( !smObject._isActive )		{ return; }
+			if ( smObject._ranState < SMTaskRunState.FixedUpdate )	{ return; }
+
+			smObject.GetBehaviours()
+				.Where( b => b._type == type )
+				.ForEach( b => SMBehaviourApplyer.Update( b._body ) );
+
+			if ( type == SMTaskType.Work && smObject._ranState == SMTaskRunState.FixedUpdate ) {
+				smObject._ranState = SMTaskRunState.Update;
+			}
+		}
+
+
+		public static void LateUpdate( SMObject smObject, SMTaskType type ) {
+			if ( !smObject._isFinalizing )	{ return; }
+			if ( !smObject._isActive )		{ return; }
+			if ( smObject._ranState < SMTaskRunState.Update )	{ return; }
+			
+			smObject.GetBehaviours()
+				.Where( b => b._type == type )
+				.ForEach( b => SMBehaviourApplyer.LateUpdate( b._body ) );
+
+			if ( type == SMTaskType.Work && smObject._ranState == SMTaskRunState.Update ) {
+				smObject._ranState = SMTaskRunState.LateUpdate;
+			}
 		}
 	}
 }

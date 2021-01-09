@@ -19,9 +19,7 @@ namespace SubmarineMirage.Task.Object {
 	using Group;
 	using Group.Modifyler;
 	using Extension;
-	using Utility;
 	using Debug;
-	using UnityObject = UnityEngine.Object;
 
 
 
@@ -31,7 +29,7 @@ namespace SubmarineMirage.Task.Object {
 
 	public class SMObject : BaseSMTaskModifylerOwner<SMObjectModifyler> {
 		[SMShowLine] public SMGroup _group	{ get; set; }
-		[SMShowLine] public GameObject _owner	{ get; private set; }
+		[SMShowLine] public GameObject _gameObject	{ get; private set; }
 
 		[SMShowLine] public ISMBehaviour _behaviour	{ get; set; }
 		[SMShowLine] public SMObject _previous	{ get; set; }
@@ -39,21 +37,21 @@ namespace SubmarineMirage.Task.Object {
 		[SMShowLine] public SMObject _parent	{ get; set; }
 		[SMShowLine] public SMObject _child	{ get; set; }
 
-		[SMHide] public bool _isGameObject	=> _owner != null;
+		[SMHide] public bool _isGameObject	=> _gameObject != null;
 		public bool _isDisabling	{ get; set; }
 
 		public readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
 
 
 
-		public SMObject( GameObject owner, IEnumerable<ISMBehaviour> behaviours, SMObject parent,
+		public SMObject( GameObject gameObject, IEnumerable<ISMBehaviour> behaviours, SMObject parent,
 							bool isDebug = false
 		) {
 #if TestObject
 			SMLog.Debug( $"{nameof( SMObject )}() : start\n{this}" );
 #endif
 			_modifyler = new SMObjectModifyler( this );
-			_owner = owner;
+			_gameObject = gameObject;
 
 			SetupBehaviours( behaviours );
 			SetupParent( parent );
@@ -69,19 +67,9 @@ namespace SubmarineMirage.Task.Object {
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
+				_ranState = SMTaskRunState.Finalize;
 
-				GetChildren().Reverse().ToArray().ForEach( o => o.Dispose() );
-				GetBehaviours().Reverse().ToArray().ForEach( b => b.Dispose() );
-
-				_asyncCanceler.Dispose();	// 子が再生成される為、後に解放
-
-				if ( _group.IsTop( this ) ) {
-					_group.Dispose();
-				} else {
-					_group._modifyler.Unregister( this );
-				}
-				SMObjectApplyer.Unlink( this );
-				if ( _isGameObject )	{ UnityObject.Destroy( _owner ); }
+				_asyncCanceler.Dispose();
 			} );
 #if TestObject
 			_disposables.AddLast( () => SMLog.Debug( $"{nameof( SMObject )}.{nameof( Dispose )} : {this}" ) );
@@ -132,7 +120,7 @@ namespace SubmarineMirage.Task.Object {
 			SMLog.Debug( $"{nameof( SetupChildren )} : start\n{this}" );
 #endif
 			var currents = new Queue<Transform>();
-			currents.Enqueue( _owner.transform );
+			currents.Enqueue( _gameObject.transform );
 			while ( !currents.IsEmpty() ) {
 				foreach ( Transform child in currents.Dequeue() ) {
 					var bs = child.GetComponents<SMMonoBehaviour>();
@@ -285,7 +273,7 @@ namespace SubmarineMirage.Task.Object {
 		}
 
 		public void Destroy()
-			=> _group._modifyler.Register( new UnregisterObjectSMGroup( this ) );
+			=> _group._modifyler.Register( new DestroyObjectSMGroup( this ) );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _group._modifyler.Register(
@@ -302,7 +290,7 @@ namespace SubmarineMirage.Task.Object {
 			base.SetToString();
 
 
-			_toStringer.SetValue( nameof( _owner ), i => _owner != null ? _owner.name : "null" );
+			_toStringer.SetValue( nameof( _gameObject ), i => _gameObject != null ? _gameObject.name : "null" );
 			_toStringer.SetValue( nameof( _behaviour ), i => "\n" + string.Join( ",\n",
 				GetBehaviours().Select( b => b.ToLineString( i + 1 ) )
 			) );
@@ -315,7 +303,7 @@ namespace SubmarineMirage.Task.Object {
 			_toStringer.SetValue( nameof( _asyncCanceler ), i => $"_isCancel : {_asyncCanceler._isCancel}" );
 
 
-			_toStringer.SetLineValue( nameof( _owner ), () => _owner != null ? _owner.name : "null" );
+			_toStringer.SetLineValue( nameof( _gameObject ), () => _gameObject != null ? _gameObject.name : "null" );
 			_toStringer.SetLineValue( nameof( _behaviour ), () => string.Join( ",",
 				GetBehaviours().Select( b => b.GetAboutName() )
 			) );

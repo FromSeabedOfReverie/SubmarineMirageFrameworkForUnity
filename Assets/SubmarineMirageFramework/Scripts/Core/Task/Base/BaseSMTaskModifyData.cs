@@ -11,6 +11,7 @@ namespace SubmarineMirage.Task.Modifyler {
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using Base;
+	using Group.Manager.Modifyler;
 	using Extension;
 	using Debug;
 
@@ -76,21 +77,12 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		IEnumerable<TLowerTarget> GetLowers( SMTaskRunAllType type ) {
-			var t = ToTaskType( type );
+			var t = SMGroupManagerApplyer.ToTaskType( type );
 			var ls = GetAllLowers()
 				.Where( l => IsTargetLower( l, t ) );
 			switch ( type ) {
 				case SMTaskRunAllType.ReverseSequential:	return ls.Reverse();
 				default:									return ls;
-			}
-		}
-
-		SMTaskType ToTaskType( SMTaskRunAllType type ) {
-			switch ( type ) {
-				case SMTaskRunAllType.Sequential:
-				case SMTaskRunAllType.ReverseSequential:	return SMTaskType.FirstWork;
-				case SMTaskRunAllType.Parallel:				return SMTaskType.Work;
-				default:									return SMTaskType.DontWork;
 			}
 		}
 

@@ -11,7 +11,6 @@ namespace SubmarineMirage.Task.Behaviour {
 	using Task.Modifyler;
 	using Extension;
 	using Debug;
-	using UnityObject = UnityEngine.Object;
 
 
 
@@ -20,7 +19,7 @@ namespace SubmarineMirage.Task.Behaviour {
 
 
 	public class SMBehaviourBody : BaseSMTaskModifylerOwner<SMBehaviourModifyler> {
-		public ISMBehaviour _owner	{ get; private set; }
+		public ISMBehaviour _behaviour	{ get; private set; }
 		public bool _isRunInitialActive	{ get; set; }
 		public bool _isRunFinalize	{ get; set; }
 
@@ -37,13 +36,14 @@ namespace SubmarineMirage.Task.Behaviour {
 		public readonly SMTaskCanceler _asyncCancelerOnDispose = new SMTaskCanceler();
 
 
-		public SMBehaviourBody( ISMBehaviour owner, bool isRunInitialActive ) {
+		public SMBehaviourBody( ISMBehaviour behaviour, bool isRunInitialActive ) {
 			_modifyler = new SMBehaviourModifyler( this );
-			_owner = owner;
+			_behaviour = behaviour;
 			_isRunInitialActive = isRunInitialActive;
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
+				_ranState = SMTaskRunState.Finalize;
 
 				_asyncCancelerOnDisable.Dispose();
 				_asyncCancelerOnDispose.Dispose();
@@ -56,12 +56,6 @@ namespace SubmarineMirage.Task.Behaviour {
 				_lateUpdateEvent.Dispose();
 				_disableEvent.Dispose();
 				_finalizeEvent.Dispose();
-
-				SMBehaviourApplyer.Unlink( this );
-				if ( _owner._object != null ) {
-					if ( _owner._object._isGameObject )			{ UnityObject.Destroy( (SMMonoBehaviour)_owner ); }
-					if ( _owner._object._behaviour == null )	{ _owner._object.Dispose(); }
-				}
 			} );
 #if TestBehaviour
 			_disposables.AddLast( () =>
@@ -78,9 +72,9 @@ namespace SubmarineMirage.Task.Behaviour {
 		public override void SetToString() {
 			base.SetToString();
 			_toStringer.SetValue( nameof( _id ), i =>
-				$"{_id} ↑{_owner._previous?._id} ↓{_owner._next?._id}" );
-			_toStringer.SetValue( nameof( _owner ), i =>
-				$"{_owner._id} {_owner.GetAboutName()}" );
+				$"{_id} ↑{_behaviour._previous?._id} ↓{_behaviour._next?._id}" );
+			_toStringer.SetValue( nameof( _behaviour ), i =>
+				$"{_behaviour._id} {_behaviour.GetAboutName()}" );
 			_toStringer.SetValue( nameof( _asyncCancelerOnDisable ), i =>
 				$"_isCancel : {_asyncCancelerOnDisable._isCancel}" );
 			_toStringer.SetValue( nameof( _asyncCancelerOnDispose ), i =>

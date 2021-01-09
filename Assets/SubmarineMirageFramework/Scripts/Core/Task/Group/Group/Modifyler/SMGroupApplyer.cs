@@ -7,10 +7,13 @@
 #define TestGroupModifyler
 namespace SubmarineMirage.Task.Group.Modifyler {
 	using System.Linq;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Object;
+	using Object.Modifyler;
 	using Manager.Modifyler;
 	using Scene;
+	using Extension;
 	using Debug;
 
 
@@ -20,6 +23,15 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 	public static class SMGroupApplyer {
+		public static void DisposeAll( SMGroup group ) {
+			if ( group._topObject != null ) {
+				SMObjectApplyer.DisposeAll( group._topObject );
+			}
+			group.Dispose();
+		}
+
+
+
 		public static void SetTop( SMGroup group, SMObject smObject ) {
 			group._topObject = smObject.GetTop();
 			SetAllData( group );
@@ -50,11 +62,14 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				// SceneManager作成時の場合、循環参照になる為、設定出来ない
 				!SMSceneManager.s_isCreated						? null :
 				group._lifeSpan == SMTaskLifeSpan.Forever		? SMSceneManager.s_instance._fsm._foreverScene :
-				group._topObject._isGameObject
-											? SMSceneManager.s_instance._fsm.Get( group._topObject._owner.scene ) :
+				group._isGameObject								? group._gameObject.scene.ToSMScene() :
 				SMSceneManager.s_instance._fsm._scene != null	? SMSceneManager.s_instance._fsm._scene
 																: SMSceneManager.s_instance._fsm._startScene
 			);
+			// 親子変更等で、無理矢理、削除不能化した場合を考慮
+			if ( group._scene != null || group._scene == group._scene._fsm._foreverScene ) {
+				group._lifeSpan = SMTaskLifeSpan.Forever;
+			}
 #if TestGroupModifyler
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( lastScene )} : {lastScene}",
@@ -99,6 +114,50 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			remove._topObject.GetAllChildren().ForEach( o => o._group = newGroup );
 			remove._topObject = null;
 			remove.Dispose();
+			remove._groups._modifyler.Register( new UnregisterGroupSMGroupManager( remove ) );
+		}
+
+
+
+		public static void FixedUpdate( SMGroup group, SMTaskType type ) {
+			if ( !group._isFinalizing )	{ return; }
+			if ( !group._isActive )		{ return; }
+			if ( group._ranState < SMTaskRunState.InitialEnable )	{ return; }
+
+			group._topObject.GetAllChildren()
+				.ForEach( o => SMObjectApplyer.FixedUpdate( o, type ) );
+
+			if ( type == SMTaskType.Work && group._ranState == SMTaskRunState.InitialEnable ) {
+				group._ranState = SMTaskRunState.FixedUpdate;
+			}
+		}
+
+
+		public static void Update( SMGroup group, SMTaskType type ) {
+			if ( !group._isFinalizing )	{ return; }
+			if ( !group._isActive )		{ return; }
+			if ( group._ranState < SMTaskRunState.FixedUpdate )	{ return; }
+
+			group._topObject.GetAllChildren()
+				.ForEach( o => SMObjectApplyer.Update( o, type ) );
+
+			if ( type == SMTaskType.Work && group._ranState == SMTaskRunState.FixedUpdate ) {
+				group._ranState = SMTaskRunState.Update;
+			}
+		}
+
+
+		public static void LateUpdate( SMGroup group, SMTaskType type ) {
+			if ( !group._isFinalizing )	{ return; }
+			if ( !group._isActive )		{ return; }
+			if ( group._ranState < SMTaskRunState.Update )	{ return; }
+			
+			group._topObject.GetAllChildren()
+				.ForEach( o => SMObjectApplyer.LateUpdate( o, type ) );
+
+			if ( type == SMTaskType.Work && group._ranState == SMTaskRunState.Update ) {
+				group._ranState = SMTaskRunState.LateUpdate;
+			}
 		}
 	}
 }

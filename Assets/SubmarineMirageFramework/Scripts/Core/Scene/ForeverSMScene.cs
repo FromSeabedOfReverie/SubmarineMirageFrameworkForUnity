@@ -13,7 +13,7 @@ namespace SubmarineMirage.Scene {
 
 	public class ForeverSMScene : SMScene {
 		public ForeverSMScene() {
-			_scene = SceneManager.CreateScene( _name );
+			_rawScene = SceneManager.CreateScene( _name );
 
 			_enterEvent.Remove( _registerKey );
 			_enterEvent.AddFirst( _registerKey, async canceler => await _groups.Enter() );

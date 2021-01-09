@@ -12,11 +12,11 @@ namespace SubmarineMirage.TestTask {
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
+	using KoganeUnityLib;
 	using Task;
 	using Extension;
 	using Debug;
 	using TestBase;
-	using UnityObject = UnityEngine.Object;
 
 
 
@@ -33,9 +33,9 @@ namespace SubmarineMirage.TestTask {
 			Application.targetFrameRate = 30;
 			_taskRunner = SMTaskRunner.s_instance;
 
-			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
-			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
-			UnityObject.DontDestroyOnLoad( go );
+			Resources.Load<GameObject>( "TestCamera" ).Instantiate();
+			var go = Resources.Load<GameObject>( "TestCanvas" ).Instantiate();
+			go.DontDestroyOnLoad();
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
 				if ( _taskRunner == null ) {

@@ -23,7 +23,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if ( !SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) )	{ return; }
 			if ( _owner._isFinalizing )	{ return; }
 			if ( !_owner._isInitialized ) {
-				_owner._isRunInitialActive = SMObjectApplyer.IsActiveInHierarchy( _owner._owner._object );
+				_owner._isRunInitialActive = SMObjectApplyer.IsActiveInHierarchy( _owner._behaviour._object );
 				return;
 			}
 			if ( _owner._activeState == SMTaskActiveState.Enable )	{ return; }

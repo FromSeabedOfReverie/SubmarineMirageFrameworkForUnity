@@ -13,8 +13,8 @@ namespace SubmarineMirage.Scene {
 
 	public class UnknownSMScene : SMScene {
 		public UnknownSMScene() {
-			_scene = SceneManager.GetActiveScene();
-			_name = _scene.name;
+			_rawScene = SceneManager.GetActiveScene();
+			_name = _rawScene.name;
 		}
 	}
 }

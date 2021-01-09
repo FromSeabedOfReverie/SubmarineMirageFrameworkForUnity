@@ -8,12 +8,12 @@ namespace SubmarineMirage.TestTask.Modifyler {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using UniRx;
+	using KoganeUnityLib;
 	using Task.Behaviour;
 	using Extension;
 	using Utility;
 	using Debug;
 	using TestBase;
-	using UnityObject = UnityEngine.Object;
 
 
 
@@ -29,11 +29,11 @@ namespace SubmarineMirage.TestTask.Modifyler {
 		protected override void Create() {
 			Application.targetFrameRate = 30;
 
-			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
-			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
-			UnityObject.DontDestroyOnLoad( go );
+			Resources.Load<GameObject>( "TestCamera" ).Instantiate();
+			var go = Resources.Load<GameObject>( "TestCanvas" ).Instantiate();
+			go.DontDestroyOnLoad();
 			_text = go.GetComponentInChildren<Text>();
-			_disposables.AddLast(Observable.EveryLateUpdate().Subscribe( (System.Action<long>)(_ => {
+			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
 				if (_behaviour._object == null ) {
 					_text.text = string.Empty;
 					return;
@@ -48,7 +48,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 					+ $"    {nameof( b._body._isActive )} : {b._body._isActive}\n"
 					+ $"    {nameof( b._body._isRunInitialActive )} : {b._body._isRunInitialActive}\n"
 					+ $")\n";
-			})) );
+			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
 			_createEvent.AddLast( async canceler => {

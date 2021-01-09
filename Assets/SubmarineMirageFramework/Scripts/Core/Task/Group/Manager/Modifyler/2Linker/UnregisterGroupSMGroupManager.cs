@@ -16,19 +16,18 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 	public class UnregisterGroupSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
-		SMGroup _target	{ get; set; }
 
 
-		public UnregisterGroupSMGroupManager( SMGroup target )
-			=> _target = target;
+		public UnregisterGroupSMGroupManager( SMGroup target ) : base( target ) {}
 
 
 		public override async UniTask Run() {
-			_target.Dispose();
+			if ( _owner._isFinalizing )	{ return; }
+
+			_modifyler.Unregister( _target );
+			SMGroupManagerApplyer.Unlink( _owner, _target );
+
 			await UTask.DontWait();
-#if TestGroupManagerModifyler
-			SMLog.Debug( $"{nameof( Run )} : {this}" );
-#endif
 		}
 	}
 }

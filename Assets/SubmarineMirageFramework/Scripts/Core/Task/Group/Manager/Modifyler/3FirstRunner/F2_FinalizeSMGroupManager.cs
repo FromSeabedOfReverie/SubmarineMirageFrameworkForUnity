@@ -17,20 +17,20 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 	public class FinalizeSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
-		SMTaskRunAllType _runType	{ get; set; }
 
 
-		public FinalizeSMGroupManager( SMTaskRunAllType runType )
-			=> _runType = runType;
+		public FinalizeSMGroupManager() : base( null ) {}
 
 
 		public override async UniTask Run() {
 			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
 
 
-			await RunLower( _runType, () => new FinalizeSMGroup( _runType ) );
+			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				await RunLower( t, () => new FinalizeSMGroup( t ) );
+			}
 
-			if ( _runType == SMTaskRunAllType.ReverseSequential )	{ _owner._ranState = SMTaskRunState.Finalize; }
+			_owner._ranState = SMTaskRunState.Finalize;
 		}
 	}
 }

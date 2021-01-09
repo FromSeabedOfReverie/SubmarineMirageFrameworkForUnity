@@ -14,6 +14,7 @@ namespace SubmarineMirage.Scene {
 	using Task;
 	using Task.Behaviour;
 	using Task.Object;
+	using Task.Group;
 	using Task.Group.Modifyler;
 	using FSM;
 	using Singleton;
@@ -59,6 +60,10 @@ namespace SubmarineMirage.Scene {
 			return true;
 #endif
 		}
+
+
+		public void MoveGroup( SMGroup group, SMScene scene )
+			=> SceneManager.MoveGameObjectToScene( group._gameObject, scene._rawScene );
 
 
 		public T GetBehaviour<T>( SMTaskType? taskType = null )

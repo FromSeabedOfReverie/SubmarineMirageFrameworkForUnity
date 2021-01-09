@@ -5,7 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Object.Modifyler {
+	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using KoganeUnityLib;
 	using Behaviour.Modifyler;
 	using Debug;
 
@@ -26,7 +28,16 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 			await RunLower( _runType, () => new FinalizeSMBehaviour() );
 
-			if ( _runType == SMTaskRunAllType.ReverseSequential )	{ _owner._ranState = SMTaskRunState.Finalize; }
+			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
+				GetAllLowers()
+					.Select( b => b._behaviour )
+					.Where( b => b._type == SMTaskType.DontWork )
+					.Reverse()
+					.ForEach( b => b.Dispose() );
+
+				_owner._ranState = SMTaskRunState.Finalize;
+				_owner.Dispose();
+			}
 		}
 	}
 }

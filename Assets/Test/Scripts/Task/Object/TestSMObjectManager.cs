@@ -22,7 +22,6 @@ namespace SubmarineMirage.TestTask {
 	using Debug;
 	using TestBase;
 	using TestScene;
-	using UnityObject = UnityEngine.Object;
 
 
 
@@ -41,9 +40,9 @@ namespace SubmarineMirage.TestTask {
 
 			_sceneManager = SMSceneManager.s_instance;
 
-			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
-			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
-			UnityObject.DontDestroyOnLoad( go );
+			Resources.Load<GameObject>( "TestCamera" ).Instantiate();
+			var go = Resources.Load<GameObject>( "TestCanvas" ).Instantiate();
+			go.DontDestroyOnLoad();
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
 				if ( _sceneManager == null ) {

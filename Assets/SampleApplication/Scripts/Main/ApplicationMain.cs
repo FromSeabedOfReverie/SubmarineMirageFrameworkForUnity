@@ -9,9 +9,10 @@ namespace SubmarineMirage.Main {
 	using DG.Tweening;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using KoganeUnityLib;
+	using Extension;
 	using Utility;
 	using Debug;
-	using UnityObject = UnityEngine.Object;
 
 
 	// TODO : コメント追加、整頓
@@ -33,8 +34,8 @@ namespace SubmarineMirage.Main {
 
 #if DEVELOP
 			var prefab = Resources.Load<GameObject>( "LunarConsole" );
-			var go = UnityObject.Instantiate( prefab );
-			UnityObject.DontDestroyOnLoad( go );
+			var go = prefab.Instantiate();
+			go.DontDestroyOnLoad();
 #endif
 
 			await UTask.DontWait();

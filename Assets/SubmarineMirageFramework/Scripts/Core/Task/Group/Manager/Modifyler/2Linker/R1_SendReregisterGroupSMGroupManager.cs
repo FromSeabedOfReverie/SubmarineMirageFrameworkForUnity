@@ -6,8 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestGroupManagerModifyler
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
-	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
+	using Scene;
 	using Utility;
 	using Debug;
 
@@ -19,51 +19,23 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 	public class SendReregisterGroupSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
-		SMGroup _target	{ get; set; }
 
 
-		public SendReregisterGroupSMGroupManager( SMGroup target )
-			=> _target = target;
+		public SendReregisterGroupSMGroupManager( SMGroup target ) : base( target ) {}
 
 
 		public override async UniTask Run() {
-#if TestGroupManagerModifyler
-			SMLog.Debug( $"{nameof( Run )} : start\n{this}" );
-			if ( _target._groups != null )	{ SMLog.Debug( $"new : {_target._groups}" ); }
-			if ( _owner != null )			{ SMLog.Debug( $"last : {_owner}" ); }
-#endif
+			if ( _owner._isFinalizing )	{ return; }
 
-			if ( _target._isGameObject && _target._scene != _owner._owner ) {
-				SceneManager.MoveGameObjectToScene( _target._gameObject, _target._scene._scene );
-#if TestGroupManagerModifyler
-				SMLog.Debug( string.Join( "\n",
-					"シーン移動 :",
-					_target._lifeSpan,
-					_target.ToLineString(),
-					_target._scene._scene
-				) );
-			} else {
-				SMLog.Debug( string.Join( "\n",
-					"シーン移動なし :",
-					_target._lifeSpan,
-					_target.ToLineString(),
-					_target._scene._scene
-				) );
-#endif
+			if ( _target._isGameObject ) {
+				SMSceneManager.s_instance.MoveGroup( _target, _target._scene );
 			}
 
 			SMGroupManagerApplyer.Unlink( _owner, _target );
 			_target._groups._modifyler.Register( new ReceiveReregisterGroupSMGroupManager( _target ) );
 			_modifyler.Reregister( _target._groups, _target );
 
-
 			await UTask.DontWait();
-
-#if TestGroupManagerModifyler
-			if ( _target._groups != null )	{ SMLog.Debug( $"new : {_target._groups}" ); }
-			if ( _owner != null )			{ SMLog.Debug( $"last : {_owner}" ); }
-			SMLog.Debug( $"{nameof( Run )} : end\n{this}" );
-#endif
 		}
 	}
 }

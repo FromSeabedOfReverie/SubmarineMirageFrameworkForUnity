@@ -9,7 +9,6 @@ namespace SubmarineMirage.Utility {
 	using Task.Behaviour;
 	using Task.Object;
 	using Extension;
-	using UnityObject = UnityEngine.Object;
 
 
 	// TODO : コメント追加、整頓
@@ -24,29 +23,29 @@ namespace SubmarineMirage.Utility {
 		}
 
 		public static SMObject Instantiate( GameObject original, Transform parent, bool isWorldPositionStays ) {
-			var go = UnityObject.Instantiate( original, parent, isWorldPositionStays );
+			var go = original.Instantiate( parent, isWorldPositionStays );
 			return InstantiateObject( go );
 		}
 
 		public static SMObject Instantiate( GameObject original, Transform parent ) {
-			var go = UnityObject.Instantiate( original, parent );
+			var go = original.Instantiate( parent );
 			return InstantiateObject( go );
 		}
 
 		public static SMObject Instantiate( GameObject original, Vector3 position, Quaternion rotation,
 											Transform parent
 		) {
-			var go = UnityObject.Instantiate( original, position, rotation, parent );
+			var go = original.Instantiate( position, rotation, parent );
 			return InstantiateObject( go );
 		}
 
 		public static SMObject Instantiate( GameObject original, Vector3 position, Quaternion rotation ) {
-			var go = UnityObject.Instantiate( original, position, rotation );
+			var go = original.Instantiate( position, rotation );
 			return InstantiateObject( go );
 		}
 
 		public static SMObject Instantiate( GameObject original ) {
-			var go = UnityObject.Instantiate( original );
+			var go = original.Instantiate();
 			return InstantiateObject( go );
 		}
 	}

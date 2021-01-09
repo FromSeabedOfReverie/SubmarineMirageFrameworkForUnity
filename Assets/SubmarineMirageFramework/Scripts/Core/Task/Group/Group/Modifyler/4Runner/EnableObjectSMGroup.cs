@@ -30,7 +30,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if ( !SMObjectApplyer.IsActiveInParentHierarchy( _target ) )	{ return; }
 
 
-			if ( _target._isGameObject )	{ _target._owner.SetActive( true ); }
+			if ( _target._isGameObject )	{ _target._gameObject.SetActive( true ); }
 
 			foreach ( var t in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new EnableSMObject( t ) );

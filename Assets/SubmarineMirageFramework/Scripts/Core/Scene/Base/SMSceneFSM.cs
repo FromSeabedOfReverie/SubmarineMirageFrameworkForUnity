@@ -21,7 +21,7 @@ namespace SubmarineMirage.Scene {
 		public ForeverSMScene _foreverScene	{ get; private set; }
 		public SMScene _startScene	{ get; private set; }
 		[SMHide] public SMScene _scene => _state;
-		public Scene _currentScene => _scene._scene;
+		public Scene _currentScene => _scene._rawScene;
 		public string _currentSceneName => _scene._name;
 		public bool _isSkipLoadForFirstScene	{ get; set; } = true;
 
@@ -47,7 +47,7 @@ namespace SubmarineMirage.Scene {
 		public SMScene Get( Scene scene ) {
 			var result = _states
 				.Select( pair => pair.Value )
-				.FirstOrDefault( s => s._scene == scene );
+				.FirstOrDefault( s => s._rawScene == scene );
 			if ( result == null )	{ result = _states[typeof( UnknownSMScene )]; }
 			return result;
 		}

@@ -11,9 +11,9 @@ namespace SubmarineMirage.TestTask {
 	using UnityEngine.UI;
 	using UnityEngine.TestTools;
 	using UniRx;
+	using Extension;
 	using Debug;
 	using TestBase;
-	using UnityObject = UnityEngine.Object;
 
 
 
@@ -31,8 +31,8 @@ namespace SubmarineMirage.TestTask {
 			_testBody = new TestSMBehaviourBody();
 			_disposables.AddLast( _testBody );
 
-			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
-			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
+			Resources.Load<GameObject>( "TestCamera" ).Instantiate();
+			var go = Resources.Load<GameObject>( "TestCanvas" ).Instantiate();
 			_text = go.GetComponentInChildren<Text>();
 			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ =>
 				_text.text = _testBody._viewText

@@ -29,37 +29,24 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 
 	public class SMGroupManager : BaseSMTaskModifylerOwner<SMGroupManagerModifyler> {
-		public SMScene _owner	{ get; private set; }
+		public SMScene _scene	{ get; private set; }
 		public SMGroup _group	{ get; set; }
 		public bool _isEnter	{ get; private set; }
 
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _owner._activeAsyncCanceler;
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _scene._activeAsyncCanceler;
 
 
 
 		public SMGroupManager( SMScene owner ) {
 			_modifyler = new SMGroupManagerModifyler( this );
-			_owner = owner;
+			_scene = owner;
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
+				_ranState = SMTaskRunState.Finalize;
 
-				DisposeGroups();
+				SMGroupManagerApplyer.DisposeAll( this );
 			} );
-		}
-
-		void DisposeGroups() {
-			var bs = GetAllTops()
-				.SelectMany( o => o.GetAllChildren() )
-				.SelectMany( o => o.GetBehaviours() )
-				.Reverse()
-				.ToArray();
-			SMGroupManagerApplyer.DISPOSE_TASK_TYPES
-				.SelectMany( t =>
-					bs.Where( b => b._type == t )
-				)
-				.ToArray()
-				.ForEach( b => b.Dispose() );
 		}
 
 
@@ -104,39 +91,30 @@ namespace SubmarineMirage.Task.Group.Manager {
 			_isEnter = true;
 			return;
 
-			foreach ( var type in SMGroupManagerApplyer.ALL_RUN_TYPES ) {
-				await _modifyler.RegisterAndRun( new CreateSMGroupManager( type ) );
-			}
-			foreach ( var type in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
-				await _modifyler.RegisterAndRun( new SelfInitializeSMGroupManager( type ) );
-			}
-			foreach ( var type in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
-				await _modifyler.RegisterAndRun( new InitializeSMGroupManager( type ) );
-			}
-			foreach ( var type in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
-				await _modifyler.RegisterAndRun( new InitialEnableSMGroupManager( type ) );
-			}
+			await _modifyler.RegisterAndRun( new CreateSMGroupManager() );
+			await _modifyler.RegisterAndRun( new SelfInitializeSMGroupManager() );
+			await _modifyler.RegisterAndRun( new InitializeSMGroupManager() );
+			await _modifyler.RegisterAndRun( new InitialEnableSMGroupManager() );
 		}
 
 		public async UniTask Exit() {
-			foreach ( var type in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
-				await _modifyler.RegisterAndRun( new FinalDisableSMGroupManager( type ) );
-			}
-			foreach ( var type in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
-				await _modifyler.RegisterAndRun( new FinalizeSMGroupManager( type ) );
-			}
-			DisposeGroups();
+			await _modifyler.RegisterAndRun( new FinalDisableSMGroupManager() );
+			await _modifyler.RegisterAndRun( new FinalizeSMGroupManager() );
+
+			_ranState = SMTaskRunState.None;
+			_activeState = SMTaskActiveState.Disable;
+			_isFinalizing = false;
 
 			_isEnter = false;
 		}
 
 
 		async UniTask Load() {
-			if ( _owner == _owner._fsm._foreverScene )	{ return; }
+			if ( _scene == _scene._fsm._foreverScene )	{ return; }
 			SMTimeManager.s_instance.StartMeasure();
 
 			var currents = new Queue<Transform>(
-				_owner._scene.GetRootGameObjects().Select( go => go.transform )
+				_scene._rawScene.GetRootGameObjects().Select( go => go.transform )
 			);
 			while ( !currents.IsEmpty() ) {
 				var current = currents.Dequeue();
@@ -151,7 +129,7 @@ namespace SubmarineMirage.Task.Group.Manager {
 				}
 			}
 
-			SMLog.Debug( $"{nameof( Load )} {_owner.GetAboutName()} : {SMTimeManager.s_instance.StopMeasure()}秒" );
+			SMLog.Debug( $"{nameof( Load )} {_scene.GetAboutName()} : {SMTimeManager.s_instance.StopMeasure()}秒" );
 		}
 
 

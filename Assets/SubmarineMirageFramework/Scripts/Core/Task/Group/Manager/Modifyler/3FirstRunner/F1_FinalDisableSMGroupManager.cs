@@ -17,11 +17,9 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 	public class FinalDisableSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
-		SMTaskRunAllType _runType	{ get; set; }
 
 
-		public FinalDisableSMGroupManager( SMTaskRunAllType runType )
-			=> _runType = runType;
+		public FinalDisableSMGroupManager() : base( null ) {}
 
 		public override void Set( SMGroupManager owner ) {
 			base.Set( owner );
@@ -34,12 +32,10 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 			_owner._activeState = SMTaskActiveState.Disable;
-
-			await RunLower( _runType, () => new FinalDisableSMGroup( _runType ) );
-
-			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
-				_owner._ranState = SMTaskRunState.FinalDisable;
+			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				await RunLower( t, () => new FinalDisableSMGroup( t ) );
 			}
+			_owner._ranState = SMTaskRunState.FinalDisable;
 		}
 	}
 }

@@ -59,8 +59,7 @@ namespace SubmarineMirage.Task.Behaviour {
 			SetToString();
 			_disposables.AddLast( () => {
 				_toStringer.Dispose();
-				if ( _body != null )	{ _body.Dispose(); }
-				else					{ Destroy( this ); }
+				_body?.Dispose();
 			} );
 		}
 

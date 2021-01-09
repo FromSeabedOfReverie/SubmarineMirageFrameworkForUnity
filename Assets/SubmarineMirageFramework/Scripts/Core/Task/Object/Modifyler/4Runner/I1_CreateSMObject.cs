@@ -21,6 +21,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._isFinalizing )	{ return; }
 			if ( _owner._ranState != SMTaskRunState.None )	{ return; }
 
 

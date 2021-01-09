@@ -21,14 +21,20 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 		public SMGroupManagerModifyler( SMGroupManager owner ) : base( owner ) {}
 
 
-		public void Reregister( SMGroupManager newOwner, SMGroup group ) => _data.RemoveAll(
-			d => d._target == group,
-			d => newOwner._modifyler.Register( d )
-		);
+		public void Reregister( SMGroupManager newOwner, SMGroup group ) {
+			if ( group == null )	{ return; }
+			_data.RemoveAll(
+				d => d._target == group,
+				d => newOwner._modifyler.Register( d )
+			);
+		}
 
-		public void Unregister( SMGroup remove ) => _data.RemoveAll(
-			d => d._target == remove,
-			d => d.Dispose()
-		);
+		public void Unregister( SMGroup remove ) {
+			if ( remove == null )	{ return; }
+			_data.RemoveAll(
+				d => d._target == remove,
+				d => d.Dispose()
+			);
+		}
 	}
 }

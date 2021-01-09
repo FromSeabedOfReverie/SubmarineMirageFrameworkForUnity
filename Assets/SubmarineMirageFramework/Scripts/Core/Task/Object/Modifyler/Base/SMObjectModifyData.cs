@@ -30,8 +30,8 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 		public override void Set( SMObject owner ) {
 			base.Set( owner );
-			if ( _owner == null || _owner._isDispose ) {
-				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に解放、削除済\n{_owner}" );
+			if ( _owner == null ) {
+				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に削除済\n{_owner}" );
 			}
 		}
 
@@ -43,6 +43,6 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 			=> _owner.GetBehaviours().Select( b => b._body );
 
 		protected override bool IsTargetLower( SMBehaviourBody lowerTarget, SMTaskType type )
-			=> lowerTarget._owner._type == type;
+			=> lowerTarget._behaviour._type == type;
 	}
 }

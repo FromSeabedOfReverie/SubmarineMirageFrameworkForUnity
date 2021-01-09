@@ -9,6 +9,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Object;
 	using Object.Modifyler;
+	using Extension;
 	using Utility;
 	using Debug;
 
@@ -24,14 +25,23 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		public ReceiveChangeParentObjectSMGroup( SMObject target, SMObject parent ) : base( target )
 			=> _parent = parent;
 
-		protected override void Cancel() => _target.Dispose();
+		protected override void Cancel() {
+			SMObjectApplyer.DisposeAll( _target );
+			_target._gameObject.Destroy();
+		}
 
 
 		public override async UniTask Run() {
+			if ( _owner._isFinalizing ) {
+// TODO : もっと優しく終了する、削除ミス用にOwnerに全体Disposeを設定する
+				Cancel();
+				return;
+			}
+
 			SMObjectApplyer.LinkChild( _parent, _target );
 			SMGroupApplyer.SetAllData( _owner );
 
-			_modifyler.Register( new ChangeParentActiveObjectSMGroup( _target ) );
+			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
 
 			await UTask.DontWait();
 		}

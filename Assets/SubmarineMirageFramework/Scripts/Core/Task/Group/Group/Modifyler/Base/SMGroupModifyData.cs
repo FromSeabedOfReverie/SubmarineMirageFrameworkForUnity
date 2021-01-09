@@ -30,8 +30,8 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		public override void Set( SMGroup owner ) {
 			base.Set( owner );
 			if ( _target == null )	{ _target = _owner._topObject; }
-			if ( _target == null || _target._isDispose ) {
-				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に解放、削除済\n{_target}" );
+			if ( _target == null ) {
+				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
 			}
 		}
 

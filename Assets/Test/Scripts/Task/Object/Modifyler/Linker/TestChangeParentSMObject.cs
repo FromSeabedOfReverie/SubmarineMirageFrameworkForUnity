@@ -108,31 +108,31 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			SMLog.Debug( "・子接続テスト" );
 			var p = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			var c = p._next;
-			p._owner.transform.position = Vector3.one;
-			c._owner.transform.position = Vector3.one * 2;
-			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._owner.transform, true ) );
+			p._gameObject.transform.position = Vector3.one;
+			c._gameObject.transform.position = Vector3.one * 2;
+			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._gameObject.transform, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = p._next;
 			c = p._next;
-			p._owner.transform.position = Vector3.one;
-			c._owner.transform.position = Vector3.one * 2;
-			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._owner.transform, false ) );
+			p._gameObject.transform.position = Vector3.one;
+			c._gameObject.transform.position = Vector3.one * 2;
+			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._gameObject.transform, false ) );
 			await c._top._modifyler.WaitRunning();
 
 
 			SMLog.Debug( "・子解除テスト" );
 			p = SMSceneManager.s_instance.GetBehaviour<M2>()._object;
 			c = p._child;
-			p._owner.transform.position = Vector3.one;
-			c._owner.transform.position = Vector3.one * 2;
+			p._gameObject.transform.position = Vector3.one;
+			c._gameObject.transform.position = Vector3.one * 2;
 			c._top._modifyler.Register( new SendChangeParentSMGroup( c, null, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = p._next;
 			c = p._child;
-			p._owner.transform.position = Vector3.one;
-			c._owner.transform.position = Vector3.one * 2;
+			p._gameObject.transform.position = Vector3.one;
+			c._gameObject.transform.position = Vector3.one * 2;
 			c._top._modifyler.Register( new SendChangeParentSMGroup( c, null, false ) );
 			await c._top._modifyler.WaitRunning();
 
@@ -188,7 +188,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			var p = SMSceneManager.s_instance.GetBehaviour<M1>()._object;
 			var nextP = p._next._next;
 			var c = p._next;
-			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._owner.transform, true ) );
+			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._gameObject.transform, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			SMLog.Debug( "・b" );
@@ -196,7 +196,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			p = nextP;
 			nextP = p._next;
 			c = SMSceneManager.s_instance.GetBehaviour<M3>()._object;
-			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._owner.transform.GetChild( 0 ), true ) );
+			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._gameObject.transform.GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 
 			SMLog.Debug( "・c" );
@@ -205,7 +205,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			nextP = p._next;
 			c = SMSceneManager.s_instance.GetBehaviour<M6>()._object;
 			c._top._modifyler.Register( new SendChangeParentSMGroup(
-				c, p._owner.transform.GetChild( 0 ).GetChild( 0 ), true ) );
+				c, p._gameObject.transform.GetChild( 0 ).GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 
 
@@ -213,20 +213,20 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			p = nextP;
 			nextP = p._next._next;
 			c = p._next;
-			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._child._owner.transform, true ) );
+			c._top._modifyler.Register( new SendChangeParentSMGroup( c, p._child._gameObject.transform, true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = nextP;
 			nextP = p._next;
 			c = SMSceneManager.s_instance.GetBehaviour<M3>()._object;
 			c._top._modifyler.Register( new SendChangeParentSMGroup(
-				c, p._child._owner.transform.GetChild( 0 ), true ) );
+				c, p._child._gameObject.transform.GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 
 			p = nextP;
 			c = SMSceneManager.s_instance.GetBehaviour<M6>()._object;
 			c._top._modifyler.Register( new SendChangeParentSMGroup(
-				c, p._child._next._owner.transform.parent.GetChild( 0 ).GetChild( 0 ), true ) );
+				c, p._child._next._gameObject.transform.parent.GetChild( 0 ).GetChild( 0 ), true ) );
 			await c._top._modifyler.WaitRunning();
 
 

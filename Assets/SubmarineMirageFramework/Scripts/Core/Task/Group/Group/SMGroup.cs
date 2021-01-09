@@ -12,7 +12,6 @@ namespace SubmarineMirage.Task.Group {
 	using Task.Modifyler;
 	using Object;
 	using Group.Manager;
-	using Group.Manager.Modifyler;
 	using Scene;
 	using Debug;
 
@@ -29,10 +28,10 @@ namespace SubmarineMirage.Task.Group {
 		[SMShowLine] public SMGroup _next		{ get; set; }
 
 		[SMShowLine] public SMObject _topObject	{ get; set; }
-		[SMHide] public GameObject _gameObject => _topObject._owner;
+		[SMHide] public GameObject _gameObject => _topObject._gameObject;
 		[SMHide] public bool _isGameObject => _gameObject != null;
 
-		[SMHide] public SMTaskCanceler _asyncCanceler =>	_topObject._asyncCanceler;
+		[SMHide] public SMTaskCanceler _asyncCanceler => _topObject._asyncCanceler;
 
 
 		public SMGroup( SMObject top ) {
@@ -43,10 +42,7 @@ namespace SubmarineMirage.Task.Group {
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
-
-				_topObject?.Dispose();
-				_groups._modifyler.Unregister( this );
-				SMGroupManagerApplyer.Unlink( _groups, this );
+				_ranState = SMTaskRunState.Finalize;
 			} );
 		}
 

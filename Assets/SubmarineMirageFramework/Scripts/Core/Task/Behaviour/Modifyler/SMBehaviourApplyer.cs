@@ -6,7 +6,11 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
+	using Cysharp.Threading.Tasks;
+	using Object;
+	using Object.Modifyler;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -16,8 +20,34 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 	public static class SMBehaviourApplyer {
+		public static void Link( SMObject smObject, SMMonoBehaviour add ) {
+			var last = smObject.GetBehaviourAtLast();
+
+#if TestBehaviourModifyler
+			SMLog.Debug( $"{nameof( Link )} : start" );
+			SMLog.Debug( string.Join( "\n",
+				$"{nameof( last )} : {last}",
+				$"{nameof( add )} : {add}",
+				$"{nameof( smObject )} : {smObject}"
+			) );
+#endif
+			last._next = add;
+			add._previous = last;
+			add._object = smObject;
+
+#if TestBehaviourModifyler
+			SMLog.Debug( string.Join( "\n",
+				$"{nameof( last )} : {last}",
+				$"{nameof( add )} : {add}",
+				$"{nameof( smObject )} : {smObject}"
+			) );
+			SMLog.Debug( $"{nameof( Link )} : end" );
+#endif
+		}
+
+
 		public static void Unlink( SMBehaviourBody body ) {
-			var b = body._owner;
+			var b = body._behaviour;
 #if TestBehaviourModifyler
 			SMLog.Debug( $"{nameof( SMBehaviourBody )}.{nameof( Unlink )} : start\n{b}" );
 /*
@@ -45,56 +75,10 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 
-		static void FixedUpdate( SMBehaviourBody body ) {
-			if ( body._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( !body._isActive )	{ return; }
-			if ( body._ranState == SMTaskRunState.Initialize )	{ body._ranState = SMTaskRunState.FixedUpdate; }
-			switch ( body._ranState ) {
-				case SMTaskRunState.FixedUpdate:
-				case SMTaskRunState.Update:
-				case SMTaskRunState.LateUpdate:
-#if TestBehaviourModifyler
-					SMLog.Debug( $"{body._owner.GetAboutName()}.{nameof(FixedUpdate)} :\n{body}" );
-#endif
-					body._fixedUpdateEvent.Run();
-					return;
-			}
-		}
-
-		static void Update( SMBehaviourBody body ) {
-			if ( body._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( !body._isActive )	{ return; }
-			if ( body._ranState == SMTaskRunState.FixedUpdate )	{ body._ranState = SMTaskRunState.Update; }
-			switch ( body._ranState ) {
-				case SMTaskRunState.Update:
-				case SMTaskRunState.LateUpdate:
-#if TestBehaviourModifyler
-					SMLog.Debug( $"{body._owner.GetAboutName()}.{nameof(Update)} :\n{body}" );
-#endif
-					body._updateEvent.Run();
-					return;
-			}
-		}
-
-		static void LateUpdate( SMBehaviourBody body ) {
-			if ( body._owner._type == SMTaskType.DontWork )		{ return; }
-			if ( !body._isActive )	{ return; }
-			if ( body._ranState == SMTaskRunState.Update )		{ body._ranState = SMTaskRunState.LateUpdate; }
-			switch ( body._ranState ) {
-				case SMTaskRunState.LateUpdate:
-#if TestBehaviourModifyler
-					SMLog.Debug( $"{body._owner.GetAboutName()}.{nameof(LateUpdate)} :\n{body}" );
-#endif
-					body._lateUpdateEvent.Run();
-					return;
-			}
-		}
-
-
 		public static bool IsActiveInMonoBehaviour( SMBehaviourBody body ) {
-			if ( !body._owner._object._isGameObject )	{ return true; }
+			if ( !body._behaviour._object._isGameObject )	{ return true; }
 
-			var mb = (SMMonoBehaviour)body._owner;
+			var mb = (SMMonoBehaviour)body._behaviour;
 			return mb.enabled;
 		}
 
@@ -105,6 +89,108 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			return mb.gameObject.activeInHierarchy && mb.enabled;
 		}
 
-		
+
+
+		public static async UniTask RegisterRunEventToOwner( SMObject smObject, ISMBehaviour add ) {
+			if (	smObject._ranState >= SMTaskRunState.FinalDisable &&
+					add._body._ranState < SMTaskRunState.FinalDisable &&
+					add._type != SMTaskType.DontWork
+			) {
+				var isActive = SMObjectApplyer.IsActiveInHierarchy( smObject );
+				add._body._modifyler.Register( new FinalDisableSMBehaviour( isActive ) );
+			}
+
+			if (	smObject._ranState >= SMTaskRunState.Finalize &&
+					add._body._ranState < SMTaskRunState.Finalize
+			) {
+				if ( add._type != SMTaskType.DontWork ) {
+					add._body._modifyler.Register( new FinalizeSMBehaviour() );
+				} else {
+					add.Dispose();
+				}
+			}
+
+			if ( smObject._isFinalizing )	{ return; }
+
+
+			if (	smObject._ranState >= SMTaskRunState.Create &&
+					add._body._ranState < SMTaskRunState.Create
+			) {
+				// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
+				if ( !smObject._isGameObject ) {
+// TODO : 無くす
+					await UTask.NextFrame( add._asyncCancelerOnDispose );
+				}
+				add._body._modifyler.Register( new CreateSMBehaviour() );
+			}
+
+			if ( add._type == SMTaskType.DontWork )	{ return; }
+
+
+			if (	smObject._ranState >= SMTaskRunState.SelfInitialize &&
+					add._body._ranState < SMTaskRunState.SelfInitialize
+			) {
+				add._body._modifyler.Register( new SelfInitializeSMBehaviour() );
+			}
+
+			if (	smObject._ranState >= SMTaskRunState.Initialize &&
+					add._body._ranState < SMTaskRunState.Initialize
+			) {
+				add._body._modifyler.Register( new InitializeSMBehaviour() );
+			}
+
+			if (	smObject._ranState >= SMTaskRunState.InitialEnable &&
+					add._body._ranState < SMTaskRunState.InitialEnable
+			) {
+				var isActive = SMObjectApplyer.IsActiveInHierarchy( smObject );
+				add._body._modifyler.Register( new InitialEnableSMBehaviour( isActive ) );
+			}
+
+
+// TODO : 念の為、活動状態変更も設定する
+		}
+
+
+
+		public static void FixedUpdate( SMBehaviourBody body ) {
+			if ( !body._isFinalizing )	{ return; }
+			if ( !body._isActive )		{ return; }
+			if ( body._ranState < SMTaskRunState.InitialEnable )	{ return; }
+
+#if TestBehaviourModifyler
+			SMLog.Debug( $"{body._behaviour.GetAboutName()}.{nameof(FixedUpdate)} :\n{body}" );
+#endif
+			body._fixedUpdateEvent.Run();
+
+			if ( body._ranState == SMTaskRunState.InitialEnable )	{ body._ranState = SMTaskRunState.FixedUpdate; }
+		}
+
+
+		public static void Update( SMBehaviourBody body ) {
+			if ( !body._isFinalizing )	{ return; }
+			if ( !body._isActive )		{ return; }
+			if ( body._ranState < SMTaskRunState.FixedUpdate )	{ return; }
+
+#if TestBehaviourModifyler
+			SMLog.Debug( $"{body._behaviour.GetAboutName()}.{nameof(Update)} :\n{body}" );
+#endif
+			body._updateEvent.Run();
+
+			if ( body._ranState == SMTaskRunState.FixedUpdate )	{ body._ranState = SMTaskRunState.Update; }
+		}
+
+
+		public static void LateUpdate( SMBehaviourBody body ) {
+			if ( !body._isFinalizing )	{ return; }
+			if ( !body._isActive )		{ return; }
+			if ( body._ranState < SMTaskRunState.Update )	{ return; }
+
+#if TestBehaviourModifyler
+			SMLog.Debug( $"{body._behaviour.GetAboutName()}.{nameof(LateUpdate)} :\n{body}" );
+#endif
+			body._lateUpdateEvent.Run();
+
+			if ( body._ranState == SMTaskRunState.Update )	{ body._ranState = SMTaskRunState.LateUpdate; }
+		}
 	}
 }

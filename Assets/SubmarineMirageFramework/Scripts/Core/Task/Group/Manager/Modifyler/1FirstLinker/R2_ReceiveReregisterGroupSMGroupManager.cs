@@ -7,7 +7,8 @@
 #define TestGroupManagerModifyler
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Utility;
+	using Group.Modifyler;
+	using Extension;
 	using Debug;
 
 
@@ -18,26 +19,20 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 	public class ReceiveReregisterGroupSMGroupManager : SMGroupManagerModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstLinker;
-		SMGroup _target	{ get; set; }
 
 
-		public ReceiveReregisterGroupSMGroupManager( SMGroup target )
-			=> _target = target;
+		public ReceiveReregisterGroupSMGroupManager( SMGroup target ) : base( target ) {}
 
-		protected override void Cancel() => _target.Dispose();
+		protected override void Cancel() {
+			SMGroupApplyer.DisposeAll( _target );
+			_target._gameObject.Destroy();
+		}
 
 
 		public override async UniTask Run() {
-#if TestGroupManagerModifyler
-			SMLog.Debug( $"{nameof( Run )} : start\n{this}" );
-#endif
 			SMGroupManagerApplyer.Link( _owner, _target );
 
-			await UTask.DontWait();
-
-#if TestGroupManagerModifyler
-			SMLog.Debug( $"{nameof( Run )} : end\n{this}" );
-#endif
+			await SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );
 		}
 	}
 }

@@ -18,11 +18,21 @@ namespace SubmarineMirage.Extension {
 	public static class ComponentSMExtension {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
+		/// ● 削除（部品）
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static void Destroy( this Component self, float waitSecond = 0 ) {
+			if ( self == null )	{ return; }
+			if ( waitSecond == 0 )	{ Object.Destroy( self ); }
+			else					{ Object.Destroy( self, waitSecond ); }
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
 		/// ● 指定層の子達のゲーム物を全取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public static IEnumerable<GameObject> GetChildrenInLayer( this Component self, SMLayerManager.Name layer )
-			=> GameObjectSMUtility.GetChildrenInLayer( self.gameObject, layer );
+			=> self.gameObject.GetChildrenInLayer( layer );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 親を含まない、全子階層の部品達を取得
@@ -38,39 +48,21 @@ namespace SubmarineMirage.Extension {
 		///------------------------------------------------------------------------------------------------
 		public static IEnumerable<T> GetComponentsInChildrenUntilOneHierarchy<T>( this Component self,
 																					bool isIncludeInactive = false
-		) => GameObjectSMUtility.GetComponentsInChildrenUntilOneHierarchy<T>(
-				self.gameObject, isIncludeInactive );
+		) => self.gameObject.GetComponentsInChildrenUntilOneHierarchy<T>( isIncludeInactive );
+		///------------------------------------------------------------------------------------------------
+		/// ● 1階層までの、親の、部品達を取得
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 1階層までの、親の、部品達を取得
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		public static IEnumerable<T> GetComponentsInParentUntilOneHierarchy<T>( this Component self,
 																				bool isIncludeInactive = false
-		) => GameObjectSMUtility.GetComponentsInParentUntilOneHierarchy<T>(
-				self.gameObject, isIncludeInactive );
-		///------------------------------------------------------------------------------------------------
+		) => self.gameObject.GetComponentsInParentUntilOneHierarchy<T>( isIncludeInactive );
 		/// <summary>
 		/// ● 1階層までの、親の、部品を取得
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		public static T GetComponentInParentUntilOneHierarchy<T>( this Component self,
 																	bool isIncludeInactive = false
-		) => GameObjectSMUtility.GetComponentInParentUntilOneHierarchy<T>(
-				self.gameObject, isIncludeInactive );
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 指定名ゲーム物から、部品を取得
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static T FindComponent<T>( this Component self, string name ) where T : Component
-			=> GameObjectSMUtility.FindComponent<T>( name );
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 指定付箋ゲーム物から、部品を取得
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static T FindComponentWithTag<T>( this Component self, SMTagManager.Name tag ) where T : Component
-			=> GameObjectSMUtility.FindComponentWithTag<T>( tag );
+		) => self.gameObject.GetComponentInParentUntilOneHierarchy<T>( isIncludeInactive );
 	}
 }

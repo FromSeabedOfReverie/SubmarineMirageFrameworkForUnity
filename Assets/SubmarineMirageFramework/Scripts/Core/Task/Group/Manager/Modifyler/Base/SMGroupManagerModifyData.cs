@@ -20,6 +20,13 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	public abstract class SMGroupManagerModifyData
 		: BaseSMTaskModifyData<SMGroupManager, SMGroupManagerModifyler, SMGroupModifyData, SMGroup>
 	{
+		public SMGroup _target	{ get; private set; }
+
+
+		public SMGroupManagerModifyData( SMGroup target )
+			=> _target = target;
+
+
 		protected override UniTask RegisterAndRunLower( SMGroup lowerTarget, SMGroupModifyData data )
 			=> lowerTarget._modifyler.RegisterAndRun( data );
 

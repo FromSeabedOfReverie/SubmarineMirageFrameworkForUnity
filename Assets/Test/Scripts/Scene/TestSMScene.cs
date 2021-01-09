@@ -15,6 +15,7 @@ namespace SubmarineMirage.TestScene {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using KoganeUnityLib;
 	using Task;
 	using Task.Behaviour.Modifyler;
 	using Scene;
@@ -22,7 +23,6 @@ namespace SubmarineMirage.TestScene {
 	using Utility;
 	using Debug;
 	using TestBase;
-	using UnityObject = UnityEngine.Object;
 
 
 
@@ -39,11 +39,11 @@ namespace SubmarineMirage.TestScene {
 			Application.targetFrameRate = 30;
 			_sceneManager = SMSceneManager.s_instance;
 
-			UnityObject.Instantiate( Resources.Load<GameObject>( "TestCamera" ) );
-			var go = UnityObject.Instantiate( Resources.Load<GameObject>( "TestCanvas" ) );
-			UnityObject.DontDestroyOnLoad( go );
+			Resources.Load<GameObject>( "TestCamera" ).Instantiate();
+			var go = Resources.Load<GameObject>( "TestCanvas" ).Instantiate();
+			go.DontDestroyOnLoad();
 			_text = go.GetComponentInChildren<Text>();
-			_disposables.AddLast(Observable.EveryLateUpdate().Subscribe( (Action<long>)(_ => {
+			_disposables.AddLast( Observable.EveryLateUpdate().Subscribe( _ => {
 				if (_sceneManager == null ) {
 					_text.text = string.Empty;
 					return;
@@ -59,7 +59,7 @@ namespace SubmarineMirage.TestScene {
 					")",
 					$"{nameof( b._fsm )} : {b._fsm}"
 				);
-			}) ) );
+			} ) );
 			_disposables.AddLast( () => _text.text = string.Empty );
 
 			_disposables.AddLast( _sceneManager );

@@ -41,8 +41,8 @@ namespace SubmarineMirage.TestTask {
 					$"{_viewBehaviour.GetAboutName()}(",
 					$"    {nameof( _viewBehaviour._id )} : {_viewBehaviour._id}",
 					$"    {nameof( _viewBehaviour._type )} : {_viewBehaviour._type}",
-					$"    {nameof( _viewBehaviour._object._owner )} : "
-						+ $"{_viewBehaviour._object._owner}( {_viewBehaviour._object._id} )",
+					$"    {nameof( _viewBehaviour._object._gameObject )} : "
+						+ $"{_viewBehaviour._object._gameObject}( {_viewBehaviour._object._id} )",
 					$"    {nameof( _viewBehaviour._body._ranState )} : {_viewBehaviour._body._ranState}",
 					$"    {nameof( _viewBehaviour._body._isActive )} : {_viewBehaviour._body._isActive}",
 					$"    {nameof( _viewBehaviour._body._isRunInitialActive )} : "

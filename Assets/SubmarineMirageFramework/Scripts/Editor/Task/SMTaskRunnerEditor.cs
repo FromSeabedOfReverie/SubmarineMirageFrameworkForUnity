@@ -90,7 +90,7 @@ namespace SubmarineMirage.EditorTask {
 			GUI.SetNextControlName( string.Join( "\n",
 				$"{smObject._id}",
 
-				$"{( smObject._owner != null ? smObject._owner.name : "null" )}",
+				$"{( smObject._gameObject != null ? smObject._gameObject.name : "null" )}",
 				string.Join( "\n", smObject.GetBehaviours().Select( b => $"    {b.ToLineString()}" ) ),
 
 				$"← {smObject._parent?.ToLineString()}",
