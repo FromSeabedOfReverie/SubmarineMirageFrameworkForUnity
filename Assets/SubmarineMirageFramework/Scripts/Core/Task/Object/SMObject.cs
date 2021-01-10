@@ -77,6 +77,8 @@ namespace SubmarineMirage.Task.Object {
 #endif
 		}
 
+		public override void Dispose() => base.Dispose();
+
 
 
 		void SetupBehaviours( IEnumerable<ISMBehaviour> behaviours ) {

@@ -9,6 +9,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Group.Modifyler;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -31,8 +32,9 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 		public override async UniTask Run() {
 			SMGroupManagerApplyer.Link( _owner, _target );
+			SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );
 
-			await SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );
+			await UTask.DontWait();
 		}
 	}
 }

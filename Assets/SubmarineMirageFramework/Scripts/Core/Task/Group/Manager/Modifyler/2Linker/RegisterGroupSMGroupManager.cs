@@ -10,6 +10,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Group.Modifyler;
 	using Scene;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -35,8 +36,9 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 				SMSceneManager.s_instance.MoveGroup( _target, _owner._scene );
 			}
 			SMGroupManagerApplyer.Link( _owner, _target );
+			SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );
 
-			await SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );
+			await UTask.DontWait();
 		}
 	}
 }

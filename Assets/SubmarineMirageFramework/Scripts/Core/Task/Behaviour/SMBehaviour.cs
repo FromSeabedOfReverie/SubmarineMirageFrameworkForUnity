@@ -59,6 +59,8 @@ namespace SubmarineMirage.Task.Behaviour {
 
 		public abstract void Create();
 
+		public override void Dispose() => base.Dispose();
+
 
 		public void DestroyObject() => _object.Destroy();
 

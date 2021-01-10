@@ -22,7 +22,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 	public class DestroyObjectSMGroup : SMGroupModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
-		bool _isLastFinalizing	{ get; set; }
+		[SMShowLine] bool _isLastFinalizing	{ get; set; }
 
 
 		public DestroyObjectSMGroup( SMObject target ) : base( target ) {}
@@ -59,9 +59,9 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
 			_owner._ranState = SMTaskRunState.Finalize;
-			_owner.Dispose();
-
+			SMGroupApplyer.DisposeAll( _owner );
 			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
+
 			_owner._groups._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
 		}
 
@@ -73,11 +73,12 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
+			SMObjectApplyer.DisposeAll( _target );
+			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
 
 			GetAllLowers().ForEach( o => _modifyler.Unregister( o ) );
 			SMObjectApplyer.Unlink( _target );
 			SMGroupApplyer.SetAllData( _owner );
-			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
 		}
 	}
 }

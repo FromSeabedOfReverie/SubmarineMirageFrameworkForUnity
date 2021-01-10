@@ -24,9 +24,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 	public static class SMGroupApplyer {
 		public static void DisposeAll( SMGroup group ) {
-			if ( group._topObject != null ) {
-				SMObjectApplyer.DisposeAll( group._topObject );
-			}
+			SMObjectApplyer.DisposeAll( group._topObject );
 			group.Dispose();
 		}
 
@@ -105,16 +103,6 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 #if TestGroupModifyler
 			SMLog.Debug( $"{nameof( SetAllData )} : end\n{group}" );
 #endif
-		}
-
-
-
-		public static void Move( SMGroup newGroup, SMGroup remove ) {
-			newGroup._modifyler.Move( remove._modifyler );
-			remove._topObject.GetAllChildren().ForEach( o => o._group = newGroup );
-			remove._topObject = null;
-			remove.Dispose();
-			remove._groups._modifyler.Register( new UnregisterGroupSMGroupManager( remove ) );
 		}
 
 

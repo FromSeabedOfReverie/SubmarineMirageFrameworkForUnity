@@ -11,6 +11,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	using Task.Modifyler;
 	using Object;
 	using Object.Modifyler;
+	using Debug;
 
 
 
@@ -21,7 +22,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	public abstract class SMGroupModifyData
 		: BaseSMTaskModifyData<SMGroup, SMGroupModifyler, SMObjectModifyData, SMObject>
 	{
-		public SMObject _target	{ get; private set; }
+		[SMShowLine] public SMObject _target	{ get; private set; }
 
 
 		public SMGroupModifyData( SMObject target )

@@ -13,6 +13,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	using Behaviour;
 	using Object;
 	using Object.Modifyler;
+	using Manager.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -135,14 +136,13 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 		void ChangeParentOnly( SMObject parent ) {
-			// 新親は居る
+			//  元々トップだった、新親は居る
 			// 元々トップだった場合、子にトップを付ける為、破綻
 			if ( _owner.IsTop( _target ) ) {
 				throw new NotSupportedException( $"子にトップを接続する為、親変更不可 :\n{_target}" );
 			}
 
 			// 元々子だった、新親は居る
-
 			// 子を解除、新親と接続
 			SMObjectApplyer.Unlink( _target );
 			SMObjectApplyer.LinkChild( parent, _target );
@@ -157,7 +157,13 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			// 新グループに、子の追加を予約
 			parent._group._modifyler.Register( new ReceiveChangeParentObjectSMGroup( _target, parent ) );
-			SMGroupApplyer.Move( parent._group, _owner );	// グループ全体を、新グループに移植
+
+			// グループ全体を、新グループに移植
+			parent._group._modifyler.Move( _owner._modifyler );
+			_owner._topObject.GetAllChildren().ForEach( o => o._group = parent._group );
+			_owner.Dispose();
+			// 解放したグループの、登録解除を予約
+			_owner._groups._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
 		}
 
 

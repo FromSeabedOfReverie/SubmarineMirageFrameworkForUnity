@@ -46,6 +46,8 @@ namespace SubmarineMirage.Task.Group {
 			} );
 		}
 
+		public override void Dispose() => base.Dispose();
+
 
 
 		public SMGroup GetFirst() {

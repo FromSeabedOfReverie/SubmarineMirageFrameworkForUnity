@@ -22,9 +22,13 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if ( _owner._isFinalizing )	{ return; }
 			if ( _owner._ranState != SMTaskRunState.None )	{ return; }
 
+			// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
+			if ( !_owner._behaviour._object._isGameObject ) {
+				await UTask.NextFrame( _owner._asyncCancelerOnDispose );
+			}
+
 			_owner._behaviour.Create();
 			_owner._ranState = SMTaskRunState.Create;
-			await UTask.DontWait();
 		}
 	}
 }

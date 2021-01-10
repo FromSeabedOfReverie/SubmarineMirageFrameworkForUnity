@@ -5,11 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
+	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using Task.Modifyler;
 	using Group;
 	using Group.Modifyler;
-	using System.Collections.Generic;
+	using Debug;
 
 
 
@@ -20,7 +21,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	public abstract class SMGroupManagerModifyData
 		: BaseSMTaskModifyData<SMGroupManager, SMGroupManagerModifyler, SMGroupModifyData, SMGroup>
 	{
-		public SMGroup _target	{ get; private set; }
+		[SMShowLine] public SMGroup _target	{ get; private set; }
 
 
 		public SMGroupManagerModifyData( SMGroup target )

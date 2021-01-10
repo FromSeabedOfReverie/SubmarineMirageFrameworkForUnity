@@ -7,10 +7,8 @@
 #define TestGroupManagerModifyler
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using System.Linq;
-	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Group.Modifyler;
-	using Utility;
 	using Debug;
 
 
@@ -52,7 +50,6 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			manager.GetAllGroups()
 				.Reverse()
 				.ForEach( g => SMGroupApplyer.DisposeAll( g ) );
-			manager.Dispose();
 		}
 
 
@@ -98,7 +95,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 
-		public static async UniTask RegisterRunEventToOwner( SMGroupManager manager, SMGroup add ) {
+		public static void RegisterRunEventToOwner( SMGroupManager manager, SMGroup add ) {
 			if (	manager._ranState >= SMTaskRunState.FinalDisable &&
 					add._ranState < SMTaskRunState.FinalDisable
 			) {
@@ -121,11 +118,6 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			if (	manager._ranState >= SMTaskRunState.Create &&
 					add._ranState < SMTaskRunState.Create
 			) {
-				// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-				if ( !add._isGameObject ) {
-// TODO : 無くす
-					await UTask.NextFrame( add._asyncCanceler );
-				}
 				foreach ( var t in ALL_RUN_TYPES ) {
 					add._modifyler.Register( new CreateSMGroup( t ) );
 				}
@@ -154,9 +146,6 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 					add._modifyler.Register( new InitialEnableSMGroup( t ) );
 				}
 			}
-
-
-// TODO : 念の為、活動状態変更も設定する
 		}
 
 

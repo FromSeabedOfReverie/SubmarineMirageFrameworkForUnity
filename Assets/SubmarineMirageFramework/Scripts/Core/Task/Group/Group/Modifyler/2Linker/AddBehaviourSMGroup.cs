@@ -12,6 +12,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	using Behaviour.Modifyler;
 	using Object;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -52,7 +53,9 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			SMGroupApplyer.SetAllData( _owner );
 
 			_behaviour.Constructor();
-			await SMBehaviourApplyer.RegisterRunEventToOwner( _target, _behaviour );
+			SMBehaviourApplyer.RegisterRunEventToOwner( _target, _behaviour );
+
+			await UTask.DontWait();
 		}
 	}
 }

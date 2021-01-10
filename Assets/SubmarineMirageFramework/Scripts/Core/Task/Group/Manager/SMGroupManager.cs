@@ -49,6 +49,9 @@ namespace SubmarineMirage.Task.Group.Manager {
 			} );
 		}
 
+		public override void Dispose() => base.Dispose();
+
+
 
 		public IEnumerable<SMGroup> GetAllGroups()
 			=> _group.GetBrothers();
@@ -100,6 +103,7 @@ namespace SubmarineMirage.Task.Group.Manager {
 		public async UniTask Exit() {
 			await _modifyler.RegisterAndRun( new FinalDisableSMGroupManager() );
 			await _modifyler.RegisterAndRun( new FinalizeSMGroupManager() );
+			SMGroupManagerApplyer.DisposeAll( this );
 
 			_ranState = SMTaskRunState.None;
 			_activeState = SMTaskActiveState.Disable;

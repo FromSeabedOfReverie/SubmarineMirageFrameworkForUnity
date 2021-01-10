@@ -17,7 +17,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 	public class CreateSMGroup : SMGroupModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
-		SMTaskRunAllType _runType	{ get; set; }
+		[SMShowLine] SMTaskRunAllType _runType	{ get; set; }
 
 
 		public CreateSMGroup( SMTaskRunAllType runType ) : base( null )

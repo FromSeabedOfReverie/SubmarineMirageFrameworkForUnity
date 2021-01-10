@@ -16,7 +16,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 	public class FinalDisableSMBehaviour : SMBehaviourModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
-		bool _isActiveInHierarchy	{ get; set; }
+		[SMShowLine] bool _isActiveInHierarchy	{ get; set; }
 
 
 		public FinalDisableSMBehaviour( bool isActiveInHierarchy )

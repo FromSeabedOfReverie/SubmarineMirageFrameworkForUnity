@@ -22,8 +22,6 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-
 			_modifyler.Unregister( _target );
 			SMGroupManagerApplyer.Unlink( _owner, _target );
 

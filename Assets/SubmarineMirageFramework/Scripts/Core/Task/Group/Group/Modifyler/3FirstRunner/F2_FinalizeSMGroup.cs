@@ -17,7 +17,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 	public class FinalizeSMGroup : SMGroupModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
-		SMTaskRunAllType _runType	{ get; set; }
+		[SMShowLine] SMTaskRunAllType _runType	{ get; set; }
 
 
 		public FinalizeSMGroup( SMTaskRunAllType runType ) : base( null )

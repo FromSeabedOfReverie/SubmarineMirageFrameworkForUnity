@@ -6,7 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestGroupModifyler
 namespace SubmarineMirage.Task.Group.Modifyler {
+	using System;
 	using Cysharp.Threading.Tasks;
+	using Behaviour;
 	using Object;
 	using Object.Modifyler;
 	using Extension;
@@ -14,7 +16,9 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	using Debug;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class ReceiveChangeParentObjectSMGroup : SMGroupModifyData {
@@ -22,8 +26,12 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		[SMShowLine] SMObject _parent	{ get; set; }
 
 
-		public ReceiveChangeParentObjectSMGroup( SMObject target, SMObject parent ) : base( target )
-			=> _parent = parent;
+		public ReceiveChangeParentObjectSMGroup( SMObject target, SMObject parent ) : base( target ) {
+			_parent = parent;
+			if ( !_target._isGameObject ) {
+				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}未所持の為、親適用不可 :\n{_target}" );
+			}
+		}
 
 		protected override void Cancel() {
 			SMObjectApplyer.DisposeAll( _target );
@@ -32,12 +40,6 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing ) {
-// TODO : もっと優しく終了する、削除ミス用にOwnerに全体Disposeを設定する
-				Cancel();
-				return;
-			}
-
 			SMObjectApplyer.LinkChild( _parent, _target );
 			SMGroupApplyer.SetAllData( _owner );
 

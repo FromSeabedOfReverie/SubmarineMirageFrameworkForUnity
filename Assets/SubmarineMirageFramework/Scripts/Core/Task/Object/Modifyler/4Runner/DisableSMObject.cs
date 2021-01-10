@@ -17,13 +17,15 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 	public class DisableSMObject : SMObjectModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] bool _isAdjustParent	{ get; set; }
 
 
-		public DisableSMObject( SMTaskRunAllType runType ) : base( runType ) {}
+		public DisableSMObject( SMTaskRunAllType runType, bool isAdjustParent = false ) : base( runType )
+			=> _isAdjustParent = isAdjustParent;
 
 
 		public override async UniTask Run() {
-			if ( !SMObjectApplyer.IsActiveInHierarchy( _owner ) )	{ return; }
+			if ( !_isAdjustParent && !SMObjectApplyer.IsActiveInHierarchy( _owner ) )	{ return; }
 			if ( !_owner._isOperable )	{ return; }
 			if ( _owner._activeState == SMTaskActiveState.Disable && !_owner._isDisabling )	{ return; }
 

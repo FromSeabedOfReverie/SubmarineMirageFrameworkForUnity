@@ -6,11 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Behaviour.Modifyler {
-	using Cysharp.Threading.Tasks;
 	using Object;
 	using Object.Modifyler;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -91,7 +89,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 
-		public static async UniTask RegisterRunEventToOwner( SMObject smObject, ISMBehaviour add ) {
+		public static void RegisterRunEventToOwner( SMObject smObject, ISMBehaviour add ) {
 			if (	smObject._ranState >= SMTaskRunState.FinalDisable &&
 					add._body._ranState < SMTaskRunState.FinalDisable &&
 					add._type != SMTaskType.DontWork
@@ -116,11 +114,6 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if (	smObject._ranState >= SMTaskRunState.Create &&
 					add._body._ranState < SMTaskRunState.Create
 			) {
-				// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-				if ( !smObject._isGameObject ) {
-// TODO : 無くす
-					await UTask.NextFrame( add._asyncCancelerOnDispose );
-				}
 				add._body._modifyler.Register( new CreateSMBehaviour() );
 			}
 
@@ -146,8 +139,15 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 				add._body._modifyler.Register( new InitialEnableSMBehaviour( isActive ) );
 			}
 
+			if ( !smObject._isInitialized )	{ return; }
 
-// TODO : 念の為、活動状態変更も設定する
+
+			if ( SMObjectApplyer.IsActiveInHierarchy( smObject ) ) {
+				add._body._modifyler.Register( new EnableSMBehaviour() );
+
+			} else {
+				add._body._modifyler.Register( new DisableSMBehaviour() );
+			}
 		}
 
 

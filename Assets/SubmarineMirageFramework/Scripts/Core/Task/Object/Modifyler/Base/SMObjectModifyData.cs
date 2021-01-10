@@ -12,6 +12,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 	using Task.Modifyler;
 	using Behaviour;
 	using Behaviour.Modifyler;
+	using Debug;
 
 
 
@@ -22,7 +23,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 	public abstract class SMObjectModifyData
 		: BaseSMTaskModifyData<SMObject, SMObjectModifyler, SMBehaviourModifyData, SMBehaviourBody>
 	{
-		protected SMTaskRunAllType _runType	{ get; private set; }
+		[SMShowLine] protected SMTaskRunAllType _runType	{ get; private set; }
 
 
 		public SMObjectModifyData( SMTaskRunAllType runType )

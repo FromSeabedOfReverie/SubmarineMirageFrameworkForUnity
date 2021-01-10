@@ -8,6 +8,8 @@ namespace SubmarineMirage.Singleton {
 	using Cysharp.Threading.Tasks;
 	using Task;
 	using Task.Behaviour;
+	using Task.Behaviour.Modifyler;
+	using Extension;
 	using Utility;
 
 
@@ -50,7 +52,12 @@ namespace SubmarineMirage.Singleton {
 
 		public static void DisposeInstance() {
 			if ( !s_isCreated )	{ return; }
-			s_instanceObject.Dispose();	// 複数のシングルトンが_objectに含まれる為、_object.Disposeはしない
+
+			// 複数のシングルトンが_objectに含まれる為、_object.Disposeはしない
+			s_instanceObject.Dispose();
+// TODO : Modifylerを無視しているので、修正
+			SMBehaviourApplyer.Unlink( s_instanceObject._body );
+			s_instanceObject.Destroy();
 			s_instanceObject = null;
 		}
 	}
