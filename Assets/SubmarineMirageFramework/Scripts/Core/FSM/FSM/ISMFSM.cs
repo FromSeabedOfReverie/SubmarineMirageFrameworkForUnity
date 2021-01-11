@@ -20,7 +20,7 @@ namespace SubmarineMirage.FSM {
 		string _registerEventName	{ get; }
 		bool _isChangingState		{ get; }
 
-		SMMultiAsyncEvent _loadEvent			{ get; }
+		SMMultiAsyncEvent _selfInitializeEvent			{ get; }
 		SMMultiAsyncEvent _initializeEvent	{ get; }
 		SMMultiSubject _enableEvent			{ get; }
 		SMMultiSubject _fixedUpdateEvent		{ get; }
@@ -29,7 +29,7 @@ namespace SubmarineMirage.FSM {
 		SMMultiSubject _disableEvent			{ get; }
 		SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		SMTaskCanceler _changeStateAsyncCanceler	{ get; }
+		SMTaskCanceler _asyncCancelerOnChange	{ get; }
 
 		UniTask ChangeState( Type state );
 	}

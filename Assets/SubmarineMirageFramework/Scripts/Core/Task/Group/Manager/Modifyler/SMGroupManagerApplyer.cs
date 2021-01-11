@@ -7,6 +7,7 @@
 #define TestGroupManagerModifyler
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using System.Linq;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Group.Modifyler;
 	using Debug;
@@ -150,12 +151,18 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 
+		public static void RunAllModifylers( SMGroupManager manager )
+			=> manager.GetAllModifylers()
+				.ForEach( m => m.Run().Forget() );
+
+
+
 		public static void FixedUpdate( SMGroupManager manager ) {
 			if ( !manager._isFinalizing )	{ return; }
 			if ( !manager._isActive )		{ return; }
 			if ( manager._ranState < SMTaskRunState.InitialEnable )	{ return; }
 
-			var gs = manager.GetAllGroups().ToArray();
+			var gs = manager.GetAllGroups();
 			UPDATE_TASK_TYPES.ForEach( t =>
 				gs.ForEach( g => SMGroupApplyer.FixedUpdate( g, t ) )
 			);

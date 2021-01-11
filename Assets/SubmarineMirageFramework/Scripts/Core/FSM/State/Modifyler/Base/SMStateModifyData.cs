@@ -4,9 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.FSM.Modifyler {
+	using System;
+	using System.Linq;
+	using System.Collections.Generic;
+	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using Base;
+	using Task.Modifyler;
+	using Utility;
 
 
 
@@ -14,8 +19,6 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public interface IBaseSMTaskModifyler : ISMStandardBase {
-		UniTask WaitRunning();
-		UniTask Run();
+	public abstract class SMStateModifyData : BaseSMFSMModifyData<SMState, SMStateModifyler> {
 	}
 }

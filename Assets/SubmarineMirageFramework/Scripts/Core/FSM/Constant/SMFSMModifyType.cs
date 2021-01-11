@@ -10,12 +10,10 @@ namespace SubmarineMirage.FSM {
 	// TODO : コメント追加、整頓
 
 
-	public enum SMFSMRunState {
-		Entering,
-		Entered,
-		BeforeUpdate,
-		Update,
-		Exiting,
-		Exited,
+	public enum SMFSMModifyType {
+		FirstLinker,
+		Linker,
+		FirstRunner,
+		Runner,
 	}
 }

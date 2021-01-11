@@ -4,13 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.FSM.Modifyler {
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
 	using Base;
+	using Task;
 	using Extension;
 	using Utility;
 
@@ -20,11 +21,11 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public abstract class BaseSMTaskModifyler<TOwner, TModifyler, TData>
-		: SMStandardBase, IBaseSMTaskModifyler
-		where TOwner : IBaseSMTaskModifylerOwner<TModifyler>
-		where TModifyler : IBaseSMTaskModifyler
-		where TData : class, IBaseSMTaskModifyData<TOwner, TModifyler>
+	public abstract class BaseSMFSMModifyler<TOwner, TModifyler, TData>
+		: SMStandardBase, IBaseSMFSMModifyler
+		where TOwner : IBaseSMFSMModifylerOwner<TModifyler>
+		where TModifyler : IBaseSMFSMModifyler
+		where TData : class, IBaseSMFSMModifyData<TOwner, TModifyler>
 	{
 		protected TOwner _owner	{ get; private set; }
 		protected readonly LinkedList<TData> _data = new LinkedList<TData>();
@@ -32,7 +33,7 @@ namespace SubmarineMirage.Task.Modifyler {
 		protected abstract SMTaskCanceler _asyncCanceler	{ get; }
 
 
-		public BaseSMTaskModifyler( TOwner owner ) {
+		public BaseSMFSMModifyler( TOwner owner ) {
 			_owner = owner;
 
 			_disposables.AddLast(
@@ -55,16 +56,16 @@ namespace SubmarineMirage.Task.Modifyler {
 			}
 
 			switch( data._type ) {
-				case SMTaskModifyType.FirstLinker:
-				case SMTaskModifyType.Linker:
-				case SMTaskModifyType.FirstRunner:
+				case SMFSMModifyType.FirstLinker:
+				case SMFSMModifyType.Linker:
+				case SMFSMModifyType.FirstRunner:
 					_data.AddBefore(
 						data,
 						d => d._type > data._type,
 						() => _data.Enqueue( data )
 					);
 					break;
-				case SMTaskModifyType.Runner:
+				case SMFSMModifyType.Runner:
 					_data.Enqueue( data );
 					break;
 			}

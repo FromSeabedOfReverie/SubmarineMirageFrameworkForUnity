@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
-	using Cysharp.Threading.Tasks;
+namespace SubmarineMirage.FSM.Modifyler {
 	using Base;
 
 
@@ -14,8 +13,14 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public interface IBaseSMTaskModifyler : ISMStandardBase {
-		UniTask WaitRunning();
-		UniTask Run();
+	public interface IBaseSMFSMModifylerOwner<TModifyler> : ISMStandardBase
+		where TModifyler : IBaseSMFSMModifyler
+	{
+		SMFSMRunState _ranState	{ get; set; }
+		bool _isInitialized	{ get; }
+		bool _isOperable	{ get; }
+		bool _isFinalizing	{ get; set; }
+		bool _isActive	{ get; }
+		TModifyler _modifyler	{ get; }
 	}
 }

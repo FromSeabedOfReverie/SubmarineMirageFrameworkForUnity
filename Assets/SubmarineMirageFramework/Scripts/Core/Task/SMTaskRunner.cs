@@ -28,6 +28,7 @@ namespace SubmarineMirage.Task {
 		public SMScene _currentScene => SMSceneManager.s_instance._fsm._scene;
 		public bool _isEnterInForever	=> _foreverScene._groups._isEnter;
 		public bool _isEnterInScene		=> _currentScene._groups._isEnter;
+		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
 #if DEVELOP
 		public readonly SMMultiSubject _onGUIEvent = new SMMultiSubject();
 #endif
@@ -35,9 +36,12 @@ namespace SubmarineMirage.Task {
 
 		protected override void Awake() {
 			base.Awake();
+			_disposables.Add( () => {
+				_isUpdating.Dispose();
 #if DEVELOP
-			_disposables.Add( _onGUIEvent );
+				_onGUIEvent.Dispose();
 #endif
+			} );
 			_disposables.Add(
 				Observable.OnceApplicationQuit().Subscribe( _ => SubmarineMirage.DisposeInstance() )
 			);
@@ -62,7 +66,7 @@ namespace SubmarineMirage.Task {
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( _foreverScene )}.Entering : start" );
 #endif
 // TODO : シーン読込後に、テストオブジェクトを作成してしまう
-			await _foreverScene.RunStateEvent( SMFSMRunState.Entering );
+			await _foreverScene.RunStateEvent( SMFSMRunState.Enter );
 #if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( _foreverScene )}.Entering : end" );
 #endif
@@ -83,7 +87,7 @@ namespace SubmarineMirage.Task {
 
 		public async UniTask EndForeverTasks() {
 			await _currentScene._fsm.ChangeScene( null );
-			await _foreverScene.RunStateEvent( SMFSMRunState.Exiting );
+			await _foreverScene.RunStateEvent( SMFSMRunState.Exit );
 			Dispose();
 
 			SMLog.Debug( $"{this.GetAboutName()} : 破棄完了", SMLogTag.Task );
@@ -93,23 +97,44 @@ namespace SubmarineMirage.Task {
 		void FixedUpdate() {
 			return;
 			if ( _isDispose )	{ return; }
+			if ( _isUpdating.Value ) {
+				throw new InvalidOperationException( $"更新中に更新され、被った : {nameof( FixedUpdate )}" );
+			}
+
+			_isUpdating.Value = true;
 			SMGroupManagerApplyer.FixedUpdate( _foreverScene._groups );
 			SMGroupManagerApplyer.FixedUpdate( _currentScene._groups );
+			_isUpdating.Value = false;
 		}
+
 
 		void Update() {
 			return;
 			if ( _isDispose )	{ return; }
+			if ( _isUpdating.Value ) {
+				throw new InvalidOperationException( $"更新中に更新され、被った : {nameof( Update )}" );
+			}
+
+			_isUpdating.Value = true;
 			SMGroupManagerApplyer.Update( _foreverScene._groups );
 			SMGroupManagerApplyer.Update( _currentScene._groups );
+			_isUpdating.Value = false;
 		}
+
 
 		void LateUpdate() {
 			return;
 			if ( _isDispose )	{ return; }
+			if ( _isUpdating.Value ) {
+				throw new InvalidOperationException( $"更新中に更新され、被った : {nameof( LateUpdate )}" );
+			}
+
+			_isUpdating.Value = true;
 			SMGroupManagerApplyer.LateUpdate( _foreverScene._groups );
 			SMGroupManagerApplyer.LateUpdate( _currentScene._groups );
+			_isUpdating.Value = false;
 		}
+
 
 #if DEVELOP
 		void OnGUI() {

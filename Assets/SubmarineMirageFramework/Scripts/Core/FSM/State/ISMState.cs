@@ -7,6 +7,7 @@
 namespace SubmarineMirage.FSM {
 	using Cysharp.Threading.Tasks;
 	using Base;
+	using MultiEvent;
 	using Task;
 
 
@@ -21,13 +22,19 @@ namespace SubmarineMirage.FSM {
 		TOwner _owner	{ get; }
 
 		SMFSMRunState _runState	{ get; }
-		bool _isActive	{ get; }
-		SMTaskCanceler _activeAsyncCanceler	{ get; }
+
+		SMMultiAsyncEvent _selfInitializeEvent	{ get; }
+		SMMultiAsyncEvent _initializeEvent		{ get; }
+		SMMultiSubject _enableEvent				{ get; }
+		SMMultiSubject _fixedUpdateEvent		{ get; }
+		SMMultiSubject _updateEvent				{ get; }
+		SMMultiSubject _lateUpdateEvent			{ get; }
+		SMMultiSubject _disableEvent			{ get; }
+		SMMultiAsyncEvent _finalizeEvent		{ get; }
+
+		SMTaskCanceler _asyncCancelerOnChangeOrDisable	{ get; }
 
 		void Set( TOwner owner );
 		void StopActiveAsync();
-		UniTask RunStateEvent( SMFSMRunState state );
-		UniTask ChangeActive( bool isActive );
-		UniTask RunBehaviourStateEvent( SMTaskRunState state );
 	}
 }

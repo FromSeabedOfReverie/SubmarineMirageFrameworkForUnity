@@ -32,8 +32,7 @@ namespace SubmarineMirage.Task.Group.Manager {
 		public SMScene _scene	{ get; private set; }
 		public SMGroup _group	{ get; set; }
 		public bool _isEnter	{ get; private set; }
-
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _scene._activeAsyncCanceler;
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnChangeOrDisable;
 
 
 
@@ -59,6 +58,22 @@ namespace SubmarineMirage.Task.Group.Manager {
 		public IEnumerable<SMObject> GetAllTops()
 			=> GetAllGroups().Select( g => g._topObject );
 
+
+		public IEnumerable<IBaseSMTaskModifyler> GetAllModifylers() {
+			yield return _modifyler;
+
+			foreach ( var g in GetAllGroups() ) {
+				yield return g._modifyler;
+
+				foreach ( var o in g._topObject.GetAllChildren() ) {
+					yield return o._modifyler;
+
+					foreach ( var b in o.GetBehaviours() ) {
+						yield return b._body._modifyler;
+					}
+				}
+			}
+		}
 
 
 		public T GetBehaviour<T>() where T : ISMBehaviour
