@@ -14,10 +14,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public class SMStateModifyler : BaseSMFSMModifyler<SMState, SMStateModifyler, SMStateModifyData> {
-		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
+	public class SMStateModifyler : BaseSMFSMModifyler<IBaseSMState, SMStateModifyler, SMStateModifyData> {
+		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnChangeOrDisable;
 
 
-		public SMStateModifyler( SMState owner ) : base( owner ) {}
+		public SMStateModifyler( IBaseSMState owner ) : base( owner ) {}
 	}
 }

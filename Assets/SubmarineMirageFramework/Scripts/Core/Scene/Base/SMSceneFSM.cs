@@ -17,7 +17,7 @@ namespace SubmarineMirage.Scene {
 	// TODO : コメント追加、整頓
 
 
-	public class SMSceneFSM : SMFSM<SMSceneFSM, SMSceneManager, SMScene> {
+	public class SMSceneFSM : SMInternalFSM<SMSceneFSM, SMSceneManager, SMScene> {
 		public ForeverSMScene _foreverScene	{ get; private set; }
 		public SMScene _startScene	{ get; private set; }
 		[SMHide] public SMScene _scene => _state;

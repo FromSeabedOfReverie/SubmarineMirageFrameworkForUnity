@@ -19,15 +19,13 @@ namespace SubmarineMirage.FSM {
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMState<TFSM, TOwner>
-		: BaseSMFSMModifylerOwner<SMStateModifyler>, ISMState<TFSM, TOwner>
-		where TFSM : ISMFSM
-		where TOwner : ISMFSMOwner<TFSM>
+	public abstract class SMState<TFSM>
+		: BaseSMFSMModifylerOwner<SMStateModifyler>, ISMState<TFSM>
+		where TFSM : ISMInternalFSM
 	{
 		public TFSM _fsm		{ get; private set; }
-		public TOwner _owner	{ get; private set; }
 
-		[SMShowLine] public SMFSMRunState _runState	{ get; private set; } = SMFSMRunState.Exit;
+		[SMShowLine] public SMFSMRunState _runState	{ get; set; } = SMFSMRunState.Exit;
 
 		public SMMultiAsyncEvent _selfInitializeEvent	{ get; private set; } = new SMMultiAsyncEvent();
 		public SMMultiAsyncEvent _initializeEvent		{ get; private set; } = new SMMultiAsyncEvent();
@@ -38,9 +36,9 @@ namespace SubmarineMirage.FSM {
 		public SMMultiSubject _disableEvent				{ get; private set; } = new SMMultiSubject();
 		public SMMultiAsyncEvent _finalizeEvent			{ get; private set; } = new SMMultiAsyncEvent();
 
-		public readonly SMMultiAsyncEvent _enterEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
+		public SMMultiAsyncEvent _enterEvent		{ get; private set; } = new SMMultiAsyncEvent();
+		public SMMultiAsyncEvent _updateAsyncEvent	{ get; private set; } = new SMMultiAsyncEvent();
+		public SMMultiAsyncEvent _exitEvent			{ get; private set; } = new SMMultiAsyncEvent();
 
 		public SMTaskCanceler _asyncCancelerOnChangeOrDisable	{ get; private set; } = new SMTaskCanceler();
 
@@ -64,12 +62,8 @@ namespace SubmarineMirage.FSM {
 			} );
 		}
 
-		public void Set( TOwner owner ) {
-			_owner = owner;
-			_fsm = _owner._fsm;
-
-			_asyncCancelerOnChangeOrDisable.Dispose();
-			_asyncCancelerOnChangeOrDisable = _owner._asyncCancelerOnDisable.CreateChild();
+		public void Set( TFSM fsm ) {
+			_fsm = fsm;
 		}
 
 

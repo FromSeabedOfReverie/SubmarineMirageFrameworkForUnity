@@ -20,18 +20,18 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 	public static class SMStateApplyer {
-		public static void FixedUpdate( SMState state ) {
+		public static void FixedUpdate( IBaseSMState state ) {
 			if ( state._runState != SMFSMRunState.Update )	{ return; }
 			state._fixedUpdateEvent.Run();
 		}
 
-		public static void Update( SMState state ) {
+		public static void Update( IBaseSMState state ) {
 			if ( state._runState != SMFSMRunState.Update )	{ return; }
 			state._modifyler.Register( new UpdateSMState() );
 			state._updateEvent.Run();
 		}
 
-		public static void LateUpdate( SMState state ) {
+		public static void LateUpdate( IBaseSMState state ) {
 			if ( state._runState != SMFSMRunState.Update )	{ return; }
 			state._lateUpdateEvent.Run();
 		}

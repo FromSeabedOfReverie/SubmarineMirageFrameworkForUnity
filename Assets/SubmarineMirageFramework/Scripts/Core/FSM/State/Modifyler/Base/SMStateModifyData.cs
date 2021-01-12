@@ -19,6 +19,6 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public abstract class SMStateModifyData : BaseSMFSMModifyData<SMState, SMStateModifyler> {
+	public abstract class SMStateModifyData : BaseSMFSMModifyData<IBaseSMState, SMStateModifyler> {
 	}
 }

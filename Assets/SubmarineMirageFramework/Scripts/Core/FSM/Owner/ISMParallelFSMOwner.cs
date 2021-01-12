@@ -11,7 +11,7 @@ namespace SubmarineMirage.FSM {
 	// TODO : コメント追加、整頓
 
 
-	public interface ISMFSMOwner<TFSM> : ISMBehaviour where TFSM : ISMFSM {
-		TFSM _fsm { get; }
+	public interface ISMParallelFSMOwner : ISMBehaviour {
+		ISMParallelFSM _fsm { get; }
 	}
 }

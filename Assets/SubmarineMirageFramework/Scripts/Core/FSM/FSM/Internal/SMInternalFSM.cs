@@ -24,12 +24,12 @@ namespace SubmarineMirage.FSM {
 
 
 
-	public abstract class SMFSM<TFSM, TOwner, TState> : SMStandardBase, ISMFSM
-		where TFSM : ISMFSM
-		where TOwner : ISMFSMOwner<TFSM>
-		where TState : class, ISMState<TFSM, TOwner>
+	public abstract class SMInternalFSM<TOwnerFSM, TFSM, TState> : SMStandardBase, ISMInternalFSM
+		where TOwnerFSM : ISMParallelFSM
+		where TFSM : ISMInternalFSM
+		where TState : class, ISMState<TFSM>
 	{
-		protected TOwner _owner	{ get; private set; }
+		public TOwnerFSM _fsm	{ get; private set; }
 		[SMHide] SMFSMRunState? _runState => _state?._runState;
 		public string _registerEventName	{ get; private set; }
 
@@ -38,25 +38,24 @@ namespace SubmarineMirage.FSM {
 		protected TState _nextState;
 		[SMHide] protected Type _startState;
 
-		[SMHide] public bool _isActive	=> _owner._isActive;
+		[SMHide] public bool _isActive	=> _fsm._isActive;
 		[SMHide] bool _isInitialized;
 		bool _isRequestNextState;
 		[SMHide] public bool _isChangingState	{ get; private set; }
 
-		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
-		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
-		[SMHide] public SMMultiSubject _enableEvent				=> _owner._enableEvent;
-		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
-		[SMHide] public SMMultiSubject _updateEvent				=> _owner._updateEvent;
-		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
-		[SMHide] public SMMultiSubject _disableEvent			=> _owner._disableEvent;
-		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
+		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _fsm._selfInitializeEvent;
+		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _fsm._initializeEvent;
+		[SMHide] public SMMultiSubject _enableEvent				=> _fsm._enableEvent;
+		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _fsm._fixedUpdateEvent;
+		[SMHide] public SMMultiSubject _updateEvent				=> _fsm._updateEvent;
+		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _fsm._lateUpdateEvent;
+		[SMHide] public SMMultiSubject _disableEvent			=> _fsm._disableEvent;
+		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _fsm._finalizeEvent;
 
 		[SMHide] public SMTaskCanceler _asyncCancelerOnChange	{ get; private set; } = new SMTaskCanceler();
 
 
-		public SMFSM( TOwner owner, IEnumerable<TState> states, Type startState = null ) {
-			_owner = owner;
+		public SMInternalFSM( IEnumerable<TState> states, Type startState = null ) {
 			_registerEventName = this.GetAboutName();
 			states.ForEach( s => _states[s.GetType()] = s );
 			_startState = startState;
@@ -65,7 +64,7 @@ namespace SubmarineMirage.FSM {
 				await _states
 					.Select( pair => pair.Value )
 					.Select( s => {
-						s.Set(_owner);
+						s.Set(_fsm);
 						return s._selfInitializeEvent.Run( canceler );
 					} );
 			} );
@@ -112,21 +111,26 @@ namespace SubmarineMirage.FSM {
 		}
 
 
+		public void Set( ISMParallelFSM fsm ) {
+			_fsm = (TOwnerFSM)fsm;
+		}
+
+
 		public UniTask ChangeState<T>() where T : TState
 			=> ChangeState( typeof( T ) );
 
 		public async UniTask ChangeState( Type state ) {
-			switch ( _owner._body._ranState ) {
+			switch ( _fsm._body._ranState ) {
 				case SMTaskRunState.None:
 				case SMTaskRunState.Create:
 				case SMTaskRunState.SelfInitialize:
-					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
+					throw new InvalidOperationException( $"初期化前の呼び出し : {_fsm._body._ranState}" );
 				case SMTaskRunState.Initialize:
 					if ( _isInitialized )	{ break; }
-					throw new InvalidOperationException( $"初期化前の呼び出し : {_owner._body._ranState}" );
+					throw new InvalidOperationException( $"初期化前の呼び出し : {_fsm._body._ranState}" );
 				case SMTaskRunState.Finalize:
 					if ( state == null )	{ break; }
-					throw new InvalidOperationException( $"終了後の呼び出し : {_owner._body._ranState}" );
+					throw new InvalidOperationException( $"終了後の呼び出し : {_fsm._body._ranState}" );
 			}
 			if ( state != null && !_states.ContainsKey( state ) ) {
 				throw new ArgumentOutOfRangeException( $"{state}", "未定義状態へ遷移" );
@@ -155,7 +159,7 @@ namespace SubmarineMirage.FSM {
 				await _state.RunStateEvent( SMFSMRunState.Exit );
 			}
 
-			if ( _owner._body._ranState == SMTaskRunState.Finalize ) {
+			if ( _fsm._body._ranState == SMTaskRunState.Finalize ) {
 				_nextState = null;
 			}
 			_state = _nextState;
@@ -167,15 +171,15 @@ namespace SubmarineMirage.FSM {
 			}
 
 			await _state.RunStateEvent( SMFSMRunState.Enter );
-			if ( _owner._body._ranState == SMTaskRunState.Finalize ) {
+			if ( _fsm._body._ranState == SMTaskRunState.Finalize ) {
 				_nextState = null;
 				_isRequestNextState = true;
 			}
 
-			if ( _owner._isActive && !_isRequestNextState )	{
+			if ( _fsm._isActive && !_isRequestNextState )	{
 				await _state.ChangeActive( true );
 			}
-			if ( _owner._body._ranState == SMTaskRunState.Finalize ) {
+			if ( _fsm._body._ranState == SMTaskRunState.Finalize ) {
 				_nextState = null;
 				_isRequestNextState = true;
 			}
@@ -196,7 +200,7 @@ namespace SubmarineMirage.FSM {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _owner ), i => _owner.GetAboutName() );
+			_toStringer.SetValue( nameof( _fsm ), i => _fsm.GetAboutName() );
 			_toStringer.SetValue( nameof( _states ), i => {
 				var arrayI = StringSMUtility.IndentSpace( i + 1 );
 				return "\n" + string.Join( ",\n", _states.Select( pair =>

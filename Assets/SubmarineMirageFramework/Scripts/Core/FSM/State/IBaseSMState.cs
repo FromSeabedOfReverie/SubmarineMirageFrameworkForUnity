@@ -5,32 +5,35 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
-	using System;
 	using Cysharp.Threading.Tasks;
 	using Base;
-	using Task;
 	using MultiEvent;
+	using Task;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface ISMFSM : ISMStandardBase {
-		bool _isActive				{ get; }
-		string _registerEventName	{ get; }
-		bool _isChangingState		{ get; }
 
-		SMMultiAsyncEvent _selfInitializeEvent			{ get; }
-		SMMultiAsyncEvent _initializeEvent	{ get; }
-		SMMultiSubject _enableEvent			{ get; }
+	public interface IBaseSMState : ISMStandardBase {
+		SMFSMRunState _runState	{ get; set; }
+
+		SMMultiAsyncEvent _selfInitializeEvent	{ get; }
+		SMMultiAsyncEvent _initializeEvent		{ get; }
+		SMMultiSubject _enableEvent				{ get; }
 		SMMultiSubject _fixedUpdateEvent		{ get; }
-		SMMultiSubject _updateEvent			{ get; }
-		SMMultiSubject _lateUpdateEvent		{ get; }
+		SMMultiSubject _updateEvent				{ get; }
+		SMMultiSubject _lateUpdateEvent			{ get; }
 		SMMultiSubject _disableEvent			{ get; }
 		SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		SMTaskCanceler _asyncCancelerOnChange	{ get; }
+		SMMultiAsyncEvent _enterEvent		{ get; }
+		SMMultiAsyncEvent _updateAsyncEvent	{ get; }
+		SMMultiAsyncEvent _exitEvent		{ get; }
 
-		UniTask ChangeState( Type state );
+		SMTaskCanceler _asyncCancelerOnChangeOrDisable	{ get; }
+
+		void StopActiveAsync();
 	}
 }
