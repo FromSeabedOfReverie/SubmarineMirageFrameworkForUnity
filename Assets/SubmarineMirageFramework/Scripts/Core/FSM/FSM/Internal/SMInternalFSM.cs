@@ -64,7 +64,7 @@ namespace SubmarineMirage.FSM {
 				await _states
 					.Select( pair => pair.Value )
 					.Select( s => {
-						s.Set(_fsm);
+						s.Set( _fsm );
 						return s._selfInitializeEvent.Run( canceler );
 					} );
 			} );
