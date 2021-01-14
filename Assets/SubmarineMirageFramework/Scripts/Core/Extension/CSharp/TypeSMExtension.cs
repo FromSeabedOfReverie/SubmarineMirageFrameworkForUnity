@@ -91,13 +91,22 @@ namespace SubmarineMirage.Extension {
 		public static IEnumerable<MemberInfo> GetAllNotAttributeMembers<T>( this Type self ) where T : Attribute
 			=> self.GetAllMembers( ( i, o ) => i.GetCustomAttribute<T>() == null );
 		///------------------------------------------------------------------------------------------------
+		/// ● 継承しているか？
+		///		※等しい場合も含む。
+		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 継承しているか？
 		///		※等しい場合も含む。
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		public static bool IsInheritance<T>( this Type self ) {
 			return typeof( T ).IsAssignableFrom( self );
+		}
+		/// <summary>
+		/// ● 継承しているか？
+		///		※等しい場合も含む。
+		/// </summary>
+		public static bool IsInheritance( this Type self, Type baseType ) {
+			return baseType.IsAssignableFrom( self );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
