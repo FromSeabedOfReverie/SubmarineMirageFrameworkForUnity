@@ -10,13 +10,8 @@ namespace SubmarineMirage.FSMTest {
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using MultiEvent;
-	using Task;
 	using Task.Behaviour;
 	using Extension;
-	using Utility;
-	using Debug;
-	using RunState = FSM.SMFSMRunState;
 
 
 
@@ -32,9 +27,8 @@ namespace SubmarineMirage.FSMTest {
 
 
 
-	public abstract class BaseSMFSM {
+	public abstract class BaseSMFSM : BaseSMFSMModifylerOwner<BaseSMFSM, SMFSMModifyler, SMFSMModifyData> {
 		public abstract BaseSMState _rawState	{ get; set; }
-		public SMFSMModifyler _modifyler	{ get; private set; }
 	}
 
 

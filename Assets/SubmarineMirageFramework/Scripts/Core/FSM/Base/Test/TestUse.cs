@@ -6,17 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSMTest {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using MultiEvent;
-	using Task;
 	using Task.Behaviour;
-	using Extension;
-	using Utility;
-	using Debug;
-	using RunState = FSM.SMFSMRunState;
 
 
 

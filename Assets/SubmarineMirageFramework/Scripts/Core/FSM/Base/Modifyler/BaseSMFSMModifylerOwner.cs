@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
-	using Base;
+namespace SubmarineMirage.FSM.Base.Modifyler {
+	using SubmarineMirage.Base;
 
 
 
@@ -13,9 +13,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public abstract class BaseSMFSMModifylerOwner<TModifyler>
-		: SMStandardBase, IBaseSMFSMModifylerOwner<TModifyler>
-		where TModifyler : IBaseSMFSMModifyler
+	public abstract class BaseSMFSMModifylerOwner<TOwner, TModifyler, TData> : SMStandardBase
+		where TOwner : BaseSMFSMModifylerOwner<TOwner, TModifyler, TData>
+		where TModifyler : BaseSMFSMModifyler<TOwner, TModifyler, TData>
+		where TData : BaseSMFSMModifyData<TOwner, TModifyler, TData>
 	{
 		public SMFSMRunState _ranState	{ get; set; }
 		public bool _isInitialized => false;

@@ -24,7 +24,7 @@ namespace SubmarineMirage.Scene {
 	// TODO : コメント追加、整頓
 
 
-	public class SMSceneManager : SMSingleton<SMSceneManager>, ISMParallelFSMOwner<SMSceneFSM> {
+	public class SMSceneManager : SMSingleton<SMSceneManager>, ISMFSMOwner<SMSceneFSM> {
 		public SMSceneFSM _fsm	{ get; private set; }
 		public string _currentSceneName => _fsm._currentSceneName;
 		public Scene _currentScene => _fsm._currentScene;

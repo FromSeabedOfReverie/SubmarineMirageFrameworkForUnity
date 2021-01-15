@@ -4,15 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
-	using System;
-	using System.Linq;
-	using System.Collections.Generic;
+namespace SubmarineMirage.FSM.Base.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Base;
-	using Task;
-	using Task.Group.Manager.Modifyler;
-	using Extension;
+	using SubmarineMirage.Base;
 	using Debug;
 
 
@@ -21,10 +15,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public abstract class BaseSMFSMModifyData<TOwner, TModifyler>
-		: SMLightBase, IBaseSMFSMModifyData<TOwner, TModifyler>
-		where TOwner : IBaseSMFSMModifylerOwner<TModifyler>
-		where TModifyler : IBaseSMFSMModifyler
+	public abstract class BaseSMFSMModifyData<TOwner, TModifyler, TData> : SMLightBase
+		where TOwner : BaseSMFSMModifylerOwner<TOwner, TModifyler, TData>
+		where TModifyler : BaseSMFSMModifyler<TOwner, TModifyler, TData>
+		where TData : BaseSMFSMModifyData<TOwner, TModifyler, TData>
 	{
 		protected TOwner _owner	{ get; private set; }
 		protected TModifyler _modifyler	{ get; private set; }

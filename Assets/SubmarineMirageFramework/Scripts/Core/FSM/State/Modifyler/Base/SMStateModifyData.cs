@@ -4,14 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
-	using System;
-	using System.Linq;
-	using System.Collections.Generic;
-	using UniRx;
-	using Cysharp.Threading.Tasks;
-	using Task.Modifyler;
-	using Utility;
+namespace SubmarineMirage.FSM.State.Modifyler {
+	using Base.Modifyler;
 
 
 
@@ -19,6 +13,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public abstract class SMStateModifyData : BaseSMFSMModifyData<IBaseSMState, SMStateModifyler> {
+	public abstract class SMStateModifyData : BaseSMFSMModifyData<BaseSMState, SMStateModifyler, SMStateModifyData>
+	{
 	}
 }

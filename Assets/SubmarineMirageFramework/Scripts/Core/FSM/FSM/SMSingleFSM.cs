@@ -6,10 +6,17 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.FSM {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using Base;
 	using MultiEvent;
+	using Task;
 	using State;
+	using Modifyler;
+	using Utility;
+	using Debug;
 
 
 
@@ -17,11 +24,10 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 
-	public abstract class SMParallelFSM<TOwner, TOwnerFSM, TInternalFSM, TEnum> : BaseSMFSM
-		where TOwner : ISMFSMOwner<TOwnerFSM>
-		where TOwnerFSM : BaseSMFSM
-		where TInternalFSM : BaseSMInternalFSM
-		where TEnum : Enum
+	public abstract class SMSingleFSM<TOwner, TFSM, TState> : BaseSMFSM
+		where TOwner : ISMFSMOwner<TFSM>
+		where TFSM : BaseSMFSM
+		where TState : BaseSMState
 	{
 		public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
 		public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
@@ -33,22 +39,31 @@ namespace SubmarineMirage.FSM.FSM {
 		public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
 		public TOwner _owner	{ get; private set; }
-		public readonly Dictionary<TEnum, TInternalFSM> _fsms = new Dictionary<TEnum, TInternalFSM>();
+		public TState _state	{ get; set; }
+		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 
 		public override BaseSMState _rawState {
-			get { throw new Exception( $"存在しないエラー : {_rawState}" ); }
-			set { throw new Exception( $"存在しないエラー : {_rawState}" ); }
+			get { return _state; }
+			set { _state = (TState)value; }
 		}
 
 
-		public SMParallelFSM( TOwner owner, Dictionary<TEnum, TInternalFSM> fsms ) {
+		public SMSingleFSM( TOwner owner, IEnumerable<TState> states ) {
 			_owner = owner;
-			_fsms = fsms;
-			fsms.ForEach( pair => pair.Value.Set( this ) );
+			states.ForEach( s => {
+				s.Set( this );
+				_states[s.GetType()] = s;
+			} );
 		}
 
 
-		public TInternalFSM Get( TEnum key )
-			=> _fsms.GetOrDefault( key );
+		public async UniTask ChangeState( Type stateType ) {
+			if ( !( stateType is TState ) )	{ throw new Exception( "違うステートを入れた" ); }
+			_modifyler.Register( new ChangeStateSMFSM( _states.GetOrDefault( stateType ) ) );
+			await _modifyler.WaitRunning();
+		}
+
+		public async UniTask ChangeState<T>() where T : TState
+			=> await ChangeState( typeof( T ) );
 	}
 }

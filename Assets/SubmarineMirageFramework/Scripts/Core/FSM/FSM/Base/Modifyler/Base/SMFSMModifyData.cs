@@ -4,11 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM {
-	using Cysharp.Threading.Tasks;
-	using Base;
-	using MultiEvent;
-	using Task;
+namespace SubmarineMirage.FSM.FSM.Modifyler {
+	using Base.Modifyler;
 
 
 
@@ -16,11 +13,6 @@ namespace SubmarineMirage.FSM {
 
 
 
-	public interface ISMState<TFSM> : IBaseSMState
-		where TFSM : ISMInternalFSM
-	{
-		TFSM _fsm			{ get; }
-
-		void Set( TFSM fsm );
+	public abstract class SMFSMModifyData : BaseSMFSMModifyData<BaseSMFSM, SMFSMModifyler, SMFSMModifyData> {
 	}
 }

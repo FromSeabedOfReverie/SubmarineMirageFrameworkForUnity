@@ -6,12 +6,17 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
 	using Task.Behaviour;
+	using FSM;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public interface ISMParallelFSMOwner : ISMBehaviour {
-		ISMParallelFSM _fsm { get; }
+
+	public interface ISMFSMOwner<TFSM> : ISMBehaviour
+		where TFSM : BaseSMFSM
+	{
+		TFSM _fsm { get; }
 	}
 }

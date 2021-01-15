@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
-	using Base;
+namespace SubmarineMirage.FSM.FSM {
 
 
 
@@ -13,14 +12,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public interface IBaseSMFSMModifylerOwner<TModifyler> : ISMStandardBase
-		where TModifyler : IBaseSMFSMModifyler
-	{
-		SMFSMRunState _ranState	{ get; set; }
-		bool _isInitialized	{ get; }
-		bool _isOperable	{ get; }
-		bool _isFinalizing	{ get; set; }
-		bool _isActive	{ get; }
-		TModifyler _modifyler	{ get; }
+	public abstract class BaseSMInternalFSM : BaseSMFSM {
+		public abstract void Set( BaseSMFSM fsm );
 	}
 }

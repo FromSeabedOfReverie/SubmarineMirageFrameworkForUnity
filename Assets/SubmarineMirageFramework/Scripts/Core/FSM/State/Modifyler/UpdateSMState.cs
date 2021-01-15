@@ -4,13 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
-	using System;
-	using System.Linq;
-	using System.Collections.Generic;
-	using UniRx;
+namespace SubmarineMirage.FSM.State.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Task.Modifyler;
 	using Utility;
 
 
@@ -28,7 +23,8 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 			if ( _owner._isActive ) {
 				_owner._runState = SMFSMRunState.Update;
-				await _owner._updateAsyncEvent.Run( _owner._asyncCancelerOnDisable );
+				_owner._updateAsyncEvent.Run( _owner._asyncCancelerOnChangeOrDisable ).Forget();
+				await UTask.DontWait();
 			}
 		}
 	}

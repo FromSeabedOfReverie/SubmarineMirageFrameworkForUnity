@@ -5,18 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSMTest {
-	using System;
-	using System.Linq;
-	using System.Collections.Generic;
-	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using MultiEvent;
 	using Task;
-	using Task.Behaviour;
-	using Extension;
-	using Utility;
-	using Debug;
-	using RunState = FSM.SMFSMRunState;
 
 
 
@@ -24,9 +14,9 @@ namespace SubmarineMirage.FSMTest {
 
 
 
-	public abstract class BaseSMState {
-		public RunState _runState	{ get; set; }
-		public SMStateModifyler _modifyler	{ get; private set; }
+	public abstract class BaseSMState : BaseSMFSMModifylerOwner<BaseSMState, SMStateModifyler, SMStateModifyData>
+	{
+		public FSM.SMFSMRunState _runState	{ get; set; }
 		public SMMultiAsyncEvent _enterEvent		{ get; private set; }
 		public SMMultiAsyncEvent _updateAsyncEvent	{ get; private set; }
 		public SMMultiAsyncEvent _exitEvent		{ get; private set; }

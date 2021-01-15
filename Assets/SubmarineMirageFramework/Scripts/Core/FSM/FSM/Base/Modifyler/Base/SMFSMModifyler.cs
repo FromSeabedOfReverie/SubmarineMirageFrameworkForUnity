@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
-	using Cysharp.Threading.Tasks;
-	using Base;
+namespace SubmarineMirage.FSM.FSM.Modifyler {
+	using Task;
+	using Base.Modifyler;
 
 
 
@@ -14,13 +14,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public interface IBaseSMFSMModifyData<TOwner, TModifyler> : ISMLightBase
-		where TOwner : IBaseSMFSMModifylerOwner<TModifyler>
-		where TModifyler : IBaseSMFSMModifyler
-	{
-		SMFSMModifyType _type	{ get; }
+	public class SMFSMModifyler : BaseSMFSMModifyler<BaseSMFSM, SMFSMModifyler, SMFSMModifyData> {
+		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCanceler;
 
-		void Set( TOwner owner );
-		UniTask Run();
+
+		public SMFSMModifyler( BaseSMFSM owner ) : base( owner ) {}
 	}
 }
