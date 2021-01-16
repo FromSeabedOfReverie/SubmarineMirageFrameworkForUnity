@@ -38,6 +38,7 @@ namespace SubmarineMirage.Task.Behaviour {
 
 		[SMHide] public bool _isInitialized	=> _body?._isInitialized ?? false;
 		[SMHide] public bool _isOperable	=> _body?._isOperable ?? false;
+		[SMHide] public bool _isFinalizing	=> _body?._isFinalizing ?? false;
 		[SMHide] public bool _isActive		=> _body?._isActive ?? false;
 
 		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _body?._selfInitializeEvent;

@@ -20,7 +20,6 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 	public abstract class BaseSMFSM : BaseSMFSMModifylerOwner<BaseSMFSM, SMFSMModifyler, SMFSMModifyData> {
-
 		[SMHide] public abstract SMMultiAsyncEvent _selfInitializeEvent	{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _initializeEvent		{ get; }
 		[SMHide] public abstract SMMultiSubject _enableEvent			{ get; }
@@ -30,11 +29,11 @@ namespace SubmarineMirage.FSM.FSM {
 		[SMHide] public abstract SMMultiSubject _disableEvent			{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		public string _registerEventName	{ get; private set; }
-		public abstract SMTaskRunState _taskRunState	{ get; }
-		public abstract BaseSMState _rawState	{ get; set; }
-
 		[SMHide] public SMTaskCanceler _asyncCanceler	{ get; private set; } = new SMTaskCanceler();
+
+		public string _registerEventName	{ get; private set; }
+		public abstract SMTaskRunState _taskRanState	{ get; }
+		public abstract BaseSMState _rawState	{ get; set; }
 
 
 		public BaseSMFSM() {
@@ -44,5 +43,8 @@ namespace SubmarineMirage.FSM.FSM {
 				_asyncCanceler.Dispose();
 			} );
 		}
+
+
+		public abstract void Set( IBaseSMFSMOwner owner );
 	}
 }

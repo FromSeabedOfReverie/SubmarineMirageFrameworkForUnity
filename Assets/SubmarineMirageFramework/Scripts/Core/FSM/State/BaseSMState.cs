@@ -20,7 +20,7 @@ namespace SubmarineMirage.FSM.State {
 
 	public abstract class BaseSMState : BaseSMFSMModifylerOwner<BaseSMState, SMStateModifyler, SMStateModifyData>
 	{
-		[SMShowLine] public SMFSMRunState _runState	{ get; set; } = SMFSMRunState.Exit;
+		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
 
 		public SMMultiAsyncEvent _selfInitializeEvent	{ get; private set; } = new SMMultiAsyncEvent();
 		public SMMultiAsyncEvent _initializeEvent		{ get; private set; } = new SMMultiAsyncEvent();

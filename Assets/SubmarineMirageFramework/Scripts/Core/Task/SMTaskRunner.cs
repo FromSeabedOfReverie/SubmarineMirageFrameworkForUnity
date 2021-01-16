@@ -66,7 +66,7 @@ namespace SubmarineMirage.Task {
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( _foreverScene )}.Entering : start" );
 #endif
 // TODO : シーン読込後に、テストオブジェクトを作成してしまう
-			await _foreverScene.RunStateEvent( SMFSMRunState.Enter );
+			await _foreverScene.RunStateEvent( SMStateRunState.Enter );
 #if TestTaskRunner
 			SMLog.Debug( $"{nameof( SMTaskRunner )}.{nameof( _foreverScene )}.Entering : end" );
 #endif
@@ -87,7 +87,7 @@ namespace SubmarineMirage.Task {
 
 		public async UniTask EndForeverTasks() {
 			await _currentScene._fsm.ChangeScene( null );
-			await _foreverScene.RunStateEvent( SMFSMRunState.Exit );
+			await _foreverScene.RunStateEvent( SMStateRunState.Exit );
 			Dispose();
 
 			SMLog.Debug( $"{this.GetAboutName()} : 破棄完了", SMLogTag.Task );

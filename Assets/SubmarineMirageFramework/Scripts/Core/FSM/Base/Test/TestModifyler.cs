@@ -68,25 +68,25 @@ namespace SubmarineMirage.FSMTest {
 	}
 	public class EnterSMState : SMStateModifyData {
 		public override async UniTask Run() {
-			if ( _owner._runState == FSM.SMFSMRunState.Enter )	{ return; }
-			if ( _owner._runState == FSM.SMFSMRunState.Update )	{ return; }
+			if ( _owner._runState == FSM.SMStateRunState.Enter )	{ return; }
+			if ( _owner._runState == FSM.SMStateRunState.Update )	{ return; }
 			await _owner._enterEvent.Run( _owner._asyncCancelerOnChangeOrDisable );
-			_owner._runState = FSM.SMFSMRunState.Enter;
+			_owner._runState = FSM.SMStateRunState.Enter;
 		}
 	}
 	public class UpdateSMState : SMStateModifyData {
 		public override async UniTask Run() {
-			if ( _owner._runState == FSM.SMFSMRunState.Exit )	{ return; }
-			_owner._runState = FSM.SMFSMRunState.Update;
+			if ( _owner._runState == FSM.SMStateRunState.Exit )	{ return; }
+			_owner._runState = FSM.SMStateRunState.Update;
 			_owner._updateAsyncEvent.Run( _owner._asyncCancelerOnChangeOrDisable ).Forget();
 			await UTask.DontWait();
 		}
 	}
 	public class ExitSMState : SMStateModifyData {
 		public override async UniTask Run() {
-			if ( _owner._runState == FSM.SMFSMRunState.Exit )	{ return; }
+			if ( _owner._runState == FSM.SMStateRunState.Exit )	{ return; }
 			await _owner._exitEvent.Run( _owner._asyncCancelerOnChangeOrDisable );
-			_owner._runState = FSM.SMFSMRunState.Exit;
+			_owner._runState = FSM.SMStateRunState.Exit;
 		}
 	}
 

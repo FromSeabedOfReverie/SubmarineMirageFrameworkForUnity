@@ -18,16 +18,16 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 		where TModifyler : BaseSMFSMModifyler<TOwner, TModifyler, TData>
 		where TData : BaseSMFSMModifyData<TOwner, TModifyler, TData>
 	{
-		public SMFSMRunState _ranState	{ get; set; }
-		public bool _isInitialized => false;
-		public bool _isOperable => _isInitialized && !_isFinalizing;
+		public bool _isInitialized	{ get; set; }
+		public bool _isOperable		=> _isInitialized && !_isFinalizing;
 		public bool _isFinalizing	{ get; set; }
-		public bool _isActive => false;
+		public bool _isActive		{ get; set; }
 		public TModifyler _modifyler	{ get; protected set; }
 
 
 		public BaseSMFSMModifylerOwner() {
 			_disposables.AddLast( () => {
+				_isFinalizing = true;
 				_modifyler.Dispose();
 			} );
 		}

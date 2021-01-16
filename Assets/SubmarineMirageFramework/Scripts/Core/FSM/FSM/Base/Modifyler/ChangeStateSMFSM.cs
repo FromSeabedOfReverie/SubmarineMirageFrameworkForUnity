@@ -7,6 +7,7 @@
 namespace SubmarineMirage.FSM.FSM.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
+	using Task;
 	using State;
 	using State.Modifyler;
 
@@ -35,7 +36,7 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 				_owner._rawState.StopActiveAsync();
 				await _owner._rawState._modifyler.RegisterAndRun( new ExitSMState() );
 			}
-			if ( _owner._ranState == SMTaskRunState.Finalize ) {
+			if ( _owner._taskRanState == SMTaskRunState.Finalize ) {
 				_owner._rawState = null;
 				return;
 			}
@@ -48,7 +49,7 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 
 			await _owner._rawState._modifyler.RegisterAndRun( new EnterSMState() );
 
-			if ( _owner._ranState == SMTaskRunState.Finalize ) {
+			if ( _owner._taskRanState == SMTaskRunState.Finalize ) {
 				return;
 			}
 

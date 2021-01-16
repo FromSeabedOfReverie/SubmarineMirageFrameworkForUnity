@@ -4,7 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.FSM {
+namespace SubmarineMirage.FSM {
+	using Task.Behaviour;
+	using FSM;
 
 
 
@@ -12,7 +14,9 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 
-	public abstract class BaseSMInternalFSM : BaseSMFSM {
-		public abstract void Set( BaseSMFSM fsm );
+	public interface ISMFSMOwner<TFSM> : IBaseSMFSMOwner, ISMBehaviour
+		where TFSM : BaseSMFSM
+	{
+		TFSM _fsm { get; }
 	}
 }

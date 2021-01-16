@@ -35,11 +35,6 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 		public BaseSMFSMModifyler( TOwner owner ) {
 			_owner = owner;
 
-			_disposables.AddLast(
-				SMTaskRunner.s_instance._isUpdating
-					.Where( b => !b )
-					.Subscribe( _ => Run().Forget() )
-			);
 			_disposables.AddLast( () => {
 				_data.ForEach( d => d.Dispose() );
 				_data.Clear();
@@ -55,8 +50,6 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 			}
 
 			switch( data._type ) {
-				case SMFSMModifyType.FirstLinker:
-				case SMFSMModifyType.Linker:
 				case SMFSMModifyType.FirstRunner:
 					_data.AddBefore(
 						data,
@@ -83,7 +76,6 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 			_isRunning = true;
 			while ( !_data.IsEmpty() ) {
 				if ( _isDispose )	{ break; }
-				if ( SMTaskRunner.s_instance._isUpdating.Value )	{ break; }
 				var d = _data.Dequeue();
 				await d.Run();
 			}

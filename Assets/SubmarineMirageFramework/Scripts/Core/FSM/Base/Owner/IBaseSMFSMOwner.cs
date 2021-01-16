@@ -5,13 +5,26 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
+	using SubmarineMirage.Base;
+	using MultiEvent;
+	using Task;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public enum SMFSMModifyType {
-		FirstRunner,
-		Runner,
+
+	public interface IBaseSMFSMOwner : ISMStandardBase {
+		SMMultiAsyncEvent _selfInitializeEvent	{ get; }
+		SMMultiAsyncEvent _initializeEvent		{ get; }
+		SMMultiSubject _enableEvent				{ get; }
+		SMMultiSubject _fixedUpdateEvent		{ get; }
+		SMMultiSubject _updateEvent				{ get; }
+		SMMultiSubject _lateUpdateEvent			{ get; }
+		SMMultiSubject _disableEvent			{ get; }
+		SMMultiAsyncEvent _finalizeEvent		{ get; }
+
+		SMTaskCanceler _asyncCancelerOnDisable	{ get; }
 	}
 }

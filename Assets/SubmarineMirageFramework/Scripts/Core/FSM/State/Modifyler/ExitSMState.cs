@@ -14,14 +14,16 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 
 
 	public class ExitSMState : SMStateModifyData {
-		public override SMFSMModifyType _type => SMFSMModifyType.Runner;
+		public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
 
 
 		public override async UniTask Run() {
-			if ( _owner._runState == SMFSMRunState.Exit )	{ return; }
+			if ( !_owner._isOperable )	{ return; }
+			if ( !_owner._isActive )	{ return; }
+			if ( _owner._ranState == SMStateRunState.Exit )	{ return; }
 
 			await _owner._exitEvent.Run( _owner._asyncCancelerOnChangeOrDisable );
-			_owner._runState = SMFSMRunState.Exit;
+			_owner._ranState = SMStateRunState.Exit;
 		}
 	}
 }

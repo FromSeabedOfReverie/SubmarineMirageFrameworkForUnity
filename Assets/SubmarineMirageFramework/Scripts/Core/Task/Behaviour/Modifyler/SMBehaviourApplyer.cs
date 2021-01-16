@@ -153,7 +153,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 		public static void FixedUpdate( SMBehaviourBody body ) {
-			if ( !body._isFinalizing )	{ return; }
+			if ( !body._isOperable )	{ return; }
 			if ( !body._isActive )		{ return; }
 			if ( body._ranState < SMTaskRunState.InitialEnable )	{ return; }
 
@@ -167,7 +167,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 		public static void Update( SMBehaviourBody body ) {
-			if ( !body._isFinalizing )	{ return; }
+			if ( !body._isOperable )	{ return; }
 			if ( !body._isActive )		{ return; }
 			if ( body._ranState < SMTaskRunState.FixedUpdate )	{ return; }
 
@@ -181,7 +181,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 		public static void LateUpdate( SMBehaviourBody body ) {
-			if ( !body._isFinalizing )	{ return; }
+			if ( !body._isOperable )	{ return; }
 			if ( !body._isActive )		{ return; }
 			if ( body._ranState < SMTaskRunState.Update )	{ return; }
 

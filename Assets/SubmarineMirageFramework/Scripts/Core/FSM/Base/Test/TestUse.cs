@@ -4,12 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSMTest {
+namespace SubmarineMirage.FSM.Test {
 	using System;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Task.Behaviour;
+	using FSM;
+	using State;
 
 
 
@@ -30,11 +32,14 @@ namespace SubmarineMirage.FSMTest {
 	}
 	namespace Human.FSM {
 		using State;
-		public class OwnerFSM : SMSingleFSM<Human, OwnerFSM, State.State> {
-			public OwnerFSM( Human owner ) : base( owner, new State.State[] {
-				new NormalState(),
-				new DeathState(),
-			} ) {}
+		public class OwnerFSM : SMSingleFSM<Human, State.State> {
+			public OwnerFSM( Human owner ) : base(
+				owner,
+				new State.State[] {
+					new NormalState(),
+					new DeathState(),
+				}
+			) {}
 			public void _OwnerFSM() {
 				_owner._Owner();
 				_states.ForEach( pair => pair.Value._State() );
@@ -89,25 +94,25 @@ namespace SubmarineMirage.FSMTest {
 			Head,
 			Body,
 		}
-		public class OwnerFSM : SMParallelFSM<Dragon, OwnerFSM, InternalFSM, FSMType> {
+		public class OwnerFSM : SMParallelFSM<Dragon, InternalFSM, FSMType> {
 			public InternalFSM _headFSM	{ get; private set; }
 			public InternalFSM _bodyFSM	{ get; private set; }
 			public OwnerFSM( Dragon owner ) : base( owner, new Dictionary<FSMType, InternalFSM> {
 				{
 					FSMType.Head,
 					new InternalFSM(
-						typeof( HeadState ),
-						new BaseState[] { new NormalHeadState(), new BiteHeadState(), }
+						new BaseState[] { new NormalHeadState(), new BiteHeadState(), },
+						typeof( HeadState )
 					)
 				},
 				{
 					FSMType.Body,
 					new InternalFSM(
-						typeof( BodyState ),
 						new BaseState[] { new NormalBodyState(), new DeathBodyState(),
 							new NormalHeadState(),						// コンパイルエラーにならない
 //							new Dummy.FSM.Internal.State.NormalState(),	// エラー
-						}
+						},
+						typeof( BodyState )
 					)
 				},
 /*
@@ -131,10 +136,10 @@ namespace SubmarineMirage.FSMTest {
 	namespace Dragon.FSM.Internal {
 		using State;
 		public class InternalFSM : SMInternalFSM<OwnerFSM, BaseState> {
-			public InternalFSM( Type baseStateType, BaseState[] states ) : base( baseStateType, states ) {}
+			public InternalFSM( BaseState[] states, Type baseStateType ) : base( states, baseStateType ) {}
 			public void _BaseFSM() {
-				_fsm._owner._Owner();
-				_fsm._OwnerFSM();
+				_owner._owner._Owner();
+				_owner._OwnerFSM();
 				_states.ForEach( pair => pair.Value._BaseState() );
 			}
 		}
@@ -142,8 +147,8 @@ namespace SubmarineMirage.FSMTest {
 	namespace Dragon.FSM.Internal.State {
 		public abstract class BaseState : SMState<InternalFSM> {
 			public void _BaseState() {
-				_fsm._fsm._owner._Owner();
-				_fsm._fsm._OwnerFSM();
+				_fsm._owner._owner._Owner();
+				_fsm._owner._OwnerFSM();
 				_fsm._BaseFSM();
 				_fsm._states.ForEach( pair => pair.Value._BaseState() );
 				_fsm.ChangeState<BiteHeadState>().Forget();
@@ -152,8 +157,8 @@ namespace SubmarineMirage.FSMTest {
 		}
 		public abstract class HeadState : BaseState {
 			public void _BaseHead() {
-				_fsm._fsm._owner._Owner();
-				_fsm._fsm._OwnerFSM();
+				_fsm._owner._owner._Owner();
+				_fsm._owner._OwnerFSM();
 				_fsm._BaseFSM();
 				_fsm._states.ForEach( pair => pair.Value._BaseState() );
 				_BaseState();
@@ -161,8 +166,8 @@ namespace SubmarineMirage.FSMTest {
 		}
 		public class NormalHeadState : HeadState {
 			public void _NormalHead() {
-				_fsm._fsm._owner._Owner();
-				_fsm._fsm._OwnerFSM();
+				_fsm._owner._owner._Owner();
+				_fsm._owner._OwnerFSM();
 				_fsm._BaseFSM();
 				_fsm._states.ForEach( pair => pair.Value._BaseState() );
 				_BaseState();
@@ -170,8 +175,8 @@ namespace SubmarineMirage.FSMTest {
 		}
 		public class BiteHeadState : HeadState {
 			public void _BiteHead() {
-				_fsm._fsm._owner._Owner();
-				_fsm._fsm._OwnerFSM();
+				_fsm._owner._owner._Owner();
+				_fsm._owner._OwnerFSM();
 				_fsm._BaseFSM();
 				_fsm._states.ForEach( pair => pair.Value._BaseState() );
 				_BaseState();
@@ -179,8 +184,8 @@ namespace SubmarineMirage.FSMTest {
 		}
 		public abstract class BodyState : BaseState {
 			public void _BaseBody() {
-				_fsm._fsm._owner._Owner();
-				_fsm._fsm._OwnerFSM();
+				_fsm._owner._owner._Owner();
+				_fsm._owner._OwnerFSM();
 				_fsm._BaseFSM();
 				_fsm._states.ForEach( pair => pair.Value._BaseState() );
 				_BaseState();
@@ -188,8 +193,8 @@ namespace SubmarineMirage.FSMTest {
 		}
 		public class NormalBodyState : BodyState {
 			public void _NormalBody() {
-				_fsm._fsm._owner._Owner();
-				_fsm._fsm._OwnerFSM();
+				_fsm._owner._owner._Owner();
+				_fsm._owner._OwnerFSM();
 				_fsm._BaseFSM();
 				_fsm._states.ForEach( pair => pair.Value._BaseState() );
 				_BaseState();
@@ -197,8 +202,8 @@ namespace SubmarineMirage.FSMTest {
 		}
 		public class DeathBodyState : BodyState {
 			public void _DeathBody() {
-				_fsm._fsm._owner._Owner();
-				_fsm._fsm._OwnerFSM();
+				_fsm._owner._owner._Owner();
+				_fsm._owner._OwnerFSM();
 				_fsm._BaseFSM();
 				_fsm._states.ForEach( pair => pair.Value._BaseState() );
 				_BaseState();
@@ -221,7 +226,7 @@ namespace SubmarineMirage.FSMTest {
 		public enum FSMType {
 			Body,
 		}
-		public class OwnerFSM : SMParallelFSM<Dummy, OwnerFSM, InternalFSM, FSMType> {
+		public class OwnerFSM : SMParallelFSM<Dummy, InternalFSM, FSMType> {
 			public OwnerFSM( Dummy owner ) : base( owner, new Dictionary<FSMType, InternalFSM> {
 				{ FSMType.Body, new InternalFSM() },
 			} ) {}
@@ -230,9 +235,12 @@ namespace SubmarineMirage.FSMTest {
 	namespace Dummy.FSM.Internal {
 		using State;
 		public class InternalFSM : SMInternalFSM<OwnerFSM, BaseState> {
-			public InternalFSM() : base( typeof( BaseState ), new BaseState[] {
-				new NormalState(),
-			} ) {}
+			public InternalFSM() : base(
+				new BaseState[] {
+					new NormalState(),
+				},
+				typeof( BaseState )
+			) {}
 		}
 	}
 	namespace Dummy.FSM.Internal.State {

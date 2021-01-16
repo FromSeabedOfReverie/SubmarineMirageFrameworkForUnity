@@ -5,18 +5,14 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
-	using Task.Behaviour;
-	using FSM;
-
 
 
 	// TODO : コメント追加、整頓
 
 
-
-	public interface ISMFSMOwner<TFSM> : ISMBehaviour
-		where TFSM : BaseSMFSM
-	{
-		TFSM _fsm { get; }
+	public enum SMStateRunState {
+		Exit,
+		Enter,
+		Update,
 	}
 }

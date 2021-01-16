@@ -11,9 +11,7 @@ namespace SubmarineMirage.FSM.FSM {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Base;
 	using MultiEvent;
-	using Task;
 	using State;
 	using State.Modifyler;
 	using Modifyler;
@@ -27,25 +25,23 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 
-	public abstract class SMInternalFSM<TOwnerFSM, TState> : BaseSMInternalFSM
-		where TOwnerFSM : BaseSMFSM
+	public abstract class SMFSM<TOwner, TState> : BaseSMFSM
+		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public override SMMultiAsyncEvent _selfInitializeEvent	=> _fsm._selfInitializeEvent;
-		public override SMMultiAsyncEvent _initializeEvent		=> _fsm._initializeEvent;
-		public override SMMultiSubject _enableEvent				=> _fsm._enableEvent;
-		public override SMMultiSubject _fixedUpdateEvent		=> _fsm._fixedUpdateEvent;
-		public override SMMultiSubject _updateEvent				=> _fsm._updateEvent;
-		public override SMMultiSubject _lateUpdateEvent			=> _fsm._lateUpdateEvent;
-		public override SMMultiSubject _disableEvent			=> _fsm._disableEvent;
-		public override SMMultiAsyncEvent _finalizeEvent		=> _fsm._finalizeEvent;
+		public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
+		public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
+		public override SMMultiSubject _enableEvent				=> _owner._enableEvent;
+		public override SMMultiSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
+		public override SMMultiSubject _updateEvent				=> _owner._updateEvent;
+		public override SMMultiSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
+		public override SMMultiSubject _disableEvent			=> _owner._disableEvent;
+		public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
-		public override SMTaskRunState _taskRunState	=> _fsm._taskRunState;
-
-		public TOwnerFSM _fsm	{ get; private set; }
-		Type _baseStateType	{ get; set; }
+		public TOwner _owner	{ get; private set; }
 		public TState _state	{ get; set; }
 		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
+		Type _baseStateType	{ get; set; }
 
 		public override BaseSMState _rawState {
 			get { return _state; }
@@ -53,15 +49,15 @@ namespace SubmarineMirage.FSM.FSM {
 		}
 
 
-		public SMInternalFSM( Type baseStateType, IEnumerable<TState> states, Type startState = null ) {
+		public SMFSM( IEnumerable<TState> states, Type baseStateType, Type startState = null ) {
 			_baseStateType = baseStateType;
 
-			_states = states.ToDictionary( s => {
-				var type = s.GetType();
+			_states = states.ToDictionary( state => {
+				var type = state.GetType();
 				if ( type.IsInheritance( _baseStateType ) ) {
 					throw new InvalidOperationException( $"違う基盤状態を指定 : {type}, {_baseStateType}" );
 				}
-				s.Set( this );
+				state.Set( this );
 				return type;
 			} );
 			if ( startState == null )	{ startState = _states.First().Value.GetType(); }
@@ -100,8 +96,8 @@ namespace SubmarineMirage.FSM.FSM {
 		}
 
 
-		public override void Set( BaseSMFSM fsm ) {
-			_fsm = (TOwnerFSM)fsm;
+		public override void Set( IBaseSMFSMOwner owner ) {
+			_owner = (TOwner)owner;
 		}
 
 
@@ -127,7 +123,7 @@ namespace SubmarineMirage.FSM.FSM {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _fsm ), i => _fsm.GetAboutName() );
+			_toStringer.SetValue( nameof( _owner ), i => _owner.GetAboutName() );
 			_toStringer.SetValue( nameof( _states ), i => {
 				var arrayI = StringSMUtility.IndentSpace( i + 1 );
 				return "\n" + string.Join( ",\n", _states.Select( pair =>

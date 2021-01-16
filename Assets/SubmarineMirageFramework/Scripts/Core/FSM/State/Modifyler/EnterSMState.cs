@@ -18,11 +18,12 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._runState == SMFSMRunState.Enter )	{ return; }
-			if ( _owner._runState == SMFSMRunState.Update )	{ return; }
+			if ( !_owner._isOperable )	{ return; }
+			if ( !_owner._isActive )	{ return; }
+			if ( _owner._ranState != SMStateRunState.Exit )	{ return; }
 
 			await _owner._enterEvent.Run( _owner._asyncCancelerOnChangeOrDisable );
-			_owner._runState = SMFSMRunState.Enter;
+			_owner._ranState = SMStateRunState.Enter;
 		}
 	}
 }

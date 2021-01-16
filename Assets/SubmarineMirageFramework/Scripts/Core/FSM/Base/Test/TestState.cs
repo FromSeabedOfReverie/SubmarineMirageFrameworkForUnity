@@ -16,7 +16,7 @@ namespace SubmarineMirage.FSMTest {
 
 	public abstract class BaseSMState : BaseSMFSMModifylerOwner<BaseSMState, SMStateModifyler, SMStateModifyData>
 	{
-		public FSM.SMFSMRunState _runState	{ get; set; }
+		public FSM.SMStateRunState _runState	{ get; set; }
 		public SMMultiAsyncEvent _enterEvent		{ get; private set; }
 		public SMMultiAsyncEvent _updateAsyncEvent	{ get; private set; }
 		public SMMultiAsyncEvent _exitEvent		{ get; private set; }

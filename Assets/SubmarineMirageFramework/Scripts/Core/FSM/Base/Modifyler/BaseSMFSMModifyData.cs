@@ -23,19 +23,12 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 		protected TOwner _owner	{ get; private set; }
 		protected TModifyler _modifyler	{ get; private set; }
 		[SMShowLine] public abstract SMFSMModifyType _type	{ get; }
-		bool _isCalledDestructor	{ get; set; }
 
 
 
 		public BaseSMFSMModifyData() {}
 
-		~BaseSMFSMModifyData() => _isCalledDestructor = true;
-
-		public override void Dispose() {
-			if ( !_isCalledDestructor )	{ Cancel(); }
-		}
-
-		protected virtual void Cancel() {}
+		public override void Dispose() {}
 
 
 		public virtual void Set( TOwner owner ) {

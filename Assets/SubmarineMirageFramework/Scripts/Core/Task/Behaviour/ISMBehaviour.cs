@@ -26,6 +26,7 @@ namespace SubmarineMirage.Task.Behaviour {
 
 		bool _isInitialized	{ get; }
 		bool _isOperable	{ get; }
+		bool _isFinalizing	{ get; }
 		bool _isActive		{ get; }
 
 		SMMultiAsyncEvent _selfInitializeEvent	{ get; }

@@ -4,15 +4,29 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM {
+namespace SubmarineMirage.FSM.FSM {
+	using System;
+	using System.Collections.Generic;
+	using Task;
+	using State;
+	using Debug;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public enum SMFSMRunState {
-		Enter,
-		Update,
-		Exit,
+
+	public abstract class SMInternalFSM<TOwner, TState> : SMFSM<TOwner, TState>
+		where TOwner : BaseSMFSM, IBaseSMFSMOwner
+		where TState : BaseSMState
+	{
+		public override SMTaskRunState _taskRanState => _owner._taskRanState;
+
+
+		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startState = null )
+			: base( states, baseStateType, startState )
+		{
+		}
 	}
 }
