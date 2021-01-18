@@ -7,7 +7,6 @@
 namespace SubmarineMirage.FSM.FSM {
 	using System;
 	using System.Collections.Generic;
-	using Task;
 	using State;
 	using Debug;
 
@@ -21,9 +20,6 @@ namespace SubmarineMirage.FSM.FSM {
 		where TOwner : BaseSMFSM, IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public override SMTaskRunState _taskRanState => _owner._taskRanState;
-
-
 		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startState = null )
 			: base( states, baseStateType, startState )
 		{

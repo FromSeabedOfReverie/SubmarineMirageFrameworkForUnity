@@ -68,8 +68,6 @@ namespace SubmarineMirage.Task.Behaviour {
 		public override void Dispose() => base.Dispose();
 
 
-		public void StopAsyncOnDisable() => _asyncCancelerOnDisable.Cancel();
-
 
 		public override void SetToString() {
 			base.SetToString();

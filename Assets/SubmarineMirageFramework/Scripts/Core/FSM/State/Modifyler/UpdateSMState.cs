@@ -22,9 +22,18 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 			if ( !_owner._isOperable )	{ return; }
 			if ( !_owner._isActive )	{ return; }
 			if ( _owner._ranState == SMStateRunState.Exit )	{ return; }
+			if ( _owner._isUpdating )	{ return; }
 
-			_owner._ranState = SMStateRunState.Update;
-			_owner._updateAsyncEvent.Run( _owner._asyncCancelerOnChangeOrDisable ).Forget();
+
+			UTask.Void( async () => {
+				try {
+					_owner._ranState = SMStateRunState.Update;
+					_owner._isUpdating = true;
+					await _owner._updateAsyncEvent.Run( _owner._asyncCancelerOnDisableAndExit );
+				} finally {
+					_owner._isUpdating = false;
+				}
+			} );
 			await UTask.DontWait();
 		}
 	}

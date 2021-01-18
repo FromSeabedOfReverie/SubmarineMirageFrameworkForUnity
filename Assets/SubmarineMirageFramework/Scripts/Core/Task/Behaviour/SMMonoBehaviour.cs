@@ -86,8 +86,6 @@ namespace SubmarineMirage.Task.Behaviour {
 
 		public void ChangeActiveObject( bool isActive ) => _object.ChangeActive( isActive );
 
-		public void StopAsyncOnDisable() => _body?.StopAsyncOnDisable();
-
 
 		public T GetBehaviour<T>() where T : SMMonoBehaviour
 			=> _object.GetBehaviour<T>();

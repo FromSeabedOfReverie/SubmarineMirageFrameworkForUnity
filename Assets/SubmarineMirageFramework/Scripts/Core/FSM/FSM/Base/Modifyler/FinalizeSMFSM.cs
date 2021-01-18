@@ -5,9 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.FSM.Modifyler {
-	using System;
 	using Cysharp.Threading.Tasks;
-	using Task;
 	using State.Modifyler;
 
 
@@ -24,12 +22,12 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 			_owner._isFinalizing = true;
 		}
 
-		public override async UniTask Run() {
-			if ( _owner._rawState != null ) {
-				_owner._rawState.StopActiveAsync();
-				await _owner._rawState._modifyler.RegisterAndRun( new ExitSMState() );
-			}
 
+		public override async UniTask Run() {
+			if ( _owner._rawState == null )	{ return; }
+
+
+			await _owner._rawState._modifyler.RegisterAndRun( new ExitSMState() );
 			_owner._rawState = null;
 		}
 	}

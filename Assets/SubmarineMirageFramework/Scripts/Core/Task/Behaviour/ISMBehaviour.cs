@@ -32,11 +32,11 @@ namespace SubmarineMirage.Task.Behaviour {
 		SMMultiAsyncEvent _selfInitializeEvent	{ get; }
 		SMMultiAsyncEvent _initializeEvent		{ get; }
 		SMMultiSubject _enableEvent				{ get; }
-		SMMultiSubject _fixedUpdateEvent			{ get; }
+		SMMultiSubject _fixedUpdateEvent		{ get; }
 		SMMultiSubject _updateEvent				{ get; }
 		SMMultiSubject _lateUpdateEvent			{ get; }
-		SMMultiSubject _disableEvent				{ get; }
-		SMMultiAsyncEvent _finalizeEvent			{ get; }
+		SMMultiSubject _disableEvent			{ get; }
+		SMMultiAsyncEvent _finalizeEvent		{ get; }
 
 		SMTaskCanceler _asyncCancelerOnDisable	{ get; }
 		SMTaskCanceler _asyncCancelerOnDispose	{ get; }
@@ -44,6 +44,5 @@ namespace SubmarineMirage.Task.Behaviour {
 		void Create();
 		void DestroyObject();
 		void ChangeActiveObject( bool isActive );
-		void StopAsyncOnDisable();
 	}
 }

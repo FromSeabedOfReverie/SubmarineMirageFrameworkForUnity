@@ -29,21 +29,18 @@ namespace SubmarineMirage.FSM.FSM {
 		[SMHide] public abstract SMMultiSubject _disableEvent			{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		[SMHide] public SMTaskCanceler _asyncCanceler	{ get; private set; } = new SMTaskCanceler();
+		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDisable	{ get; }
+		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }
 
 		public string _registerEventName	{ get; private set; }
-		public abstract SMTaskRunState _taskRanState	{ get; }
 		public abstract BaseSMState _rawState	{ get; set; }
+
 
 
 		public BaseSMFSM() {
 			_registerEventName = this.GetAboutName();
 			_modifyler = new SMFSMModifyler( this );
-			_disposables.AddLast( () => {
-				_asyncCanceler.Dispose();
-			} );
 		}
-
 
 		public abstract void Set( IBaseSMFSMOwner owner );
 	}

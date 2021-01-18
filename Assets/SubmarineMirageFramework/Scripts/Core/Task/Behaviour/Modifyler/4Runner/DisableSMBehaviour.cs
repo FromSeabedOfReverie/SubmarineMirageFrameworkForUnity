@@ -28,7 +28,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if ( _owner._activeState == SMTaskActiveState.Disable )	{ return; }
 
 			_owner._activeState = SMTaskActiveState.Disable;
-			_owner.StopAsyncOnDisable();
+			SMBehaviourApplyer.StopAsyncOnDisable( _owner );
 			_owner._disableEvent.Run();
 
 			await UTask.DontWait();

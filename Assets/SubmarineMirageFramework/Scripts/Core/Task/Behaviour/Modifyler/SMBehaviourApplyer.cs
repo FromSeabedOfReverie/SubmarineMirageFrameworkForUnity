@@ -73,6 +73,12 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 
 
+		public static void StopAsyncOnDisable( SMBehaviourBody body ) {
+			body._asyncCancelerOnDisable.Cancel();
+		}
+
+
+
 		public static bool IsActiveInMonoBehaviour( SMBehaviourBody body ) {
 			if ( !body._behaviour._object._isGameObject )	{ return true; }
 

@@ -15,7 +15,7 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 
 
 	public class SMFSMModifyler : BaseSMFSMModifyler<BaseSMFSM, SMFSMModifyler, SMFSMModifyData> {
-		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCanceler;
+		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
 
 
 		public SMFSMModifyler( BaseSMFSM owner ) : base( owner ) {}

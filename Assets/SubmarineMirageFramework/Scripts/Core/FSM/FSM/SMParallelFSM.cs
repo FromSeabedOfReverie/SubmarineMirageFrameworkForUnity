@@ -10,7 +10,6 @@ namespace SubmarineMirage.FSM.FSM {
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Task;
-	using Task.Behaviour;
 	using State;
 
 
@@ -20,22 +19,21 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 	public abstract class SMParallelFSM<TOwner, TInternalFSM, TEnum> : BaseSMFSM, IBaseSMFSMOwner
-		where TOwner : IBaseSMFSMOwner, ISMBehaviour
+		where TOwner : IBaseSMFSMOwner
 		where TInternalFSM : BaseSMFSM
 		where TEnum : Enum
 	{
-		public override SMMultiAsyncEvent _selfInitializeEvent	=> ( (ISMBehaviour)_owner )._selfInitializeEvent;
-		public override SMMultiAsyncEvent _initializeEvent		=> ( (ISMBehaviour)_owner )._initializeEvent;
-		public override SMMultiSubject _enableEvent				=> ( (ISMBehaviour)_owner )._enableEvent;
-		public override SMMultiSubject _fixedUpdateEvent		=> ( (ISMBehaviour)_owner )._fixedUpdateEvent;
-		public override SMMultiSubject _updateEvent				=> ( (ISMBehaviour)_owner )._updateEvent;
-		public override SMMultiSubject _lateUpdateEvent			=> ( (ISMBehaviour)_owner )._lateUpdateEvent;
-		public override SMMultiSubject _disableEvent			=> ( (ISMBehaviour)_owner )._disableEvent;
-		public override SMMultiAsyncEvent _finalizeEvent		=> ( (ISMBehaviour)_owner )._finalizeEvent;
+		public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
+		public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
+		public override SMMultiSubject _enableEvent				=> _owner._enableEvent;
+		public override SMMultiSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
+		public override SMMultiSubject _updateEvent				=> _owner._updateEvent;
+		public override SMMultiSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
+		public override SMMultiSubject _disableEvent			=> _owner._disableEvent;
+		public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
-		public SMTaskCanceler _asyncCancelerOnDisable => ( (ISMBehaviour)_owner )._asyncCancelerOnDisable;
-
-		public override SMTaskRunState _taskRanState => _owner._body._ranState;
+		public override SMTaskCanceler _asyncCancelerOnDisable	=> _owner._asyncCancelerOnDisable;
+		public override SMTaskCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
 
 		public TOwner _owner	{ get; private set; }
 		public readonly Dictionary<TEnum, TInternalFSM> _fsms = new Dictionary<TEnum, TInternalFSM>();

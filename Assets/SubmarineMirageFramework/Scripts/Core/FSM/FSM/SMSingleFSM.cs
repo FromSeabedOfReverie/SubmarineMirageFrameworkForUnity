@@ -7,8 +7,6 @@
 namespace SubmarineMirage.FSM.FSM {
 	using System;
 	using System.Collections.Generic;
-	using Task;
-	using Task.Behaviour;
 	using State;
 	using Debug;
 
@@ -19,12 +17,9 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 	public abstract class SMSingleFSM<TOwner, TState> : SMFSM<TOwner, TState>
-		where TOwner : IBaseSMFSMOwner, ISMBehaviour
+		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public override SMTaskRunState _taskRanState => _owner._body._ranState;
-
-
 		public SMSingleFSM( TOwner owner, IEnumerable<TState> states, Type startState = null )
 			: base( states, typeof( TState ), startState )
 		{

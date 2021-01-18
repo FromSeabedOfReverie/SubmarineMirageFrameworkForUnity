@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
-	using Task.Behaviour;
 	using FSM;
 
 
@@ -14,7 +13,7 @@ namespace SubmarineMirage.FSM {
 
 
 
-	public interface ISMFSMOwner<TFSM> : IBaseSMFSMOwner, ISMBehaviour
+	public interface ISMFSMOwner<TFSM> : IBaseSMFSMOwner
 		where TFSM : BaseSMFSM
 	{
 		TFSM _fsm { get; }

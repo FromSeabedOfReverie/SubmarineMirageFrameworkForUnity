@@ -67,8 +67,6 @@ namespace SubmarineMirage.Task.Behaviour {
 
 		public void ChangeActiveObject( bool isActive ) => _object.ChangeActive( isActive );
 
-		public void StopAsyncOnDisable() => _body.StopAsyncOnDisable();
-
 
 		public override void SetToString() {
 			base.SetToString();

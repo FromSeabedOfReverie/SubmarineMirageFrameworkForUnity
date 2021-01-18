@@ -20,27 +20,36 @@ namespace SubmarineMirage.FSM.State {
 
 	public abstract class BaseSMState : BaseSMFSMModifylerOwner<BaseSMState, SMStateModifyler, SMStateModifyData>
 	{
+		public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
+		public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
+		public readonly SMMultiSubject _enableEvent = new SMMultiSubject();
+		public readonly SMMultiSubject _fixedUpdateEvent = new SMMultiSubject();
+		public readonly SMMultiSubject _updateEvent = new SMMultiSubject();
+		public readonly SMMultiSubject _lateUpdateEvent = new SMMultiSubject();
+		public readonly SMMultiSubject _disableEvent = new SMMultiSubject();
+		public readonly SMMultiAsyncEvent _finalizeEvent = new SMMultiAsyncEvent();
+
+		public readonly SMMultiAsyncEvent _enterEvent = new SMMultiAsyncEvent();
+		public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
+		public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
+
+		public readonly SMTaskCanceler _asyncCancelerOnDisableAndExit = new SMTaskCanceler();
+		public readonly SMTaskCanceler _asyncCancelerOnDispose = new SMTaskCanceler();
+
 		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
+		public bool _isUpdating	{ get; set; }
 
-		public SMMultiAsyncEvent _selfInitializeEvent	{ get; private set; } = new SMMultiAsyncEvent();
-		public SMMultiAsyncEvent _initializeEvent		{ get; private set; } = new SMMultiAsyncEvent();
-		public SMMultiSubject _enableEvent				{ get; private set; } = new SMMultiSubject();
-		public SMMultiSubject _fixedUpdateEvent			{ get; private set; } = new SMMultiSubject();
-		public SMMultiSubject _updateEvent				{ get; private set; } = new SMMultiSubject();
-		public SMMultiSubject _lateUpdateEvent			{ get; private set; } = new SMMultiSubject();
-		public SMMultiSubject _disableEvent				{ get; private set; } = new SMMultiSubject();
-		public SMMultiAsyncEvent _finalizeEvent			{ get; private set; } = new SMMultiAsyncEvent();
-
-		public SMMultiAsyncEvent _enterEvent		{ get; private set; } = new SMMultiAsyncEvent();
-		public SMMultiAsyncEvent _updateAsyncEvent	{ get; private set; } = new SMMultiAsyncEvent();
-		public SMMultiAsyncEvent _exitEvent			{ get; private set; } = new SMMultiAsyncEvent();
-
-		public SMTaskCanceler _asyncCancelerOnChangeOrDisable	{ get; private set; } = new SMTaskCanceler();
 
 
 		public BaseSMState() {
+			_modifyler = new SMStateModifyler( this );
+
 			_disposables.AddLast( () => {
-				_asyncCancelerOnChangeOrDisable.Dispose();
+				_ranState = SMStateRunState.Exit;
+				_isUpdating = false;
+
+				_asyncCancelerOnDisableAndExit.Dispose();
+				_asyncCancelerOnDispose.Dispose();
 
 				_selfInitializeEvent.Dispose();
 				_initializeEvent.Dispose();
@@ -58,7 +67,5 @@ namespace SubmarineMirage.FSM.State {
 		}
 
 		public abstract void Set( BaseSMFSM fsm );
-
-		public void StopActiveAsync() => _asyncCancelerOnChangeOrDisable.Cancel();
 	}
 }

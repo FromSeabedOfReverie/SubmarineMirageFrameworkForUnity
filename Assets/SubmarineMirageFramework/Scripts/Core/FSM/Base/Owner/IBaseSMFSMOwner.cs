@@ -26,5 +26,6 @@ namespace SubmarineMirage.FSM {
 		SMMultiAsyncEvent _finalizeEvent		{ get; }
 
 		SMTaskCanceler _asyncCancelerOnDisable	{ get; }
+		SMTaskCanceler _asyncCancelerOnDispose	{ get; }
 	}
 }
