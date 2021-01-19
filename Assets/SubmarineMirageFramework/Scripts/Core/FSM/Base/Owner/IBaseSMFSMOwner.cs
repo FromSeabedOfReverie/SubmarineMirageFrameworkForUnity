@@ -16,6 +16,11 @@ namespace SubmarineMirage.FSM {
 
 
 	public interface IBaseSMFSMOwner : ISMStandardBase {
+		bool _isInitialized	{ get; }
+		bool _isOperable	{ get; }
+		bool _isFinalizing	{ get; }
+		bool _isActive		{ get; }
+
 		SMMultiAsyncEvent _selfInitializeEvent	{ get; }
 		SMMultiAsyncEvent _initializeEvent		{ get; }
 		SMMultiSubject _enableEvent				{ get; }

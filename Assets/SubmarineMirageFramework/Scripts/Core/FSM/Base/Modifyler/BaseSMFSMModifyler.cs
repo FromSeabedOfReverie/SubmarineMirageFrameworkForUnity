@@ -69,6 +69,11 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 			await WaitRunning();
 		}
 
+		public void UnregisterAll() {
+			_data.ForEach( d => d.Dispose() );
+			_data.Clear();
+		}
+
 
 		public async UniTask Run() {
 			if ( _isRunning )	{ return; }

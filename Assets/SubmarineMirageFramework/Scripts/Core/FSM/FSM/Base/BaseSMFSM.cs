@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.FSM {
+	using System;
 	using MultiEvent;
 	using Task;
 	using Base.Modifyler;
@@ -34,6 +35,7 @@ namespace SubmarineMirage.FSM.FSM {
 
 		public string _registerEventName	{ get; private set; }
 		public abstract BaseSMState _rawState	{ get; set; }
+		public abstract bool _isInitialEntered	{ get; set; }
 
 
 
@@ -43,5 +45,8 @@ namespace SubmarineMirage.FSM.FSM {
 		}
 
 		public abstract void Set( IBaseSMFSMOwner owner );
+
+
+		public abstract BaseSMState GetRawState( Type stateType );
 	}
 }

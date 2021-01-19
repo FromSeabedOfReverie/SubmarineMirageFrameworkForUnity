@@ -40,8 +40,8 @@ namespace SubmarineMirage.FSMTest {
 		where TState : BaseSMState
 	{
 		public override BaseSMState _rawState {
-			get { return _state; }
-			set { _state = (TState)value; }
+			get => _state;
+			set => _state = (TState)value;
 		}
 		public TOwnerFSM _fsm	{ get; private set; }
 		Type _baseStateType	{ get; set; }
@@ -79,8 +79,8 @@ namespace SubmarineMirage.FSMTest {
 		where TEnum : Enum
 	{
 		public override BaseSMState _rawState {
-			get { throw new Exception( $"存在しないエラー : {_rawState}" ); }
-			set { throw new Exception( $"存在しないエラー : {_rawState}" ); }
+			get => throw new Exception( $"存在しないエラー : {_rawState}" );
+			set => throw new Exception( $"存在しないエラー : {_rawState}" );
 		}
 		public TOwner _owner	{ get; private set; }
 		public readonly Dictionary<TEnum, TInternalFSM> _fsms = new Dictionary<TEnum, TInternalFSM>();
@@ -100,8 +100,8 @@ namespace SubmarineMirage.FSMTest {
 		where TState : BaseSMState
 	{
 		public override BaseSMState _rawState {
-			get { return _state; }
-			set { _state = (TState)value; }
+			get => _state;
+			set => _state = (TState)value;
 		}
 		public TOwner _owner	{ get; private set; }
 		public TState _state	{ get; set; }

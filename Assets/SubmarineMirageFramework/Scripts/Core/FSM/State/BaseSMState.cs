@@ -20,6 +20,9 @@ namespace SubmarineMirage.FSM.State {
 
 	public abstract class BaseSMState : BaseSMFSMModifylerOwner<BaseSMState, SMStateModifyler, SMStateModifyData>
 	{
+		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
+		public bool _isUpdating	{ get; set; }
+
 		public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
 		public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
 		public readonly SMMultiSubject _enableEvent = new SMMultiSubject();
@@ -35,9 +38,6 @@ namespace SubmarineMirage.FSM.State {
 
 		public readonly SMTaskCanceler _asyncCancelerOnDisableAndExit = new SMTaskCanceler();
 		public readonly SMTaskCanceler _asyncCancelerOnDispose = new SMTaskCanceler();
-
-		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
-		public bool _isUpdating	{ get; set; }
 
 
 

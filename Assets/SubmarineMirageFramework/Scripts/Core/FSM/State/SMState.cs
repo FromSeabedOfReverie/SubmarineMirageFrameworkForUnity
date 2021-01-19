@@ -16,6 +16,11 @@ namespace SubmarineMirage.FSM.State {
 	public abstract class SMState<TFSM> : BaseSMState
 		where TFSM : BaseSMFSM
 	{
+		public override bool _isInitialized	=> _fsm._isInitialized;
+		public override bool _isOperable	=> _fsm._isOperable;
+		public override bool _isFinalizing	=> _fsm._isFinalizing;
+		public override bool _isActive		=> _fsm._isActive;
+
 		public TFSM _fsm		{ get; private set; }
 
 

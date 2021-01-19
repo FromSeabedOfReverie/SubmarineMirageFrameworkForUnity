@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.FSM {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
 	using MultiEvent;
@@ -23,6 +24,21 @@ namespace SubmarineMirage.FSM.FSM {
 		where TInternalFSM : BaseSMFSM
 		where TEnum : Enum
 	{
+		public override bool _isInitialized	=> _owner._isInitialized;
+		public override bool _isOperable	=> _owner._isOperable;
+		public override bool _isFinalizing	=> _owner._isFinalizing;
+		public override bool _isActive		=> _owner._isActive;
+
+		bool _isInitialEnteredCache	{ get; set; }
+		public override bool _isInitialEntered	{
+			get {
+				if ( _isInitialEnteredCache )	{ return true; }
+				_isInitialEnteredCache = _fsms.All( pair => pair.Value._isInitialEntered );
+				return _isInitialEnteredCache;
+			}
+			set => throw new InvalidOperationException( $"利用不可 : {nameof( _isInitialEntered )}" );
+		}
+
 		public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
 		public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
 		public override SMMultiSubject _enableEvent				=> _owner._enableEvent;
@@ -39,23 +55,27 @@ namespace SubmarineMirage.FSM.FSM {
 		public readonly Dictionary<TEnum, TInternalFSM> _fsms = new Dictionary<TEnum, TInternalFSM>();
 
 		public override BaseSMState _rawState {
-			get { throw new InvalidOperationException( $"利用不可 : {_rawState}" ); }
-			set { throw new InvalidOperationException( $"利用不可 : {_rawState}" ); }
+			get => throw new InvalidOperationException( $"利用不可 : {nameof( _rawState )}" );
+			set => throw new InvalidOperationException( $"利用不可 : {nameof( _rawState )}" );
 		}
 
 
 		public SMParallelFSM( TOwner owner, Dictionary<TEnum, TInternalFSM> fsms ) {
-			Set( owner );
 			_fsms = fsms;
-			fsms.ForEach( pair => pair.Value.Set( this ) );
+			Set( owner );
 		}
 
 		public override void Set( IBaseSMFSMOwner owner ) {
 			_owner = (TOwner)owner;
+			_fsms.ForEach( pair => pair.Value.Set( this ) );
 		}
 
 
-		public TInternalFSM Get( TEnum key )
+		public TInternalFSM GetFSM( TEnum key )
 			=> _fsms.GetOrDefault( key );
+
+
+		public override BaseSMState GetRawState( Type stateType )
+			=> throw new InvalidOperationException( $"利用不可 : {nameof( GetRawState )}" );
 	}
 }

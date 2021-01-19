@@ -26,6 +26,7 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 			SMStateApplyer.StopAsyncOnDisableAndExit( _owner );
 			await _owner._exitEvent.Run( _owner._asyncCancelerOnDisableAndExit );
 			_owner._ranState = SMStateRunState.Exit;
+			_modifyler.UnregisterAll();
 		}
 	}
 }

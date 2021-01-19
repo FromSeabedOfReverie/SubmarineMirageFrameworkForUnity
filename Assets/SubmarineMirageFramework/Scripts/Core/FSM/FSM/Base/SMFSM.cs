@@ -30,6 +30,12 @@ namespace SubmarineMirage.FSM.FSM {
 		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
+		public override bool _isInitialized	=> _owner._isInitialized;
+		public override bool _isOperable	=> _owner._isOperable;
+		public override bool _isFinalizing	=> _owner._isFinalizing;
+		public override bool _isActive		=> _owner._isActive;
+		public override bool _isInitialEntered	{ get; set; }
+
 		public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
 		public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
 		public override SMMultiSubject _enableEvent				=> _owner._enableEvent;
@@ -45,34 +51,29 @@ namespace SubmarineMirage.FSM.FSM {
 		public TOwner _owner	{ get; private set; }
 		public TState _state	{ get; set; }
 		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
-		Type _baseStateType	{ get; set; }
+		Type _startStateType	{ get; set; }
 
 		public override BaseSMState _rawState {
-			get { return _state; }
-			set { _state = (TState)value; }
+			get => _state;
+			set => _state = (TState)value;
 		}
 
 
-		public SMFSM( IEnumerable<TState> states, Type baseStateType, Type startState = null ) {
-			_baseStateType = baseStateType;
-
-			_states = states.ToDictionary( state => {
-				var type = state.GetType();
-				if ( type.IsInheritance( _baseStateType ) ) {
-					throw new InvalidOperationException( $"違う基盤状態を指定 : {type}, {_baseStateType}" );
-				}
-				state.Set( this );
-				return type;
-			} );
-			if ( startState == null )	{ startState = _states.First().Value.GetType(); }
-
+		public SMFSM( IEnumerable<TState> states, Type startStateType = null ) {
+			_states = states.ToDictionary( state => state.GetType() );
+			_startStateType = startStateType ?? _states.First().Value.GetType();
 
 			_disposables.AddLast( () => {
 				_states.ForEach( pair => pair.Value.Dispose() );
 				_states.Clear();
 				_state = null;
 			} );
+		}
 
+
+		public override void Set( IBaseSMFSMOwner owner ) {
+			_owner = (TOwner)owner;
+			_states.ForEach( pair => pair.Value.Set( this ) );
 
 			_selfInitializeEvent.AddLast( _registerEventName, async canceler => {
 				await _states.Select( pair => SMStateApplyer.SelfInitialize( pair.Value, canceler ) );
@@ -81,18 +82,25 @@ namespace SubmarineMirage.FSM.FSM {
 				await _states.Select( pair => SMStateApplyer.Initialize( pair.Value, canceler ) );
 			} );
 			_finalizeEvent.AddFirst( _registerEventName, async canceler => {
-				await ChangeState( null );
+// 終了は、何処に置く？
+				await _modifyler.RegisterAndRun( new FinalExitSMFSM() );
 				await _states.Select( pair => SMStateApplyer.Finalize( pair.Value, canceler ) );
 			} );
 
-			_enableEvent.AddLast( _registerEventName ).Subscribe( _ => SMStateApplyer.Enable( _state ) );
-			_disableEvent.AddFirst( _registerEventName ).Subscribe( _ => SMStateApplyer.Disable( _state ) );
+			_enableEvent.AddLast( _registerEventName ).Subscribe( _ => {
+				SMStateApplyer.Enable( _state );
+			} );
+			_disableEvent.AddFirst( _registerEventName ).Subscribe( _ => {
+// TODO : 後ろの変更データを削除するタイミングは？
+				_modifyler.UnregisterAll();
+				SMStateApplyer.Disable( _state );
+			} );
 
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => SMStateApplyer.FixedUpdate( _state ) );
 			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				if ( startState != null ) {
-					ChangeState( startState ).Forget();
-					startState = null;
+				if ( _startStateType != null ) {
+					_modifyler.Register( new InitialEnterSMFSM( _startStateType ) );
+					_startStateType = null;
 				}
 				SMStateApplyer.Update( _state );
 			} );
@@ -100,26 +108,12 @@ namespace SubmarineMirage.FSM.FSM {
 		}
 
 
-		public override void Set( IBaseSMFSMOwner owner ) {
-			_owner = (TOwner)owner;
-		}
+		public override BaseSMState GetRawState( Type stateType )
+			=> _states.GetOrDefault( stateType );
 
 
-		public async UniTask ChangeState( Type stateType ) {
-			if ( stateType == null ) {
-				await _modifyler.RegisterAndRun( new ChangeStateSMFSM( null ) );
-				return;
-			}
-
-			if ( stateType.IsInheritance( _baseStateType ) ) {
-				throw new InvalidOperationException( $"違う基盤状態を指定 : {stateType}, {_baseStateType}" );
-			}
-			var state = _states.GetOrDefault( stateType );
-			if ( state == null ) {
-				throw new InvalidOperationException( $"未所持状態を指定 : {stateType}" );
-			}
-			await _modifyler.RegisterAndRun( new ChangeStateSMFSM( state ) );
-		}
+		public UniTask ChangeState( Type stateType )
+			=> _modifyler.RegisterAndRun( new ChangeStateSMFSM( stateType ) );
 
 		public UniTask ChangeState<T>() where T : TState
 			=> ChangeState( typeof( T ) );

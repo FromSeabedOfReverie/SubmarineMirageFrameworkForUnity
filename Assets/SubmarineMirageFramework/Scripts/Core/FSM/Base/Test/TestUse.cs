@@ -122,8 +122,8 @@ namespace SubmarineMirage.FSM.Test {
 				},
 */
 			} ) {
-				_headFSM = Get( FSMType.Head );
-				_bodyFSM = Get( FSMType.Body );
+				_headFSM = GetFSM( FSMType.Head );
+				_bodyFSM = GetFSM( FSMType.Body );
 			}
 			public void _OwnerFSM() {
 				_owner._Owner();

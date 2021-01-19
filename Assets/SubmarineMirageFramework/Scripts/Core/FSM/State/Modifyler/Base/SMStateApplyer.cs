@@ -35,14 +35,12 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 			if ( state._isFinalizing )	{ return; }
 
 			await state._initializeEvent.Run( asyncCanceler );
-			state._isInitialized = true;
 		}
 
 		public static async UniTask Finalize( BaseSMState state, SMTaskCanceler asyncCanceler ) {
 			if ( state == null )	{ return; }
 			if ( state._isDispose )	{ return; }
 
-			state._isFinalizing = true;
 			await state._finalizeEvent.Run( asyncCanceler );
 		}
 
@@ -54,7 +52,6 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 			if ( state._isActive )		{ return; }
 
 			state._enableEvent.Run();
-			state._isActive = true;
 		}
 
 		public static void Disable( BaseSMState state ) {
@@ -63,7 +60,6 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 			if ( !state._isOperable )	{ return; }
 			if ( !state._isActive )		{ return; }
 
-			state._isActive = false;
 			state._modifyler.UnregisterAll();
 			StopAsyncOnDisableAndExit( state );
 			state._disableEvent.Run();

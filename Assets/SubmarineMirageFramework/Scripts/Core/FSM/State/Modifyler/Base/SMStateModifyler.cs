@@ -20,11 +20,5 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 
 
 		public SMStateModifyler( BaseSMState owner ) : base( owner ) {}
-
-
-		public void UnregisterAll() {
-			_data.ForEach( d => d.Dispose() );
-			_data.Clear();
-		}
 	}
 }

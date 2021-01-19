@@ -20,8 +20,8 @@ namespace SubmarineMirage.FSM.FSM {
 		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public SMSingleFSM( TOwner owner, IEnumerable<TState> states, Type startState = null )
-			: base( states, typeof( TState ), startState )
+		public SMSingleFSM( TOwner owner, IEnumerable<TState> states, Type startStateType = null )
+			: base( states, startStateType )
 		{
 			Set( owner );
 		}

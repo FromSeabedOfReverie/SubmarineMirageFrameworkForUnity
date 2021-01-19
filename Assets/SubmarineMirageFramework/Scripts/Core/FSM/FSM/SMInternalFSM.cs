@@ -7,7 +7,9 @@
 namespace SubmarineMirage.FSM.FSM {
 	using System;
 	using System.Collections.Generic;
+	using KoganeUnityLib;
 	using State;
+	using Extension;
 	using Debug;
 
 
@@ -20,9 +22,15 @@ namespace SubmarineMirage.FSM.FSM {
 		where TOwner : BaseSMFSM, IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startState = null )
-			: base( states, baseStateType, startState )
+		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startStateType = null )
+			: base( states, startStateType )
 		{
+			_states.ForEach( pair => {
+				var type = pair.Value.GetType();
+				if ( type.IsInheritance( baseStateType ) ) {
+					throw new InvalidOperationException( $"基盤状態が違う、状態を指定 : {type}, {baseStateType}" );
+				}
+			} );
 		}
 	}
 }

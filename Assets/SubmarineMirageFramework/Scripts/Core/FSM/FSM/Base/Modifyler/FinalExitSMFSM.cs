@@ -14,17 +14,13 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 
 
 
-	public class FinalizeSMFSM : SMFSMModifyData {
+	public class FinalExitSMFSM : SMFSMModifyData {
 		public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
-
-
-		public FinalizeSMFSM() {
-			_owner._isFinalizing = true;
-		}
 
 
 		public override async UniTask Run() {
 			if ( _owner._rawState == null )	{ return; }
+// TODO : Enableとか、他条件無しで、実行して良い？
 
 
 			await _owner._rawState._modifyler.RegisterAndRun( new ExitSMState() );
