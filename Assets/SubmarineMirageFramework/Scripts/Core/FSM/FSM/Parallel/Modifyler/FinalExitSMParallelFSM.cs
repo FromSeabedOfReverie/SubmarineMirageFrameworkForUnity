@@ -4,11 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.FSM {
+namespace SubmarineMirage.FSM.Modifyler {
 	using System;
-	using System.Collections.Generic;
-	using State;
-	using Debug;
+	using Cysharp.Threading.Tasks;
+	using FSM.Base;
+	using FSM.Modifyler.Base;
 
 
 
@@ -16,14 +16,19 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 
-	public abstract class SMSingleFSM<TOwner, TState> : SMFSM<TOwner, TState>
+	public class FinalExitSMParallelFSM<TOwner, TInternalFSM, TEnum>
+		: SMParallelFSMModifyData<TOwner, TInternalFSM, TEnum>
 		where TOwner : IBaseSMFSMOwner
-		where TState : BaseSMState
+		where TInternalFSM : SMFSM
+		where TEnum : Enum
 	{
-		public SMSingleFSM( TOwner owner, IEnumerable<TState> states, Type startStateType = null )
-			: base( states, startStateType )
-		{
-			Set( owner );
+		public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
+
+
+		public override async UniTask Run() {
+			await _owner._fsms.Select( pair => pair.Value.FinalExit() );
+
+			_modifyler.Dispose();
 		}
 	}
 }

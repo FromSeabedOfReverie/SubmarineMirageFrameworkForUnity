@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Base.Modifyler {
+namespace SubmarineMirage.FSM.Modifyler.Base {
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
@@ -36,11 +36,17 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 			_owner = owner;
 
 			_disposables.AddLast( () => {
-				_data.ForEach( d => d.Dispose() );
-				_data.Clear();
+				Reset();
 				_isRunning = false;
 			} );
 		}
+
+
+		public void Reset() {
+			_data.ForEach( d => d.Dispose() );
+			_data.Clear();
+		}
+
 
 		public void Register( TData data ) {
 			data.Set( _owner );
@@ -57,21 +63,23 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 						() => _data.Enqueue( data )
 					);
 					break;
+				case SMFSMModifyType.SingleRunner:
+					_data.RemoveAll(
+						d => d._type == SMFSMModifyType.SingleRunner,
+						d => d.Dispose()
+					);
+					_data.Enqueue( data );
+					break;
 				case SMFSMModifyType.Runner:
 					_data.Enqueue( data );
 					break;
 			}
-			if ( !_isRunning )	{ Run().Forget(); }
+			Run().Forget();
 		}
 
 		public async UniTask RegisterAndRun( TData data ) {
 			Register( data );
 			await WaitRunning();
-		}
-
-		public void UnregisterAll() {
-			_data.ForEach( d => d.Dispose() );
-			_data.Clear();
 		}
 
 
@@ -80,12 +88,15 @@ namespace SubmarineMirage.FSM.Base.Modifyler {
 
 			_isRunning = true;
 			while ( !_data.IsEmpty() ) {
-				if ( _isDispose )	{ break; }
+				if ( _isDispose )			{ break; }
+				if ( !_owner._isOperable )	{ break; }
+				if ( !_owner._isActive )	{ break; }
 				var d = _data.Dequeue();
 				await d.Run();
 			}
 			_isRunning = false;
 		}
+
 
 		public UniTask WaitRunning()
 			=> UTask.WaitWhile( _asyncCanceler, () => _isRunning || !_data.IsEmpty() );

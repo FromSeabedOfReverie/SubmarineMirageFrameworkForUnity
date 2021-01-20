@@ -6,6 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.State.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using FSM.Modifyler.Base;
+	using FSM.State.Modifyler.Base;
 
 
 
@@ -26,7 +28,7 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 			SMStateApplyer.StopAsyncOnDisableAndExit( _owner );
 			await _owner._exitEvent.Run( _owner._asyncCancelerOnDisableAndExit );
 			_owner._ranState = SMStateRunState.Exit;
-			_modifyler.UnregisterAll();
+			_modifyler.Reset();
 		}
 	}
 }

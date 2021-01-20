@@ -4,12 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.State {
+namespace SubmarineMirage.FSM.State.Base {
 	using MultiEvent;
 	using Task;
-	using Base.Modifyler;
-	using Modifyler;
-	using FSM;
+	using FSM.Base;
+	using FSM.Modifyler.Base;
+	using FSM.State.Modifyler.Base;
 	using Debug;
 
 
@@ -66,6 +66,6 @@ namespace SubmarineMirage.FSM.State {
 			} );
 		}
 
-		public abstract void Set( BaseSMFSM fsm );
+		public abstract void Set( SMFSM fsm );
 	}
 }

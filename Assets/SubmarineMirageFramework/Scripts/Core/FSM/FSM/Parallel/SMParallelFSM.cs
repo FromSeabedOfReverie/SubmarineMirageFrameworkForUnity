@@ -4,14 +4,16 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.FSM {
+namespace SubmarineMirage.FSM {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
+	using Cysharp.Threading.Tasks;
+	using UniRx;
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Task;
-	using State;
+	using FSM.Base;
+	using FSM.Modifyler;
 
 
 
@@ -19,25 +21,15 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 
-	public abstract class SMParallelFSM<TOwner, TInternalFSM, TEnum> : BaseSMFSM, IBaseSMFSMOwner
+	public abstract class SMParallelFSM<TOwner, TInternalFSM, TEnum> : SMFSM, IBaseSMFSMOwner
 		where TOwner : IBaseSMFSMOwner
-		where TInternalFSM : BaseSMFSM
+		where TInternalFSM : SMFSM
 		where TEnum : Enum
 	{
 		public override bool _isInitialized	=> _owner._isInitialized;
 		public override bool _isOperable	=> _owner._isOperable;
 		public override bool _isFinalizing	=> _owner._isFinalizing;
 		public override bool _isActive		=> _owner._isActive;
-
-		bool _isInitialEnteredCache	{ get; set; }
-		public override bool _isInitialEntered	{
-			get {
-				if ( _isInitialEnteredCache )	{ return true; }
-				_isInitialEnteredCache = _fsms.All( pair => pair.Value._isInitialEntered );
-				return _isInitialEnteredCache;
-			}
-			set => throw new InvalidOperationException( $"利用不可 : {nameof( _isInitialEntered )}" );
-		}
 
 		public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
 		public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
@@ -54,28 +46,37 @@ namespace SubmarineMirage.FSM.FSM {
 		public TOwner _owner	{ get; private set; }
 		public readonly Dictionary<TEnum, TInternalFSM> _fsms = new Dictionary<TEnum, TInternalFSM>();
 
-		public override BaseSMState _rawState {
-			get => throw new InvalidOperationException( $"利用不可 : {nameof( _rawState )}" );
-			set => throw new InvalidOperationException( $"利用不可 : {nameof( _rawState )}" );
-		}
-
 
 		public SMParallelFSM( TOwner owner, Dictionary<TEnum, TInternalFSM> fsms ) {
 			_fsms = fsms;
 			Set( owner );
+
+			_disposables.AddLast( () => {
+				_fsms.ForEach( pair => pair.Value.Dispose() );
+				_fsms.Clear();
+			} );
 		}
 
 		public override void Set( IBaseSMFSMOwner owner ) {
 			_owner = (TOwner)owner;
 			_fsms.ForEach( pair => pair.Value.Set( this ) );
+
+			_modifyler.Register( new InitialEnterSMParallelFSM<TOwner, TInternalFSM, TEnum>() );
+
+			_disableEvent.AddFirst( _registerEventName ).Subscribe( _ => {
+				_modifyler.Reset();
+			} );
+			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => {
+				_modifyler.Run().Forget();
+			} );
 		}
 
 
-		public TInternalFSM GetFSM( TEnum key )
-			=> _fsms.GetOrDefault( key );
+		public TInternalFSM GetFSM( TEnum type )
+			=> _fsms.GetOrDefault( type );
 
 
-		public override BaseSMState GetRawState( Type stateType )
-			=> throw new InvalidOperationException( $"利用不可 : {nameof( GetRawState )}" );
+		public override UniTask FinalExit()
+			=> _modifyler.RegisterAndRun( new FinalExitSMParallelFSM<TOwner, TInternalFSM, TEnum>() );
 	}
 }

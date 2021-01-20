@@ -5,13 +5,17 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
+	using FSM.Base;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public enum SMFSMModifyType {
-		FirstRunner,
-		Runner,
+
+	public interface ISMFSMOwner<TFSM> : IBaseSMFSMOwner
+		where TFSM : SMFSM
+	{
+		TFSM _fsm { get; }
 	}
 }

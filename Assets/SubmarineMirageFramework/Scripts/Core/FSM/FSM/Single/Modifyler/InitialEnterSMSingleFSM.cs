@@ -4,11 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.FSM.Modifyler {
+namespace SubmarineMirage.FSM.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using State;
-	using State.Modifyler;
+	using FSM.Base;
+	using FSM.Modifyler.Base;
+	using FSM.State.Base;
+	using FSM.State.Modifyler;
 
 
 
@@ -16,13 +18,23 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 
 
 
-	public class InitialEnterSMFSM : SMFSMModifyData {
+	public class InitialEnterSMSingleFSM<TOwner, TState> : SMSingleFSMModifyData<TOwner, TState>
+		where TOwner : IBaseSMFSMOwner
+		where TState : BaseSMState
+	{
 		public override SMFSMModifyType _type => SMFSMModifyType.Runner;
-		BaseSMState _state	{ get; set; }
+		Type _stateType	{ get; set; }
+		TState _state	{ get; set; }
 
 
-		public InitialEnterSMFSM( Type stateType ) {
-			_state = _owner.GetRawState( stateType );
+		public InitialEnterSMSingleFSM( Type stateType ) {
+			_stateType = stateType;
+		}
+
+		public override void Set( SMFSM owner ) {
+			base.Set( owner );
+
+			_state = _owner.GetState( _stateType );
 			if ( _state == null ) {
 				throw new InvalidOperationException( $"初期状態遷移に、未所持状態を指定 : {nameof( _state )}" );
 			}
@@ -30,21 +42,21 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._rawState != null ) {
+			if ( _owner._isInitialEntered )	{ return; }
+			if ( _owner._state != null ) {
 				throw new InvalidOperationException(
-					$"初期状態遷移前に、状態設定済み : {nameof( _owner._rawState )}" );
+					$"初期状態遷移前に、既に状態設定済み : {nameof( _owner._state )}" );
 			}
-// TODO : Enableとか、他条件を指定しないで良い？
 
 
-			_owner._rawState = _state;
+			_owner._state = _state;
 
-			await _owner._rawState._modifyler.RegisterAndRun( new EnterSMState() );
+			await _owner._state._modifyler.RegisterAndRun( new EnterSMState() );
 			_owner._isInitialEntered = true;
 
-// TODO : _isFinalizing以外の条件を、見ないで良いの？
 			if ( _owner._isFinalizing )	{ return; }
-			_owner._rawState._modifyler.Register( new UpdateSMState() );
+
+			_owner._state._modifyler.Register( new UpdateSMState() );
 		}
 	}
 }

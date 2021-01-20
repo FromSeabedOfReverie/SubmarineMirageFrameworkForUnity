@@ -4,10 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.State.Modifyler {
+namespace SubmarineMirage.FSM.Modifyler {
+	using System;
+	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using FSM.Base;
 	using FSM.Modifyler.Base;
-	using FSM.State.Modifyler.Base;
+	using Utility;
 
 
 
@@ -15,18 +18,25 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 
 
 
-	public class EnterSMState : SMStateModifyData {
+	public class InitialEnterSMParallelFSM<TOwner, TInternalFSM, TEnum>
+		: SMParallelFSMModifyData<TOwner, TInternalFSM, TEnum>
+		where TOwner : IBaseSMFSMOwner
+		where TInternalFSM : SMFSM
+		where TEnum : Enum
+	{
 		public override SMFSMModifyType _type => SMFSMModifyType.Runner;
 
 
 		public override async UniTask Run() {
-			if ( !_owner._isOperable )	{ return; }
-			if ( !_owner._isActive )	{ return; }
-			if ( _owner._ranState != SMStateRunState.Exit )	{ return; }
+			if ( _owner._isInitialEntered )	{ return; }
 
 
-			await _owner._enterEvent.Run( _owner._asyncCancelerOnDisableAndExit );
-			_owner._ranState = SMStateRunState.Enter;
+			await UTask.WaitWhile(
+				_owner._asyncCancelerOnDisable,
+				() => _owner._fsms.Any( pair => !pair.Value._isInitialEntered )
+			);
+
+			_owner._isInitialEntered = true;
 		}
 	}
 }

@@ -4,9 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.FSM.Modifyler {
-	using Cysharp.Threading.Tasks;
-	using State.Modifyler;
+namespace SubmarineMirage.FSM.Modifyler.Base {
+	using FSM.Base;
 
 
 
@@ -14,17 +13,6 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 
 
 
-	public class FinalExitSMFSM : SMFSMModifyData {
-		public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
-
-
-		public override async UniTask Run() {
-			if ( _owner._rawState == null )	{ return; }
-// TODO : Enableとか、他条件無しで、実行して良い？
-
-
-			await _owner._rawState._modifyler.RegisterAndRun( new ExitSMState() );
-			_owner._rawState = null;
-		}
+	public abstract class SMFSMModifyData : BaseSMFSMModifyData<SMFSM, SMFSMModifyler, SMFSMModifyData> {
 	}
 }

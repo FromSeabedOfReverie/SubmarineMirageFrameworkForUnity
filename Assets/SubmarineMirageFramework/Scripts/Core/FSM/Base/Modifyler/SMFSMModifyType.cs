@@ -4,18 +4,15 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM {
-	using FSM;
-
+namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 	// TODO : コメント追加、整頓
 
 
-
-	public interface ISMFSMOwner<TFSM> : IBaseSMFSMOwner
-		where TFSM : BaseSMFSM
-	{
-		TFSM _fsm { get; }
+	public enum SMFSMModifyType {
+		FirstRunner,
+		SingleRunner,
+		Runner,
 	}
 }

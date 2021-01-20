@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM {
+namespace SubmarineMirage.FSM.Base {
 	using SubmarineMirage.Base;
 	using MultiEvent;
 	using Task;

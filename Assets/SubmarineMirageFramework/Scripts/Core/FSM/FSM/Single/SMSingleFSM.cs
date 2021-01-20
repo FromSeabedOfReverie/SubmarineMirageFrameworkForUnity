@@ -4,12 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.FSM {
+namespace SubmarineMirage.FSM {
 	using System;
 	using System.Collections.Generic;
-	using KoganeUnityLib;
-	using State;
-	using Extension;
+	using FSM.Base;
+	using FSM.State.Base;
 	using Debug;
 
 
@@ -18,19 +17,14 @@ namespace SubmarineMirage.FSM.FSM {
 
 
 
-	public abstract class SMInternalFSM<TOwner, TState> : SMFSM<TOwner, TState>
-		where TOwner : BaseSMFSM, IBaseSMFSMOwner
+	public abstract class SMSingleFSM<TOwner, TState> : BaseSMSingleFSM<TOwner, TState>
+		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startStateType = null )
+		public SMSingleFSM( TOwner owner, IEnumerable<TState> states, Type startStateType = null )
 			: base( states, startStateType )
 		{
-			_states.ForEach( pair => {
-				var type = pair.Value.GetType();
-				if ( type.IsInheritance( baseStateType ) ) {
-					throw new InvalidOperationException( $"基盤状態が違う、状態を指定 : {type}, {baseStateType}" );
-				}
-			} );
+			Set( owner );
 		}
 	}
 }

@@ -4,9 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.State.Modifyler {
+namespace SubmarineMirage.FSM.State.Modifyler.Base {
 	using Cysharp.Threading.Tasks;
 	using Task;
+	using FSM.State.Base;
 
 
 
@@ -60,7 +61,7 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 			if ( !state._isOperable )	{ return; }
 			if ( !state._isActive )		{ return; }
 
-			state._modifyler.UnregisterAll();
+			state._modifyler.Reset();
 			StopAsyncOnDisableAndExit( state );
 			state._disableEvent.Run();
 		}

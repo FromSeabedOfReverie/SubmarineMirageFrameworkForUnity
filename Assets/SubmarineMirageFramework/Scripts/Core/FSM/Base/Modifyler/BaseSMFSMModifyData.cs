@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Base.Modifyler {
+namespace SubmarineMirage.FSM.Modifyler.Base {
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Base;
 	using Debug;

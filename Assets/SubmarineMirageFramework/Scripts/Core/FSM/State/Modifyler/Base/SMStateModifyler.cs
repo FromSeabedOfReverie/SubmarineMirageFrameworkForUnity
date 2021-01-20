@@ -4,10 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.State.Modifyler {
-	using KoganeUnityLib;
+namespace SubmarineMirage.FSM.State.Modifyler.Base {
 	using Task;
-	using Base.Modifyler;
+	using FSM.Modifyler.Base;
+	using FSM.State.Base;
 
 
 

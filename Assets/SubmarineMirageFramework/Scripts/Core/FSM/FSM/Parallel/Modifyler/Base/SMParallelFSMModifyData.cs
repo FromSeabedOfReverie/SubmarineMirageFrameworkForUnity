@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.FSM.Modifyler {
-	using Task;
-	using Base.Modifyler;
+namespace SubmarineMirage.FSM.Modifyler.Base {
+	using System;
+	using FSM.Base;
 
 
 
@@ -14,10 +14,17 @@ namespace SubmarineMirage.FSM.FSM.Modifyler {
 
 
 
-	public class SMFSMModifyler : BaseSMFSMModifyler<BaseSMFSM, SMFSMModifyler, SMFSMModifyData> {
-		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
+	public abstract class SMParallelFSMModifyData<TOwner, TInternalFSM, TEnum> : SMFSMModifyData
+		where TOwner : IBaseSMFSMOwner
+		where TInternalFSM : SMFSM
+		where TEnum : Enum
+	{
+		protected new SMParallelFSM<TOwner, TInternalFSM, TEnum> _owner	{ get; private set; }
 
 
-		public SMFSMModifyler( BaseSMFSM owner ) : base( owner ) {}
+		public override void Set( SMFSM owner ) {
+			base.Set( owner );
+			_owner = (SMParallelFSM<TOwner, TInternalFSM, TEnum>)owner;
+		}
 	}
 }

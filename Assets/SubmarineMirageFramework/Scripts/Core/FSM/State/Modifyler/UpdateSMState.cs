@@ -6,6 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.State.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using FSM.Modifyler.Base;
+	using FSM.State.Modifyler.Base;
 	using Utility;
 
 
