@@ -20,8 +20,6 @@ namespace SubmarineMirage.FSM.State.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( !_owner._isOperable )	{ return; }
-			if ( !_owner._isActive )	{ return; }
 			if ( _owner._ranState != SMStateRunState.Exit )	{ return; }
 
 

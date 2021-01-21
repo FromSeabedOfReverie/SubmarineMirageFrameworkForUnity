@@ -98,16 +98,16 @@ namespace SubmarineMirage.FSM.Test {
 				DragonFSMType.Body,
 				new DragonInternalFSM(
 					new DragonState[] { new NormalDragonBodyState(), new DeathDragonBodyState(),
-						new NormalDragonHeadState(),					// コンパイルエラーにならない
-//							new Dummy.FSM.Internal.State.NormalState(),	// エラー
+						new NormalDragonHeadState(),	// コンパイルエラーにならない
+//							new NormalDummyState(),		// エラー
 					},
 					typeof( DragonBodyState )
 				)
 			},
 /*
 			{
-				FSMType.Body,
-				new Dummy.FSM.Internal.InternalFSM()	// エラー
+				DragonFSMType.Body,
+				new DummyInternalFSM()	// エラー
 			},
 */
 		} ) {

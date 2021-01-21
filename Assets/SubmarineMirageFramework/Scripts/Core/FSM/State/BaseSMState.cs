@@ -66,6 +66,8 @@ namespace SubmarineMirage.FSM.State.Base {
 			} );
 		}
 
+		public override void Dispose() => base.Dispose();
+
 		public abstract void Set( SMFSM fsm );
 	}
 }

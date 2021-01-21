@@ -41,6 +41,8 @@ namespace SubmarineMirage.FSM.Base {
 			_modifyler = new SMFSMModifyler( this );
 		}
 
+		public override void Dispose() => base.Dispose();
+
 		public abstract void Set( IBaseSMFSMOwner owner );
 
 
