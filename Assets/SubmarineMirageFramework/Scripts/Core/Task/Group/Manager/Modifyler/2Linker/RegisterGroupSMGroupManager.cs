@@ -8,7 +8,6 @@
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Group.Modifyler;
-	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -33,7 +32,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 		public override async UniTask Run() {
 			if ( _target._isGameObject && _target._lifeSpan == SMTaskLifeSpan.Forever ) {
-				SMSceneManager.s_instance.MoveGroup( _target, _owner._scene );
+				_owner._scene.MoveGroup( _target );
 			}
 			SMGroupManagerApplyer.Link( _owner, _target );
 			SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );

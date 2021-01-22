@@ -5,21 +5,26 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
+	using System.Linq;
+	using System.Collections.Generic;
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
 	using DG.Tweening;
 	using KoganeUnityLib;
+	using Task.Group;
 	using Task.Group.Manager;
-	using FSM;
+	using FSM.State;
 	using Extension;
 	using Utility;
 	using Debug;
 
 
+
 	// TODO : コメント追加、整頓
 
 
-	public abstract class SMScene : SMState<SMSceneFSM, SMSceneManager> {
+
+	public abstract class SMScene : SMState<SMSceneManager, SMSceneInternalFSM> {
 		public string _name				{ get; protected set; }
 		protected string _registerKey	{ get; private set; }
 
@@ -30,17 +35,15 @@ namespace SubmarineMirage.Scene {
 		public SMScene() {
 			_name = this.GetAboutName().RemoveAtLast( "SMScene" );
 			_registerKey = nameof( SMScene );
-			ResetScene();
+			ReloadRawScene();
 			_groups = new SMGroupManager( this );
 			_disposables.AddLast( _groups );
 
 			_enterEvent.AddFirst( _registerKey, async canceler => {
-				if ( _fsm._isSkipLoadForFirstScene ) {
-					_fsm._isSkipLoadForFirstScene = false;
-				} else {
+				if ( !_fsm._fsm.IsFirstLoaded( _name ) ) {
 					await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive ).ToUniTask( canceler );
 				}
-				ResetScene();
+				ReloadRawScene();
 				SceneManager.SetActiveScene( _rawScene );
 				await _groups.Enter();
 			} );
@@ -55,7 +58,21 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		protected virtual void ResetScene()
+		protected virtual void ReloadRawScene()
 			=> _rawScene = SceneManager.GetSceneByName( _name );
+
+
+		public void MoveGroup( SMGroup group )
+			=> SceneManager.MoveGameObjectToScene( group._gameObject, _rawScene );
+
+
+		public bool IsInBuild() {
+#if UNITY_EDITOR
+			return UnityEditor.EditorBuildSettings.scenes
+				.Any( scene => scene.path == _rawScene.path );
+#else
+			return true;
+#endif
+		}
 	}
 }

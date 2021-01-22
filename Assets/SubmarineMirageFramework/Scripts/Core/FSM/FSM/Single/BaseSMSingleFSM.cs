@@ -49,7 +49,7 @@ namespace SubmarineMirage.FSM.Base {
 		protected TOwner _owner	{ get; private set; }
 		public TState _state	{ get; set; }
 		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
-		public Type _startStateType	{ get; private set; }
+		public Type _startStateType	{ get; protected set; }
 
 
 		public BaseSMSingleFSM( IEnumerable<TState> states, Type startStateType = null ) {

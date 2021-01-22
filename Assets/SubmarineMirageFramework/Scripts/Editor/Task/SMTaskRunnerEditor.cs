@@ -52,7 +52,7 @@ namespace SubmarineMirage.EditorTask {
 
 
 		void ShowAllGroups() {
-			SMSceneManager.s_instance._fsm.GetAllScene().ForEach( scene => {
+			SMSceneManager.s_instance._fsm.GetAllScenes().ForEach( scene => {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;

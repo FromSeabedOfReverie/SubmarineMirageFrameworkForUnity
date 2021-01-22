@@ -7,7 +7,6 @@
 #define TestGroupManagerModifyler
 namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Scene;
 	using Utility;
 	using Debug;
 
@@ -28,7 +27,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			if ( _owner._isFinalizing )	{ return; }
 
 			if ( _target._isGameObject ) {
-				SMSceneManager.s_instance.MoveGroup( _target, _target._scene );
+				_target._scene.MoveGroup( _target );
 			}
 
 			SMGroupManagerApplyer.Unlink( _owner, _target );

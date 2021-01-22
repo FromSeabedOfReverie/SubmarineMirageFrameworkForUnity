@@ -19,6 +19,6 @@ namespace SubmarineMirage.Extension {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public static SMScene ToSMScene( this Scene self )
-			=> SMSceneManager.s_instance._fsm.Get( self );
+			=> SMSceneManager.s_instance._fsm.GetScene( self );
 	}
 }

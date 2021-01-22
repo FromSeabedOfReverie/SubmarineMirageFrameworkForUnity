@@ -5,66 +5,64 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine.SceneManagement;
-	using Cysharp.Threading.Tasks;
+	using KoganeUnityLib;
 	using FSM;
 	using Debug;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SMSceneFSM : SMInternalFSM<SMSceneFSM, SMSceneManager, SMScene> {
-		public ForeverSMScene _foreverScene	{ get; private set; }
-		public SMScene _startScene	{ get; private set; }
-		[SMHide] public SMScene _scene => _state;
-		public Scene _currentScene => _scene._rawScene;
-		public string _currentSceneName => _scene._name;
-		public bool _isSkipLoadForFirstScene	{ get; set; } = true;
+
+	public class SMSceneFSM : SMParallelFSM<SMSceneManager, SMSceneInternalFSM, SMSceneType> {
+		public readonly List<Scene> _firstLoadedRawScenes = new List<Scene>();
 
 
 		public SMSceneFSM( SMSceneManager owner ) : base(
 			owner,
-			new SMScene[] {
-				new UnknownSMScene(),
+			new Dictionary<SMSceneType, SMSceneInternalFSM> {
+				{
+					SMSceneType.Forever,
+					new SMSceneInternalFSM( new SMScene[] {
+						new ForeverSMScene()
+					} )
+				},
+				{
+					SMSceneType.Normal,
+					new SMSceneInternalFSM( new SMScene[] {
+						new UnknownSMScene(),
+					} )
+				},
 			}
 		) {
-			_foreverScene = new ForeverSMScene();
-			_disposables.AddLast( _foreverScene );
-
-			_startScene = _states
-				.Select( pair => pair.Value )
-				.Where( s => !( s is UnknownSMScene ) )
-				.FirstOrDefault( s => s._name == SceneManager.GetActiveScene().name );
-			if ( _startScene == null )	{ _startScene = _states[typeof( UnknownSMScene )]; }
-			_startState = _startScene.GetType();
+			_firstLoadedRawScenes = GetLoadedRawScenes().ToList();
 		}
 
 
-		public SMScene Get( Scene scene ) {
-			var result = _states
-				.Select( pair => pair.Value )
-				.FirstOrDefault( s => s._rawScene == scene );
-			if ( result == null )	{ result = _states[typeof( UnknownSMScene )]; }
-			return result;
+		public IEnumerable<SMScene> GetAllScenes()
+			=> _fsms.SelectMany( pair => pair.Value.GetAllScenes() );
+
+		public SMScene GetScene( Scene rawScene )
+			=> GetAllScenes()
+				.FirstOrDefault( s => s._rawScene == rawScene )
+				?? _fsms.First().Value.GetState( typeof( UnknownSMScene ) );
+
+
+		public IEnumerable<Scene> GetLoadedRawScenes()
+			=> Enumerable.Range( 0, SceneManager.sceneCount - 1 )
+				.Select( i => SceneManager.GetSceneAt( i ) );
+
+
+		public bool IsFirstLoaded( string name ) {
+			if ( _firstLoadedRawScenes.IsEmpty() )	{ return false; }
+
+			var count = _firstLoadedRawScenes
+				.RemoveAll( s => s.name == name );
+			return count > 0;
 		}
-
-		public IEnumerable<SMScene> GetAllScene() {
-			yield return _foreverScene;
-			foreach ( var pair in _states ) {
-				yield return pair.Value;
-			}
-		}
-
-
-// TODO : MultiFSM実装後、複数シーン読込に対応する
-		public async UniTask ChangeScene<T>() where T : SMScene
-			=> await ChangeState<T>();
-
-		public async UniTask ChangeScene( Type stateType )
-			=> await ChangeState( stateType );
 	}
 }

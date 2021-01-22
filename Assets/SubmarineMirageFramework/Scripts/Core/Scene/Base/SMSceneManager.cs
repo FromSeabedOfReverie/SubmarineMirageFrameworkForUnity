@@ -14,35 +14,35 @@ namespace SubmarineMirage.Scene {
 	using Task;
 	using Task.Behaviour;
 	using Task.Object;
-	using Task.Group;
 	using Task.Group.Modifyler;
 	using FSM;
 	using Singleton;
 	using Debug;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class SMSceneManager : SMSingleton<SMSceneManager>, ISMFSMOwner<SMSceneFSM> {
 		public SMSceneFSM _fsm	{ get; private set; }
-		public string _currentSceneName => _fsm._currentSceneName;
-		public Scene _currentScene => _fsm._currentScene;
 
 
-		new public static void CreateInstance() {
-			if ( s_isCreated )	{ return; }
 
-			s_instance._fsm = new SMSceneFSM( s_instance );
-			s_instance._fsm._foreverScene.Set( s_instance );
-			s_instance._disposables.AddFirst( s_instance._fsm );
+		public SMSceneManager() {
+			_fsm = new SMSceneFSM( this );
 // TODO : ここで、SetAllDataする意味が分からない・・・
-			SMGroupApplyer.SetAllData( s_instance._object._group );
-		}
+			SMGroupApplyer.SetAllData( _object._group );
+
+			_disposables.AddLast( () => {
+				_fsm.Dispose();
+			} );
 
 #if TestScene
-		public SMSceneManager() => SMLog.Debug( $"{nameof( SceneManager )}() : {this}" );
+			SMLog.Debug( $"{nameof( SceneManager )}() : {this}" );
 #endif
+		}
 
 		public override void Create() {
 #if TestScene
@@ -50,20 +50,6 @@ namespace SubmarineMirage.Scene {
 #endif
 		}
 
-
-		public bool IsInBuildScene() {
-#if UNITY_EDITOR
-			var path = _currentScene.path;
-			return UnityEditor.EditorBuildSettings.scenes
-				.Any( scene => scene.path == path );
-#else
-			return true;
-#endif
-		}
-
-
-		public void MoveGroup( SMGroup group, SMScene scene )
-			=> SceneManager.MoveGameObjectToScene( group._gameObject, scene._rawScene );
 
 
 		public T GetBehaviour<T>( SMTaskType? taskType = null )
@@ -97,17 +83,17 @@ namespace SubmarineMirage.Scene {
 		) {
 			var scenes = Enumerable.Empty<SMScene>();
 			if ( sceneType != null ) {
-				var scene = _fsm.GetAllScene().FirstOrDefault( s => s.GetType() == sceneType );
+				var scene = _fsm.GetAllScenes().FirstOrDefault( s => s.GetType() == sceneType );
 				if ( scene != null )	{ scenes = new [] { scene }; }
 			} else {
-				scenes = _fsm.GetAllScene();
+				scenes = _fsm.GetAllScenes();
 			}
 			var currents = new Queue<SMObject>( scenes.SelectMany( s => {
-				return s._groups.GetAllTops( taskType );
+				return s._groups.GetAllTops();
 			} ) );
 			while ( !currents.IsEmpty() ) {
 				var o = currents.Dequeue();
-				foreach ( var b in o.GetBehaviours( type ) ) {
+				foreach ( var b in o.GetBehaviours( type ).Where( bb => bb._type == taskType ) ) {
 					yield return b;
 				}
 				o.GetChildren().ForEach( c => currents.Enqueue( c ) );

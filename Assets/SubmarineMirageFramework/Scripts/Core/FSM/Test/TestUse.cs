@@ -123,7 +123,9 @@ namespace SubmarineMirage.FSM.Test {
 	}
 
 	public class DragonInternalFSM : SMInternalFSM<Dragon, DragonFSM, DragonState> {
-		public DragonInternalFSM( DragonState[] states, Type baseStateType ) : base( states, baseStateType ) {}
+		public DragonInternalFSM( IEnumerable<DragonState> states, Type baseStateType )
+			: base( states, baseStateType )
+		{}
 		public void _BaseFSM() {
 			_topOwner._Owner();
 			_fsm._OwnerFSM();
