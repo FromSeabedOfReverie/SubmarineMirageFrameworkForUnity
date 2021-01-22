@@ -24,20 +24,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 	{
 		public override SMFSMModifyType _type => SMFSMModifyType.Runner;
 		Type _stateType	{ get; set; }
-		TState _state	{ get; set; }
 
 
 		public InitialEnterSMSingleFSM( Type stateType ) {
 			_stateType = stateType;
-		}
-
-		public override void Set( SMFSM owner ) {
-			base.Set( owner );
-
-			_state = _owner.GetState( _stateType );
-			if ( _state == null ) {
-				throw new InvalidOperationException( $"初期状態遷移に、未所持状態を指定 : {nameof( _state )}" );
-			}
 		}
 
 
@@ -47,16 +37,20 @@ namespace SubmarineMirage.FSM.Modifyler {
 				throw new InvalidOperationException(
 					$"初期状態遷移前に、既に状態設定済み : {nameof( _owner._state )}" );
 			}
+			var state = _owner.GetState( _stateType );
+			if ( state == null ) {
+				throw new InvalidOperationException( $"初期状態遷移に、未所持状態を指定 : {nameof( state )}" );
+			}
 
 
-			_owner._state = _state;
+			_owner._state = state;
 
-			await _owner._state._modifyler.RegisterAndRun( new EnterSMState() );
+			await SMStateApplyer.Enter( _owner._state );
 			_owner._isInitialEntered = true;
 
-			if ( _owner._isFinalizing )	{ return; }
+			if ( _modifyler.IsHaveData() )	{ return; }
 
-			_owner._state._modifyler.Register( new UpdateSMState() );
+			SMStateApplyer.UpdateAsync( _owner._state );
 		}
 	}
 }

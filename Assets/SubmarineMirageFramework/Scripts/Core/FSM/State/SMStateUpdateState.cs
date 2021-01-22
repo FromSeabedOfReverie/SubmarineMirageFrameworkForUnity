@@ -4,9 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler.Base {
-	using FSM.Base;
-	using FSM.State.Base;
+namespace SubmarineMirage.FSM.State {
 
 
 
@@ -14,16 +12,10 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 
-	public abstract class SMSingleFSMModifyData<TOwner, TState> : SMFSMModifyData
-		where TOwner : IBaseSMFSMOwner
-		where TState : BaseSMState
-	{
-		protected BaseSMSingleFSM<TOwner, TState> _owner	{ get; private set; }
-
-
-		public override void Set( SMFSM owner ) {
-			base.Set( owner );
-			_owner = (BaseSMSingleFSM<TOwner, TState>)owner;
-		}
+	public enum SMStateUpdateState {
+		Disable,
+		FixedUpdate,
+		Update,
+		LateUpdate,
 	}
 }

@@ -19,7 +19,7 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 		where TInternalFSM : SMFSM
 		where TEnum : Enum
 	{
-		protected new SMParallelFSM<TOwner, TInternalFSM, TEnum> _owner	{ get; private set; }
+		protected SMParallelFSM<TOwner, TInternalFSM, TEnum> _owner	{ get; private set; }
 
 
 		public override void Set( SMFSM owner ) {

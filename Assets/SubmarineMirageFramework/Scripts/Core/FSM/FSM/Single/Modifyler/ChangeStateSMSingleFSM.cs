@@ -24,43 +24,40 @@ namespace SubmarineMirage.FSM.Modifyler {
 	{
 		public override SMFSMModifyType _type => SMFSMModifyType.SingleRunner;
 		Type _stateType	{ get; set; }
-		TState _state	{ get; set; }
 
 
 		public ChangeStateSMSingleFSM( Type stateType ) {
 			_stateType = stateType;
 		}
 
-		public override void Set( SMFSM owner ) {
-			base.Set( owner );
-
-			if ( _stateType == null ) {
-				_state = null;
-				return;
-			}
-			_state = _owner.GetState( _stateType );
-			if ( _state == null ) {
-				throw new InvalidOperationException( $"状態遷移に、未所持状態を指定 : {_stateType}" );
-			}
-		}
-
 
 		public override async UniTask Run() {
-			if ( _owner._state != null ) {
-				await _owner._state._modifyler.RegisterAndRun( new ExitSMState() );
+			TState state = null;
+			if ( _stateType != null ) {
+				state = _owner.GetState( _stateType );
+				if ( state == null ) {
+					throw new InvalidOperationException( $"状態遷移に、未所持状態を指定 : {_stateType}" );
+				}
 			}
-			if ( _owner._isFinalizing ) {
+
+
+			SMFSMApplyer.StopAsyncOnDisableAndExit( _owner );
+
+			if ( _owner._state != null ) {
+				await SMStateApplyer.Exit( _owner._state );
+			}
+			if ( _modifyler.IsHaveData() ) {
 				_owner._state = null;
 				return;
 			}
 
-			_owner._state = _state;
+			_owner._state = state;
 			if ( _owner._state == null )	{ return; }
 
-			await _owner._state._modifyler.RegisterAndRun( new EnterSMState() );
-			if ( _owner._isFinalizing )	{ return; }
+			await SMStateApplyer.Enter( _owner._state );
+			if ( _modifyler.IsHaveData() )	{ return; }
 
-			_owner._state._modifyler.Register( new UpdateSMState() );
+			SMStateApplyer.UpdateAsync( _owner._state );
 		}
 	}
 }

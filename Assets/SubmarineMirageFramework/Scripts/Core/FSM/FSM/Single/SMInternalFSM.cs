@@ -19,10 +19,15 @@ namespace SubmarineMirage.FSM {
 
 
 
-	public abstract class SMInternalFSM<TOwner, TState> : BaseSMSingleFSM<TOwner, TState>
-		where TOwner : SMFSM, IBaseSMFSMOwner
+	public abstract class SMInternalFSM<TOwner, TOwnerFSM, TState> : BaseSMSingleFSM<TOwnerFSM, TState>
+		where TOwner : IBaseSMFSMOwner
+		where TOwnerFSM : SMFSM, IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
+		public TOwner _topOwner	{ get; private set; }
+		public TOwnerFSM _fsm => _owner;
+
+
 		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startStateType = null )
 			: base( states, startStateType )
 		{
@@ -32,6 +37,12 @@ namespace SubmarineMirage.FSM {
 					throw new InvalidOperationException( $"基盤状態が違う、状態を指定 : {type}, {baseStateType}" );
 				}
 			} );
+		}
+
+
+		public override void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
+			_topOwner = (TOwner)topOwner;
+			base.Set( topOwner, owner );
 		}
 	}
 }

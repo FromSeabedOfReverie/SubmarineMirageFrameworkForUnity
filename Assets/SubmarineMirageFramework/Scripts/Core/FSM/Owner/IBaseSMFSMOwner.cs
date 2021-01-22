@@ -30,7 +30,6 @@ namespace SubmarineMirage.FSM.Base {
 		SMMultiSubject _disableEvent			{ get; }
 		SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		SMTaskCanceler _asyncCancelerOnDisable	{ get; }
 		SMTaskCanceler _asyncCancelerOnDispose	{ get; }
 	}
 }

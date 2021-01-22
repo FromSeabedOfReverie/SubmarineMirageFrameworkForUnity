@@ -26,6 +26,8 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
+			SMFSMApplyer.StopAsyncOnDisableAndExit( _owner );
+
 			await _owner._fsms.Select( pair => pair.Value.FinalExit() );
 
 			_modifyler.Dispose();

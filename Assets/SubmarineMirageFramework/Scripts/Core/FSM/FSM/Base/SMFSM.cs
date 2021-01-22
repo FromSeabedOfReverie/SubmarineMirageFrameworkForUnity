@@ -5,9 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.Base {
+	using SubmarineMirage.Base;
 	using Cysharp.Threading.Tasks;
+	using UniRx;
 	using MultiEvent;
 	using Task;
+	using FSM.Modifyler;
 	using FSM.Modifyler.Base;
 	using Extension;
 	using Debug;
@@ -18,7 +21,12 @@ namespace SubmarineMirage.FSM.Base {
 
 
 
-	public abstract class SMFSM : BaseSMFSMModifylerOwner<SMFSM, SMFSMModifyler, SMFSMModifyData> {
+	public abstract class SMFSM : SMStandardBase {
+		public abstract bool _isInitialized	{ get; }
+		public abstract bool _isOperable	{ get; }
+		public abstract bool _isFinalizing	{ get; }
+		public abstract bool _isActive		{ get; }
+
 		[SMHide] public abstract SMMultiAsyncEvent _selfInitializeEvent	{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _initializeEvent		{ get; }
 		[SMHide] public abstract SMMultiSubject _enableEvent			{ get; }
@@ -28,9 +36,11 @@ namespace SubmarineMirage.FSM.Base {
 		[SMHide] public abstract SMMultiSubject _disableEvent			{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDisable	{ get; }
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDisableAndExit	{ get; private set; }
+			= new SMTaskCanceler();
 		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }
 
+		public SMFSMModifyler _modifyler	{ get; private set; }
 		public string _registerEventName	{ get; private set; }
 		public bool _isInitialEntered	{ get; set; }
 
@@ -39,11 +49,24 @@ namespace SubmarineMirage.FSM.Base {
 		public SMFSM() {
 			_registerEventName = this.GetAboutName();
 			_modifyler = new SMFSMModifyler( this );
+
+			_disposables.AddLast( () => {
+				_modifyler.Dispose();
+				_asyncCancelerOnDisableAndExit.Dispose();
+			} );
 		}
 
 		public override void Dispose() => base.Dispose();
 
-		public abstract void Set( IBaseSMFSMOwner owner );
+		public virtual void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
+			_disableEvent.AddLast( _registerEventName ).Subscribe( _ => {
+				_modifyler.Reset();
+				SMFSMApplyer.StopAsyncOnDisableAndExit( this );
+			} );
+			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => {
+				_modifyler.Run().Forget();
+			} );
+		}
 
 
 		public abstract UniTask FinalExit();

@@ -32,7 +32,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 			await UTask.WaitWhile(
-				_owner._asyncCancelerOnDisable,
+				_owner._asyncCancelerOnDisableAndExit,
 				() => _owner._fsms.Any( pair => !pair.Value._isInitialEntered )
 			);
 

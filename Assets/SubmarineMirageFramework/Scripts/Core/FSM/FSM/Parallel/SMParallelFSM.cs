@@ -6,18 +6,20 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
-	using UniRx;
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Task;
 	using FSM.Base;
 	using FSM.Modifyler;
+	using Extension;
+	using Utility;
 
 
 
-// TODO : コメント追加、整頓
+	// TODO : コメント追加、整頓
 
 
 
@@ -40,7 +42,6 @@ namespace SubmarineMirage.FSM {
 		public override SMMultiSubject _disableEvent			=> _owner._disableEvent;
 		public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
-		public override SMTaskCanceler _asyncCancelerOnDisable	=> _owner._asyncCancelerOnDisable;
 		public override SMTaskCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
 
 		public TOwner _owner	{ get; private set; }
@@ -49,7 +50,7 @@ namespace SubmarineMirage.FSM {
 
 		public SMParallelFSM( TOwner owner, Dictionary<TEnum, TInternalFSM> fsms ) {
 			_fsms = fsms;
-			Set( owner );
+			Set( owner, owner );
 
 			_disposables.AddLast( () => {
 				_fsms.ForEach( pair => pair.Value.Dispose() );
@@ -57,18 +58,12 @@ namespace SubmarineMirage.FSM {
 			} );
 		}
 
-		public override void Set( IBaseSMFSMOwner owner ) {
+		public override void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
 			_owner = (TOwner)owner;
-			_fsms.ForEach( pair => pair.Value.Set( this ) );
+			base.Set( topOwner, owner );
+			_fsms.ForEach( pair => pair.Value.Set( topOwner, this ) );
 
 			_modifyler.Register( new InitialEnterSMParallelFSM<TOwner, TInternalFSM, TEnum>() );
-
-			_disableEvent.AddFirst( _registerEventName ).Subscribe( _ => {
-				_modifyler.Reset();
-			} );
-			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_modifyler.Run().Forget();
-			} );
 		}
 
 
@@ -78,5 +73,18 @@ namespace SubmarineMirage.FSM {
 
 		public override UniTask FinalExit()
 			=> _modifyler.RegisterAndRun( new FinalExitSMParallelFSM<TOwner, TInternalFSM, TEnum>() );
+
+
+
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.SetValue( nameof( _owner ), i => _owner.GetAboutName() );
+			_toStringer.SetValue( nameof( _fsms ), i => {
+				var arrayI = StringSMUtility.IndentSpace( i + 1 );
+				return "\n" + string.Join( ",\n", _fsms.Select( pair =>
+					$"{arrayI}{pair.Key} : {pair.Value.ToLineString()}"
+				) );
+			} );
+		}
 	}
 }

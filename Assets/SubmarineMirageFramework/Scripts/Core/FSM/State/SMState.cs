@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.State {
+	using Task;
 	using FSM.Base;
 	using FSM.State.Base;
 
@@ -14,18 +15,19 @@ namespace SubmarineMirage.FSM.State {
 
 
 
-	public abstract class SMState<TFSM> : BaseSMState
+	public abstract class SMState<TOwner, TFSM> : BaseSMState
+		where TOwner : IBaseSMFSMOwner
 		where TFSM : SMFSM
 	{
-		public override bool _isInitialized	=> _fsm._isInitialized;
-		public override bool _isOperable	=> _fsm._isOperable;
-		public override bool _isFinalizing	=> _fsm._isFinalizing;
-		public override bool _isActive		=> _fsm._isActive;
+		public override SMTaskCanceler _asyncCancelerOnDisableAndExit	=> _fsm._asyncCancelerOnDisableAndExit;
+		public override SMTaskCanceler _asyncCancelerOnDispose			=> _fsm._asyncCancelerOnDispose;
 
+		public TOwner _topOwner	{ get; private set; }
 		public TFSM _fsm	{ get; private set; }
 
 
-		public override void Set( SMFSM fsm ) {
+		public override void Set( IBaseSMFSMOwner topOwner, SMFSM fsm ) {
+			_topOwner = (TOwner)topOwner;
 			_fsm = (TFSM)fsm;
 		}
 	}

@@ -15,7 +15,7 @@ namespace SubmarineMirage.FSM.Base {
 	using Task;
 	using FSM.Modifyler;
 	using FSM.State.Base;
-	using FSM.State.Modifyler.Base;
+	using FSM.State.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -44,10 +44,9 @@ namespace SubmarineMirage.FSM.Base {
 		public override SMMultiSubject _disableEvent			=> _owner._disableEvent;
 		public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
-		public override SMTaskCanceler _asyncCancelerOnDisable	=> _owner._asyncCancelerOnDisable;
 		public override SMTaskCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
 
-		public TOwner _owner	{ get; private set; }
+		protected TOwner _owner	{ get; private set; }
 		public TState _state	{ get; set; }
 		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 		public Type _startStateType	{ get; private set; }
@@ -65,34 +64,30 @@ namespace SubmarineMirage.FSM.Base {
 		}
 
 
-		public override void Set( IBaseSMFSMOwner owner ) {
+		public override void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
 			_owner = (TOwner)owner;
-			_states.ForEach( pair => pair.Value.Set( this ) );
-
-			_modifyler.Register( new InitialEnterSMSingleFSM<TOwner, TState>( _startStateType ) );
+			base.Set( topOwner, owner );
+			_states.ForEach( pair => pair.Value.Set( topOwner, this ) );
 
 			_selfInitializeEvent.AddLast( _registerEventName, async canceler => {
-				await _states.Select( pair => SMStateApplyer.SelfInitialize( pair.Value, canceler ) );
+				await _states.Select( pair => SMStateApplyer.SelfInitialize( pair.Value ) );
 			} );
 			_initializeEvent.AddLast( _registerEventName, async canceler => {
-				await _states.Select( pair => SMStateApplyer.Initialize( pair.Value, canceler ) );
+				await _states.Select( pair => SMStateApplyer.Initialize( pair.Value ) );
 			} );
 			_finalizeEvent.AddFirst( _registerEventName, async canceler => {
-				await _states.Select( pair => SMStateApplyer.Finalize( pair.Value, canceler ) );
+				_state = null;
+				await _states.Select( pair => SMStateApplyer.Finalize( pair.Value ) );
 			} );
 
-			_enableEvent.AddLast( _registerEventName ).Subscribe( _ => SMStateApplyer.Enable( _state ) );
-			_disableEvent.AddFirst( _registerEventName ).Subscribe( _ => {
-				_modifyler.Reset();
-				SMStateApplyer.Disable( _state );
-			} );
+			_enableEvent.AddLast( _registerEventName ).Subscribe( _ =>	SMStateApplyer.Enable( _state ) );
+			_disableEvent.AddLast( _registerEventName ).Subscribe( _ =>	SMStateApplyer.Disable( _state ) );
 
-			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => SMStateApplyer.FixedUpdate( _state ) );
-			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_modifyler.Run().Forget();
-				SMStateApplyer.Update( _state );
-			} );
-			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => SMStateApplyer.LateUpdate( _state ) );
+			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>	SMStateApplyer.FixedUpdate( _state ) );
+			_updateEvent.AddLast( _registerEventName ).Subscribe( _ =>		SMStateApplyer.Update( _state ) );
+			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>	SMStateApplyer.LateUpdate( _state ) );
+
+			_modifyler.Register( new InitialEnterSMSingleFSM<TOwner, TState>( _startStateType ) );
 		}
 
 

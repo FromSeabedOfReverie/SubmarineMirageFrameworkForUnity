@@ -42,7 +42,7 @@ namespace SubmarineMirage.FSM.Test {
 		}
 	}
 
-	public abstract class HumanState : SMState<HumanFSM> {
+	public abstract class HumanState : SMState<Human, HumanFSM> {
 		public void _State() {
 			_fsm._owner._Owner();
 			_fsm._OwnerFSM();
@@ -122,19 +122,19 @@ namespace SubmarineMirage.FSM.Test {
 		}
 	}
 
-	public class DragonInternalFSM : SMInternalFSM<DragonFSM, DragonState> {
+	public class DragonInternalFSM : SMInternalFSM<Dragon, DragonFSM, DragonState> {
 		public DragonInternalFSM( DragonState[] states, Type baseStateType ) : base( states, baseStateType ) {}
 		public void _BaseFSM() {
-			_owner._owner._Owner();
-			_owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._OwnerFSM();
 			_states.ForEach( pair => pair.Value._BaseState() );
 		}
 	}
 
-	public abstract class DragonState : SMState<DragonInternalFSM> {
+	public abstract class DragonState : SMState<Dragon, DragonInternalFSM> {
 		public void _BaseState() {
-			_fsm._owner._owner._Owner();
-			_fsm._owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._fsm._OwnerFSM();
 			_fsm._BaseFSM();
 			_fsm._states.ForEach( pair => pair.Value._BaseState() );
 			_fsm.ChangeState<BiteDragonHeadState>().Forget();
@@ -143,8 +143,8 @@ namespace SubmarineMirage.FSM.Test {
 	}
 	public abstract class DragonHeadState : DragonState {
 		public void _BaseHead() {
-			_fsm._owner._owner._Owner();
-			_fsm._owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._fsm._OwnerFSM();
 			_fsm._BaseFSM();
 			_fsm._states.ForEach( pair => pair.Value._BaseState() );
 			_BaseState();
@@ -152,8 +152,8 @@ namespace SubmarineMirage.FSM.Test {
 	}
 	public class NormalDragonHeadState : DragonHeadState {
 		public void _NormalHead() {
-			_fsm._owner._owner._Owner();
-			_fsm._owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._fsm._OwnerFSM();
 			_fsm._BaseFSM();
 			_fsm._states.ForEach( pair => pair.Value._BaseState() );
 			_BaseState();
@@ -161,8 +161,8 @@ namespace SubmarineMirage.FSM.Test {
 	}
 	public class BiteDragonHeadState : DragonHeadState {
 		public void _BiteHead() {
-			_fsm._owner._owner._Owner();
-			_fsm._owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._fsm._OwnerFSM();
 			_fsm._BaseFSM();
 			_fsm._states.ForEach( pair => pair.Value._BaseState() );
 			_BaseState();
@@ -170,8 +170,8 @@ namespace SubmarineMirage.FSM.Test {
 	}
 	public abstract class DragonBodyState : DragonState {
 		public void _BaseBody() {
-			_fsm._owner._owner._Owner();
-			_fsm._owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._fsm._OwnerFSM();
 			_fsm._BaseFSM();
 			_fsm._states.ForEach( pair => pair.Value._BaseState() );
 			_BaseState();
@@ -179,8 +179,8 @@ namespace SubmarineMirage.FSM.Test {
 	}
 	public class NormalDragonBodyState : DragonBodyState {
 		public void _NormalBody() {
-			_fsm._owner._owner._Owner();
-			_fsm._owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._fsm._OwnerFSM();
 			_fsm._BaseFSM();
 			_fsm._states.ForEach( pair => pair.Value._BaseState() );
 			_BaseState();
@@ -188,8 +188,8 @@ namespace SubmarineMirage.FSM.Test {
 	}
 	public class DeathDragonBodyState : DragonBodyState {
 		public void _DeathBody() {
-			_fsm._owner._owner._Owner();
-			_fsm._owner._OwnerFSM();
+			_topOwner._Owner();
+			_fsm._fsm._OwnerFSM();
 			_fsm._BaseFSM();
 			_fsm._states.ForEach( pair => pair.Value._BaseState() );
 			_BaseState();
@@ -213,7 +213,7 @@ namespace SubmarineMirage.FSM.Test {
 		} ) {}
 	}
 
-	public class DummyInternalFSM : SMInternalFSM<DummyFSM, DummyState> {
+	public class DummyInternalFSM : SMInternalFSM<Dummy, DummyFSM, DummyState> {
 		public DummyInternalFSM() : base(
 			new DummyState[] {
 				new NormalDummyState(),
@@ -222,7 +222,7 @@ namespace SubmarineMirage.FSM.Test {
 		) {}
 	}
 
-	public abstract class DummyState : SMState<DummyInternalFSM> {
+	public abstract class DummyState : SMState<Dummy, DummyInternalFSM> {
 	}
 	public class NormalDummyState : DummyState {
 	}

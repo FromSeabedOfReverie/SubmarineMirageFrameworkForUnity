@@ -5,7 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.Modifyler.Base {
+	using Cysharp.Threading.Tasks;
+	using SubmarineMirage.Base;
 	using FSM.Base;
+	using Debug;
 
 
 
@@ -13,6 +16,19 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 
-	public abstract class SMFSMModifyData : BaseSMFSMModifyData<SMFSM, SMFSMModifyler, SMFSMModifyData> {
+	public abstract class SMFSMModifyData : SMLightBase {
+		protected SMFSMModifyler _modifyler	{ get; private set; }
+		[SMShowLine] public abstract SMFSMModifyType _type	{ get; }
+
+
+		public override void Dispose() {}
+
+
+		public virtual void Set( SMFSM owner ) {
+			_modifyler = owner._modifyler;
+		}
+
+
+		public abstract UniTask Run();
 	}
 }

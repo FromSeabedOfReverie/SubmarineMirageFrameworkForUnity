@@ -5,11 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.State.Base {
+	using SubmarineMirage.Base;
 	using MultiEvent;
 	using Task;
 	using FSM.Base;
-	using FSM.Modifyler.Base;
-	using FSM.State.Modifyler.Base;
 	using Debug;
 
 
@@ -18,9 +17,9 @@ namespace SubmarineMirage.FSM.State.Base {
 
 
 
-	public abstract class BaseSMState : BaseSMFSMModifylerOwner<BaseSMState, SMStateModifyler, SMStateModifyData>
-	{
+	public abstract class BaseSMState : SMStandardBase {
 		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
+		[SMShowLine] public SMStateUpdateState _updatedState	{ get; set; }
 		public bool _isUpdating	{ get; set; }
 
 		public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
@@ -36,20 +35,16 @@ namespace SubmarineMirage.FSM.State.Base {
 		public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
 		public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
 
-		public readonly SMTaskCanceler _asyncCancelerOnDisableAndExit = new SMTaskCanceler();
-		public readonly SMTaskCanceler _asyncCancelerOnDispose = new SMTaskCanceler();
+		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDisableAndExit	{ get; }
+		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }
 
 
 
 		public BaseSMState() {
-			_modifyler = new SMStateModifyler( this );
-
 			_disposables.AddLast( () => {
 				_ranState = SMStateRunState.Exit;
+				_updatedState = SMStateUpdateState.Disable;
 				_isUpdating = false;
-
-				_asyncCancelerOnDisableAndExit.Dispose();
-				_asyncCancelerOnDispose.Dispose();
 
 				_selfInitializeEvent.Dispose();
 				_initializeEvent.Dispose();
@@ -68,6 +63,6 @@ namespace SubmarineMirage.FSM.State.Base {
 
 		public override void Dispose() => base.Dispose();
 
-		public abstract void Set( SMFSM fsm );
+		public abstract void Set( IBaseSMFSMOwner topOwner, SMFSM fsm );
 	}
 }
