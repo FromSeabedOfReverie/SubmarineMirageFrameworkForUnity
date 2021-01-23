@@ -5,20 +5,29 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
+	using UnityEngine;
 	using UnityEngine.SceneManagement;
+	using Cysharp.Threading.Tasks;
+	using Utility;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class ForeverSMScene : SMScene {
-		public ForeverSMScene() {
-			_rawScene = SceneManager.CreateScene( _name );
 
-			_enterEvent.Remove( _registerKey );
-			_enterEvent.AddFirst( _registerKey, async canceler => await _groups.Enter() );
-			_exitEvent.Remove( _registerKey );
-			_exitEvent.AddFirst( _registerKey, async canceler => await _groups.Exit() );
+	public abstract class MainSMScene : SMScene {
+		public MainSMScene() {
+			_enterEvent.AddFirst( _registerEventName, async canceler => {
+				
+			} );
+
+
+			_exitEvent.AddLast( _registerEventName, async canceler => {
+				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
+				ReloadRawScene();
+				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
+			} );
 		}
 	}
 }

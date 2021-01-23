@@ -129,7 +129,7 @@ namespace SubmarineMirage.TestScene {
 							break;
 						case 2:
 							SMLog.Debug( $"{this.GetAboutName()} change UnknownScene" );
-							_sceneManager._fsm.ChangeScene<UnknownSMScene>().Forget();
+							_sceneManager._fsm.ChangeScene<UnknownMainSMScene>().Forget();
 							break;
 					}
 				} )

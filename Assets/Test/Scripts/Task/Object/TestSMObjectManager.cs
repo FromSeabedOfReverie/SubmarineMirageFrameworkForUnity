@@ -305,8 +305,8 @@ namespace SubmarineMirage.TestTask {
 							_sceneManager._fsm.ChangeScene<TestChange2Scene>().Forget();
 							break;
 						case 2:
-							SMLog.Debug( $"{this.GetAboutName()} change {nameof( UnknownSMScene )}" );
-							_sceneManager._fsm.ChangeScene<UnknownSMScene>().Forget();
+							SMLog.Debug( $"{this.GetAboutName()} change {nameof( UnknownMainSMScene )}" );
+							_sceneManager._fsm.ChangeScene<UnknownMainSMScene>().Forget();
 							break;
 					}
 				} )

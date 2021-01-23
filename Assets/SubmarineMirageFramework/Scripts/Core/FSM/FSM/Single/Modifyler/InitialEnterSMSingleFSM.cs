@@ -37,13 +37,18 @@ namespace SubmarineMirage.FSM.Modifyler {
 				throw new InvalidOperationException(
 					$"初期状態遷移前に、既に状態設定済み : {nameof( _owner._state )}" );
 			}
-			var state = _owner.GetState( _stateType );
-			if ( state == null ) {
-				throw new InvalidOperationException( $"初期状態遷移に、未所持状態を指定 : {nameof( state )}" );
+			TState state = null;
+			if ( _stateType != null ) {
+				state = _owner.GetState( _stateType );
+				if ( state == null ) {
+					throw new InvalidOperationException(
+						$"初期状態遷移に、未所持状態を指定 : {nameof( _stateType )}" );
+				}
 			}
 
 
 			_owner._state = state;
+			if ( _owner._state == null )	{ return; }
 
 			await SMStateApplyer.Enter( _owner._state );
 			_owner._isInitialEntered = true;

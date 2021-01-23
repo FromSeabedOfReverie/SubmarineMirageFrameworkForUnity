@@ -19,18 +19,22 @@ namespace SubmarineMirage.FSM {
 
 
 
-	public abstract class SMInternalFSM<TOwner, TOwnerFSM, TState> : BaseSMSingleFSM<TOwnerFSM, TState>
+	public abstract class SMInternalFSM<TOwner, TOwnerFSM, TState, TEnum> : BaseSMSingleFSM<TOwnerFSM, TState>
 		where TOwner : IBaseSMFSMOwner
 		where TOwnerFSM : SMFSM, IBaseSMFSMOwner
 		where TState : BaseSMState
+		where TEnum : Enum
 	{
 		public TOwner _topOwner	{ get; private set; }
 		public TOwnerFSM _fsm => _owner;
+		public TEnum _fsmType	{ get; private set; }
 
 
-		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startStateType = null )
-			: base( states, startStateType )
+		public SMInternalFSM( TEnum fsmType, IEnumerable<TState> states, Type baseStateType,
+								Type startStateType = null
+		) : base( states, startStateType )
 		{
+			_fsmType = fsmType;
 			_states.ForEach( pair => {
 				var type = pair.Value.GetType();
 				if ( type.IsInheritance( baseStateType ) ) {

@@ -8,13 +8,20 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 
 
+
 	// TODO : コメント追加、整頓
 
 
-	public class UnknownSMScene : SMScene {
-		public UnknownSMScene() {
-			_rawScene = SceneManager.GetActiveScene();
-			_name = _rawScene.name;
+
+	public class NoneMainSMScene : MainSMScene {
+		public NoneMainSMScene() {
 		}
+
+
+		protected override void SetSceneName()
+			=> _name = "";
+
+		protected override void ReloadRawScene()
+			=> _rawScene = default;
 	}
 }

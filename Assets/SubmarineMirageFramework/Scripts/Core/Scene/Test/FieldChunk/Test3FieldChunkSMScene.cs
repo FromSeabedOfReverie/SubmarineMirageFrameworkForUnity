@@ -5,18 +5,20 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
+	using UnityEngine.SceneManagement;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public enum SMSceneType {
-		Forever,
-		Main,
-		UI,
-		FieldChunk1,
-		FieldChunk2,
-		FieldChunk3,
-		FieldChunk4,
+	public class TestFieldChunk3SMScene : FieldChunkSMScene {
+		public TestFieldChunk3SMScene() {
+			_rawScene = SceneManager.CreateScene( _name );
+
+			_enterEvent.Remove( _registerEventName );
+			_enterEvent.AddFirst( _registerEventName, async canceler => await _groups.Enter() );
+			_exitEvent.Remove( _registerEventName );
+			_exitEvent.AddFirst( _registerEventName, async canceler => await _groups.Exit() );
+		}
 	}
 }

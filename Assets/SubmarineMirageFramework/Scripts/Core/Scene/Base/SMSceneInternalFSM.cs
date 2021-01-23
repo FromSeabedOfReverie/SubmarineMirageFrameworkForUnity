@@ -11,6 +11,7 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
 	using FSM;
+	using FSM.Base;
 	using Debug;
 
 
@@ -23,16 +24,21 @@ namespace SubmarineMirage.Scene {
 		[SMHide] public SMScene _scene => _state;
 
 
-		public SMSceneInternalFSM( IEnumerable<SMScene> states ) : base(
-			states,
-			typeof( SMScene )
-		) {
+		public SMSceneInternalFSM( IEnumerable<SMScene> states, Type baseStateType )
+			: base( states, baseStateType )
+		{
+		}
+
+
+		public override void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
+			var fsm = (SMSceneFSM)owner;
+
 			_startStateType = _states
 				.Select( pair => pair.Value )
-				.Where( s => !( s is UnknownSMScene ) )
-				.FirstOrDefault( s => s._name == SceneManager.GetActiveScene().name )
-				?.GetType()
-				?? _startStateType;
+				.FirstOrDefault( s => fsm.IsFirstLoaded( s ) )
+				?.GetType();
+
+			base.Set( topOwner, owner );
 		}
 
 
@@ -42,8 +48,7 @@ namespace SubmarineMirage.Scene {
 
 		public SMScene GetScene( Scene rawScene )
 			=> GetAllScenes()
-				.FirstOrDefault( s => s._rawScene == rawScene )
-				?? GetState( typeof( UnknownSMScene ) );
+				.FirstOrDefault( s => s._rawScene == rawScene );
 
 
 

@@ -81,7 +81,7 @@ namespace SubmarineMirage.TestTask.Modifyler {
 			await SetAdds( SMSceneManager.s_instance.GetBehaviour<M1>()._object );
 
 			SMLog.Debug( "・子に追加テスト" );
-			await SetAdds( SMSceneManager.s_instance.GetBehaviour<M1, UnknownSMScene>()._object._child );
+			await SetAdds( SMSceneManager.s_instance.GetBehaviour<M1, UnknownMainSMScene>()._object._child );
 
 			await UTask.Never( _asyncCanceler );
 		} );

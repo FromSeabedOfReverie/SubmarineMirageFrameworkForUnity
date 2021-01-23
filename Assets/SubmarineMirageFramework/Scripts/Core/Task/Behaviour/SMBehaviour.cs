@@ -45,7 +45,7 @@ namespace SubmarineMirage.Task.Behaviour {
 		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 
-		protected SMBehaviour( bool isDebug = false ) {
+		public SMBehaviour( bool isDebug = false ) {
 			_body = new SMBehaviourBody( this, _type != SMTaskType.DontWork );
 			_object = new SMObject( null, new ISMBehaviour[] { this }, null
 #if TestBehaviourModifyler

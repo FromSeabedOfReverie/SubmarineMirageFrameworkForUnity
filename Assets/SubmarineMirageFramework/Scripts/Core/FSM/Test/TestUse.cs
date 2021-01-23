@@ -90,6 +90,7 @@ namespace SubmarineMirage.FSM.Test {
 			{
 				DragonFSMType.Head,
 				new DragonInternalFSM(
+					DragonFSMType.Head,
 					new DragonState[] { new NormalDragonHeadState(), new BiteDragonHeadState(), },
 					typeof( DragonHeadState )
 				)
@@ -97,6 +98,7 @@ namespace SubmarineMirage.FSM.Test {
 			{
 				DragonFSMType.Body,
 				new DragonInternalFSM(
+					DragonFSMType.Body,
 					new DragonState[] { new NormalDragonBodyState(), new DeathDragonBodyState(),
 						new NormalDragonHeadState(),	// コンパイルエラーにならない
 //							new NormalDummyState(),		// エラー
@@ -122,9 +124,9 @@ namespace SubmarineMirage.FSM.Test {
 		}
 	}
 
-	public class DragonInternalFSM : SMInternalFSM<Dragon, DragonFSM, DragonState> {
-		public DragonInternalFSM( IEnumerable<DragonState> states, Type baseStateType )
-			: base( states, baseStateType )
+	public class DragonInternalFSM : SMInternalFSM<Dragon, DragonFSM, DragonState, DragonFSMType> {
+		public DragonInternalFSM( DragonFSMType fsmType, IEnumerable<DragonState> states, Type baseStateType )
+			: base( fsmType, states, baseStateType )
 		{}
 		public void _BaseFSM() {
 			_topOwner._Owner();
@@ -215,8 +217,9 @@ namespace SubmarineMirage.FSM.Test {
 		} ) {}
 	}
 
-	public class DummyInternalFSM : SMInternalFSM<Dummy, DummyFSM, DummyState> {
-		public DummyInternalFSM() : base(
+	public class DummyInternalFSM : SMInternalFSM<Dummy, DummyFSM, DummyState, DummyFSMType> {
+		public DummyInternalFSM( DummyFSMType fsmType ) : base(
+			fsmType,
 			new DummyState[] {
 				new NormalDummyState(),
 			},

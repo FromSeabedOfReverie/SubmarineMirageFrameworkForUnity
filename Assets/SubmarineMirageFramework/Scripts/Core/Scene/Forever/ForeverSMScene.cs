@@ -5,18 +5,18 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
+	using UnityEngine.SceneManagement;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public enum SMSceneType {
-		Forever,
-		Main,
-		UI,
-		FieldChunk1,
-		FieldChunk2,
-		FieldChunk3,
-		FieldChunk4,
+	public class ForeverSMScene : SMScene {
+		public ForeverSMScene() {
+		}
+
+
+		protected override void ReloadRawScene()
+			=> _rawScene = SceneManager.CreateScene( _name );
 	}
 }

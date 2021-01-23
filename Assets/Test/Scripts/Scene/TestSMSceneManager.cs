@@ -111,20 +111,20 @@ namespace SubmarineMirage.TestScene {
 
 			TestSMBehaviourSMUtility.LogBehaviour(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviour )}<M1,UnknownScene>",
-				_sceneManager.GetBehaviour<M1, UnknownSMScene>() );
+				_sceneManager.GetBehaviour<M1, UnknownMainSMScene>() );
 			TestSMBehaviourSMUtility.LogBehaviour(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviour )}<M1,UnknownScene>(Work)",
-				_sceneManager.GetBehaviour<M1, UnknownSMScene>( SMTaskType.Work ) );
+				_sceneManager.GetBehaviour<M1, UnknownMainSMScene>( SMTaskType.Work ) );
 
 			TestSMBehaviourSMUtility.LogBehaviour(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviour )}(M1)",
 				_sceneManager.GetBehaviour( typeof( M1 ) ) );
 			TestSMBehaviourSMUtility.LogBehaviour(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviour )}(M1,UnknownScene)",
-				_sceneManager.GetBehaviour( typeof( M1 ), typeof( UnknownSMScene ) ) );
+				_sceneManager.GetBehaviour( typeof( M1 ), typeof( UnknownMainSMScene ) ) );
 			TestSMBehaviourSMUtility.LogBehaviour(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviour )}(M1,UnknownScene,Work)",
-				_sceneManager.GetBehaviour( typeof( M1 ), typeof( UnknownSMScene ), SMTaskType.Work ) );
+				_sceneManager.GetBehaviour( typeof( M1 ), typeof( UnknownMainSMScene ), SMTaskType.Work ) );
 
 
 			SMLog.Debug( "・複数取得テスト" );
@@ -137,20 +137,20 @@ namespace SubmarineMirage.TestScene {
 
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}<M1,UnknownScene>",
-				_sceneManager.GetBehaviours<M1, UnknownSMScene>() );
+				_sceneManager.GetBehaviours<M1, UnknownMainSMScene>() );
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}<M1,UnknownScene>(Work)",
-				_sceneManager.GetBehaviours<M1, UnknownSMScene>( SMTaskType.Work ) );
+				_sceneManager.GetBehaviours<M1, UnknownMainSMScene>( SMTaskType.Work ) );
 
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}(M1)",
 				_sceneManager.GetBehaviours( typeof( M1 ) ) );
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}(M1,UnknownScene)",
-				_sceneManager.GetBehaviours( typeof( M1 ), typeof( UnknownSMScene ) ) );
+				_sceneManager.GetBehaviours( typeof( M1 ), typeof( UnknownMainSMScene ) ) );
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}(M1,UnknownScene,Work)",
-				_sceneManager.GetBehaviours( typeof( M1 ), typeof( UnknownSMScene ), SMTaskType.Work ) );
+				_sceneManager.GetBehaviours( typeof( M1 ), typeof( UnknownMainSMScene ), SMTaskType.Work ) );
 
 
 			await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKey( KeyCode.Return ) );
@@ -192,20 +192,20 @@ namespace SubmarineMirage.TestScene {
 
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}<M6,UnknownScene>",
-				_sceneManager.GetBehaviours<M6, UnknownSMScene>() );
+				_sceneManager.GetBehaviours<M6, UnknownMainSMScene>() );
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}<M6,UnknownScene>(Work)",
-				_sceneManager.GetBehaviours<M6, UnknownSMScene>( SMTaskType.Work ) );
+				_sceneManager.GetBehaviours<M6, UnknownMainSMScene>( SMTaskType.Work ) );
 
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}(M6)",
 				_sceneManager.GetBehaviours( typeof( M6 ) ) );
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}(M6,UnknownScene)",
-				_sceneManager.GetBehaviours( typeof( M6 ), typeof( UnknownSMScene ) ) );
+				_sceneManager.GetBehaviours( typeof( M6 ), typeof( UnknownMainSMScene ) ) );
 			TestSMBehaviourSMUtility.LogBehaviours(
 				$"{nameof( _sceneManager )}.{nameof( SMSceneManager.GetBehaviours )}(M6,UnknownScene,Work)",
-				_sceneManager.GetBehaviours( typeof( M6 ), typeof( UnknownSMScene ), SMTaskType.Work ) );
+				_sceneManager.GetBehaviours( typeof( M6 ), typeof( UnknownMainSMScene ), SMTaskType.Work ) );
 
 
 			await UTask.Never( _asyncCanceler );

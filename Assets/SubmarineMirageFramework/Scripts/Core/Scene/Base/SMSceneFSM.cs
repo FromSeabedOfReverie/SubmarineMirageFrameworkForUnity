@@ -27,15 +27,60 @@ namespace SubmarineMirage.Scene {
 			new Dictionary<SMSceneType, SMSceneInternalFSM> {
 				{
 					SMSceneType.Forever,
-					new SMSceneInternalFSM( new SMScene[] {
-						new ForeverSMScene()
-					} )
-				},
-				{
-					SMSceneType.Normal,
-					new SMSceneInternalFSM( new SMScene[] {
-						new UnknownSMScene(),
-					} )
+					new SMSceneInternalFSM(
+						new SMScene[] {
+							new ForeverSMScene()
+						},
+						typeof( ForeverSMScene )
+					)
+				}, {
+					SMSceneType.Main,
+					new SMSceneInternalFSM(
+						new SMScene[] {
+							new NoneMainSMScene(),
+						},
+						typeof( MainSMScene )
+					)
+				}, {
+					SMSceneType.UI,
+					new SMSceneInternalFSM(
+						new SMScene[] {
+							new NoneUISMScene(),
+						},
+						typeof( UISMScene )
+					)
+				}, {
+					SMSceneType.FieldChunk1,
+					new SMSceneInternalFSM(
+						new SMScene[] {
+							new NoneFieldChunkSMScene(),
+						},
+						typeof( FieldChunkSMScene )
+					)
+				}, {
+					SMSceneType.FieldChunk2,
+					new SMSceneInternalFSM(
+						new SMScene[] {
+							new NoneFieldChunkSMScene(),
+						},
+						typeof( FieldChunkSMScene )
+					)
+				}, {
+					SMSceneType.FieldChunk3,
+					new SMSceneInternalFSM(
+						new SMScene[] {
+							new NoneFieldChunkSMScene(),
+						},
+						typeof( FieldChunkSMScene )
+					)
+				}, {
+					SMSceneType.FieldChunk4,
+					new SMSceneInternalFSM(
+						new SMScene[] {
+							new NoneFieldChunkSMScene(),
+						},
+						typeof( FieldChunkSMScene )
+					)
 				},
 			}
 		) {
@@ -49,7 +94,7 @@ namespace SubmarineMirage.Scene {
 		public SMScene GetScene( Scene rawScene )
 			=> GetAllScenes()
 				.FirstOrDefault( s => s._rawScene == rawScene )
-				?? _fsms.First().Value.GetState( typeof( UnknownSMScene ) );
+				?? _fsms.First().Value.GetState( typeof( NoneMainSMScene ) );
 
 
 		public IEnumerable<Scene> GetLoadedRawScenes()
@@ -57,12 +102,14 @@ namespace SubmarineMirage.Scene {
 				.Select( i => SceneManager.GetSceneAt( i ) );
 
 
-		public bool IsFirstLoaded( string name ) {
-			if ( _firstLoadedRawScenes.IsEmpty() )	{ return false; }
-
+		public bool RemoveFirstLoaded( SMScene scene ) {
 			var count = _firstLoadedRawScenes
-				.RemoveAll( s => s.name == name );
+				.RemoveAll( s => s.name == scene._name );
 			return count > 0;
 		}
+
+		public bool IsFirstLoaded( SMScene scene )
+			=> _firstLoadedRawScenes
+				.Any( s => s.name == scene._name );
 	}
 }
