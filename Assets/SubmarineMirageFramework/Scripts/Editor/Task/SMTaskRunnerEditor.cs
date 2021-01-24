@@ -9,6 +9,7 @@ namespace SubmarineMirage.EditorTask {
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
+	using Service;
 	using Task;
 	using Task.Object;
 	using Task.Group;
@@ -18,7 +19,9 @@ namespace SubmarineMirage.EditorTask {
 	using EditorExtension;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	[CustomEditor( typeof( SMTaskRunner ) )]
@@ -26,6 +29,7 @@ namespace SubmarineMirage.EditorTask {
 		SMTaskRunner _instance	{ get; set; }
 		Vector2 _scrollPosition	{ get; set; }
 		string _focusedText	{ get; set; } = string.Empty;
+		SMSceneManager _sceneManager	{ get; set; }
 
 
 		public override void Dispose()	{}
@@ -34,8 +38,9 @@ namespace SubmarineMirage.EditorTask {
 		public override void OnInspectorGUI() {
 			base.OnInspectorGUI();
 
-			if ( target == null )				{ return; }
-			if ( !SMSceneManager.s_isCreated )	{ return; }
+			if ( target == null )	{ return; }
+			var _sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
+			if ( _sceneManager == null )	{ return; }
 
 			_instance = (SMTaskRunner)target;
 
@@ -52,14 +57,11 @@ namespace SubmarineMirage.EditorTask {
 
 
 		void ShowAllGroups() {
-			SMSceneManager.s_instance._fsm.GetAllScenes().ForEach( scene => {
+			_sceneManager._fsm.GetScenes().ForEach( scene => {
 				ShowHeading1( scene._name );
 
 				EditorGUI.indentLevel++;
-				scene._groups._groups.ForEach( pair => {
-					ShowHeading2( pair.Key.ToString() );
-					scene._groups.GetAllGroups( pair.Key ).ForEach( g => ShowGroup( g ) );
-				} );
+				scene._groups.GetAllGroups().ForEach( g => ShowGroup( g ) );
 				EditorGUI.indentLevel--;
 			} );
 			EditorGUILayout.Space();
@@ -69,7 +71,7 @@ namespace SubmarineMirage.EditorTask {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( string.Join( "\n",
-				$"{group._id}, {group._type}, {group._lifeSpan}( {group._scene.GetAboutName()} )",
+				$"{group._id}, {group._lifeSpan}( {group._scene.GetAboutName()} )",
 				$"↑ {group._previous?.ToLineString()}",
 				$"↓ {group._next?.ToLineString()}",
 

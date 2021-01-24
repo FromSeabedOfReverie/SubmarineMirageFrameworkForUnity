@@ -10,7 +10,6 @@ namespace SubmarineMirage.TestBase {
 	using UnityEngine;
 	using UnityEngine.TestTools;
 	using Cysharp.Threading.Tasks;
-	using Main;
 	using Utility;
 	using Debug;
 
@@ -25,7 +24,7 @@ namespace SubmarineMirage.TestBase {
 		protected override async UniTask AwakeSub() {
 			Create();
 			UTask.Void( async () => {
-				await UTask.WaitWhile( _asyncCanceler, () => !SubmarineMirage.s_instance._isInitialized );
+				await UTask.WaitWhile( _asyncCanceler, () => !SubmarineMirageFramework.s_instance._isInitialized );
 				_isInitialized = true;
 			} );
 			await UTask.DontWait();

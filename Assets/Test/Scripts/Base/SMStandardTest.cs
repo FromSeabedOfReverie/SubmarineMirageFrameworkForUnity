@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestBase {
 	using Cysharp.Threading.Tasks;
-	using Main;
 	using Base;
 	using MultiEvent;
 	using Utility;
@@ -45,7 +44,7 @@ namespace SubmarineMirage.TestBase {
 			await _createEvent.Run( _asyncCanceler );
 
 			UTask.Void( async () => {
-				await UTask.WaitWhile( _asyncCanceler, () => !SubmarineMirage.s_instance._isInitialized );
+				await UTask.WaitWhile( _asyncCanceler, () => !SubmarineMirageFramework.s_instance._isInitialized );
 				await _initializeEvent.Run( _asyncCanceler );
 				_isInitialized = true;
 			} );

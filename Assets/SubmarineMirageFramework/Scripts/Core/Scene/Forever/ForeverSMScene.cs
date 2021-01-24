@@ -8,15 +8,17 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class ForeverSMScene : SMScene {
 		public ForeverSMScene() {
+			_rawScene = SceneManager.CreateScene( _name );
 		}
 
 
-		protected override void ReloadRawScene()
-			=> _rawScene = SceneManager.CreateScene( _name );
+		protected override void ReloadRawScene() {}
 	}
 }

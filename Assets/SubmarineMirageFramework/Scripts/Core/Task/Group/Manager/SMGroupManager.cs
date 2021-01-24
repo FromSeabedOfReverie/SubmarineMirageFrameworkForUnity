@@ -32,13 +32,13 @@ namespace SubmarineMirage.Task.Group.Manager {
 		public SMScene _scene	{ get; private set; }
 		public SMGroup _group	{ get; set; }
 		public bool _isEnter	{ get; private set; }
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnChangeOrDisable;
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
 
 
 
-		public SMGroupManager( SMScene owner ) {
+		public SMGroupManager( SMScene scene ) {
 			_modifyler = new SMGroupManagerModifyler( this );
-			_scene = owner;
+			_scene = scene;
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
@@ -49,6 +49,52 @@ namespace SubmarineMirage.Task.Group.Manager {
 		}
 
 		public override void Dispose() => base.Dispose();
+
+
+
+		public async UniTask Enter() {
+			await Load();
+
+			await _modifyler.RegisterAndRun( new CreateSMGroupManager() );
+			await _modifyler.RegisterAndRun( new SelfInitializeSMGroupManager() );
+			await _modifyler.RegisterAndRun( new InitializeSMGroupManager() );
+			await _modifyler.RegisterAndRun( new InitialEnableSMGroupManager() );
+		}
+
+		public async UniTask Exit() {
+			await _modifyler.RegisterAndRun( new FinalDisableSMGroupManager() );
+			await _modifyler.RegisterAndRun( new FinalizeSMGroupManager() );
+			SMGroupManagerApplyer.DisposeAll( this );
+
+			_ranState = SMTaskRunState.None;
+			_activeState = SMTaskActiveState.Disable;
+			_isFinalizing = false;
+
+			_isEnter = false;
+		}
+
+
+		async UniTask Load() {
+			if ( _scene._fsm._fsmType == SMSceneType.Forever )	{ return; }
+
+			var currents = new Queue<Transform>(
+				_scene._rawScene.GetRootGameObjects().Select( go => go.transform )
+			);
+			while ( !currents.IsEmpty() ) {
+				var current = currents.Dequeue();
+				var bs = current.GetComponents<SMMonoBehaviour>();
+				if ( !bs.IsEmpty() ) {
+					new SMObject( current.gameObject, bs, null );
+					await UTask.NextFrame( _asyncCancelerOnDisable );
+				} else {
+					foreach ( Transform child in current ) {
+						currents.Enqueue( child );
+					}
+				}
+			}
+
+			SMLog.Debug( $"{nameof( Load )} {_scene.GetAboutName()}" );
+		}
 
 
 
@@ -97,58 +143,6 @@ namespace SubmarineMirage.Task.Group.Manager {
 				}
 				o.GetChildren().ForEach( c => currents.Enqueue( c ) );
 			}
-		}
-
-
-
-		public async UniTask Enter() {
-			await Load();
-//			SMLog.Debug( _modifyler );
-//			await UTask.NextFrame( _asyncCancelerOnDisable );
-//			await UTask.WaitWhile( _asyncCancelerOnDisable, () => !Input.GetKeyDown( KeyCode.Return ) );
-			_isEnter = true;
-			return;
-
-			await _modifyler.RegisterAndRun( new CreateSMGroupManager() );
-			await _modifyler.RegisterAndRun( new SelfInitializeSMGroupManager() );
-			await _modifyler.RegisterAndRun( new InitializeSMGroupManager() );
-			await _modifyler.RegisterAndRun( new InitialEnableSMGroupManager() );
-		}
-
-		public async UniTask Exit() {
-			await _modifyler.RegisterAndRun( new FinalDisableSMGroupManager() );
-			await _modifyler.RegisterAndRun( new FinalizeSMGroupManager() );
-			SMGroupManagerApplyer.DisposeAll( this );
-
-			_ranState = SMTaskRunState.None;
-			_activeState = SMTaskActiveState.Disable;
-			_isFinalizing = false;
-
-			_isEnter = false;
-		}
-
-
-		async UniTask Load() {
-			if ( _scene == _scene._fsm._foreverScene )	{ return; }
-			SMTimeManager.s_instance.StartMeasure();
-
-			var currents = new Queue<Transform>(
-				_scene._rawScene.GetRootGameObjects().Select( go => go.transform )
-			);
-			while ( !currents.IsEmpty() ) {
-				var current = currents.Dequeue();
-				var bs = current.GetComponents<SMMonoBehaviour>();
-				if ( !bs.IsEmpty() ) {
-					new SMObject( current.gameObject, bs, null );
-					await UTask.NextFrame( _asyncCancelerOnDisable );
-				} else {
-					foreach ( Transform child in current ) {
-						currents.Enqueue( child );
-					}
-				}
-			}
-
-			SMLog.Debug( $"{nameof( Load )} {_scene.GetAboutName()} : {SMTimeManager.s_instance.StopMeasure()}秒" );
 		}
 
 

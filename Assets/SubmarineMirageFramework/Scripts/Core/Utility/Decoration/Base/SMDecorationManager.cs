@@ -5,7 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
-	using Singleton;
+	using Base;
+	using Service;
 	using Extension;
 	///====================================================================================================
 	/// <summary>
@@ -13,7 +14,7 @@ namespace SubmarineMirage.Utility {
 	///		NGUI、UGUIの文字描画の装飾を行う。
 	/// </summary>
 	///====================================================================================================
-	public class SMDecorationManager : SMRawSingleton<SMDecorationManager> {
+	public class SMDecorationManager : SMRawBase, ISMService {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------

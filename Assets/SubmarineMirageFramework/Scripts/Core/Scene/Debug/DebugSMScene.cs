@@ -8,17 +8,17 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 
 
+
 	// TODO : コメント追加、整頓
 
 
-	public class TestFieldChunk4SMScene : FieldChunkSMScene {
-		public TestFieldChunk4SMScene() {
-			_rawScene = SceneManager.CreateScene( _name );
 
-			_enterEvent.Remove( _registerEventName );
-			_enterEvent.AddFirst( _registerEventName, async canceler => await _groups.Enter() );
-			_exitEvent.Remove( _registerEventName );
-			_exitEvent.AddFirst( _registerEventName, async canceler => await _groups.Exit() );
+	public class DebugSMScene : SMScene {
+		public DebugSMScene() {
+			_rawScene = SceneManager.CreateScene( _name );
 		}
+
+
+		protected override void ReloadRawScene() {}
 	}
 }

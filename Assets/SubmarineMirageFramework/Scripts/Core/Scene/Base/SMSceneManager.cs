@@ -7,16 +7,14 @@
 #define TestScene
 namespace SubmarineMirage.Scene {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
+	using UnityEngine;
 	using UnityEngine.SceneManagement;
-	using KoganeUnityLib;
+	using Service;
 	using Task;
 	using Task.Behaviour;
-	using Task.Object;
 	using Task.Group.Modifyler;
 	using FSM;
-	using Singleton;
 	using Debug;
 
 
@@ -25,13 +23,19 @@ namespace SubmarineMirage.Scene {
 
 
 
-	public class SMSceneManager : SMSingleton<SMSceneManager>, ISMFSMOwner<SMSceneFSM> {
+	public class SMSceneManager : SMBehaviour, ISMFSMOwner<SMSceneFSM>, ISMService {
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
+
 		public SMSceneFSM _fsm	{ get; private set; }
 
 
 
 		public SMSceneManager() {
-			_fsm = new SMSceneFSM( this );
+			var setting = SMServiceLocator.Resolve<BaseSMSceneSetting>();
+			_fsm = new SMSceneFSM( this, setting._scenes );
+			SMServiceLocator.Unregister<BaseSMSceneSetting>();
+
 // TODO : ここで、SetAllDataする意味が分からない・・・
 			SMGroupApplyer.SetAllData( _object._group );
 
@@ -50,54 +54,21 @@ namespace SubmarineMirage.Scene {
 #endif
 		}
 
+		public void MoveForeverScene( GameObject rawObject )
+			=> SceneManager.MoveGameObjectToScene( rawObject, _fsm._foreverScene._rawScene );
 
 
-		public T GetBehaviour<T>( SMTaskType? taskType = null )
-			where T : ISMBehaviour
-			=> GetBehaviours<T>( taskType )
-				.FirstOrDefault();
 
-		public TBehaviour GetBehaviour<TBehaviour, TScene>( SMTaskType? taskType = null )
-			where TBehaviour : ISMBehaviour
-			where TScene : SMScene
-			=> GetBehaviours<TBehaviour, TScene>( taskType )
-				.FirstOrDefault();
+		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
+			=> _fsm.GetBehaviour<T>( sceneType );
 
-		public ISMBehaviour GetBehaviour( Type type, Type sceneType = null, SMTaskType? taskType = null )
-			=> GetBehaviours( type, sceneType, taskType )
-				.FirstOrDefault();
+		public ISMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
+			=> _fsm.GetBehaviour( type, sceneType );
 
-		public IEnumerable<T> GetBehaviours<T>( SMTaskType? taskType = null )
-			where T : ISMBehaviour
-			=> GetBehaviours( typeof( T ), null, taskType )
-				.Select( b => (T)b );
+		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
+			=> _fsm.GetBehaviours<T>( sceneType );
 
-		public IEnumerable<TBehaviour> GetBehaviours<TBehaviour, TScene>( SMTaskType? taskType = null )
-			where TBehaviour : ISMBehaviour
-			where TScene : SMScene
-			=> GetBehaviours( typeof( TBehaviour ), typeof( TScene ), taskType )
-				.Select( b => (TBehaviour)b );
-
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, Type sceneType = null,
-														SMTaskType? taskType = null
-		) {
-			var scenes = Enumerable.Empty<SMScene>();
-			if ( sceneType != null ) {
-				var scene = _fsm.GetAllScenes().FirstOrDefault( s => s.GetType() == sceneType );
-				if ( scene != null )	{ scenes = new [] { scene }; }
-			} else {
-				scenes = _fsm.GetAllScenes();
-			}
-			var currents = new Queue<SMObject>( scenes.SelectMany( s => {
-				return s._groups.GetAllTops();
-			} ) );
-			while ( !currents.IsEmpty() ) {
-				var o = currents.Dequeue();
-				foreach ( var b in o.GetBehaviours( type ).Where( bb => bb._type == taskType ) ) {
-					yield return b;
-				}
-				o.GetChildren().ForEach( c => currents.Enqueue( c ) );
-			}
-		}
+		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, SMSceneType? sceneType = null )
+			=> _fsm.GetBehaviours( type, sceneType );
 	}
 }

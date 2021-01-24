@@ -8,6 +8,7 @@
 namespace SubmarineMirage.Debug {
 	using UnityEngine;
 	using Base;
+	using Service;
 	using Extension;
 	using Utility;
 	///====================================================================================================
@@ -64,7 +65,7 @@ namespace SubmarineMirage.Debug {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		protected override string DecorationFormat( string format, Color color )
-			=> SMDecorationManager.s_instance._uGUI.ByColor( format, color );
+			=> SMServiceLocator.Resolve<SMDecorationManager>()._uGUI.ByColor( format, color );
 		///------------------------------------------------------------------------------------------------
 		/// ● 文章に変換
 		///------------------------------------------------------------------------------------------------

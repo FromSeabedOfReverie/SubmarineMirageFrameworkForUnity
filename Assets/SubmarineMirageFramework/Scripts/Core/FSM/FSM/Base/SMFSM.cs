@@ -5,9 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.Base {
-	using SubmarineMirage.Base;
+	using System;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
+	using SubmarineMirage.Base;
 	using MultiEvent;
 	using Task;
 	using FSM.Modifyler;
@@ -58,6 +59,7 @@ namespace SubmarineMirage.FSM.Base {
 
 		public override void Dispose() => base.Dispose();
 
+
 		public virtual void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
 			_disableEvent.AddLast( _registerEventName ).Subscribe( _ => {
 				_modifyler.Reset();
@@ -67,6 +69,9 @@ namespace SubmarineMirage.FSM.Base {
 				_modifyler.Run().Forget();
 			} );
 		}
+
+		public virtual void SetFSMType( Enum fsmType )
+			=> throw new InvalidOperationException( $"{this.GetAboutName()}は非対応 : {nameof( SetFSMType )}" );
 
 
 		public abstract UniTask FinalExit();

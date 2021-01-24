@@ -11,6 +11,7 @@ namespace SubmarineMirage.Task.Modifyler {
 	using UniRx;
 	using KoganeUnityLib;
 	using Base;
+	using Service;
 	using Extension;
 	using Utility;
 
@@ -30,13 +31,15 @@ namespace SubmarineMirage.Task.Modifyler {
 		protected readonly LinkedList<TData> _data = new LinkedList<TData>();
 		bool _isRunning	{ get; set; }
 		protected abstract SMTaskCanceler _asyncCanceler	{ get; }
+		SMTaskRunner _taskRunner	{ get; set; }
 
 
 		public BaseSMTaskModifyler( TOwner owner ) {
 			_owner = owner;
+			_taskRunner = SMServiceLocator.Resolve<SMTaskRunner>();
 
 			_disposables.AddLast(
-				SMTaskRunner.s_instance._isUpdating
+				_taskRunner._isUpdating
 					.Where( b => !b )
 					.Subscribe( _ => Run().Forget() )
 			);
@@ -83,7 +86,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			_isRunning = true;
 			while ( !_data.IsEmpty() ) {
 				if ( _isDispose )	{ break; }
-				if ( SMTaskRunner.s_instance._isUpdating.Value )	{ break; }
+				if ( _taskRunner._isUpdating.Value )	{ break; }
 				var d = _data.Dequeue();
 				await d.Run();
 			}

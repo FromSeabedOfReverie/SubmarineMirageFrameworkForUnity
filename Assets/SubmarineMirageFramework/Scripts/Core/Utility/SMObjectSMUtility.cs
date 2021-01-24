@@ -48,5 +48,14 @@ namespace SubmarineMirage.Utility {
 			var go = original.Instantiate();
 			return InstantiateObject( go );
 		}
+
+
+
+		public static SMObject Create<T>() where T : SMMonoBehaviour {
+			var type = typeof( T );
+			var go = new GameObject( type.GetAboutName() );
+			var b = go.AddComponent<T>();
+			return new SMObject( go, new ISMBehaviour[] { b }, null );
+		}
 	}
 }

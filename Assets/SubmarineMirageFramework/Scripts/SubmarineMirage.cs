@@ -4,10 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Main {
+namespace SubmarineMirage {
 	using System;
-	using System.Threading.Tasks;
 	using Cysharp.Threading.Tasks;
+	using UniRx;
+	using Base;
+	using Service;
 	using MultiEvent;
 	using Task;
 	using Singleton;
@@ -15,47 +17,67 @@ namespace SubmarineMirage.Main {
 	using Extension;
 	using Utility;
 	using Debug;
+	using SystemTask = System.Threading.Tasks.Task;
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SubmarineMirage : SMRawSingleton<SubmarineMirage> {
+	public class SubmarineMirageFramework : SMStandardBase, ISMService {
 		public readonly SMMultiAsyncEvent _createTestEvent = new SMMultiAsyncEvent();
 		public bool _isRegisterCreateTestEvent	{ get; set; } = true;
 		public bool _isInitialized	{ get; private set; }
 		readonly SMTaskCanceler _canceler = new SMTaskCanceler();
 
 
-		public SubmarineMirage() {
-			_disposables.Add( () => {
+		public SubmarineMirageFramework() {
+			SMServiceLocator.Register( this );
+
+			_disposables.AddLast( () => {
 				_canceler.Dispose();
 				_createTestEvent.Dispose();
-				SMTaskRunner.DisposeInstance();
-				SMSceneManager.DisposeInstance();
-				SMDecorationManager.DisposeInstance();
 			} );
 		}
 
 
 // TODO : もっと良い開始名を考える
-		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerBehavioursEvent )
-		{
+		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent,
+										Func<UniTask> registerBehavioursEvent
+		) {
+			await SystemTask.Delay( 1, _canceler.ToToken() );
 
-			await Task.Delay( 1, _canceler.ToToken() );
+
+			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown() ) );
+
 
 			await initializePluginEvent();
 
+
+			SMServiceLocator.Register( new SMDecorationManager() );
 			new SMLog();
-			SMSceneManager.CreateInstance();
+
+
+			await registerSettingsEvent();
+
+
+			SMServiceLocator.Register( new SMSceneManager() );
 			SMMonoBehaviourSingletonManager.CreateInstance();
+			var runner = SMServiceLocator.RegisterRawBehaviour<SMTaskRunner>();
+
 
 			await UTask.WaitWhile( _canceler, () => !_isRegisterCreateTestEvent );
 			await _createTestEvent.Run( _canceler );
 
-			await SMTaskRunner.s_instance.RunForeverTasks( () => registerBehavioursEvent() );
+
+			await registerBehavioursEvent();
+
+			await runner.Initialize();
+
 
 			_isInitialized = true;
 		}
+
+
+		public static void Shutdown() => SMServiceLocator.Dispose();
 	}
 }

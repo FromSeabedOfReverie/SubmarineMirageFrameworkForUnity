@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.EditorExtension {
 	using UnityEditor;
-	using Main;
 	using Task;
 	using Utility;
 
@@ -52,14 +51,14 @@ namespace SubmarineMirage.EditorExtension {
 		[MenuItem( "Edit/PlayExtension _F5", priority = 100000 )]
 		static void PlayExtension() {
 			if ( !EditorApplication.isPlaying ) {
-				SubmarineMirage.DisposeInstance();
+				SubmarineMirageFramework.Shutdown();
 				s_instance._playType = PlayType.Editor;
 				EditorApplication.isPlaying = true;
 
 			} else {
 				UTask.Void( async () => {
 					var canceler = new SMTaskCanceler();
-					SubmarineMirage.DisposeInstance();
+					SubmarineMirageFramework.Shutdown();
 					if ( s_instance._playType != PlayType.Test ) {
 						await UTask.NextFrame( canceler );
 					}

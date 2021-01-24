@@ -4,24 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene {
-	using UnityEngine.SceneManagement;
+using SubmarineMirage.Scene;
 
 
 
-	// TODO : コメント追加、整頓
+// TODO : コメント追加、整頓
 
 
 
-	public class NoneMainSMScene : MainSMScene {
-		public NoneMainSMScene() {
-		}
-
-
-		protected override void SetSceneName()
-			=> _name = "";
-
-		protected override void ReloadRawScene()
-			=> _rawScene = default;
-	}
+public class FieldChunk1SMScene : FieldChunkSMScene {
 }

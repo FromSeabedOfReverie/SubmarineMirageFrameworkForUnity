@@ -9,6 +9,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using Service;
 	using Object;
 	using Object.Modifyler;
 	using Manager.Modifyler;
@@ -41,6 +42,8 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 #if TestGroupModifyler
 			SMLog.Debug( $"{nameof( SetAllData )} : start\n{group}" );
 #endif
+			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
+
 			var lastScene = group._scene;
 			var allObjects = group._topObject.GetAllChildren();
 			var allBehaviours = allObjects.SelectMany( o => o.GetBehaviours() );
@@ -56,16 +59,22 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 #endif
 			group._lifeSpan = allBehaviours.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever ) ?
 				SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
-			group._scene = (
-				// SceneManager作成時の場合、循環参照になる為、設定出来ない
-				!SMSceneManager.s_isCreated						? null :
-				group._lifeSpan == SMTaskLifeSpan.Forever		? SMSceneManager.s_instance._fsm._foreverScene :
-				group._isGameObject								? group._gameObject.scene.ToSMScene() :
-				SMSceneManager.s_instance._fsm._scene != null	? SMSceneManager.s_instance._fsm._scene
-																: SMSceneManager.s_instance._fsm._startScene
-			);
+
+			// SceneManager作成時の場合、循環参照になる為、設定出来ない
+			if ( sceneManager == null ) {
+				group._scene = null;
+			} else if ( group._lifeSpan == SMTaskLifeSpan.Forever ) {
+				group._scene = sceneManager._fsm._foreverScene;
+			} else if ( group._isGameObject ) {
+				group._scene = sceneManager._fsm.GetScene( group._gameObject.scene );
+			} else if ( sceneManager._fsm._mainFSM._scene != null ) {
+				group._scene = sceneManager._fsm._mainFSM._scene;
+			} else {
+				group._scene = sceneManager._fsm._mainFSM.GetState( sceneManager._fsm._mainFSM._startStateType );
+			}
+
 			// 親子変更等で、無理矢理、削除不能化した場合を考慮
-			if ( group._scene != null || group._scene == group._scene._fsm._foreverScene ) {
+			if ( group._scene != null || group._scene == sceneManager._fsm._foreverScene ) {
 				group._lifeSpan = SMTaskLifeSpan.Forever;
 			}
 #if TestGroupModifyler

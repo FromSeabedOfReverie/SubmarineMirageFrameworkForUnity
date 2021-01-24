@@ -158,6 +158,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 		public static void FixedUpdate( SMGroupManager manager ) {
+			if ( manager == null )			{ return; }
 			if ( !manager._isFinalizing )	{ return; }
 			if ( !manager._isActive )		{ return; }
 			if ( manager._ranState < SMTaskRunState.InitialEnable )	{ return; }
@@ -174,6 +175,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 		public static void Update( SMGroupManager manager ) {
+			if ( manager == null )			{ return; }
 			if ( !manager._isFinalizing )	{ return; }
 			if ( !manager._isActive )		{ return; }
 			if ( manager._ranState < SMTaskRunState.FixedUpdate )	{ return; }
@@ -188,6 +190,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 		public static void LateUpdate( SMGroupManager manager ) {
+			if ( manager == null )			{ return; }
 			if ( !manager._isFinalizing )	{ return; }
 			if ( !manager._isActive )		{ return; }
 			if ( manager._ranState < SMTaskRunState.Update )	{ return; }

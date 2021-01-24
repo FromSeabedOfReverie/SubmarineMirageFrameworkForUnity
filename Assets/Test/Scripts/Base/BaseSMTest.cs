@@ -12,7 +12,6 @@ namespace SubmarineMirage.TestBase {
 	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using Main;
 	using Base;
 	using Task;
 	using Extension;
@@ -33,7 +32,7 @@ namespace SubmarineMirage.TestBase {
 
 		public void Setup() {
 			ConsoleEditorSMUtility.Clear();
-			SubmarineMirage.DisposeInstance();
+			SubmarineMirageFramework.DisposeInstance();
 			SMTestManager.DisposeInstance();
 			PlayerEditorSMExtension.s_instance._playType = PlayerEditorSMExtension.PlayType.Test;
 		}
@@ -41,15 +40,15 @@ namespace SubmarineMirage.TestBase {
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static void Main() {
 			if ( PlayerEditorSMExtension.s_instance._playType == PlayerEditorSMExtension.PlayType.Test ) {
-				SubmarineMirage.s_instance._isRegisterCreateTestEvent = false;
+				SubmarineMirageFramework.s_instance._isRegisterCreateTestEvent = false;
 			}
 		}
 
 		[OneTimeSetUp]
 		protected void Awake() {
-			SubmarineMirage.s_instance._disposables.Add( () => SMTestManager.DisposeInstance() );
+			SubmarineMirageFramework.s_instance._disposables.Add( () => SMTestManager.DisposeInstance() );
 			SMTestManager.s_instance.Register( this );
-			SubmarineMirage.s_instance._createTestEvent.AddLast( async canceler => {
+			SubmarineMirageFramework.s_instance._createTestEvent.AddLast( async canceler => {
 				try {
 					await AwakeSub();
 				} catch ( OperationCanceledException ) {
@@ -59,7 +58,7 @@ namespace SubmarineMirage.TestBase {
 					throw;
 				}
 			} );
-			SubmarineMirage.s_instance._isRegisterCreateTestEvent = true;
+			SubmarineMirageFramework.s_instance._isRegisterCreateTestEvent = true;
 		}
 
 		protected abstract UniTask AwakeSub();

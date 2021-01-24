@@ -48,8 +48,9 @@ namespace SubmarineMirage.FSM {
 		public readonly Dictionary<TEnum, TInternalFSM> _fsms = new Dictionary<TEnum, TInternalFSM>();
 
 
-		public SMParallelFSM( TOwner owner, IEnumerable<TInternalFSM> fsms ) {
-			_fsms = fsms.ToDictionary( fsm => fsm._fsmType );
+		public SMParallelFSM( TOwner owner, Dictionary<TEnum, TInternalFSM> fsms ) {
+			_fsms = fsms;
+			_fsms.ForEach( pair => pair.Value.SetFSMType( pair.Key ) );
 			Set( owner, owner );
 
 			_disposables.AddLast( () => {
@@ -66,6 +67,9 @@ namespace SubmarineMirage.FSM {
 			_modifyler.Register( new InitialEnterSMParallelFSM<TOwner, TInternalFSM, TEnum>() );
 		}
 
+
+		public IEnumerable<TInternalFSM> GetFSMs()
+			=> _fsms.Select( pair => pair.Value );
 
 		public TInternalFSM GetFSM( TEnum type )
 			=> _fsms.GetOrDefault( type );

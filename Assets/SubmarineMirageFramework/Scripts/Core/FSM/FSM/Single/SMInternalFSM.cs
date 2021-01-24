@@ -30,11 +30,9 @@ namespace SubmarineMirage.FSM {
 		public TEnum _fsmType	{ get; private set; }
 
 
-		public SMInternalFSM( TEnum fsmType, IEnumerable<TState> states, Type baseStateType,
-								Type startStateType = null
-		) : base( states, startStateType )
+		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startStateType = null )
+			: base( states, startStateType )
 		{
-			_fsmType = fsmType;
 			_states.ForEach( pair => {
 				var type = pair.Value.GetType();
 				if ( type.IsInheritance( baseStateType ) ) {
@@ -48,5 +46,8 @@ namespace SubmarineMirage.FSM {
 			_topOwner = (TOwner)topOwner;
 			base.Set( topOwner, owner );
 		}
+
+		public override void SetFSMType( Enum fsmType )
+			=> _fsmType = (TEnum)fsmType;
 	}
 }

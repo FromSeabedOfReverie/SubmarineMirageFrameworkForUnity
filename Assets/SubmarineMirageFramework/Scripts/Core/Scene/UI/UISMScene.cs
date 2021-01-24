@@ -8,17 +8,17 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class UISMScene : SMScene {
 		public UISMScene() {
 			_rawScene = SceneManager.CreateScene( _name );
-
-			_enterEvent.Remove( _registerEventName );
-			_enterEvent.AddFirst( _registerEventName, async canceler => await _groups.Enter() );
-			_exitEvent.Remove( _registerEventName );
-			_exitEvent.AddFirst( _registerEventName, async canceler => await _groups.Exit() );
 		}
+
+
+		protected override void ReloadRawScene() {}
 	}
 }
