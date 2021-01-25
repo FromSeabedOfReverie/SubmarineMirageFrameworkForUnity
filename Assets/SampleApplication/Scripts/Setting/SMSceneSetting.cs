@@ -20,6 +20,7 @@ public class SMSceneSetting : BaseSMSceneSetting {
 				new FieldSMScene(),
 				new GameOverSMScene(),
 				new GameClearSMScene(),
+				new TestSMScene(),
 			},
 			typeof( MainSMScene )
 		);

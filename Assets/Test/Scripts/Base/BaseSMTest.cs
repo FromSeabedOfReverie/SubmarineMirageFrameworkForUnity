@@ -13,18 +13,19 @@ namespace SubmarineMirage.TestBase {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Base;
+	using Service;
 	using Task;
-	using Extension;
 	using Utility;
 	using Debug;
-	using EditorExtension;
 	using EditorUtility;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public abstract class BaseSMTest : BaseSM, IPrebuildSetup {
+
+	public abstract class BaseSMTest : BaseSM, IBaseSMTest, IPrebuildSetup {
 		protected string _testName => TestContext.CurrentContext.Test.Name;
 		protected bool _isInitialized	{ get; set; }
 		[SMHide] protected readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
@@ -32,33 +33,30 @@ namespace SubmarineMirage.TestBase {
 
 		public void Setup() {
 			ConsoleEditorSMUtility.Clear();
-			SubmarineMirageFramework.DisposeInstance();
-			SMTestManager.DisposeInstance();
-			PlayerEditorSMExtension.s_instance._playType = PlayerEditorSMExtension.PlayType.Test;
+//			SubmarineMirageFramework.Shutdown();
+			SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Test;
+			SMServiceLocator.Register<IBaseSMTest>( this );
 		}
 
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static void Main() {
-			if ( PlayerEditorSMExtension.s_instance._playType == PlayerEditorSMExtension.PlayType.Test ) {
-				SubmarineMirageFramework.s_instance._isRegisterCreateTestEvent = false;
+			if ( SubmarineMirageFramework.s_playType == SubmarineMirageFramework.PlayType.Test ) {
 			}
 		}
 
 		[OneTimeSetUp]
 		protected void Awake() {
-			SubmarineMirageFramework.s_instance._disposables.Add( () => SMTestManager.DisposeInstance() );
-			SMTestManager.s_instance.Register( this );
-			SubmarineMirageFramework.s_instance._createTestEvent.AddLast( async canceler => {
-				try {
-					await AwakeSub();
-				} catch ( OperationCanceledException ) {
-					throw;
-				} catch ( Exception e ) {
-					SMLog.Error( e );
-					throw;
-				}
-			} );
-			SubmarineMirageFramework.s_instance._isRegisterCreateTestEvent = true;
+		}
+
+		public async UniTask AwakeTop() {
+			try {
+				await AwakeSub();
+			} catch ( OperationCanceledException ) {
+				throw;
+			} catch ( Exception e ) {
+				SMLog.Error( e );
+				throw;
+			}
 		}
 
 		protected abstract UniTask AwakeSub();
@@ -70,7 +68,6 @@ namespace SubmarineMirage.TestBase {
 		protected void OnDestroy() {
 			try {
 				Dispose();
-				SMTestManager.s_instance.Unregister( this );
 			} catch ( OperationCanceledException ) {
 				throw;
 			} catch ( Exception e ) {

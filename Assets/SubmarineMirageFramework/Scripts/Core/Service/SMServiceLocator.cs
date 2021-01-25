@@ -8,6 +8,7 @@ namespace SubmarineMirage.Service {
 	using System;
 	using System.Collections.Generic;
 	using UnityEngine;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Task;
 	using Task.Behaviour;
@@ -96,6 +97,18 @@ namespace SubmarineMirage.Service {
 			if ( s_isDisposed )	{ return null; }
 
 			return (T)s_container.GetOrDefault( typeof( T ) );
+		}
+
+		public static async UniTask<T> WaitResolve<T>( SMTaskCanceler canceler ) where T : class, ISMService {
+			if ( s_isDisposed )	{ return null; }
+
+			var type = typeof( T );
+			ISMService instance = null;
+			await UTask.WaitWhile( canceler, () => {
+				instance = s_container.GetOrDefault( type );
+				return instance == null;
+			} );
+			return (T)instance;
 		}
 	}
 }

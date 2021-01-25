@@ -17,15 +17,8 @@ namespace SubmarineMirage.EditorExtension {
 
 	[InitializeOnLoad]
 	public class PlayerEditorSMExtension : EditorWindowSMExtension {
-		public enum PlayType {
-			Stop,
-			Runtime,
-			Editor,
-			Test,
-		}
 		public static PlayerEditorSMExtension s_instance
 			=> ScriptableSingleton<PlayerEditorSMExtension>.instance;
-		public PlayType _playType	{ get; set; }
 
 
 		protected override void Awake() {
@@ -34,12 +27,12 @@ namespace SubmarineMirage.EditorExtension {
 			EditorApplication.playModeStateChanged += mode => {
 				switch ( mode ) {
 					case PlayModeStateChange.EnteredPlayMode:
-						if ( s_instance._playType == PlayType.Stop ) {
-							s_instance._playType = PlayType.Runtime;
+						if ( SubmarineMirageFramework.s_playType == SubmarineMirageFramework.PlayType.Stop ) {
+							SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Runtime;
 						}
 						return;
 					case PlayModeStateChange.ExitingPlayMode:
-						s_instance._playType = PlayType.Stop;
+						SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Stop;
 						return;
 				}
 			};
@@ -51,15 +44,14 @@ namespace SubmarineMirage.EditorExtension {
 		[MenuItem( "Edit/PlayExtension _F5", priority = 100000 )]
 		static void PlayExtension() {
 			if ( !EditorApplication.isPlaying ) {
-				SubmarineMirageFramework.Shutdown();
-				s_instance._playType = PlayType.Editor;
+				SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Editor;
 				EditorApplication.isPlaying = true;
 
 			} else {
 				UTask.Void( async () => {
 					var canceler = new SMTaskCanceler();
 					SubmarineMirageFramework.Shutdown();
-					if ( s_instance._playType != PlayType.Test ) {
+					if ( SubmarineMirageFramework.s_playType != SubmarineMirageFramework.PlayType.Test ) {
 						await UTask.NextFrame( canceler );
 					}
 					EditorApplication.isPlaying = false;
