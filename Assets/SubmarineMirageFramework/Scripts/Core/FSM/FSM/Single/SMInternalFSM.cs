@@ -35,7 +35,7 @@ namespace SubmarineMirage.FSM {
 		{
 			_states.ForEach( pair => {
 				var type = pair.Value.GetType();
-				if ( type.IsInheritance( baseStateType ) ) {
+				if ( !type.IsInheritance( baseStateType ) ) {
 					throw new InvalidOperationException( $"基盤状態が違う、状態を指定 : {type}, {baseStateType}" );
 				}
 			} );

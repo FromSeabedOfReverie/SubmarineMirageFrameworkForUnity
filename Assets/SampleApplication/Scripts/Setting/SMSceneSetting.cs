@@ -4,6 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+using System.Collections.Generic;
+using System;
+using KoganeUnityLib;
+using SubmarineMirage.Base;
 using SubmarineMirage.Scene;
 
 
@@ -12,45 +16,43 @@ using SubmarineMirage.Scene;
 
 
 
-public class SMSceneSetting : BaseSMSceneSetting {
+public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
+	public Dictionary<SMSceneType, Type[]> _fsmSceneTypes	{ get; private set; }
+	public Type[] _chunkSceneTypes	{ get; private set; }
+
+
 	public SMSceneSetting() {
-		_scenes[SMSceneType.Main] = new SMSceneInternalFSM(
-			new SMScene[] {
-				new TitleSMScene(),
-				new FieldSMScene(),
-				new GameOverSMScene(),
-				new GameClearSMScene(),
-				new TestSMScene(),
-			},
-			typeof( MainSMScene )
-		);
-
-
-		var chunkScenes = new SMScene[] {
-			new FieldChunk1SMScene(),
-			new FieldChunk2SMScene(),
-			new FieldChunk3SMScene(),
-			new FieldChunk4SMScene(),
+		_fsmSceneTypes = new Dictionary<SMSceneType, Type[]> {
+			{
+				SMSceneType.Forever,
+				new Type[] { typeof( ForeverSampleSMScene ), }
+			}, {
+				SMSceneType.UI,
+				new Type[] { typeof( UISMScene ), }
+			}, {
+				SMSceneType.Debug,
+				new Type[] { typeof( DebugSMScene ), }
+			}, {
+				SMSceneType.Main,
+				new Type[] {
+					typeof( TitleSMScene ),
+					typeof( FieldSMScene ),
+					typeof( GameOverSMScene ),
+					typeof( GameClearSMScene ),
+					typeof( TestSMScene ),
+				}
+			}
 		};
-		_scenes[SMSceneType.FieldChunk1] = new SMSceneInternalFSM(
-			chunkScenes,
-			typeof( FieldChunkSMScene ),
-			false
-		);
-		_scenes[SMSceneType.FieldChunk2] = new SMSceneInternalFSM(
-			chunkScenes,
-			typeof( FieldChunkSMScene ),
-			false
-		);
-		_scenes[SMSceneType.FieldChunk3] = new SMSceneInternalFSM(
-			chunkScenes,
-			typeof( FieldChunkSMScene ),
-			false
-		);
-		_scenes[SMSceneType.FieldChunk4] = new SMSceneInternalFSM(
-			chunkScenes,
-			typeof( FieldChunkSMScene ),
-			false
-		);
+		_chunkSceneTypes = new Type[] {
+			typeof( FieldChunk1SMScene ),
+			typeof( FieldChunk2SMScene ),
+			typeof( FieldChunk3SMScene ),
+			typeof( FieldChunk4SMScene ),
+		};
+
+		_disposables.AddLast( () => {
+			_fsmSceneTypes.Clear();
+			_chunkSceneTypes.Clear();
+		} );
 	}
 }

@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Debug {
 	using System;
 	using Base;
+	using Service;
 	using Extension;
 
 
@@ -21,8 +22,10 @@ namespace SubmarineMirage.Debug {
 	public class SMHideAttribute : Attribute, ISMLightBase {
 		public uint _id	{ get; private set; }
 
-		public SMHideAttribute()
-			=> _id = BaseSMManager.s_instance.GetNewID( this );
+		public SMHideAttribute() {
+			var manager = SMServiceLocator.Resolve<BaseSMManager>();
+			_id = manager?.GetNewID( this ) ?? 0;
+		}
 
 		public void Dispose() {}
 

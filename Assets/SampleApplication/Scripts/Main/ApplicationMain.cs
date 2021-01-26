@@ -47,20 +47,15 @@ public static class ApplicationMain {
 
 
 	static async UniTask RegisterSettings() {
-		SMServiceLocator.Register<BaseSMSceneSetting>( new SMSceneSetting() );
+		SMServiceLocator.Register<ISMSceneSetting>( new SMSceneSetting() );
 
-		await UTask.DontWait();
-	}
-
-
-	static async UniTask RegisterBehaviours() {
 		await UTask.DontWait();
 	}
 
 
 	[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 	static async void Main() {
-		var framework = new SubmarineMirageFramework();
-		await framework.TakeOff( InitializePlugin, RegisterSettings, RegisterBehaviours );
+		var framework = SMServiceLocator.Register<SubmarineMirageFramework>();
+		await framework.TakeOff( InitializePlugin, RegisterSettings );
 	}
 }

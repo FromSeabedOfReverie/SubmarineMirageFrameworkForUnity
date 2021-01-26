@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.EditorTask {
+namespace SubmarineMirage.EditorScene {
 	using System.Linq;
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
 	using Task.Object;
 	using Task.Group;
 	using Scene;
@@ -24,12 +22,11 @@ namespace SubmarineMirage.EditorTask {
 
 
 
-	[CustomEditor( typeof( SMTaskRunner ) )]
-	public class SMTaskRunnerEditor : EditorSMExtension {
-		SMTaskRunner _instance	{ get; set; }
+	[CustomEditor( typeof( SMSceneManager ) )]
+	public class SMSceneManagerEditor : EditorSMExtension {
+		SMSceneManager _instance	{ get; set; }
 		Vector2 _scrollPosition	{ get; set; }
 		string _focusedText	{ get; set; } = string.Empty;
-		SMSceneManager _sceneManager	{ get; set; }
 
 
 		public override void Dispose()	{}
@@ -39,10 +36,7 @@ namespace SubmarineMirage.EditorTask {
 			base.OnInspectorGUI();
 
 			if ( target == null )	{ return; }
-			var _sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
-			if ( _sceneManager == null )	{ return; }
-
-			_instance = (SMTaskRunner)target;
+			_instance = (SMSceneManager)target;
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
 			ShowAllGroups();
@@ -57,11 +51,17 @@ namespace SubmarineMirage.EditorTask {
 
 
 		void ShowAllGroups() {
-			_sceneManager._fsm.GetScenes().ForEach( scene => {
-				ShowHeading1( scene._name );
+			_instance._fsm.GetFSMs().ForEach( fsm => {
+				ShowHeading1( fsm._fsmType.ToString() );
 
 				EditorGUI.indentLevel++;
-				scene._groups.GetAllGroups().ForEach( g => ShowGroup( g ) );
+				fsm.GetScenes().ForEach( scene => {
+					ShowHeading2( scene._name );
+
+					EditorGUI.indentLevel++;
+					scene._groups.GetAllGroups().ForEach( g => ShowGroup( g ) );
+					EditorGUI.indentLevel--;
+				} );
 				EditorGUI.indentLevel--;
 			} );
 			EditorGUILayout.Space();

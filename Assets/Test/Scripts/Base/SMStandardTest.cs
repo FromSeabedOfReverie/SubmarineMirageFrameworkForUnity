@@ -10,8 +10,8 @@ namespace SubmarineMirage.TestBase {
 	using Service;
 	using MultiEvent;
 	using Utility;
-	using Debug.ToString;
 	using Debug;
+	using Debug.ToString;
 
 
 	// TODO : コメント追加、整頓

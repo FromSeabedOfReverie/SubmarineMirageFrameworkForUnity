@@ -11,7 +11,6 @@ namespace SubmarineMirage {
 	using Base;
 	using Service;
 	using Task;
-	using Singleton;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -32,18 +31,23 @@ namespace SubmarineMirage {
 			Test,
 		}
 
-		public static PlayType s_playType	{ get; set; }
+		public static PlayType s_playTypeBody;
+		public static PlayType s_playType {
+			get => s_playTypeBody;
+			set {
+				s_playTypeBody = value;
+				UnityEngine.Debug.Log( $"{nameof( s_playType )} : {s_playTypeBody}" );
+			}
+		}
 		public bool _isInitialized	{ get; private set; }
-		readonly SMTaskCanceler _canceler = new SMTaskCanceler();
+		readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
 
 
 		public SubmarineMirageFramework() {
-			SMServiceLocator.Register( this );
-
 			_disposables.AddLast( () => {
 				s_playType = PlayType.Stop;
 				_isInitialized = false;
-				_canceler.Dispose();
+				_asyncCanceler.Dispose();
 			} );
 		}
 
@@ -52,47 +56,35 @@ namespace SubmarineMirage {
 
 
 // TODO : もっと良い開始名を考える
-		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent,
-										Func<UniTask> registerBehavioursEvent
-		) {
-			await SystemTask.Delay( 1, _canceler.ToToken() );
+		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent ) {
+			await SystemTask.Delay( 1, _asyncCanceler.ToToken() );
 
 
 			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown() ) );
 
-
 			await initializePluginEvent();
-
-
-			SMServiceLocator.Register( new SMDecorationManager() );
+			SMServiceLocator.Register<BaseSMManager>();
+			SMServiceLocator.Register<SMDecorationManager>();
 			new SMLog();
 
-
 			await registerSettingsEvent();
-
-
-			SMServiceLocator.Register( new SMSceneManager() );
-			SMMonoBehaviourSingletonManager.CreateInstance();
-			var runner = SMServiceLocator.RegisterRawBehaviour<SMTaskRunner>();
-
+			var scene = SMServiceLocator.Register<SMSceneManager>();
+			scene = SMServiceLocator.Resolve<SMSceneManager>();
+			scene.Setup();
+//			SMMonoBehaviourSingletonManager.CreateInstance();
 
 			if ( s_playType == PlayType.Test ) {
-				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _canceler );
+				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );
 				await test.AwakeTop();
 			}
 
-
-			await registerBehavioursEvent();
-
-			await runner.Initialize();
-
-
+			await scene._body.Initialize();
 			_isInitialized = true;
 		}
 
 
 
 		public UniTask WaitInitialize()
-			=> UTask.WaitWhile( _canceler, () => !_isInitialized );
+			=> UTask.WaitWhile( _asyncCanceler, () => !_isInitialized );
 	}
 }

@@ -23,6 +23,7 @@ namespace SubmarineMirage.Debug {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>識別番号</summary>
 		[SMShowLine] public uint _id	{ get; private set; }
+		SMDecorationManager _decorationManager	{ get; set; }
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
@@ -40,7 +41,8 @@ namespace SubmarineMirage.Debug {
 				false
 #endif
 		) {
-			_id = BaseSMManager.s_instance.GetNewID( this );
+			var manager = SMServiceLocator.Resolve<BaseSMManager>();
+			_id = manager?.GetNewID( this ) ?? 0;
 
 #if TestSMLog
 			SMLog.Debug( SMLogTag.Task,				SMLogTag.Task );
@@ -64,8 +66,12 @@ namespace SubmarineMirage.Debug {
 		/// ● フォーマットを装飾
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		protected override string DecorationFormat( string format, Color color )
-			=> SMServiceLocator.Resolve<SMDecorationManager>()._uGUI.ByColor( format, color );
+		protected override string DecorationFormat( string format, Color color ) {
+			if ( _decorationManager == null ) {
+				_decorationManager = SMServiceLocator.Resolve<SMDecorationManager>();
+			}
+			return _decorationManager._uGUI.ByColor( format, color );
+		}
 		///------------------------------------------------------------------------------------------------
 		/// ● 文章に変換
 		///------------------------------------------------------------------------------------------------

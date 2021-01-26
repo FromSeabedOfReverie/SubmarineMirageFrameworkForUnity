@@ -38,50 +38,56 @@ namespace SubmarineMirage.Service {
 			s_isDisposed = true;
 			s_container.ForEach( pair => pair.Value.Dispose() );
 			s_container.Clear();
+			Debug.Log( $"{nameof( SMServiceLocator )}.{nameof( Dispose )}" );
 		}
 
 
-		public static T Register<T>( T instance ) where T : class, ISMService {
+		
+		public static ISMService Register( Type type, ISMService instance = null ) {
 			if ( s_isDisposed )	{ return null; }
-
-			var type = typeof( T );
 			if ( s_container.ContainsKey( type ) ) {
 				throw new InvalidOperationException( $"既に登録済 : {type}" );
 			}
+			Debug.Log( $"{nameof( SMServiceLocator )}.{nameof( Register )} : {type.GetAboutName()}" );
+
+			if ( instance == null )	{ instance = Create( type ); }
+
+			switch ( instance ) {
+				case SMMonoBehaviour b:
+					if ( b._lifeSpan != SMTaskLifeSpan.Forever ) {
+						throw new InvalidOperationException(
+							$"{SMTaskLifeSpan.Forever}でない : {nameof( b._lifeSpan )}" );
+					}
+					break;
+				case MonoBehaviourSMExtension b:
+					var _sceneManager = Resolve<SMSceneManager>();
+					if ( _sceneManager != null )	{ _sceneManager.MoveForeverScene( b.gameObject ); }
+					else							{ b.gameObject.DontDestroyOnLoad(); }
+					break;
+			}
+
 			s_container[type] = instance;
 			return instance;
 		}
 
-		public static T RegisterRawBehaviour<T>() where T : MonoBehaviourSMExtension, ISMService {
-			if ( s_isDisposed )	{ return null; }
+		public static T Register<T>( T instance = null ) where T : class, ISMService
+			=> (T)Register( typeof( T ), instance );
 
-			var type = typeof( T );
-			if ( s_container.ContainsKey( type ) ) {
-				throw new InvalidOperationException( $"既に登録済 : {type}" );
+
+		static ISMService Create( Type type ) {
+			if ( type.IsInheritance( typeof( SMMonoBehaviour ) ) ) {
+				var o = SMObjectSMUtility.Create( type );
+				return (ISMService)o._behaviour;
+
+			} else if ( type.IsInheritance( typeof( MonoBehaviourSMExtension ) ) ) {
+				var go = new GameObject( type.GetAboutName() );
+				return (ISMService)go.AddComponent( type );
+
+			} else {
+				return (ISMService)type.Create();
 			}
-			var go = new GameObject( type.GetAboutName() );
-			var b = go.AddComponent<T>();
-			Resolve<SMSceneManager>().MoveForeverScene( go );
-			s_container[type] = b;
-			return b;
 		}
 
-		public static T RegisterBehaviour<T>() where T : SMMonoBehaviour, ISMService {
-			if ( s_isDisposed )	{ return null; }
-
-			var type = typeof( T );
-			if ( s_container.ContainsKey( type ) ) {
-				throw new InvalidOperationException( $"既に登録済 : {type}" );
-			}
-			var o = SMObjectSMUtility.Create<T>();
-			if ( o._behaviour._lifeSpan != SMTaskLifeSpan.Forever ) {
-				throw new InvalidOperationException(
-					$"{SMTaskLifeSpan.Forever}でない : {nameof( o._behaviour._lifeSpan )}" );
-			}
-			var b = (T)o._behaviour;
-			s_container[type] = b;
-			return b;
-		}
 
 
 		public static void Unregister<T>( bool isDispose = true ) where T : class, ISMService {

@@ -7,6 +7,7 @@
 namespace SubmarineMirage.EditorExtension {
 	using UnityEditor;
 	using Base;
+	using Service;
 	using Extension;
 	using Debug;
 
@@ -20,7 +21,11 @@ namespace SubmarineMirage.EditorExtension {
 		[SMShowLine] public uint _id	{ get; private set; }
 
 
-		protected virtual void Awake() => _id = BaseSMManager.s_instance.GetNewID( this );
+		protected virtual void Awake() {
+			var manager = SMServiceLocator.Resolve<BaseSMManager>();
+			_id = manager?.GetNewID( this ) ?? 0;
+		}
+
 		protected virtual void OnDestroy() => Dispose();
 
 		public abstract void Dispose();

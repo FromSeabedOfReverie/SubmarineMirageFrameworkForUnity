@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
+	using System;
 	using UnityEngine;
 	using Task.Behaviour;
 	using Task.Object;
@@ -51,11 +52,13 @@ namespace SubmarineMirage.Utility {
 
 
 
-		public static SMObject Create<T>() where T : SMMonoBehaviour {
-			var type = typeof( T );
+		public static SMObject Create( Type type ) {
 			var go = new GameObject( type.GetAboutName() );
-			var b = go.AddComponent<T>();
+			var b = (SMMonoBehaviour)go.AddComponent( type );
 			return new SMObject( go, new ISMBehaviour[] { b }, null );
 		}
+
+		public static SMObject Create<T>() where T : SMMonoBehaviour
+			=> Create( typeof( T ) );
 	}
 }

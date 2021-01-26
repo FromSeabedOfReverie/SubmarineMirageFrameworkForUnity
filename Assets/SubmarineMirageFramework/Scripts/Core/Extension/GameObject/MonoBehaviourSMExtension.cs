@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
 	using Base;
+	using Service;
 	using Debug;
 
 
@@ -47,7 +48,10 @@ namespace SubmarineMirage.Extension {
 			}
 		}
 
-		protected virtual void Awake() => _id = BaseSMManager.s_instance.GetNewID( this );
+		protected virtual void Awake() {
+			var manager = SMServiceLocator.Resolve<BaseSMManager>();
+			_id = manager?.GetNewID( this ) ?? 0;
+		}
 
 		public abstract void Dispose();
 

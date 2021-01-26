@@ -99,7 +99,7 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 
 		public IEnumerable<SMGroup> GetAllGroups()
-			=> _group.GetBrothers();
+			=> _group?.GetBrothers() ?? Enumerable.Empty<SMGroup>();
 
 		public IEnumerable<SMObject> GetAllTops()
 			=> GetAllGroups().Select( g => g._topObject );

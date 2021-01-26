@@ -14,7 +14,7 @@ namespace SubmarineMirage.Utility {
 	///		NGUI、UGUIの文字描画の装飾を行う。
 	/// </summary>
 	///====================================================================================================
-	public class SMDecorationManager : SMRawBase, ISMService {
+	public class SMDecorationManager : SMStandardBase, ISMService {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ namespace SubmarineMirage.Utility {
 			_nGUI = new SMNGUIDecoration();
 			_uGUI = new SMUGUIDecoration();
 
-			_disposables.Add( () => {
+			_disposables.AddLast( () => {
 				_nGUI.Dispose();
 				_uGUI.Dispose();
 			} );

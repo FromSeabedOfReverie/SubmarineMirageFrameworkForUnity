@@ -11,10 +11,13 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
+	using UniRx;
 	using KoganeUnityLib;
+	using MultiEvent;
 	using Task.Behaviour;
 	using Task.Group;
 	using Task.Group.Manager;
+	using Task.Group.Manager.Modifyler;
 	using FSM.State;
 	using Extension;
 	using Utility;
@@ -32,6 +35,8 @@ namespace SubmarineMirage.Scene {
 
 		public Scene _rawScene	{ get; protected set; }
 		public SMGroupManager _groups	{ get; private set; }
+
+		protected readonly SMMultiAsyncEvent _createBehavioursEvent = new SMMultiAsyncEvent();
 
 
 		public SMScene() {
@@ -52,6 +57,7 @@ namespace SubmarineMirage.Scene {
 					ReloadRawScene();
 				}
 				if ( this is MainSMScene )	{ SceneManager.SetActiveScene( _rawScene ); }
+				await _createBehavioursEvent.Run( canceler );
 				await _groups.Enter();
 			} );
 
@@ -61,6 +67,16 @@ namespace SubmarineMirage.Scene {
 				ReloadRawScene();
 				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
 			} );
+
+			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
+				SMGroupManagerApplyer.FixedUpdate( _groups )
+			);
+			_updateEvent.AddLast( _registerEventName ).Subscribe( _ =>
+				SMGroupManagerApplyer.Update( _groups )
+			);
+			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
+				SMGroupManagerApplyer.LateUpdate( _groups )
+			);
 		}
 
 
@@ -69,6 +85,7 @@ namespace SubmarineMirage.Scene {
 
 		protected virtual void ReloadRawScene()
 			=> _rawScene = SceneManager.GetSceneByName( _name );
+
 
 
 		public void MoveGroup( SMGroup group )

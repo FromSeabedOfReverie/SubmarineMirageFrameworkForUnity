@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Base {
+	using Service;
 	using Extension;
 	using Debug;
 
@@ -17,7 +18,8 @@ namespace SubmarineMirage.Base {
 
 
 		public BaseSM() {
-			if ( !( this is BaseSMManager ) )	{ _id = BaseSMManager.s_instance.GetNewID( this ); }
+			var manager = SMServiceLocator.Resolve<BaseSMManager>();
+			_id = manager?.GetNewID( this ) ?? 0;
 		}
 
 		public abstract void Dispose();

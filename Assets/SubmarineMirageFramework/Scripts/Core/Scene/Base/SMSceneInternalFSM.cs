@@ -27,25 +27,23 @@ namespace SubmarineMirage.Scene {
 		bool _isSetStartState	{ get; set; }
 
 
-		public SMSceneInternalFSM( IEnumerable<SMScene> states, Type baseStateType, bool isSetStartState = true
-		) : base( states, baseStateType )
+		public SMSceneInternalFSM( IEnumerable<SMScene> scenes, Type baseSceneType, bool isSetStartScene = true
+		) : base( scenes, baseSceneType )
 		{
-			_isSetStartState = isSetStartState;
+			_isSetStartState = isSetStartScene;
 		}
 
 
 		public override void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
-			var fsm = (SMSceneFSM)owner;
+			base.Set( topOwner, owner );
+			_modifyler.Reset();
 
 			_startStateType = null;
 			if ( _isSetStartState ) {
 				_startStateType = GetScenes()
-					.FirstOrDefault( s => fsm.IsFirstLoaded( s ) )
+					.FirstOrDefault( s => _owner.IsFirstLoaded( s ) )
 					?.GetType();
 			}
-
-			base.Set( topOwner, owner );
-			_modifyler.Reset();
 		}
 
 

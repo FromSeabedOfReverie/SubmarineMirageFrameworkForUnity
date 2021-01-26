@@ -12,6 +12,7 @@ namespace SubmarineMirage.Task.Modifyler {
 	using KoganeUnityLib;
 	using Base;
 	using Service;
+	using Scene;
 	using Extension;
 	using Utility;
 
@@ -31,15 +32,16 @@ namespace SubmarineMirage.Task.Modifyler {
 		protected readonly LinkedList<TData> _data = new LinkedList<TData>();
 		bool _isRunning	{ get; set; }
 		protected abstract SMTaskCanceler _asyncCanceler	{ get; }
-		SMTaskRunner _taskRunner	{ get; set; }
+		ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
 
 
 		public BaseSMTaskModifyler( TOwner owner ) {
 			_owner = owner;
-			_taskRunner = SMServiceLocator.Resolve<SMTaskRunner>();
+			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
+			_isSceneUpdating = sceneManager._body._isUpdating;
 
 			_disposables.AddLast(
-				_taskRunner._isUpdating
+				_isSceneUpdating
 					.Where( b => !b )
 					.Subscribe( _ => Run().Forget() )
 			);
@@ -86,7 +88,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			_isRunning = true;
 			while ( !_data.IsEmpty() ) {
 				if ( _isDispose )	{ break; }
-				if ( _taskRunner._isUpdating.Value )	{ break; }
+				if ( _isSceneUpdating.Value )	{ break; }
 				var d = _data.Dequeue();
 				await d.Run();
 			}
