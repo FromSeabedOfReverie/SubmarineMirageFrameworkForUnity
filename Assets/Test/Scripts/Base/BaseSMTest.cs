@@ -17,6 +17,7 @@ namespace SubmarineMirage.TestBase {
 	using Task;
 	using Utility;
 	using Debug;
+	using EditorExtension;
 	using EditorUtility;
 
 
@@ -28,68 +29,54 @@ namespace SubmarineMirage.TestBase {
 	public abstract class BaseSMTest : BaseSM, IBaseSMTest, IPrebuildSetup {
 		protected string _testName => TestContext.CurrentContext.Test.Name;
 		protected bool _isInitialized	{ get; set; }
-		[SMHide] protected readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
+		[SMHide] public readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
 
 
+		// 実行前の呼び出し
 		public void Setup() {
 			ConsoleEditorSMUtility.Clear();
-//			SubmarineMirageFramework.Shutdown();
-			SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Test;
-			SMServiceLocator.Register<IBaseSMTest>( this );
+			SubmarineMirageFramework.Shutdown();	// 念の為、前回破棄し損ねたデータを削除
+			PlayerEditorSMExtension.instance._type = PlayerEditorSMExtension.Type.Test;
 		}
 
+		// 実行直後、真っ先に呼び出し、インスタンス未生成
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static void Main() {
-			if ( SubmarineMirageFramework.s_playType == SubmarineMirageFramework.PlayType.Test ) {
-			}
+			if ( PlayerEditorSMExtension.instance._type != PlayerEditorSMExtension.Type.Test )	{ return; }
+			SubmarineMirageFramework.s_isPlayTest = true;
 		}
 
+		// インスタンス生成直後の呼び出し
 		[OneTimeSetUp]
-		protected void Awake() {
-		}
+		protected virtual void Awake() => SMServiceLocator.Register<IBaseSMTest>( this );
 
-		public async UniTask AwakeTop() {
-			try {
-				await AwakeSub();
-			} catch ( OperationCanceledException ) {
-				throw;
-			} catch ( Exception e ) {
-				SMLog.Error( e );
-				throw;
-			}
-		}
-
-		protected abstract UniTask AwakeSub();
+		// 継承先にさせたい、初期化
+		public abstract UniTask Initialize();
 
 		protected abstract void Create();
 
 
+		// インスタンス破棄時の呼び出し
 		[OneTimeTearDown]
-		protected void OnDestroy() {
-			try {
-				Dispose();
-			} catch ( OperationCanceledException ) {
-				throw;
-			} catch ( Exception e ) {
-				SMLog.Error( e );
-				throw;
-			}
-		}
+		protected void OnDestroy() => SubmarineMirageFramework.Shutdown();
 
 
-		protected IEnumerator From( Func<UniTask> task ) => UTask.ToCoroutine( async () => {
+		public void StopAsync() => _asyncCanceler.Cancel();
+
+
+
+		public IEnumerator From( Func<UniTask> task ) => UTask.ToCoroutine( async () => {
 			await UTask.WaitWhile( _asyncCanceler, () => !_isInitialized );
 			try {
 				await task.Invoke();
 			} catch ( OperationCanceledException ) {
-				throw;
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 				throw;
 			}
 		} );
 
-		protected IEnumerator From( IEnumerator coroutine ) {
+		public IEnumerator From( IEnumerator coroutine ) {
 			while ( !_isInitialized )	{ yield return null; }
 
 			var isRunning = true;
@@ -109,7 +96,9 @@ namespace SubmarineMirage.TestBase {
 			disposable.Dispose();
 		}
 
-		protected IEnumerator RunForever() {
+
+
+		public IEnumerator RunForever() {
 			while ( true )	{ yield return null; }
 		}
 	}

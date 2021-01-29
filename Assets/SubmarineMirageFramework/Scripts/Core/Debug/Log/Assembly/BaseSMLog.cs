@@ -19,20 +19,26 @@ namespace SubmarineMirage.Debug {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		/// <summary>自身</summary>
+		static BaseSMLog<T> s_instance	{ get; set; }
+		/// <summary>自身が有効か？</summary>
+		public static bool s_isEnable	{ get; set; }
+
 		/// <summary>タグ装飾一覧の辞書</summary>
-		static readonly Dictionary<T, string> s_tagFormats = new Dictionary<T, string>();
-		/// <summary>表示するか？</summary>
-		static bool s_isEnabled	{ get; set; }
+		readonly Dictionary<T, string> _tagFormats = new Dictionary<T, string>();
 		/// <summary>Unityエディタで実行中か？</summary>
 		bool _isEditor	{ get; set; }
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		protected BaseSMLog( bool isEnabled, bool isEditor ) {
+		public BaseSMLog( bool isEditor ) {
+			s_instance = this;
+
 			// DLLにビルドするので、プリプロセッサで囲めない為、ここで情報を渡す
-			s_isEnabled = isEnabled;
 			_isEditor = isEditor;
 
 			// NONE以外の付箋色を登録
@@ -43,76 +49,77 @@ namespace SubmarineMirage.Debug {
 				RegisterTag( (T)(object)( i + 1 ), Color.HSVToRGB( i * delta, 1, 1 ) );
 			}
 		}
-		///------------------------------------------------------------------------------------------------
+
 		/// <summary>
 		/// ● デストラクタ
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		~BaseSMLog() => Dispose();
-		///------------------------------------------------------------------------------------------------
+
 		/// <summary>
-		/// ● 解放
+		/// ● 廃棄
 		/// </summary>
+		public virtual void Dispose() {
+			_tagFormats.Clear();
+			s_instance = null;
+		}
+
 		///------------------------------------------------------------------------------------------------
-		public void Dispose() => s_tagFormats.Clear();
+		/// ● 登録
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● タグを登録
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		void RegisterTag( T tag, Color color ) {
 			var format = $"[{tag}]";
 			if ( _isEditor )	{ format = DecorationFormat( format, color ); }
 			format += " {0}";
-			s_tagFormats[tag] = format;
+			_tagFormats[tag] = format;
 		}
-		///------------------------------------------------------------------------------------------------
+
 		/// <summary>
 		/// ● フォーマットを装飾
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		protected abstract string DecorationFormat( string format, Color color );
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 文章表示
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 文章を整形
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		static object FormatText( object text, T tag ) {
+		object FormatText( object text, T tag ) {
 			// タグが設定されている場合
 			if ( !tag.Equals( default( T ) ) ) {
-				text = string.Format( s_tagFormats[tag], text );
+				text = string.Format( _tagFormats[tag], text );
 			}
 			return text;
 		}
-		///------------------------------------------------------------------------------------------------
+
 		/// <summary>
 		/// ● 通常文を表示
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static void Debug( object text, T tag = default( T ) ) {
-			if ( s_isEnabled ) {
-				UnityEngine.Debug.Log( FormatText( text, tag ) );
-			}
+		public static void Debug( object text, T tag = default ) {
+			if ( !s_isEnable )	{ return; }
+
+			UnityEngine.Debug.Log( s_instance?.FormatText( text, tag ) ?? text );
 		}
-		///------------------------------------------------------------------------------------------------
+
 		/// <summary>
 		/// ● 警告文を表示
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static void Warning( object text, T tag = default( T ) ) {
-			if ( s_isEnabled ) {
-				UnityEngine.Debug.LogWarning( FormatText( text, tag ) );
-			}
+		public static void Warning( object text, T tag = default ) {
+			if ( !s_isEnable )	{ return; }
+
+			UnityEngine.Debug.LogWarning( s_instance?.FormatText( text, tag ) ?? text );
 		}
-		///------------------------------------------------------------------------------------------------
+
 		/// <summary>
 		/// ● 失敗文を表示
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static void Error( object text, T tag = default( T ) ) {
-			if ( s_isEnabled ) {
-				UnityEngine.Debug.LogError( FormatText( text, tag ) );
-			}
+		public static void Error( object text, T tag = default ) {
+			if ( !s_isEnable )	{ return; }
+
+			UnityEngine.Debug.LogError( s_instance?.FormatText( text, tag ) ?? text );
 		}
 	}
 }

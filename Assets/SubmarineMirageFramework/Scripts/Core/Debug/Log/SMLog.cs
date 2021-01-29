@@ -9,40 +9,49 @@ namespace SubmarineMirage.Debug {
 	using UnityEngine;
 	using Base;
 	using Service;
-	using Extension;
+	using MultiEvent;
 	using Utility;
+	using Debug.ToString;
+
+
+
+	// TODO : コメント追加、整頓
+
+
+
 	///====================================================================================================
 	/// <summary>
 	/// ■ デバッグ記録のクラス
 	///		UnityエディタのConsole窓から、クリックで飛べない為、DLL化した基盤クラスを継承する。
 	/// </summary>
 	///====================================================================================================
-	public class SMLog : BaseSMLog<SMLogTag>, ISMLightBase {
+	public class SMLog : BaseSMLog<SMLogTag>, ISMStandardBase, ISMService {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>識別番号</summary>
 		[SMShowLine] public uint _id	{ get; private set; }
+		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
+		[SMShowLine] public bool _isDispose => _disposables._isDispose;
+		[SMHide] public SMToStringer _toStringer	{ get; private set; }
 		SMDecorationManager _decorationManager	{ get; set; }
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public SMLog() : base(
-#if DEVELOP
-				true,
-#else
-				false,
-#endif
-#if UNITY_EDITOR
-				true
-#else
-				false
-#endif
-		) {
+		public SMLog() : base( DebugSetter.s_isUnityEditor ) {
 			var manager = SMServiceLocator.Resolve<BaseSMManager>();
 			_id = manager?.GetNewID( this ) ?? 0;
+
+			_toStringer = new SMToStringer( this );
+			SetToString();
+
+			_disposables.AddLast( () => {
+				base.Dispose();
+				_toStringer.Dispose();
+			} );
 
 #if TestSMLog
 			SMLog.Debug( SMLogTag.Task,				SMLogTag.Task );
@@ -61,31 +70,46 @@ namespace SubmarineMirage.Debug {
 			SMLog.Debug( SMLogTag.GameObject,		SMLogTag.GameObject );
 #endif
 		}
+
+		/// <summary>
+		/// ● 廃棄
+		/// </summary>
+		public override void Dispose() => _disposables.Dispose();
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 登録
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● フォーマットを装飾
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		protected override string DecorationFormat( string format, Color color ) {
 			if ( _decorationManager == null ) {
 				_decorationManager = SMServiceLocator.Resolve<SMDecorationManager>();
 			}
 			return _decorationManager._uGUI.ByColor( format, color );
 		}
+
 		///------------------------------------------------------------------------------------------------
-		/// ● 文章に変換
+		/// ● 文章変換
 		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 文章変換を設定
+		/// </summary>
+		public virtual void SetToString() {}
+
 		/// <summary>
 		/// ● 文章に変換
 		/// </summary>
 		public override string ToString() => ToString( 0 );
+
 		/// <summary>
 		/// ● 文章に変換（インデントを整列）
 		/// </summary>
-		public virtual string ToString( int indent ) => this.ToShowString( indent );
+		public virtual string ToString( int indent ) => _toStringer.Run( indent );
+
 		/// <summary>
 		/// ● 1行文章に変換（インデントを整列）
 		/// </summary>
-		public virtual string ToLineString( int indent = 0 ) => ObjectSMExtension.ToLineString( this, indent );
+		public virtual string ToLineString( int indent = 0 ) => _toStringer.RunLine( indent );
 	}
 }

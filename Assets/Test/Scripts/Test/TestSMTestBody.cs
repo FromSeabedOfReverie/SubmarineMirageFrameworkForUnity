@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestBase {
+namespace SubmarineMirage.TestBase.Test {
 	using System.Collections;
-	using NUnit.Framework;
 	using UnityEngine;
-	using UnityEngine.TestTools;
-	using Cysharp.Threading.Tasks;
-	using Service;
+	using Base;
+	using Task;
 	using Utility;
 	using Debug;
 
@@ -18,37 +16,23 @@ namespace SubmarineMirage.TestBase {
 	// TODO : コメント追加、整頓
 
 
-	public class TestBaseSMTest : BaseSMTest {
-		public bool _isDispose => _asyncCanceler._isDispose;
+	public class TestSMTestBody : SMStandardBase {
+		BaseSMTest _owner	{ get; set; }
+		SMTaskCanceler _asyncCanceler => _owner._asyncCanceler;
 
 
-		protected override async UniTask AwakeSub() {
-			Create();
-			UTask.Void( async () => {
-				var framework = SMServiceLocator.Resolve<SubmarineMirageFramework>();
-				await framework.WaitInitialize();
-				_isInitialized = true;
-			} );
-			await UTask.DontWait();
-		}
-
-		protected override void Create() => SMLog.Debug( $"{nameof( Create )}" );
-
-		public override void Dispose() {
-			_asyncCanceler.Dispose();
-			SMLog.Debug( $"{nameof( Dispose )}" );
-		}
+		public TestSMTestBody( BaseSMTest owner )
+			=> _owner = owner;
 
 
-		[UnityTest]
-		public IEnumerator TestTask() => From( async () => {
+
+		public IEnumerator TestTask() => _owner.From( async () => {
 			SMLog.Debug( $"{nameof( TestTask )} : start" );
 			await UTask.Delay( _asyncCanceler, 1000 );
 			SMLog.Debug( $"{nameof( TestTask )} : end" );
 		} );
 
-		[UnityTest]
-		public IEnumerator TestCoroutine() => From( TestCoroutineSub() );
+		public IEnumerator TestCoroutine() => _owner.From( TestCoroutineSub() );
 		IEnumerator TestCoroutineSub() {
 			SMLog.Debug( $"{nameof( TestCoroutine )} : start" );
 			yield return new WaitForSeconds( 1 );
@@ -56,44 +40,38 @@ namespace SubmarineMirage.TestBase {
 		}
 
 
-		[UnityTest]
-		public IEnumerator TestCancelTask() => From( async () => {
+		public IEnumerator TestCancelTask() => _owner.From( async () => {
 			SMLog.Debug( $"{nameof( TestCancelTask )} : start" );
 			UTask.Void( async () => {
 				await UTask.Delay( _asyncCanceler, 1000 );
-				_asyncCanceler.Cancel();
+				_owner.StopAsync();
 			} );
-			await UTask.WaitWhile( _asyncCanceler, () => true );
+			await UTask.Never( _asyncCanceler );
 			SMLog.Debug( $"{nameof( TestCancelTask )} : end" );
 		} );
 
-		[UnityTest]
-		public IEnumerator TestCancelCoroutine() => From( TestCancelCoroutineSub() );
+		public IEnumerator TestCancelCoroutine() => _owner.From( TestCancelCoroutineSub() );
 		IEnumerator TestCancelCoroutineSub() {
 			SMLog.Debug( $"{nameof( TestCancelCoroutine )} : start" );
 			UTask.Void( async () => {
 				await UTask.Delay( _asyncCanceler, 1000 );
-				_asyncCanceler.Cancel();
+				_owner.StopAsync();
 			} );
-			while ( true )	{ yield return null; }
+			yield return _owner.RunForever();
 			SMLog.Debug( $"{nameof( TestCancelCoroutine )} : end" );
 		}
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestDisposeTask() => From( async () => {
+		public IEnumerator TestDisposeTask() => _owner.From( async () => {
 			SMLog.Debug( $"{nameof( TestDisposeTask )}" );
-			await UTask.WaitWhile( _asyncCanceler, () => true );
+			await UTask.Never( _asyncCanceler );
 			// エディタ停止ボタンは、解放されない為、F5ボタンの拡張停止を使う
 		} );
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestDisposeCoroutine() => From( TestDisposeCoroutineSub() );
+		public IEnumerator TestDisposeCoroutine() => _owner.From( TestDisposeCoroutineSub() );
 		IEnumerator TestDisposeCoroutineSub() {
 			SMLog.Debug( $"{nameof( TestDisposeCoroutine )}" );
-			while ( true )	{ yield return null; }
+			yield return _owner.RunForever();
 			// エディタ停止ボタンは、解放されない為、F5ボタンの拡張停止を使う
 		}
 	}

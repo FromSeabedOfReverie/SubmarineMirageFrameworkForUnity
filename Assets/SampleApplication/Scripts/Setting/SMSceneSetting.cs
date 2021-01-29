@@ -27,12 +27,6 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 				SMSceneType.Forever,
 				new Type[] { typeof( ForeverSampleSMScene ), }
 			}, {
-				SMSceneType.UI,
-				new Type[] { typeof( UISMScene ), }
-			}, {
-				SMSceneType.Debug,
-				new Type[] { typeof( DebugSMScene ), }
-			}, {
 				SMSceneType.Main,
 				new Type[] {
 					typeof( TitleSMScene ),
@@ -41,7 +35,13 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 					typeof( GameClearSMScene ),
 					typeof( TestSMScene ),
 				}
-			}
+			}, {
+				SMSceneType.UI,
+				new Type[] { typeof( UISMScene ), }
+			}, {
+				SMSceneType.Debug,
+				new Type[] { typeof( DebugSMScene ), }
+			},
 		};
 		_chunkSceneTypes = new Type[] {
 			typeof( FieldChunk1SMScene ),

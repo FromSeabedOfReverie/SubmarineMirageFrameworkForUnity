@@ -9,10 +9,8 @@ namespace SubmarineMirage.TestBase {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Base;
-	using Service;
 	using Task;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -27,34 +25,30 @@ namespace SubmarineMirage.TestBase {
 		[SMHide] protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
 
 
-		protected override async UniTask AwakeSub() {
+		protected override void Awake() {
+			base.Awake();
+
 			_disposables.Add( () => {
-				_finalizeEvent.OnNext( Unit.Default );
 				_asyncCanceler.Dispose();
+				_finalizeEvent.OnNext( Unit.Default );
 				_createEvent = null;
 				_initializeEvent = null;
 				_finalizeEvent.OnCompleted();
 				_finalizeEvent.Dispose();
 			} );
+		}
 
+		public override async UniTask Initialize() {
 			Create();
 			if ( _createEvent != null ) {
 				await _createEvent.Invoke( _asyncCanceler );
 			}
-
-			UTask.Void( async () => {
-				var framework = SMServiceLocator.Resolve<SubmarineMirageFramework>();
-				await framework.WaitInitialize();
-				if ( _initializeEvent != null ) {
-					await _initializeEvent.Invoke( _asyncCanceler );
-				}
-				_isInitialized = true;
-			} );
+			if ( _initializeEvent != null ) {
+				await _initializeEvent.Invoke( _asyncCanceler );
+			}
+			_isInitialized = true;
 		}
 
 		public override void Dispose() => _disposables.Dispose();
-
-
-		protected void StopAsync() => _asyncCanceler.Cancel();
 	}
 }

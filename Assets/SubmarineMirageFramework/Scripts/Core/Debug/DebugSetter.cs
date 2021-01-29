@@ -5,9 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Debug {
-	using Cysharp.Threading.Tasks;
-	using Base;
-	using Service;
 
 
 
@@ -15,7 +12,29 @@ namespace SubmarineMirage.Debug {
 
 
 
-	public interface IBaseSMTest : IBaseSM, ISMService {
-		UniTask Initialize();
+	public static class DebugSetter {
+		public static bool s_isDevelop	{ get; private set; }
+		public static bool s_isUnityEditor	{ get; private set; }
+
+
+
+		public static void Initialize() {
+			s_isDevelop =
+#if DEVELOP
+				true;
+#else
+				false;
+#endif
+
+			s_isUnityEditor =
+#if UNITY_EDITOR
+				true;
+#else
+				false;
+#endif
+
+			// 有効にならないと、全くログを表示しない為、真っ先に有効化
+			SMLog.s_isEnable = s_isDevelop;
+		}
 	}
 }

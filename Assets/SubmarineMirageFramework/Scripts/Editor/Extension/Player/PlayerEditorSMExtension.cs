@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.EditorExtension {
+	using UnityEngine;
 	using UnityEditor;
 	using Task;
 	using Utility;
@@ -15,10 +16,26 @@ namespace SubmarineMirage.EditorExtension {
 
 
 
-	[InitializeOnLoad]
-	public class PlayerEditorSMExtension : EditorWindowSMExtension {
-		public static PlayerEditorSMExtension s_instance
-			=> ScriptableSingleton<PlayerEditorSMExtension>.instance;
+	public class PlayerEditorSMExtension : ScriptableSingletonSMExtension<PlayerEditorSMExtension> {
+		public enum Type {
+			Stop,
+			Runtime,
+			Editor,
+			Test,
+		}
+
+		// 何度再生されても、値を保持する
+		// 他のstaticクラスだと、実行の度に作り直される為、値を保持できない
+		// その為、ここで実行タイプを設定し、参照する
+		Type _typeBody;
+		public Type _type	{
+			get => _typeBody;
+			set {
+				_typeBody = value;
+				// SMLogだと有効設定前後のタイミングで呼ばれる為、駄目
+				Debug.Log( $"{nameof( PlayerEditorSMExtension )}.{nameof( _type )} : {_typeBody}" );
+			}
+		}
 
 
 		protected override void Awake() {
@@ -27,47 +44,40 @@ namespace SubmarineMirage.EditorExtension {
 			EditorApplication.playModeStateChanged += mode => {
 				switch ( mode ) {
 					case PlayModeStateChange.EnteredPlayMode:
-						if ( SubmarineMirageFramework.s_playType == SubmarineMirageFramework.PlayType.Stop ) {
-							SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Runtime;
-						}
+						if ( _type == Type.Stop )	{ _type = Type.Runtime; }
 						return;
 					case PlayModeStateChange.ExitingPlayMode:
-						SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Stop;
+						_type = Type.Stop;
 						return;
 				}
 			};
 		}
 
-		public override void Dispose()	{}
+		public override void Dispose() {}
 
 
-		[MenuItem( "Edit/PlayExtension _F5", priority = 100000 )]
-		static void PlayExtension() {
+
+		public void PlayExtension() {
 			if ( !EditorApplication.isPlaying ) {
-				SubmarineMirageFramework.s_playType = SubmarineMirageFramework.PlayType.Editor;
+				_type = Type.Editor;
 				EditorApplication.isPlaying = true;
 
 			} else {
 				UTask.Void( async () => {
-					var canceler = new SMTaskCanceler();
 					SubmarineMirageFramework.Shutdown();
-					if ( SubmarineMirageFramework.s_playType != SubmarineMirageFramework.PlayType.Test ) {
-						await UTask.NextFrame( canceler );
+					using ( var canceler = new SMTaskCanceler() ) {
+						await UTask.DelayFrame( canceler, 2 );
 					}
 					EditorApplication.isPlaying = false;
-					canceler.Dispose();
 				} );
 			}
 		}
 
-
-		[MenuItem( "Edit/PauseExtension _F6", priority = 100001 )]
-		static void PauseExtension() {
+		public void PauseExtension() {
 			EditorApplication.isPaused = !EditorApplication.isPaused;
 		}
 
-		[MenuItem( "Edit/StepExtension _F7", priority = 100002 )]
-		static void StepExtension() {
+		public void StepExtension() {
 			EditorApplication.Step();
 		}
 	}

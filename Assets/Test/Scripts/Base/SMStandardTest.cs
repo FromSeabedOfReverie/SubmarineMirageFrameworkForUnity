@@ -7,9 +7,7 @@
 namespace SubmarineMirage.TestBase {
 	using Cysharp.Threading.Tasks;
 	using Base;
-	using Service;
 	using MultiEvent;
-	using Utility;
 	using Debug;
 	using Debug.ToString;
 
@@ -26,35 +24,31 @@ namespace SubmarineMirage.TestBase {
 		[SMHide] protected readonly SMMultiSubject _finalizeEvent = new SMMultiSubject();
 
 
-		public SMStandardTest() {
+		protected override void Awake() {
+			base.Awake();
+
 			_toStringer = new SMToStringer( this );
 			SetToString();
-			_disposables.AddLast( _toStringer );
-		}
 
-		protected override async UniTask AwakeSub() {
 			_disposables.AddLast( () => {
 				_asyncCanceler.Dispose();
 				_finalizeEvent.Run();
+				_toStringer.Dispose();
 				_createEvent.Dispose();
 				_initializeEvent.Dispose();
 				_finalizeEvent.Dispose();
 			} );
+		}
 
+		public override async UniTask Initialize() {
 			Create();
 			await _createEvent.Run( _asyncCanceler );
-
-			UTask.Void( async () => {
-				var framework = SMServiceLocator.Resolve<SubmarineMirageFramework>();
-				await framework.WaitInitialize();
-				await _initializeEvent.Run( _asyncCanceler );
-				_isInitialized = true;
-			} );
+			await _initializeEvent.Run( _asyncCanceler );
+			_isInitialized = true;
 		}
 
 		public override void Dispose() => _disposables.Dispose();
 
-		protected void StopAsync() => _asyncCanceler.Cancel();
 
 		public virtual void SetToString()	{}
 		public override string ToString( int indent ) => _toStringer.Run( indent );

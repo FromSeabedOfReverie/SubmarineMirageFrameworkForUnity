@@ -14,6 +14,8 @@ namespace SubmarineMirage.Debug {
 		None,
 		/// <summary>仕事のデバッグ記録</summary>
 		Task,
+		/// <summary>サービスのデバッグ記録</summary>
+		Service,
 		/// <summary>シングルトンのデバッグ記録</summary>
 		Singleton,
 		/// <summary>有限状態機械のデバッグ記録</summary>

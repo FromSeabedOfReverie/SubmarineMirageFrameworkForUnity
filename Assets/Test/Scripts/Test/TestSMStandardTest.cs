@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestBase {
+namespace SubmarineMirage.TestBase.Test {
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
@@ -17,6 +17,15 @@ namespace SubmarineMirage.TestBase {
 
 
 	public class TestSMStandardTest : SMStandardTest {
+		TestSMTestBody _body	{ get; set; }
+
+
+		protected override void Awake() {
+			base.Awake();
+			_body = new TestSMTestBody( this );
+			_disposables.AddLast( _body );
+		}
+
 		protected override void Create() {
 			SMLog.Debug( $"{nameof( Create )}" );
 
@@ -38,10 +47,25 @@ namespace SubmarineMirage.TestBase {
 		}
 
 
+
 		[UnityTest]
-		public IEnumerator Test() => From( async () => {
-			SMLog.Debug( $"{nameof( Test )}" );
-			await UTask.DontWait();
-		} );
+		public IEnumerator TestTask() => _body.TestTask();
+
+		[UnityTest]
+		public IEnumerator TestCoroutine() => _body.TestCoroutine();
+
+
+		[UnityTest]
+		public IEnumerator TestCancelTask() => _body.TestCancelTask();
+
+		[UnityTest]
+		public IEnumerator TestCancelCoroutine() => _body.TestCancelCoroutine();
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDisposeTask() => _body.TestDisposeTask();
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDisposeCoroutine() => _body.TestDisposeCoroutine();
 	}
 }

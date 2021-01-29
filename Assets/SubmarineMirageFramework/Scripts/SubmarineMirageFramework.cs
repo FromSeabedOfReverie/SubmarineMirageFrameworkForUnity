@@ -24,48 +24,53 @@ namespace SubmarineMirage {
 
 
 	public class SubmarineMirageFramework : SMStandardBase, ISMService {
-		public enum PlayType {
-			Stop,
-			Runtime,
-			Editor,
-			Test,
-		}
-
-		public static PlayType s_playTypeBody;
-		public static PlayType s_playType {
-			get => s_playTypeBody;
-			set {
-				s_playTypeBody = value;
-				UnityEngine.Debug.Log( $"{nameof( s_playType )} : {s_playTypeBody}" );
-			}
-		}
+		public static bool s_isPlayTest	{ get; set; }
 		public bool _isInitialized	{ get; private set; }
 		readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
 
 
 		public SubmarineMirageFramework() {
 			_disposables.AddLast( () => {
-				s_playType = PlayType.Stop;
+				s_isPlayTest = false;
 				_isInitialized = false;
 				_asyncCanceler.Dispose();
 			} );
 		}
 
-		public static void Shutdown() => SMServiceLocator.Dispose();
-
+		public static void Shutdown() {
+			try {
+				SMServiceLocator.Dispose();
+			} catch ( OperationCanceledException ) {
+			} catch ( Exception e ) {
+				SMLog.Error( e );
+				throw;
+			}
+		}
 
 
 // TODO : もっと良い開始名を考える
 		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent ) {
-			await SystemTask.Delay( 1, _asyncCanceler.ToToken() );
+			try {
+				await Initialize( initializePluginEvent, registerSettingsEvent );
+			} catch ( OperationCanceledException ) {
+			} catch ( Exception e ) {
+				SMLog.Error( e );
+				throw;
+			}
+		}
 
+		async UniTask Initialize( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent )
+		{
+			DebugSetter.Initialize();
+
+			await SystemTask.Delay( 1, _asyncCanceler.ToToken() );
 
 			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown() ) );
 
 			await initializePluginEvent();
 			SMServiceLocator.Register<BaseSMManager>();
 			SMServiceLocator.Register<SMDecorationManager>();
-			new SMLog();
+			SMServiceLocator.Register<SMLog>();
 
 			await registerSettingsEvent();
 			var scene = SMServiceLocator.Register<SMSceneManager>();
@@ -73,12 +78,13 @@ namespace SubmarineMirage {
 			scene.Setup();
 //			SMMonoBehaviourSingletonManager.CreateInstance();
 
-			if ( s_playType == PlayType.Test ) {
+			await scene._body.Initialize();
+
+			if ( s_isPlayTest ) {
 				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );
-				await test.AwakeTop();
+				await test.Initialize();
 			}
 
-			await scene._body.Initialize();
 			_isInitialized = true;
 		}
 

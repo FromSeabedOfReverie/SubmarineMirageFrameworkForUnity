@@ -15,6 +15,7 @@ namespace SubmarineMirage.Service {
 	using Scene;
 	using Extension;
 	using Utility;
+	using Debug;
 
 
 
@@ -24,7 +25,7 @@ namespace SubmarineMirage.Service {
 
 	public static class SMServiceLocator {
 		public static bool s_isDisposed	{ get; private set; }
-		static readonly Dictionary<Type, ISMService> s_container = new Dictionary<Type, ISMService>();
+		public static readonly Dictionary<Type, ISMService> s_container = new Dictionary<Type, ISMService>();
 
 
 		static SMServiceLocator() {
@@ -35,10 +36,10 @@ namespace SubmarineMirage.Service {
 		public static void Dispose() {
 			if ( s_isDisposed )	{ return; }
 
+			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Dispose )}", SMLogTag.Service );
 			s_isDisposed = true;
 			s_container.ForEach( pair => pair.Value.Dispose() );
 			s_container.Clear();
-			Debug.Log( $"{nameof( SMServiceLocator )}.{nameof( Dispose )}" );
 		}
 
 
@@ -48,7 +49,8 @@ namespace SubmarineMirage.Service {
 			if ( s_container.ContainsKey( type ) ) {
 				throw new InvalidOperationException( $"既に登録済 : {type}" );
 			}
-			Debug.Log( $"{nameof( SMServiceLocator )}.{nameof( Register )} : {type.GetAboutName()}" );
+			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Register )} : {type.GetAboutName()}",
+				SMLogTag.Service );
 
 			if ( instance == null )	{ instance = Create( type ); }
 
@@ -94,6 +96,8 @@ namespace SubmarineMirage.Service {
 			if ( s_isDisposed )	{ return; }
 
 			var type = typeof( T );
+			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Unregister )} : {type.GetAboutName()}",
+				SMLogTag.Service );
 			if ( isDispose )	{ s_container.GetOrDefault( type )?.Dispose(); }
 			s_container.Remove( type );
 		}
