@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
+	using Extension;
 	using Debug;
 
 
@@ -15,15 +16,15 @@ namespace SubmarineMirage.MultiEvent {
 		[SMShowLine] string _removeKey	{ get; set; }
 
 
-		public RemoveSMEvent( string removeKey ) => _removeKey = removeKey;
+		public RemoveSMEvent( string removeKey )
+			=> _removeKey = removeKey;
 
 
 		public override void Run() {
-			_owner._events.RemoveAll( pair => {
-				var isRemove = pair.Key == _removeKey;
-				if ( isRemove )	{ _owner.OnRemove( pair.Value ); }
-				return isRemove;
-			} );
+			_owner._events.RemoveAll(
+				pair => pair.Key == _removeKey,
+				pair => _owner.OnRemove( pair.Value )
+			);
 		}
 	}
 }

@@ -9,16 +9,19 @@ namespace SubmarineMirage.MultiEvent {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
+	using KoganeUnityLib;
 	using Base;
 	using Extension;
 	using Utility;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public abstract class BaseSMMultiEvent<T> : SMRawBase {
-		public readonly List< KeyValuePair<string, T> > _events = new List< KeyValuePair<string, T> >();
+		public LinkedList< KeyValuePair<string, T> > _events	{ get; private set; }
+			= new LinkedList< KeyValuePair<string, T> >();
 		protected SMEventModifyler<T> _modifyler	{ get; private set; }
 
 
@@ -62,6 +65,11 @@ namespace SubmarineMirage.MultiEvent {
 
 
 		public void Reverse() => Register( new ReverseSMEvent<T>() );
+
+		// 利用者は、これを呼ばない
+		// 必ず、Modifyler経由で呼ぶ
+		// その為、Reverseを使う
+		public void ApplyReverse() => _events = _events.Reverse();
 
 
 		public void Remove( string key ) => Register( new RemoveSMEvent<T>( key ) );

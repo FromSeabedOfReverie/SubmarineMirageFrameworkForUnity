@@ -19,6 +19,14 @@ namespace SubmarineMirage.Extension {
 
 
 	public static class LinkedListSMExtension {
+		public static LinkedList<T> Copy<T>( this LinkedList<T> self )
+			=> new LinkedList<T>( self );
+
+
+		public static LinkedList<T> Reverse<T>( this LinkedList<T> self )
+			=> new LinkedList<T>( Enumerable.Reverse( self ) );
+
+
 		public static void Enqueue<T>( this LinkedList<T> self, T data )
 			=> self.AddLast( data );
 

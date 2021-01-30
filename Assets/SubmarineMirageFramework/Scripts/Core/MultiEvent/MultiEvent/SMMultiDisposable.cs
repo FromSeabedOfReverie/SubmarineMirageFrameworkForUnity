@@ -11,7 +11,9 @@ namespace SubmarineMirage.MultiEvent {
 	using KoganeUnityLib;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class SMMultiDisposable : BaseSMMultiEvent<IDisposable> {

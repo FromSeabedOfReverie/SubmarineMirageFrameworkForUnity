@@ -23,7 +23,7 @@ namespace SubmarineMirage.Debug.ToString {
 
 
 	public class SMToStringer : SMLightBase {
-		object _owner	{ get; set; }
+		[SMHide] object _owner	{ get; set; }
 		readonly Dictionary<string, SMToStringData> _toStrings = new Dictionary<string, SMToStringData>();
 		readonly Dictionary<string, SMToLineStringData> _toLineStrings =
 			new Dictionary<string, SMToLineStringData>();

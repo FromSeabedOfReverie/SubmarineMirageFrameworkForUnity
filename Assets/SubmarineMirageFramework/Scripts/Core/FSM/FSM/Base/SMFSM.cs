@@ -23,10 +23,10 @@ namespace SubmarineMirage.FSM.Base {
 
 
 	public abstract class SMFSM : SMStandardBase {
-		public abstract bool _isInitialized	{ get; }
-		public abstract bool _isOperable	{ get; }
-		public abstract bool _isFinalizing	{ get; }
-		public abstract bool _isActive		{ get; }
+		[SMHide] public abstract bool _isInitialized	{ get; }
+		[SMHide] public abstract bool _isOperable		{ get; }
+		[SMHide] public abstract bool _isFinalizing		{ get; }
+		[SMHide] public abstract bool _isActive			{ get; }
 
 		[SMHide] public abstract SMMultiAsyncEvent _selfInitializeEvent	{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _initializeEvent		{ get; }

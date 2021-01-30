@@ -6,10 +6,13 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using UniRx;
+	using KoganeUnityLib;
 	using Extension;
 
 
+
 	// TODO : コメント追加、整頓
+
 
 
 	public class SMMultiSubject : BaseSMMultiEvent< Subject<Unit> > {

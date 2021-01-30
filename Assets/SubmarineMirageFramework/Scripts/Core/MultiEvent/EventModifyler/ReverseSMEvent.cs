@@ -11,6 +11,7 @@ namespace SubmarineMirage.MultiEvent {
 
 
 	public class ReverseSMEvent<T> : SMEventModifyData<T> {
-		public override void Run() => _owner._events.Reverse();
+		public override void Run()
+			=> _owner.ApplyReverse();
 	}
 }

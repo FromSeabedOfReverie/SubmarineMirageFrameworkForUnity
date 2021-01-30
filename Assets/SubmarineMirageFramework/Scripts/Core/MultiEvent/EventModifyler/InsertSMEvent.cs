@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System.Collections.Generic;
-	using UnityEngine;
+	using Extension;
 	using Debug;
 
 
@@ -29,14 +29,23 @@ namespace SubmarineMirage.MultiEvent {
 
 		public override void Run() {
 			var pair = new KeyValuePair<string, T>( _key, _function );
-			var i = _owner._events.FindIndex( p => p.Key == _findKey );
-			if ( i == -1 )	{ NoEventError( _findKey ); }
+
 			switch ( _type ) {
-				case SMEventAddType.First:	i -= 0;	break;
-				case SMEventAddType.Last:	i += 1;	break;
+				case SMEventAddType.First:
+					_owner._events.AddBefore(
+						pair,
+						p => p.Key == _findKey,
+						() => NoEventError( _findKey )
+					);
+					return;
+				case SMEventAddType.Last:
+					_owner._events.AddAfter(
+						pair,
+						p => p.Key == _findKey,
+						() => NoEventError( _findKey )
+					);
+					return;
 			}
-			i = Mathf.Clamp( i, 0, _owner._events.Count );
-			_owner._events.Insert( i, pair );
 		}
 	}
 }

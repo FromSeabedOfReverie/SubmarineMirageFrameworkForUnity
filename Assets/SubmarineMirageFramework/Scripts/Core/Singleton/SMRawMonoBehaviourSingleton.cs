@@ -21,12 +21,12 @@ namespace SubmarineMirage.Singleton {
 		where T : MonoBehaviourSMExtension, ISMSingleton, ISMRawBase
 	{
 		[SMHide] public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
-		public bool _isDispose => _disposables.IsDisposed;
+		[SMShowLine] public bool _isDispose => _disposables.IsDisposed;
 		protected static T s_instanceObject;
 		public static bool s_isCreated => s_instanceObject != null;
 
 
-		public static T s_instance {
+		[SMHide] public static T s_instance {
 			get {
 				if ( !s_isCreated )	{ CreateInstance(); }
 				return s_instanceObject;

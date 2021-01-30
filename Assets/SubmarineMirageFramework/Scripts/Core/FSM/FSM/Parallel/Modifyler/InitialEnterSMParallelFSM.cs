@@ -11,6 +11,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using FSM.Base;
 	using FSM.Modifyler.Base;
 	using Utility;
+	using Debug;
 
 
 
@@ -24,7 +25,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 		where TInternalFSM : SMFSM
 		where TEnum : Enum
 	{
-		public override SMFSMModifyType _type => SMFSMModifyType.Runner;
+		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.Runner;
 
 
 		public override async UniTask Run() {

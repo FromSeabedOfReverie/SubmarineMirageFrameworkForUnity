@@ -20,9 +20,9 @@ namespace SubmarineMirage.MultiEvent {
 	public class SMMultiAsyncEvent : BaseSMMultiEvent< Func<SMTaskCanceler, UniTask> > {
 		static readonly string EVENT_KEY = $"{nameof( SMMultiAsyncEvent )}.{nameof( Run )}";
 		string _eventKey	{ get; set; }
-		SMTaskCanceler _canceler	{ get; set; }
-		Func<bool, bool> _isThrowCancelEvent	{ get; set; }
-		public bool _isRunning	{ get; private set; }
+		[SMHide] SMTaskCanceler _canceler	{ get; set; }
+		[SMHide] Func<bool, bool> _isThrowCancelEvent	{ get; set; }
+		[SMShowLine] public bool _isRunning	{ get; private set; }
 
 
 		public SMMultiAsyncEvent( Func<bool, bool> isThrowCancelEvent = null ) {

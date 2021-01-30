@@ -8,6 +8,7 @@ namespace SubmarineMirage.FSM.State {
 	using Task;
 	using FSM.Base;
 	using FSM.State.Base;
+	using Debug;
 
 
 
@@ -19,11 +20,12 @@ namespace SubmarineMirage.FSM.State {
 		where TOwner : IBaseSMFSMOwner
 		where TFSM : SMFSM
 	{
-		public override SMTaskCanceler _asyncCancelerOnDisableAndExit	=> _fsm._asyncCancelerOnDisableAndExit;
-		public override SMTaskCanceler _asyncCancelerOnDispose			=> _fsm._asyncCancelerOnDispose;
+		[SMHide] public override SMTaskCanceler _asyncCancelerOnDisableAndExit
+			=> _fsm._asyncCancelerOnDisableAndExit;
+		[SMHide] public override SMTaskCanceler _asyncCancelerOnDispose	=> _fsm._asyncCancelerOnDispose;
 
-		public TOwner _topOwner	{ get; private set; }
-		public TFSM _fsm	{ get; private set; }
+		[SMHide] public TOwner _topOwner	{ get; private set; }
+		[SMHide] public TFSM _fsm	{ get; private set; }
 
 
 		public override void Set( IBaseSMFSMOwner topOwner, SMFSM fsm ) {

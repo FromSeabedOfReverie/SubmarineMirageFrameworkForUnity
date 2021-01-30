@@ -21,9 +21,9 @@ namespace SubmarineMirage.Scene {
 
 
 	public class SMSceneFSM : SMParallelFSM<SMSceneManager, SMSceneInternalFSM, SMSceneType> {
-		public SMSceneInternalFSM _foreverFSM	{ get; private set; }
-		public SMSceneInternalFSM _mainFSM		{ get; private set; }
-		public SMScene _foreverScene	{ get; private set; }
+		[SMHide] public SMSceneInternalFSM _foreverFSM	{ get; private set; }
+		[SMHide] public SMSceneInternalFSM _mainFSM		{ get; private set; }
+		[SMHide] public SMScene _foreverScene	{ get; private set; }
 		readonly List<Scene> _firstLoadedRawScenes = new List<Scene>();
 
 

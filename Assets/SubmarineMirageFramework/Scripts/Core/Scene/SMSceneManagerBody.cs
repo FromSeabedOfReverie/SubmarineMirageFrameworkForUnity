@@ -31,20 +31,20 @@ namespace SubmarineMirage.Scene {
 		public bool _isActive		{ get; set; }
 		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
 
-		public readonly SMMultiAsyncEvent _selfInitializeEvent	= new SMMultiAsyncEvent();
-		public readonly SMMultiAsyncEvent _initializeEvent		= new SMMultiAsyncEvent();
-		public readonly SMMultiSubject _enableEvent				= new SMMultiSubject();
-		public readonly SMMultiSubject _fixedUpdateEvent		= new SMMultiSubject();
-		public readonly SMMultiSubject _updateEvent				= new SMMultiSubject();
-		public readonly SMMultiSubject _lateUpdateEvent			= new SMMultiSubject();
-		public readonly SMMultiSubject _disableEvent			= new SMMultiSubject();
-		public readonly SMMultiAsyncEvent _finalizeEvent		= new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent	= new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent		= new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiSubject _enableEvent				= new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _fixedUpdateEvent		= new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _updateEvent				= new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _lateUpdateEvent			= new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _disableEvent			= new SMMultiSubject();
+		[SMHide] public readonly SMMultiAsyncEvent _finalizeEvent		= new SMMultiAsyncEvent();
 #if DEVELOP
-		public readonly SMMultiSubject _onGUIEvent = new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _onGUIEvent = new SMMultiSubject();
 #endif
-		public readonly SMTaskCanceler _asyncCancelerOnDispose	= new SMTaskCanceler();
+		[SMHide] public readonly SMTaskCanceler _asyncCancelerOnDispose	= new SMTaskCanceler();
 
-		public SMSceneManager _owner	{ get; private set; }
+		[SMHide] public SMSceneManager _owner	{ get; private set; }
 		public SMSceneFSM _fsm	{ get; private set; }
 
 
@@ -75,6 +75,7 @@ namespace SubmarineMirage.Scene {
 			} );
 		}
 
+// TODO : 将来的に、Initialize内部から呼び出す
 		// SMScene内部で、SMServiceLocatorから自身を参照する為、Body生成後に、Sceneを遅延生成する
 		public void Setup() {
 			var setting = SMServiceLocator.Resolve<ISMSceneSetting>();

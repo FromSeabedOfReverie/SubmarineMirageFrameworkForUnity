@@ -25,8 +25,8 @@ namespace SubmarineMirage.EditorExtension {
 
 
 		protected virtual void Awake() {
-			var manager = SMServiceLocator.Resolve<BaseSMManager>();
-			_id = manager?.GetNewID( this ) ?? 0;
+			var idCounter = SMServiceLocator.Resolve<SMIDCounter>();
+			_id = idCounter?.GetNewID( this ) ?? 0;
 		}
 
 		protected virtual void OnDestroy() => Dispose();

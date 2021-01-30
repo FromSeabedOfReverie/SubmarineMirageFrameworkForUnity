@@ -20,7 +20,7 @@ namespace SubmarineMirage.Singleton {
 		public static bool s_isCreated => s_instanceObject != null;
 
 
-		public static T s_instance {
+		[SMHide] public static T s_instance {
 			get {
 				if ( !s_isCreated )	{ CreateInstance(); }
 				return s_instanceObject;

@@ -33,7 +33,7 @@ namespace SubmarineMirage.Debug {
 		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;
 		[SMHide] public SMToStringer _toStringer	{ get; private set; }
-		SMDecorationManager _decorationManager	{ get; set; }
+		[SMHide] SMDecorationManager _decorationManager	{ get; set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -42,8 +42,8 @@ namespace SubmarineMirage.Debug {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMLog() : base( DebugSetter.s_isUnityEditor ) {
-			var manager = SMServiceLocator.Resolve<BaseSMManager>();
-			_id = manager?.GetNewID( this ) ?? 0;
+			var idCounter = SMServiceLocator.Resolve<SMIDCounter>();
+			_id = idCounter?.GetNewID( this ) ?? 0;
 
 			_toStringer = new SMToStringer( this );
 			SetToString();

@@ -7,7 +7,6 @@
 namespace SubmarineMirage.Utility {
 	using Base;
 	using Service;
-	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 装飾管理クラス
@@ -19,18 +18,15 @@ namespace SubmarineMirage.Utility {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>NGUI装飾</summary>
-		public SMNGUIDecoration _nGUI { get; private set; }
+		public SMNGUIDecoration _nGUI { get; private set; } = new SMNGUIDecoration();
 		/// <summary>UGUI装飾</summary>
-		public SMUGUIDecoration _uGUI { get; private set; }
+		public SMUGUIDecoration _uGUI { get; private set; } = new SMUGUIDecoration();
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public SMDecorationManager() {
-			_nGUI = new SMNGUIDecoration();
-			_uGUI = new SMUGUIDecoration();
-
 			_disposables.AddLast( () => {
 				_nGUI.Dispose();
 				_uGUI.Dispose();

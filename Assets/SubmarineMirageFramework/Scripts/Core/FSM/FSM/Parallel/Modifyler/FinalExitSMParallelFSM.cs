@@ -9,6 +9,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using FSM.Base;
 	using FSM.Modifyler.Base;
+	using Debug;
 
 
 
@@ -22,7 +23,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 		where TInternalFSM : SMFSM
 		where TEnum : Enum
 	{
-		public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
+		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
 
 
 		public override async UniTask Run() {

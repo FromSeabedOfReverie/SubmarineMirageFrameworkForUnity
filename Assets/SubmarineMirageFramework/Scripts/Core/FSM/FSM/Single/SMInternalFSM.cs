@@ -25,9 +25,9 @@ namespace SubmarineMirage.FSM {
 		where TState : BaseSMState
 		where TEnum : Enum
 	{
-		public TOwner _topOwner	{ get; private set; }
-		public TOwnerFSM _fsm => _owner;
-		public TEnum _fsmType	{ get; private set; }
+		[SMHide] public TOwner _topOwner	{ get; private set; }
+		[SMHide] public TOwnerFSM _fsm => _owner;
+		[SMShowLine] public TEnum _fsmType	{ get; private set; }
 
 
 		public SMInternalFSM( IEnumerable<TState> states, Type baseStateType, Type startStateType = null )

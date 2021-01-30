@@ -11,6 +11,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
 	using FSM.State.Modifyler;
+	using Debug;
 
 
 
@@ -22,8 +23,8 @@ namespace SubmarineMirage.FSM.Modifyler {
 		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public override SMFSMModifyType _type => SMFSMModifyType.SingleRunner;
-		Type _stateType	{ get; set; }
+		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.SingleRunner;
+		[SMShowLine] Type _stateType	{ get; set; }
 
 
 		public ChangeStateSMSingleFSM( Type stateType ) {

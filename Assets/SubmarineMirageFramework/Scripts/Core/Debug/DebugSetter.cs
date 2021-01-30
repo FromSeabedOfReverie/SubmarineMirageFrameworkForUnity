@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Debug {
+	using Debug;
 
 
 
@@ -13,8 +14,8 @@ namespace SubmarineMirage.Debug {
 
 
 	public static class DebugSetter {
-		public static bool s_isDevelop	{ get; private set; }
-		public static bool s_isUnityEditor	{ get; private set; }
+		[SMShowLine] public static bool s_isDevelop	{ get; private set; }
+		[SMShowLine] public static bool s_isUnityEditor	{ get; private set; }
 
 
 

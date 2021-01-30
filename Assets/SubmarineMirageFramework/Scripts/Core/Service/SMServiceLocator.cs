@@ -24,7 +24,7 @@ namespace SubmarineMirage.Service {
 
 
 	public static class SMServiceLocator {
-		public static bool s_isDisposed	{ get; private set; }
+		[SMShowLine] public static bool s_isDisposed	{ get; private set; } = true;
 		public static readonly Dictionary<Type, ISMService> s_container = new Dictionary<Type, ISMService>();
 
 
@@ -98,7 +98,10 @@ namespace SubmarineMirage.Service {
 			var type = typeof( T );
 			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Unregister )} : {type.GetAboutName()}",
 				SMLogTag.Service );
-			if ( isDispose )	{ s_container.GetOrDefault( type )?.Dispose(); }
+			if ( isDispose ) {
+				var instance = s_container.GetOrDefault( type );
+				instance?.Dispose();
+			}
 			s_container.Remove( type );
 		}
 

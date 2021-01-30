@@ -20,20 +20,20 @@ namespace SubmarineMirage.FSM.State.Base {
 	public abstract class BaseSMState : SMStandardBase {
 		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
 		[SMShowLine] public SMStateUpdateState _updatedState	{ get; set; }
-		public bool _isUpdating	{ get; set; }
+		[SMShowLine] public bool _isUpdating	{ get; set; }
 
-		public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiSubject _enableEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _fixedUpdateEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _updateEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _lateUpdateEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _disableEvent = new SMMultiSubject();
-		public readonly SMMultiAsyncEvent _finalizeEvent = new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiSubject _enableEvent = new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _fixedUpdateEvent = new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _updateEvent = new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _lateUpdateEvent = new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _disableEvent = new SMMultiSubject();
+		[SMHide] public readonly SMMultiAsyncEvent _finalizeEvent = new SMMultiAsyncEvent();
 
-		public readonly SMMultiAsyncEvent _enterEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiAsyncEvent _enterEvent = new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
+		[SMHide] public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
 
 		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDisableAndExit	{ get; }
 		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }

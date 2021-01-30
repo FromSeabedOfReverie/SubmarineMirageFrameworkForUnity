@@ -14,7 +14,7 @@ namespace SubmarineMirage.MultiEvent {
 
 
 	public abstract class SMEventModifyData<T> : SMLightBase {
-		public BaseSMMultiEvent<T> _owner	{ get; set; }
+		[SMHide] public BaseSMMultiEvent<T> _owner	{ get; set; }
 		[SMShowLine] public T _function	{ get; set; }
 
 

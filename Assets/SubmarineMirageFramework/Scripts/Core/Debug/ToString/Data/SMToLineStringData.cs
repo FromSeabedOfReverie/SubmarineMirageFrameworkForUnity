@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Debug.ToString.Data {
 	using System;
+	using Debug;
 
 
 
@@ -14,7 +15,9 @@ namespace SubmarineMirage.Debug.ToString.Data {
 
 
 	public class SMToLineStringData : BaseSMToStringData {
-		public Func<string> _valueEvent	{ get; set; }
+		[SMShowLine] public Func<string> _valueEvent	{ get; set; }
+
+
 		public SMToLineStringData( Func<string> valueEvent )
 			=> _valueEvent = valueEvent;
 	}

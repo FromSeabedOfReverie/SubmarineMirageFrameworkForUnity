@@ -20,8 +20,8 @@ namespace SubmarineMirage.MultiEvent {
 
 	public class SMEventModifyler<T> : SMRawBase {
 		[SMHide] BaseSMMultiEvent<T> _owner	{ get; set; }
-		readonly Queue< SMEventModifyData<T> > _data = new Queue< SMEventModifyData<T> >();
-		bool _isRunning	{ get; set; }
+		readonly LinkedList< SMEventModifyData<T> > _data = new LinkedList< SMEventModifyData<T> >();
+		[SMShowLine] bool _isRunning	{ get; set; }
 
 
 		public SMEventModifyler( BaseSMMultiEvent<T> owner ) {
@@ -41,7 +41,7 @@ namespace SubmarineMirage.MultiEvent {
 			data._owner = _owner;
 			_data.Enqueue( data );
 
-			if ( !_isRunning )	{ Run(); }
+			Run();
 		}
 
 

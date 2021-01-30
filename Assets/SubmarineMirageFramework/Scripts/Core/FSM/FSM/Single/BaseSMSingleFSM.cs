@@ -16,7 +16,6 @@ namespace SubmarineMirage.FSM.Base {
 	using FSM.Modifyler;
 	using FSM.State.Base;
 	using FSM.State.Modifyler;
-	using Extension;
 	using Utility;
 	using Debug;
 
@@ -30,24 +29,24 @@ namespace SubmarineMirage.FSM.Base {
 		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		public override bool _isInitialized	=> _owner._isInitialized;
-		public override bool _isOperable	=> _owner._isOperable;
-		public override bool _isFinalizing	=> _owner._isFinalizing;
-		public override bool _isActive		=> _owner._isActive;
+		[SMHide] public override bool _isInitialized	=> _owner._isInitialized;
+		[SMHide] public override bool _isOperable	=> _owner._isOperable;
+		[SMHide] public override bool _isFinalizing	=> _owner._isFinalizing;
+		[SMHide] public override bool _isActive		=> _owner._isActive;
 
-		public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
-		public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
-		public override SMMultiSubject _enableEvent				=> _owner._enableEvent;
-		public override SMMultiSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
-		public override SMMultiSubject _updateEvent				=> _owner._updateEvent;
-		public override SMMultiSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
-		public override SMMultiSubject _disableEvent			=> _owner._disableEvent;
-		public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
+		[SMHide] public override SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
+		[SMHide] public override SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
+		[SMHide] public override SMMultiSubject _enableEvent				=> _owner._enableEvent;
+		[SMHide] public override SMMultiSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
+		[SMHide] public override SMMultiSubject _updateEvent				=> _owner._updateEvent;
+		[SMHide] public override SMMultiSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
+		[SMHide] public override SMMultiSubject _disableEvent			=> _owner._disableEvent;
+		[SMHide] public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
-		public override SMTaskCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
+		[SMHide] public override SMTaskCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
 
-		protected TOwner _owner	{ get; private set; }
-		public TState _state	{ get; set; }
+		[SMHide] protected TOwner _owner	{ get; private set; }
+		[SMShowLine] public TState _state	{ get; set; }
 		public readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 		public Type _startStateType	{ get; protected set; }
 
@@ -111,7 +110,7 @@ namespace SubmarineMirage.FSM.Base {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _owner ), i => _owner.GetAboutName() );
+
 			_toStringer.SetValue( nameof( _states ), i => {
 				var arrayI = StringSMUtility.IndentSpace( i + 1 );
 				return "\n" + string.Join( ",\n", _states.Select( pair =>

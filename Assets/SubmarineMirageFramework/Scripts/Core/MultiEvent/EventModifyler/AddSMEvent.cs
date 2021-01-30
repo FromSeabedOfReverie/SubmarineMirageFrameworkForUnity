@@ -6,8 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.MultiEvent {
 	using System.Collections.Generic;
-	using KoganeUnityLib;
-	using Extension;
 	using Debug;
 
 
@@ -29,8 +27,8 @@ namespace SubmarineMirage.MultiEvent {
 		public override void Run() {
 			var pair = new KeyValuePair<string, T>( _key, _function );
 			switch ( _type ) {
-				case SMEventAddType.First:	_owner._events.InsertFirst( pair );	break;
-				case SMEventAddType.Last:	_owner._events.Add( pair );			break;
+				case SMEventAddType.First:	_owner._events.AddFirst( pair );	return;
+				case SMEventAddType.Last:	_owner._events.AddLast( pair );		return;
 			}
 		}
 	}

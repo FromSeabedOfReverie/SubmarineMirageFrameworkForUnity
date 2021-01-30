@@ -30,28 +30,28 @@ namespace SubmarineMirage.Scene {
 		: MonoBehaviourSMExtension, ISMFSMOwner<SMSceneFSM>, ISMStandardBase, ISMService
 	{
 		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
-		public bool _isDispose => _disposables._isDispose;
+		[SMShowLine] public bool _isDispose => _disposables._isDispose;
 		[SMHide] public SMToStringer _toStringer	{ get; private set; }
 
-		public bool _isInitialized	=> _body._isInitialized;
-		public bool _isOperable		=> _body._isOperable;
-		public bool _isFinalizing	=> _body._isFinalizing;
-		public bool _isActive		=> _body._isActive;
+		[SMHide] public bool _isInitialized	=> _body._isInitialized;
+		[SMHide] public bool _isOperable	=> _body._isOperable;
+		[SMHide] public bool _isFinalizing	=> _body._isFinalizing;
+		[SMHide] public bool _isActive		=> _body._isActive;
 
-		public SMMultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
-		public SMMultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
-		public SMMultiSubject _enableEvent				=> _body._enableEvent;
-		public SMMultiSubject _fixedUpdateEvent			=> _body._fixedUpdateEvent;
-		public SMMultiSubject _updateEvent				=> _body._updateEvent;
-		public SMMultiSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
-		public SMMultiSubject _disableEvent				=> _body._disableEvent;
-		public SMMultiAsyncEvent _finalizeEvent			=> _body._finalizeEvent;
+		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
+		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
+		[SMHide] public SMMultiSubject _enableEvent				=> _body._enableEvent;
+		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
+		[SMHide] public SMMultiSubject _updateEvent				=> _body._updateEvent;
+		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
+		[SMHide] public SMMultiSubject _disableEvent			=> _body._disableEvent;
+		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 #if DEVELOP
-		public SMMultiSubject _onGUIEvent				=> _body._onGUIEvent;
+		[SMHide] public SMMultiSubject _onGUIEvent				=> _body._onGUIEvent;
 #endif
-		public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
-		public SMSceneFSM _fsm	=> _body._fsm;
+		[SMHide] public SMSceneFSM _fsm	=> _body._fsm;
 		public SMSceneManagerBody _body	{ get; private set; }
 
 
@@ -69,9 +69,6 @@ namespace SubmarineMirage.Scene {
 				Destroy( gameObject );
 			} );
 		}
-
-		// SMScene内部で、SMServiceLocatorから自身を参照する為、Body生成後に、Sceneを遅延生成する
-		public void Setup() => _body.Setup();
 
 		public override void Dispose() => _disposables.Dispose();
 

@@ -30,18 +30,15 @@ namespace SubmarineMirage.Scene {
 
 
 	public abstract class SMScene : SMState<SMSceneManager, SMSceneInternalFSM> {
-		public string _name				{ get; protected set; }
-		protected string _registerEventName	{ get; private set; }
-
+		[SMShowLine] public string _name	{ get; protected set; }
 		public Scene _rawScene	{ get; protected set; }
 		public SMGroupManager _groups	{ get; private set; }
 
-		protected readonly SMMultiAsyncEvent _createBehavioursEvent = new SMMultiAsyncEvent();
+		[SMHide] protected readonly SMMultiAsyncEvent _createBehavioursEvent = new SMMultiAsyncEvent();
 
 
 		public SMScene() {
 			SetSceneName();
-			_registerEventName = nameof( SMScene );
 			ReloadRawScene();
 			_groups = new SMGroupManager( this );
 
@@ -49,7 +46,7 @@ namespace SubmarineMirage.Scene {
 				_groups.Dispose();
 			} );
 
-			_enterEvent.AddLast( _registerEventName, async canceler => {
+			_enterEvent.AddLast( async canceler => {
 // TODO : ForeverScene等、作成系シーンで、読込ガードされる？
 				var isRemove = _fsm._fsm.RemoveFirstLoaded( this );
 				if ( !isRemove ) {
@@ -61,20 +58,20 @@ namespace SubmarineMirage.Scene {
 				await _groups.Enter();
 			} );
 
-			_exitEvent.AddLast( _registerEventName, async canceler => {
+			_exitEvent.AddLast( async canceler => {
 				await _groups.Exit();
 				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 				ReloadRawScene();
 				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
 			} );
 
-			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
+			_fixedUpdateEvent.AddLast().Subscribe( _ =>
 				SMGroupManagerApplyer.FixedUpdate( _groups )
 			);
-			_updateEvent.AddLast( _registerEventName ).Subscribe( _ =>
+			_updateEvent.AddLast().Subscribe( _ =>
 				SMGroupManagerApplyer.Update( _groups )
 			);
-			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ =>
+			_lateUpdateEvent.AddLast().Subscribe( _ =>
 				SMGroupManagerApplyer.LateUpdate( _groups )
 			);
 		}

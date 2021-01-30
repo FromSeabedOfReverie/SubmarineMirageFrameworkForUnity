@@ -26,7 +26,7 @@ namespace SubmarineMirage {
 	public class SubmarineMirageFramework : SMStandardBase, ISMService {
 		public static bool s_isPlayTest	{ get; set; }
 		public bool _isInitialized	{ get; private set; }
-		readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
+		[SMHide] readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
 
 
 		public SubmarineMirageFramework() {
@@ -68,14 +68,18 @@ namespace SubmarineMirage {
 			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown() ) );
 
 			await initializePluginEvent();
-			SMServiceLocator.Register<BaseSMManager>();
+			SMServiceLocator.Register<SMIDCounter>();
 			SMServiceLocator.Register<SMDecorationManager>();
 			SMServiceLocator.Register<SMLog>();
 
 			await registerSettingsEvent();
+
+			var hoge = SMServiceLocator.Resolve<SMIDCounter>();
+			SMLog.Debug( hoge );
+			SMLog.Debug( hoge.ToLineString() );
+
 			var scene = SMServiceLocator.Register<SMSceneManager>();
-			scene = SMServiceLocator.Resolve<SMSceneManager>();
-			scene.Setup();
+			scene._body.Setup();
 //			SMMonoBehaviourSingletonManager.CreateInstance();
 
 			await scene._body.Initialize();

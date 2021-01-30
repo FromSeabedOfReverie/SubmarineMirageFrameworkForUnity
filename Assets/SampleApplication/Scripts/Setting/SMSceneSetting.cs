@@ -6,9 +6,12 @@
 //---------------------------------------------------------------------------------------------------------
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using KoganeUnityLib;
 using SubmarineMirage.Base;
 using SubmarineMirage.Scene;
+using SubmarineMirage.Extension;
+using SubmarineMirage.Utility;
 
 
 
@@ -54,5 +57,26 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 			_fsmSceneTypes.Clear();
 			_chunkSceneTypes.Clear();
 		} );
+	}
+
+
+	public override void SetToString() {
+		base.SetToString();
+
+		_toStringer.SetValue( nameof( _fsmSceneTypes ), i => "\n" +
+			string.Join( ",\n", _fsmSceneTypes.Select( pair =>
+				StringSMUtility.IndentSpace( i + 1 ) +
+				string.Join( " : ",
+					pair.Key,
+					string.Join( ", ", pair.Value.Select( type => type.GetAboutName() ) )
+				)
+			) )
+		);
+		_toStringer.SetValue( nameof( _chunkSceneTypes ), i => "\n" +
+			StringSMUtility.IndentSpace( i + 1 ) +
+			string.Join( ", ", _chunkSceneTypes.Select( type =>
+				type.GetAboutName()
+			) )
+		);
 	}
 }

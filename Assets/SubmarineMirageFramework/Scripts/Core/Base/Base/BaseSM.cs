@@ -18,8 +18,8 @@ namespace SubmarineMirage.Base {
 
 
 		public BaseSM() {
-			var manager = SMServiceLocator.Resolve<BaseSMManager>();
-			_id = manager?.GetNewID( this ) ?? 0;
+			var idCounter = SMServiceLocator.Resolve<SMIDCounter>();
+			_id = idCounter?.GetNewID( this ) ?? 0;
 		}
 
 		public abstract void Dispose();

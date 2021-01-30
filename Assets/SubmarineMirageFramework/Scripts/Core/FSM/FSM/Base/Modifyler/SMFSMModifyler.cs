@@ -14,6 +14,7 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 	using FSM.Base;
 	using Extension;
 	using Utility;
+	using Debug;
 
 
 
@@ -22,10 +23,10 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 	public class SMFSMModifyler : SMStandardBase {
-		SMFSM _owner	{ get; set; }
+		[SMHide] SMFSM _owner	{ get; set; }
 		readonly LinkedList<SMFSMModifyData> _data = new LinkedList<SMFSMModifyData>();
-		bool _isRunning	{ get; set; }
-		SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
+		[SMShowLine] bool _isRunning	{ get; set; }
+		[SMHide] SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
 
 
 		public SMFSMModifyler( SMFSM owner ) {
@@ -103,7 +104,6 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _owner ), i => _owner.ToLineString() );
 			_toStringer.SetValue( nameof( _data ), i => "\n" + string.Join( ",\n",
 				_data.Select( d => d.ToLineString( i + 1 ) )
 			) );

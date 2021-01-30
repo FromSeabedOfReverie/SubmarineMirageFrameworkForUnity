@@ -7,6 +7,7 @@
 namespace SubmarineMirage.FSM.Modifyler.Base {
 	using FSM.Base;
 	using FSM.State.Base;
+	using Debug;
 
 
 
@@ -18,7 +19,7 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 		where TOwner : IBaseSMFSMOwner
 		where TState : BaseSMState
 	{
-		protected BaseSMSingleFSM<TOwner, TState> _owner	{ get; private set; }
+		[SMHide] protected BaseSMSingleFSM<TOwner, TState> _owner	{ get; private set; }
 
 
 		public override void Set( SMFSM owner ) {
