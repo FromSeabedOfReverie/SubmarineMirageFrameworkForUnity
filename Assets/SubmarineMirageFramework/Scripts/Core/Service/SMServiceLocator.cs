@@ -79,7 +79,7 @@ namespace SubmarineMirage.Service {
 		static ISMService Create( Type type ) {
 			if ( type.IsInheritance( typeof( SMMonoBehaviour ) ) ) {
 				var o = SMObjectSMUtility.Create( type );
-				return (ISMService)o._behaviour;
+				return (ISMService)o._behaviourBody;
 
 			} else if ( type.IsInheritance( typeof( MonoBehaviourSMExtension ) ) ) {
 				var go = new GameObject( type.GetAboutName() );

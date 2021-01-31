@@ -52,7 +52,6 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			SMBehaviourApplyer.Link( _target, _behaviour );
 			SMGroupApplyer.SetAllData( _owner );
 
-			_behaviour.Constructor();
 			SMBehaviourApplyer.RegisterRunEventToOwner( _target, _behaviour );
 
 			await UTask.DontWait();

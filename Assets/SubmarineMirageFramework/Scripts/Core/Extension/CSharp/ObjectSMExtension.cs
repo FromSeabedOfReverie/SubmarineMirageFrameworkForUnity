@@ -70,6 +70,7 @@ namespace SubmarineMirage.Extension {
 			var nameI = StringSMUtility.IndentSpace( indent );
 			var memberI = StringSMUtility.IndentSpace( indent + 1 );
 
+// TODO : IEnumerable、KeyValuePair等、入れ子に対応する
 			return string.Join( "\n",
 				$"{nameI}{self.GetAboutName()}(",
 				string.Join( ",\n", self.GetType().GetAllNotAttributeMembers<SMHideAttribute>().Select( i =>
@@ -86,6 +87,7 @@ namespace SubmarineMirage.Extension {
 
 			var nameI = StringSMUtility.IndentSpace( indent );
 
+// TODO : IEnumerable、KeyValuePair等、入れ子に対応する
 			return string.Join( " ",
 				$"{nameI}{self.GetAboutName()}(",
 				string.Join( " ", self.GetType().GetAllAttributeMembers<SMShowLineAttribute>().Select( i =>

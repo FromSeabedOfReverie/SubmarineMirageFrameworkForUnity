@@ -149,13 +149,7 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 		public override void SetToString() {
 			base.SetToString();
-
-			_toStringer.SetName( nameof( _group ), nameof( GetAllTops ) );
-			_toStringer.SetValue( nameof( _group ), i => "\n" +
-				string.Join( ",\n", GetAllTops().Select( g =>
-					g.ToLineString( i + 1 )
-				)
-			) );
+			_toStringer.SetValue( nameof( _group ), i => _toStringer.DefaultValue( GetAllTops(), i, true ) );
 		}
 	}
 }

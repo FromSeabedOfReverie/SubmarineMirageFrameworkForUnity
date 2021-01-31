@@ -53,7 +53,7 @@ namespace SubmarineMirage.Singleton {
 
 			s_instanceObject._object.Dispose();
 // TODO : Modifylerを無視しているので、修正
-			SMObjectApplyer.Unlink( s_instanceObject._object );
+			SMObjectBody.Unlink( s_instanceObject._object );
 			s_instanceObject._object.Destroy();
 			s_instanceObject = null;
 		}

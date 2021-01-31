@@ -4,16 +4,26 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task {
+namespace SubmarineMirage.MultiEvent {
+	using System;
+	using KoganeUnityLib;
+	using Extension;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public enum SMTaskModifyType {
-		FirstLinker,
-		Linker,
-		FirstRunner,
-		Runner,
+
+	public class SMMultiEvent<T> : BaseSMMultiEvent< Action<T> > {
+		public override void OnRemove( Action<T> function ) {}
+
+
+		public void Run( T t ) {
+			CheckDisposeError();
+
+			var temp = _events.Copy();
+			temp.ForEach( pair => pair.Value.Invoke( t ) );
+		}
 	}
 }

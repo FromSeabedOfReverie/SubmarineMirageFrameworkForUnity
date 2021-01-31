@@ -22,9 +22,9 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 		[SMHide] protected BaseSMSingleFSM<TOwner, TState> _owner	{ get; private set; }
 
 
-		public override void Set( SMFSM owner ) {
+		public override void Set( SMFSMBody owner ) {
 			base.Set( owner );
-			_owner = (BaseSMSingleFSM<TOwner, TState>)owner;
+			_owner = (BaseSMSingleFSM<TOwner, TState>)owner._fsm;
 		}
 	}
 }

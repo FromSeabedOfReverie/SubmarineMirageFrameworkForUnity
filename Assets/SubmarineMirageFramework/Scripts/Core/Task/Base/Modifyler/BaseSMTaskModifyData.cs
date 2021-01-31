@@ -5,13 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestTaskModifyler
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.Task.Modifyler.Base {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
-	using Base;
-	using Group.Manager.Modifyler;
+	using SubmarineMirage.Base;
+	using Task.Group.Manager.Modifyler;
 	using Extension;
 	using Debug;
 

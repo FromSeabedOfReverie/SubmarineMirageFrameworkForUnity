@@ -24,7 +24,7 @@ namespace SubmarineMirage.MultiEvent {
 
 		Subject<Unit> Insert( string findKey, SMEventAddType type, string key ) {
 			var subject = new Subject<Unit>();
-			Register( new InsertSMEvent< Subject<Unit> >( findKey, type, key, subject ) );
+			_modifyler.Register( new InsertSMEvent< Subject<Unit> >( findKey, type, key, subject ) );
 			return subject;
 		}
 
@@ -43,7 +43,7 @@ namespace SubmarineMirage.MultiEvent {
 
 		Subject<Unit> Add( SMEventAddType type, string key ) {
 			var subject = new Subject<Unit>();
-			Register( new AddSMEvent< Subject<Unit> >( type, key, subject ) );
+			_modifyler.Register( new AddSMEvent< Subject<Unit> >( type, key, subject ) );
 			return subject;
 		}
 

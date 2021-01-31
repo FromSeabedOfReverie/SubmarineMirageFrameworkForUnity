@@ -28,9 +28,11 @@ namespace SubmarineMirage.FSM.State {
 		[SMHide] public TFSM _fsm	{ get; private set; }
 
 
-		public override void Set( IBaseSMFSMOwner topOwner, SMFSM fsm ) {
-			_topOwner = (TOwner)topOwner;
-			_fsm = (TFSM)fsm;
+		public SMState() {
+			_body._setEvent.AddLast( ( topOwner, fsm ) => {
+				_topOwner = (TOwner)topOwner;
+				_fsm = (TFSM)fsm;
+			} );
 		}
 	}
 }

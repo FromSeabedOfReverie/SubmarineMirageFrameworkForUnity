@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Behaviour.Modifyler {
-	using Task.Modifyler;
+namespace SubmarineMirage.Task.Modifyler.Base {
+	using Task.Base;
 
 
 
@@ -24,7 +24,8 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _owner ), i => _owner._behaviour.ToLineString() );
+			_toStringer.SetValue( nameof( _owner ), i =>
+				_toStringer.DefaultValue( _owner._behaviour, i, true ) );
 		}
 	}
 }

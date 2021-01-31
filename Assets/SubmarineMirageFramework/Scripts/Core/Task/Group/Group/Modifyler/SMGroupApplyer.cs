@@ -25,7 +25,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 	public static class SMGroupApplyer {
 		public static void DisposeAll( SMGroup group ) {
-			SMObjectApplyer.DisposeAll( group._topObject );
+			SMObjectBody.DisposeAll( group._topObject );
 			group.Dispose();
 		}
 
@@ -122,7 +122,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if ( group._ranState < SMTaskRunState.InitialEnable )	{ return; }
 
 			group._topObject.GetAllChildren()
-				.ForEach( o => SMObjectApplyer.FixedUpdate( o, type ) );
+				.ForEach( o => SMObjectBody.FixedUpdate( o, type ) );
 
 			if ( type == SMTaskType.Work && group._ranState == SMTaskRunState.InitialEnable ) {
 				group._ranState = SMTaskRunState.FixedUpdate;
@@ -136,7 +136,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if ( group._ranState < SMTaskRunState.FixedUpdate )	{ return; }
 
 			group._topObject.GetAllChildren()
-				.ForEach( o => SMObjectApplyer.Update( o, type ) );
+				.ForEach( o => SMObjectBody.Update( o, type ) );
 
 			if ( type == SMTaskType.Work && group._ranState == SMTaskRunState.FixedUpdate ) {
 				group._ranState = SMTaskRunState.Update;
@@ -150,7 +150,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if ( group._ranState < SMTaskRunState.Update )	{ return; }
 			
 			group._topObject.GetAllChildren()
-				.ForEach( o => SMObjectApplyer.LateUpdate( o, type ) );
+				.ForEach( o => SMObjectBody.LateUpdate( o, type ) );
 
 			if ( type == SMTaskType.Work && group._ranState == SMTaskRunState.Update ) {
 				group._ranState = SMTaskRunState.LateUpdate;

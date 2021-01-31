@@ -9,7 +9,6 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using FSM.Base;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
-	using FSM.State.Modifyler;
 	using Debug;
 
 
@@ -26,10 +25,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
-			SMFSMApplyer.StopAsyncOnDisableAndExit( _owner );
+			_owner._body.StopAsyncOnDisableAndExit();
 
 			if ( _owner._state != null ) {
-				await SMStateApplyer.Exit( _owner._state );
+				await _owner._state._body.Exit();
 				_owner._state = null;
 			}
 

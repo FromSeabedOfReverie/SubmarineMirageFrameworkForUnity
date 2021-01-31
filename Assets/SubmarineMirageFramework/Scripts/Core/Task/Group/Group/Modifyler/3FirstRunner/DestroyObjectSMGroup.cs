@@ -73,11 +73,11 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
-			SMObjectApplyer.DisposeAll( _target );
+			SMObjectBody.DisposeAll( _target );
 			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
 
 			GetAllLowers().ForEach( o => _modifyler.Unregister( o ) );
-			SMObjectApplyer.Unlink( _target );
+			SMObjectBody.Unlink( _target );
 			SMGroupApplyer.SetAllData( _owner );
 		}
 	}

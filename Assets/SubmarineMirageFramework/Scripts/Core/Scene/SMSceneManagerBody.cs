@@ -33,10 +33,10 @@ namespace SubmarineMirage.Scene {
 
 		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent	= new SMMultiAsyncEvent();
 		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent		= new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiSubject _enableEvent				= new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _enableEvent			= new SMMultiSubject();
 		[SMHide] public readonly SMMultiSubject _fixedUpdateEvent		= new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _updateEvent				= new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _lateUpdateEvent			= new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _updateEvent			= new SMMultiSubject();
+		[SMHide] public readonly SMMultiSubject _lateUpdateEvent		= new SMMultiSubject();
 		[SMHide] public readonly SMMultiSubject _disableEvent			= new SMMultiSubject();
 		[SMHide] public readonly SMMultiAsyncEvent _finalizeEvent		= new SMMultiAsyncEvent();
 #if DEVELOP

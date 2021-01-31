@@ -6,13 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Debug {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
 	using Base;
 	using Service;
-	using Extension;
-	using Utility;
 
 
 
@@ -35,18 +32,6 @@ namespace SubmarineMirage.Debug {
 		public uint GetNewID( IBaseSM baseSM ) {
 			var type = baseSM.GetType();
 			return _idCounts[type] = GetLastID( type ) + 1;
-		}
-
-
-		public override void SetToString() {
-			base.SetToString();
-
-			_toStringer.SetValue( nameof( _idCounts ), i => "\n" +
-				string.Join( ",\n", _idCounts.Select( pair =>
-					StringSMUtility.IndentSpace( i + 1 ) +
-					$"{pair.Key.GetAboutName()} : {pair.Value}"
-				) )
-			);
 		}
 	}
 }

@@ -8,7 +8,6 @@ namespace SubmarineMirage.FSM.State.Base {
 	using SubmarineMirage.Base;
 	using MultiEvent;
 	using Task;
-	using FSM.Base;
 	using Debug;
 
 
@@ -18,51 +17,38 @@ namespace SubmarineMirage.FSM.State.Base {
 
 
 	public abstract class BaseSMState : SMStandardBase {
-		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
-		[SMShowLine] public SMStateUpdateState _updatedState	{ get; set; }
-		[SMShowLine] public bool _isUpdating	{ get; set; }
+		[SMHide] public SMStateRunState _ranState			=> _body._ranState;
+		[SMHide] public SMStateUpdateState _updatedState	=> _body._updatedState;
+		[SMHide] public bool _isUpdating					=> _body._isUpdating;
 
-		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiSubject _enableEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _fixedUpdateEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _updateEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _lateUpdateEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _disableEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiAsyncEvent _finalizeEvent = new SMMultiAsyncEvent();
+		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
+		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
+		[SMHide] public SMMultiSubject _enableEvent				=> _body._enableEvent;
+		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
+		[SMHide] public SMMultiSubject _updateEvent				=> _body._updateEvent;
+		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
+		[SMHide] public SMMultiSubject _disableEvent			=> _body._disableEvent;
+		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 
-		[SMHide] public readonly SMMultiAsyncEvent _enterEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
+		[SMHide] public SMMultiAsyncEvent _enterEvent		=> _body._enterEvent;
+		[SMHide] public SMMultiAsyncEvent _updateAsyncEvent	=> _body._updateAsyncEvent;
+		[SMHide] public SMMultiAsyncEvent _exitEvent		=> _body._exitEvent;
 
 		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDisableAndExit	{ get; }
 		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }
 
+		public BaseSMStateBody _body	{ get; private set; }
+
 
 
 		public BaseSMState() {
+			_body = new BaseSMStateBody( this );
+
 			_disposables.AddLast( () => {
-				_ranState = SMStateRunState.Exit;
-				_updatedState = SMStateUpdateState.Disable;
-				_isUpdating = false;
-
-				_selfInitializeEvent.Dispose();
-				_initializeEvent.Dispose();
-				_enableEvent.Dispose();
-				_fixedUpdateEvent.Dispose();
-				_updateEvent.Dispose();
-				_lateUpdateEvent.Dispose();
-				_disableEvent.Dispose();
-				_finalizeEvent.Dispose();
-
-				_enterEvent.Dispose();
-				_updateAsyncEvent.Dispose();
-				_exitEvent.Dispose();
+				_body.Dispose();
 			} );
 		}
 
 		public override void Dispose() => base.Dispose();
-
-		public abstract void Set( IBaseSMFSMOwner topOwner, SMFSM fsm );
 	}
 }

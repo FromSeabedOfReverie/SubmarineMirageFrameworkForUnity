@@ -7,12 +7,9 @@
 namespace SubmarineMirage.FSM.Base {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using UniRx;
 	using SubmarineMirage.Base;
 	using MultiEvent;
 	using Task;
-	using FSM.Modifyler;
-	using FSM.Modifyler.Base;
 	using Extension;
 	using Debug;
 
@@ -27,6 +24,7 @@ namespace SubmarineMirage.FSM.Base {
 		[SMHide] public abstract bool _isOperable		{ get; }
 		[SMHide] public abstract bool _isFinalizing		{ get; }
 		[SMHide] public abstract bool _isActive			{ get; }
+		[SMHide] public bool _isInitialEntered	=> _body._isInitialEntered;
 
 		[SMHide] public abstract SMMultiAsyncEvent _selfInitializeEvent	{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _initializeEvent		{ get; }
@@ -37,42 +35,26 @@ namespace SubmarineMirage.FSM.Base {
 		[SMHide] public abstract SMMultiSubject _disableEvent			{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisableAndExit	{ get; private set; }
-			= new SMTaskCanceler();
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDisableAndExit	=> _body._asyncCancelerOnDisableAndExit;
 		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }
 
-		public SMFSMModifyler _modifyler	{ get; private set; }
-		public string _registerEventName	{ get; private set; }
-		public bool _isInitialEntered	{ get; set; }
+		public SMFSMBody _body	{ get; private set; }
 
 
 
 		public SMFSM() {
-			_registerEventName = this.GetAboutName();
-			_modifyler = new SMFSMModifyler( this );
+			_body = new SMFSMBody( this );
 
 			_disposables.AddLast( () => {
-				_modifyler.Dispose();
-				_asyncCancelerOnDisableAndExit.Dispose();
+				_body.Dispose();
 			} );
 		}
 
 		public override void Dispose() => base.Dispose();
 
 
-		public virtual void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
-			_disableEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_modifyler.Reset();
-				SMFSMApplyer.StopAsyncOnDisableAndExit( this );
-			} );
-			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_modifyler.Run().Forget();
-			} );
-		}
-
 		public virtual void SetFSMType( Enum fsmType )
 			=> throw new InvalidOperationException( $"{this.GetAboutName()}は非対応 : {nameof( SetFSMType )}" );
-
 
 		public abstract UniTask FinalExit();
 	}

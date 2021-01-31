@@ -4,16 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestBehaviour
-namespace SubmarineMirage.Task.Behaviour {
+namespace SubmarineMirage.Task {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using MultiEvent;
-	using Modifyler;
-	using Object;
+	using Task.Base;
 	using Extension;
 	using Debug;
 	using Debug.ToString;
@@ -30,51 +28,38 @@ namespace SubmarineMirage.Task.Behaviour {
 		public virtual SMTaskType _type => SMTaskType.Work;
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
-		public SMObject _object			{ get; set; }
 		public SMBehaviourBody _body	{ get; private set; }
-		[SMHide] public SMBehaviourModifyler _modifyler => _body?._modifyler;
-		[SMShowLine] public ISMBehaviour _previous	{ get; set; }
-		[SMShowLine] public ISMBehaviour _next		{ get; set; }
+		[SMHide] public SMObject _object	=> _body._object._object;
 
-		[SMHide] public bool _isInitialized	=> _body?._isInitialized ?? false;
-		[SMHide] public bool _isOperable	=> _body?._isOperable ?? false;
-		[SMHide] public bool _isFinalizing	=> _body?._isFinalizing ?? false;
-		[SMHide] public bool _isActive		=> _body?._isActive ?? false;
+		[SMHide] public bool _isInitialized	=> _body._isInitialized;
+		[SMHide] public bool _isOperable	=> _body._isOperable;
+		[SMHide] public bool _isFinalizing	=> _body._isFinalizing;
+		[SMHide] public bool _isActive		=> _body._isActive;
 
-		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _body?._selfInitializeEvent;
-		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _body?._initializeEvent;
-		[SMHide] public SMMultiSubject _enableEvent				=> _body?._enableEvent;
-		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _body?._fixedUpdateEvent;
-		[SMHide] public SMMultiSubject _updateEvent				=> _body?._updateEvent;
-		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _body?._lateUpdateEvent;
-		[SMHide] public SMMultiSubject _disableEvent			=> _body?._disableEvent;
-		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body?._finalizeEvent;
+		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
+		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
+		[SMHide] public SMMultiSubject _enableEvent				=> _body._enableEvent;
+		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
+		[SMHide] public SMMultiSubject _updateEvent				=> _body._updateEvent;
+		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
+		[SMHide] public SMMultiSubject _disableEvent			=> _body._disableEvent;
+		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable	=> _body?._asyncCancelerOnDisable;
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body?._asyncCancelerOnDispose;
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
+		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 
 		protected override void Awake() {
 			base.Awake();
+
 			_toStringer = new SMToStringer( this );
 			SetToString();
+			_body = new SMBehaviourBody( this );
+
 			_disposables.AddLast( () => {
 				_toStringer.Dispose();
-				_body?.Dispose();
+				_body.Dispose();
 			} );
-		}
-
-		public void Constructor() {
-			_body = new SMBehaviourBody(
-				this,
-				_type != SMTaskType.DontWork && SMBehaviourApplyer.IsActiveInHierarchyAndMonoBehaviour( this )
-			);
-#if TestBehaviour
-			_disposables.AddLast( () =>
-				SMLog.Debug( $"{nameof( SMMonoBehaviour )}.{nameof( Dispose )} : {this}" )
-			);
-			SMLog.Debug( $"{nameof( SMMonoBehaviour )}.{nameof( Constructor )} : {this}" );
-#endif
 		}
 
 		public override void Dispose() => _disposables.Dispose();
@@ -146,7 +131,7 @@ namespace SubmarineMirage.Task.Behaviour {
 
 
 		
-		public virtual void SetToString() => SMBehaviourBody.SetBehaviourToString( this );
+		public virtual void SetToString() {}
 		public override string ToString( int indent ) => _toStringer.Run( indent );
 		public override string ToLineString( int indent = 0 ) => _toStringer.RunLine( indent );
 

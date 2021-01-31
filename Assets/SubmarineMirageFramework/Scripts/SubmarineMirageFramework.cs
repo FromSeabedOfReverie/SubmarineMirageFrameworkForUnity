@@ -74,7 +74,7 @@ namespace SubmarineMirage {
 
 			await registerSettingsEvent();
 
-			var hoge = SMServiceLocator.Resolve<SMIDCounter>();
+			var hoge = SMServiceLocator.Resolve<ISMSceneSetting>();
 			SMLog.Debug( hoge );
 			SMLog.Debug( hoge.ToLineString() );
 

@@ -62,7 +62,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new FinalizeSMObject( t ) );
 				}
-				SMObjectApplyer.DisposeAll( _target );
+				SMObjectBody.DisposeAll( _target );
 			}
 		}
 
@@ -105,7 +105,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 		async UniTask RunActiveToOwner() {
 			// 全階層で「有効」の場合、実行
-			if ( SMObjectApplyer.IsActiveInHierarchy( _target ) ) {
+			if ( SMObjectBody.IsActiveInHierarchy( _target ) ) {
 				foreach ( var t in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new EnableSMObject( t ) );
 				}

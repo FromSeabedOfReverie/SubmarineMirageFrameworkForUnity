@@ -5,12 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.Modifyler.Base {
-	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SubmarineMirage.Base;
-	using Task;
 	using FSM.Base;
 	using Extension;
 	using Utility;
@@ -23,13 +21,12 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 	public class SMFSMModifyler : SMStandardBase {
-		[SMHide] SMFSM _owner	{ get; set; }
+		[SMHide] SMFSMBody _owner	{ get; set; }
 		readonly LinkedList<SMFSMModifyData> _data = new LinkedList<SMFSMModifyData>();
 		[SMShowLine] bool _isRunning	{ get; set; }
-		[SMHide] SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
 
 
-		public SMFSMModifyler( SMFSM owner ) {
+		public SMFSMModifyler( SMFSMBody owner ) {
 			_owner = owner;
 
 			_disposables.AddLast( () => {
@@ -99,14 +96,12 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 		public UniTask WaitRunning()
-			=> UTask.WaitWhile( _asyncCanceler, () => _isRunning || IsHaveData() );
+			=> UTask.WaitWhile( _owner._asyncCancelerOnDispose, () => _isRunning || IsHaveData() );
 
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _data ), i => "\n" + string.Join( ",\n",
-				_data.Select( d => d.ToLineString( i + 1 ) )
-			) );
+			_toStringer.SetValue( nameof( _data ), i => _toStringer.DefaultValue( _data, i, true ) );
 		}
 	}
 }

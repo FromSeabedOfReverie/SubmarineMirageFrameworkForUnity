@@ -5,13 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestBehaviourModifyler
-namespace SubmarineMirage.Task.Behaviour.Modifyler {
+namespace SubmarineMirage.Task.Modifyler.Base {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using Task.Modifyler;
+	using Task.Base;
 	using Utility;
 
 

@@ -23,9 +23,9 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 		[SMHide] protected SMParallelFSM<TOwner, TInternalFSM, TEnum> _owner	{ get; private set; }
 
 
-		public override void Set( SMFSM owner ) {
+		public override void Set( SMFSMBody owner ) {
 			base.Set( owner );
-			_owner = (SMParallelFSM<TOwner, TInternalFSM, TEnum>)owner;
+			_owner = (SMParallelFSM<TOwner, TInternalFSM, TEnum>)owner._fsm;
 		}
 	}
 }

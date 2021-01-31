@@ -8,9 +8,8 @@
 namespace SubmarineMirage.Task.Group {
 	using System.Collections.Generic;
 	using UnityEngine;
-	using Modifyler;
-	using Task.Modifyler;
-	using Object;
+	using Task.Modifyler.Base;
+	using Task.Group.Modifyler;
 	using Group.Manager;
 	using Scene;
 	using Debug;
@@ -75,9 +74,9 @@ namespace SubmarineMirage.Task.Group {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _previous ), i => _previous?.ToLineString() );
-			_toStringer.SetValue( nameof( _next ), i => _next?.ToLineString() );
-			_toStringer.SetValue( nameof( _topObject ), i => _topObject.ToLineString() );
+			_toStringer.SetValue( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
+			_toStringer.SetValue( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
+			_toStringer.SetValue( nameof( _topObject ), i => _toStringer.DefaultValue( _topObject, i, true ) );
 
 			_toStringer.SetLineValue( nameof( _isDispose ), () => _isDispose ? nameof( Dispose ) : "" );
 			_toStringer.SetLineValue( nameof( _previous ), () => $"↑{_previous?._id}" );

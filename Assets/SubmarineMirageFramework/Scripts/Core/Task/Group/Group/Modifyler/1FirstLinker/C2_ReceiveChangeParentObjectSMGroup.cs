@@ -34,13 +34,13 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		}
 
 		protected override void Cancel() {
-			SMObjectApplyer.DisposeAll( _target );
+			SMObjectBody.DisposeAll( _target );
 			_target._gameObject.Destroy();
 		}
 
 
 		public override async UniTask Run() {
-			SMObjectApplyer.LinkChild( _parent, _target );
+			SMObjectBody.LinkChild( _parent, _target );
 			SMGroupApplyer.SetAllData( _owner );
 
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );

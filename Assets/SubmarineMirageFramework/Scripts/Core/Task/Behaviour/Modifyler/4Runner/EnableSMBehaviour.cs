@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestBehaviourModifyler
-namespace SubmarineMirage.Task.Behaviour.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Object.Modifyler;
 	using Utility;
@@ -23,7 +23,7 @@ namespace SubmarineMirage.Task.Behaviour.Modifyler {
 			if ( !SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) )	{ return; }
 			if ( _owner._isFinalizing )	{ return; }
 			if ( !_owner._isInitialized ) {
-				_owner._isRunInitialActive = SMObjectApplyer.IsActiveInHierarchy( _owner._behaviour._object );
+				_owner._isRunInitialActive = SMObjectBody.IsActiveInHierarchy( _owner._behaviour._object );
 				return;
 			}
 			if ( _owner._activeState == SMTaskActiveState.Enable )	{ return; }

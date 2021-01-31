@@ -24,7 +24,7 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 		public override void Dispose() {}
 
 
-		public virtual void Set( SMFSM owner ) {
+		public virtual void Set( SMFSMBody owner ) {
 			_modifyler = owner._modifyler;
 		}
 

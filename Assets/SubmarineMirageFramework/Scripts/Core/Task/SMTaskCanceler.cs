@@ -11,7 +11,7 @@ namespace SubmarineMirage.Task {
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
 	using KoganeUnityLib;
-	using Base;
+	using SubmarineMirage.Base;
 	using MultiEvent;
 	using Debug;
 

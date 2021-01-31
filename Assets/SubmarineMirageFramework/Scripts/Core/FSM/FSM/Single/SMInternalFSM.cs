@@ -39,12 +39,10 @@ namespace SubmarineMirage.FSM {
 					throw new InvalidOperationException( $"基盤状態が違う、状態を指定 : {type}, {baseStateType}" );
 				}
 			} );
-		}
 
-
-		public override void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
-			_topOwner = (TOwner)topOwner;
-			base.Set( topOwner, owner );
+			_body._setEvent.AddFirst( ( topFSMOwner, fsmOwner ) => {
+				_topOwner = (TOwner)topFSMOwner;
+			} );
 		}
 
 		public override void SetFSMType( Enum fsmType )

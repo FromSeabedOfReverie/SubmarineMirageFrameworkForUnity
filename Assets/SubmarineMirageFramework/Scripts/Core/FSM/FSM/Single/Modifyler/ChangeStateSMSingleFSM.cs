@@ -10,7 +10,6 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using FSM.Base;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
-	using FSM.State.Modifyler;
 	using Debug;
 
 
@@ -42,10 +41,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 			}
 
 
-			SMFSMApplyer.StopAsyncOnDisableAndExit( _owner );
+			_owner._body.StopAsyncOnDisableAndExit();
 
 			if ( _owner._state != null ) {
-				await SMStateApplyer.Exit( _owner._state );
+				await _owner._state._body.Exit();
 			}
 			if ( _modifyler.IsHaveData() ) {
 				_owner._state = null;
@@ -55,10 +54,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 			_owner._state = state;
 			if ( _owner._state == null )	{ return; }
 
-			await SMStateApplyer.Enter( _owner._state );
+			await _owner._state._body.Enter();
 			if ( _modifyler.IsHaveData() )	{ return; }
 
-			SMStateApplyer.UpdateAsync( _owner._state );
+			_owner._state._body.UpdateAsync();
 		}
 	}
 }

@@ -4,9 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler.Base {
-	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
+namespace SubmarineMirage.Task.Base {
 
 
 
@@ -14,8 +12,6 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 
-	public interface IBaseSMTaskModifyler : ISMStandardBase {
-		UniTask WaitRunning();
-		UniTask Run();
+	public static class SMBehaviourApplyer {
 	}
 }

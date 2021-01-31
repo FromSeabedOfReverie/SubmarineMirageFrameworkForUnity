@@ -4,11 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Behaviour {
-	using Base;
+namespace SubmarineMirage.Task.Base {
+	using SubmarineMirage.Base;
 	using MultiEvent;
-	using Modifyler;
-	using Object;
 
 
 	// TODO : コメント追加、整頓
@@ -18,11 +16,8 @@ namespace SubmarineMirage.Task.Behaviour {
 		SMTaskType _type			{ get; }
 		SMTaskLifeSpan _lifeSpan	{ get; }
 
-		SMObject _object		{ get; set; }
 		SMBehaviourBody _body	{ get; }
-		SMBehaviourModifyler _modifyler	{ get; }
-		ISMBehaviour _previous	{ get; set; }
-		ISMBehaviour _next		{ get; set; }
+		SMObject _object		{ get; }
 
 		bool _isInitialized	{ get; }
 		bool _isOperable	{ get; }

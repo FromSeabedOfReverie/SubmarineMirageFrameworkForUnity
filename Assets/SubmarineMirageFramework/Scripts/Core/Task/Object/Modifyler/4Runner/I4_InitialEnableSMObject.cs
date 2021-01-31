@@ -27,7 +27,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 			_owner._isDisabling = false;
 
-			var isActiveInHierarchy = SMObjectApplyer.IsActiveInHierarchy( _owner );
+			var isActiveInHierarchy = SMObjectBody.IsActiveInHierarchy( _owner );
 			await RunLower( _runType, () => new InitialEnableSMBehaviour( isActiveInHierarchy ) );
 
 			if ( _runType == SMTaskRunAllType.Parallel ) {

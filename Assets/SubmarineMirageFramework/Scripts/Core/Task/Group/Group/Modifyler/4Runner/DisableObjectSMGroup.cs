@@ -27,7 +27,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		public override async UniTask Run() {
 			if ( !_owner._isOperable )	{ return; }
 			if ( _owner._activeState == SMTaskActiveState.Disable )	{ return; }
-			if ( !SMObjectApplyer.IsActiveInParentHierarchy( _target ) )	{ return; }
+			if ( !SMObjectBody.IsActiveInParentHierarchy( _target ) )	{ return; }
 
 
 			if ( _owner.IsTop( _target ) )	{ _owner._activeState = SMTaskActiveState.Disable; }

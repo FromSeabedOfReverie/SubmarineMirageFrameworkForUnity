@@ -4,18 +4,16 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
-	using FSM.Base;
-
+namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	// TODO : コメント追加、整頓
 
 
-
-	public static class SMFSMApplyer {
-		public static void StopAsyncOnDisableAndExit( SMFSM fsm ) {
-			fsm._asyncCancelerOnDisableAndExit.Cancel();
-		}
+	public enum SMTaskModifyType {
+		FirstLinker,
+		Linker,
+		FirstRunner,
+		Runner,
 	}
 }

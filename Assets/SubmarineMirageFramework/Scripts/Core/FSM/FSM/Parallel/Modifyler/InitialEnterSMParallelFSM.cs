@@ -37,7 +37,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 				() => _owner.GetFSMs().Any( fsm => !fsm._isInitialEntered )
 			);
 
-			_owner._isInitialEntered = true;
+			_owner._body._isInitialEntered = true;
 		}
 	}
 }

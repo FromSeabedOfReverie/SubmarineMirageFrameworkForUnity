@@ -32,7 +32,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 			_owner._activeState = SMTaskActiveState.Disable;
 			_owner._isDisabling = true;
 
-			var isActiveInHierarchy = SMObjectApplyer.IsActiveInHierarchy( _owner );
+			var isActiveInHierarchy = SMObjectBody.IsActiveInHierarchy( _owner );
 			await RunLower( _runType, () => new FinalDisableSMBehaviour( isActiveInHierarchy ) );
 
 			if ( _runType == SMTaskRunAllType.ReverseSequential ) {

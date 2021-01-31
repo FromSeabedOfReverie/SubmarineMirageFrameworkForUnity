@@ -122,7 +122,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			// 元々子だった、新親は居ない
 
 			// 子を解除し、元グループを再設定
-			SMObjectApplyer.Unlink( _target );
+			SMObjectBody.Unlink( _target );
 			SMGroupApplyer.SetAllData( _owner );
 
 			// 新グループ作成し、親に合わせた活動変更を予約
@@ -144,8 +144,8 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			// 元々子だった、新親は居る
 			// 子を解除、新親と接続
-			SMObjectApplyer.Unlink( _target );
-			SMObjectApplyer.LinkChild( parent, _target );
+			SMObjectBody.Unlink( _target );
+			SMObjectBody.LinkChild( parent, _target );
 
 			// 親に合わせた活動変更を予約
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
@@ -171,7 +171,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			// 元々子だった、新親は居る
 
 			// 子を解除し、元グループを再設定
-			SMObjectApplyer.Unlink( _target );
+			SMObjectBody.Unlink( _target );
 			SMGroupApplyer.SetAllData( _owner );
 
 			// 新グループに、子の追加を予約

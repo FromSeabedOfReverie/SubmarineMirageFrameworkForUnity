@@ -12,7 +12,6 @@ namespace SubmarineMirage.Scene {
 	using Cysharp.Threading.Tasks;
 	using Task.Behaviour;
 	using FSM;
-	using FSM.Base;
 	using FSM.Modifyler;
 	using Debug;
 
@@ -31,23 +30,21 @@ namespace SubmarineMirage.Scene {
 		) : base( scenes, baseSceneType )
 		{
 			_isSetStartState = isSetStartScene;
+
+			_body._setEvent.AddLast( ( topFSMOwner, fsmOwner ) => {
+				_body._modifyler.Reset();
+
+				_startStateType = null;
+				if ( _isSetStartState ) {
+					_startStateType = GetScenes()
+						.FirstOrDefault( s => _owner.IsFirstLoaded( s ) )
+						?.GetType();
+				}
+			} );
 		}
 
 
-		public override void Set( IBaseSMFSMOwner topOwner, IBaseSMFSMOwner owner ) {
-			base.Set( topOwner, owner );
-			_modifyler.Reset();
-
-			_startStateType = null;
-			if ( _isSetStartState ) {
-				_startStateType = GetScenes()
-					.FirstOrDefault( s => _owner.IsFirstLoaded( s ) )
-					?.GetType();
-			}
-		}
-
-
-		public UniTask InitialEnter() => _modifyler.RegisterAndRun(
+		public UniTask InitialEnter() => _body._modifyler.RegisterAndRun(
 			new InitialEnterSMSingleFSM<SMSceneManager, SMScene>( _startStateType ) );
 
 

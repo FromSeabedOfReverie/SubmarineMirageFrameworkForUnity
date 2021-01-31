@@ -4,8 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
-	using Base;
+namespace SubmarineMirage.Task.Modifyler.Base {
+	using SubmarineMirage.Base;
+	using Debug;
 
 
 
@@ -23,7 +24,7 @@ namespace SubmarineMirage.Task.Modifyler {
 		public bool _isOperable => _isInitialized && !_isFinalizing;
 		public bool _isFinalizing	{ get; set; }
 		public bool _isActive => _activeState == SMTaskActiveState.Enable;
-		public TModifyler _modifyler	{ get; protected set; }
+		[SMHide] public TModifyler _modifyler	{ get; protected set; }
 
 
 		public BaseSMTaskModifylerOwner() {

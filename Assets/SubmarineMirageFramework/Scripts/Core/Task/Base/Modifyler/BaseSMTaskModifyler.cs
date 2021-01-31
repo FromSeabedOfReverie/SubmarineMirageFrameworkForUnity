@@ -4,13 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler {
+namespace SubmarineMirage.Task.Modifyler.Base {
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using Base;
+	using SubmarineMirage.Base;
 	using Service;
 	using Scene;
 	using Extension;
@@ -101,10 +101,8 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _owner ), i => _owner.ToLineString() );
-			_toStringer.SetValue( nameof( _data ), i => "\n" + string.Join( ",\n",
-				_data.Select( d => d.ToLineString( i + 1 ) )
-			) );
+			_toStringer.SetValue( nameof( _owner ), i => _toStringer.DefaultValue( _owner, i, true ) );
+			_toStringer.SetValue( nameof( _data ), i => _toStringer.DefaultValue( _data, i, true ) );
 		}
 	}
 }

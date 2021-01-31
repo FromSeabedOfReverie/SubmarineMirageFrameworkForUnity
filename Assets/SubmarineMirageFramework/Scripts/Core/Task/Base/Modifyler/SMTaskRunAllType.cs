@@ -5,17 +5,15 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler.Base {
-	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
-
 
 
 	// TODO : コメント追加、整頓
 
 
-
-	public interface IBaseSMTaskModifyler : ISMStandardBase {
-		UniTask WaitRunning();
-		UniTask Run();
+	public enum SMTaskRunAllType {
+		DontRun,
+		Sequential,
+		ReverseSequential,
+		Parallel,
 	}
 }

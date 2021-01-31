@@ -35,36 +35,33 @@ namespace SubmarineMirage.MultiEvent {
 		}
 
 
-		protected void Register( SMEventModifyData<T> data ) => _modifyler.Register( data );
-
-
 		public void InsertFirst( string findKey, string key, T function )
-			=> Register( new InsertSMEvent<T>( findKey, SMEventAddType.First, key, function ) );
+			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.First, key, function ) );
 
 		public void InsertFirst( string findKey, T function )
-			=> Register( new InsertSMEvent<T>( findKey, SMEventAddType.First, string.Empty, function ) );
+			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.First, string.Empty, function ) );
 
 		public void InsertLast( string findKey, string key, T function )
-			=> Register( new InsertSMEvent<T>( findKey, SMEventAddType.Last, key, function ) );
+			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.Last, key, function ) );
 
 		public void InsertLast( string findKey, T function )
-			=> Register( new InsertSMEvent<T>( findKey, SMEventAddType.Last, string.Empty, function ) );
+			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.Last, string.Empty, function ) );
 
 
 		public void AddFirst( string key, T function )
-			=> Register( new AddSMEvent<T>( SMEventAddType.First, key, function ) );
+			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.First, key, function ) );
 
 		public void AddFirst( T function )
-			=> Register( new AddSMEvent<T>( SMEventAddType.First, string.Empty, function ) );
+			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.First, string.Empty, function ) );
 
 		public void AddLast( string key, T function )
-			=> Register( new AddSMEvent<T>( SMEventAddType.Last, key, function ) );
+			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.Last, key, function ) );
 
 		public void AddLast( T function )
-			=> Register( new AddSMEvent<T>( SMEventAddType.Last, string.Empty, function ) );
+			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.Last, string.Empty, function ) );
 
 
-		public void Reverse() => Register( new ReverseSMEvent<T>() );
+		public void Reverse() => _modifyler.Register( new ReverseSMEvent<T>() );
 
 		// 利用者は、これを呼ばない
 		// 必ず、Modifyler経由で呼ぶ
@@ -72,7 +69,7 @@ namespace SubmarineMirage.MultiEvent {
 		public void ApplyReverse() => _events = _events.Reverse();
 
 
-		public void Remove( string key ) => Register( new RemoveSMEvent<T>( key ) );
+		public void Remove( string key ) => _modifyler.Register( new RemoveSMEvent<T>( key ) );
 
 		public abstract void OnRemove( T function );
 
