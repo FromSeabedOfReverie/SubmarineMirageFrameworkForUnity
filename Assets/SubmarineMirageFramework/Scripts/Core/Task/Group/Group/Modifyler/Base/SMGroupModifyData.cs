@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler.Base {
 	using System;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
-	using Task.Modifyler;
-	using Object;
-	using Object.Modifyler;
+	using Task.Base;
 	using Debug;
 
 
@@ -20,28 +18,28 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 	public abstract class SMGroupModifyData
-		: BaseSMTaskModifyData<SMGroup, SMGroupModifyler, SMObjectModifyData, SMObject>
+		: BaseSMTaskModifyData<SMGroupBody, SMGroupModifyler, SMObjectModifyData, SMObjectBody>
 	{
-		[SMShowLine] public SMObject _target	{ get; private set; }
+		[SMShowLine] public SMObjectBody _target	{ get; private set; }
 
 
-		public SMGroupModifyData( SMObject target )
+		public SMGroupModifyData( SMObjectBody target )
 			=> _target = target;
 
-		public override void Set( SMGroup owner ) {
+		public override void Set( SMGroupBody owner ) {
 			base.Set( owner );
-			if ( _target == null )	{ _target = _owner._topObject; }
+			if ( _target == null )	{ _target = _owner._objectBody; }
 			if ( _target == null ) {
 				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
 			}
 		}
 
 
-		protected override UniTask RegisterAndRunLower( SMObject lowerTarget, SMObjectModifyData data )
+		protected override UniTask RegisterAndRunLower( SMObjectBody lowerTarget, SMObjectModifyData data )
 			=> lowerTarget._modifyler.RegisterAndRun( data );
 
-		protected override IEnumerable<SMObject> GetAllLowers() => _target.GetAllChildren();
+		protected override IEnumerable<SMObjectBody> GetAllLowers() => _target.GetAllChildren();
 
-		protected override bool IsTargetLower( SMObject lowerTarget, SMTaskType type ) => true;
+		protected override bool IsTargetLower( SMObjectBody lowerTarget, SMTaskType type ) => true;
 	}
 }

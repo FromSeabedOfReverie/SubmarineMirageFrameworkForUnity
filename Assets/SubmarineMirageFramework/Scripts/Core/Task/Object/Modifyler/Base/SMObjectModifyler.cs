@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler.Base {
+	using Task.Base;
 
 
 
@@ -13,11 +14,11 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	public class SMObjectModifyler
-		: BaseSMTaskModifyler<SMObject, SMObjectModifyler, SMObjectModifyData>
+		: BaseSMTaskModifyler<SMObjectBody, SMObjectModifyler, SMObjectModifyData>
 	{
 		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCanceler;
 
 
-		public SMObjectModifyler( SMObject owner ) : base( owner ) {}
+		public SMObjectModifyler( SMObjectBody owner ) : base( owner ) {}
 	}
 }

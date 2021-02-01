@@ -4,22 +4,17 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestGroupManager
-namespace SubmarineMirage.Task.Group.Manager {
+namespace SubmarineMirage.Task {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
-	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using SubmarineMirage.Base;
+	using Task.Base;
 	using Scene;
-	using Modifyler;
-	using Task.Modifyler;
-	using Behaviour;
-	using Object;
 	using Extension;
-	using Utility;
 	using Debug;
 
 
@@ -28,23 +23,16 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 
 
-	public class SMGroupManager : BaseSMTaskModifylerOwner<SMGroupManagerModifyler> {
-		public SMScene _scene	{ get; private set; }
-		public SMGroup _group	{ get; set; }
-		public bool _isEnter	{ get; private set; }
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
+	public class SMGroupManager : SMStandardBase {
+		[SMShowLine] public SMGroupManagerBody _body	{ get; private set; }
 
 
 
 		public SMGroupManager( SMScene scene ) {
-			_modifyler = new SMGroupManagerModifyler( this );
-			_scene = scene;
+			_body = new SMGroupManagerBody( this, scene );
 
 			_disposables.AddLast( () => {
-				_isFinalizing = true;
-				_ranState = SMTaskRunState.Finalize;
-
-				SMGroupManagerApplyer.DisposeAll( this );
+				_body.Dispose();
 			} );
 		}
 
@@ -52,104 +40,25 @@ namespace SubmarineMirage.Task.Group.Manager {
 
 
 
-		public async UniTask Enter() {
-			await Load();
-
-			await _modifyler.RegisterAndRun( new CreateSMGroupManager() );
-			await _modifyler.RegisterAndRun( new SelfInitializeSMGroupManager() );
-			await _modifyler.RegisterAndRun( new InitializeSMGroupManager() );
-			await _modifyler.RegisterAndRun( new InitialEnableSMGroupManager() );
-		}
-
-		public async UniTask Exit() {
-			await _modifyler.RegisterAndRun( new FinalDisableSMGroupManager() );
-			await _modifyler.RegisterAndRun( new FinalizeSMGroupManager() );
-			SMGroupManagerApplyer.DisposeAll( this );
-
-			_ranState = SMTaskRunState.None;
-			_activeState = SMTaskActiveState.Disable;
-			_isFinalizing = false;
-
-			_isEnter = false;
-		}
-
-
-		async UniTask Load() {
-			if ( _scene._fsm._fsmType == SMSceneType.Forever )	{ return; }
-
-			var currents = new Queue<Transform>(
-				_scene._rawScene.GetRootGameObjects().Select( go => go.transform )
-			);
-			while ( !currents.IsEmpty() ) {
-				var current = currents.Dequeue();
-				var bs = current.GetComponents<SMMonoBehaviour>();
-				if ( !bs.IsEmpty() ) {
-					new SMObject( current.gameObject, bs, null );
-					await UTask.NextFrame( _asyncCancelerOnDisable );
-				} else {
-					foreach ( Transform child in current ) {
-						currents.Enqueue( child );
-					}
-				}
-			}
-
-			SMLog.Debug( $"{nameof( Load )} {_scene.GetAboutName()}" );
-		}
-
-
-
-		public IEnumerable<SMGroup> GetAllGroups()
-			=> _group?.GetBrothers() ?? Enumerable.Empty<SMGroup>();
-
-		public IEnumerable<SMObject> GetAllTops()
-			=> GetAllGroups().Select( g => g._topObject );
-
-
-		public IEnumerable<IBaseSMTaskModifyler> GetAllModifylers() {
-			yield return _modifyler;
-
-			foreach ( var g in GetAllGroups() ) {
-				yield return g._modifyler;
-
-				foreach ( var o in g._topObject.GetAllChildren() ) {
-					yield return o._modifyler;
-
-					foreach ( var b in o.GetBehaviours() ) {
-						yield return b._body._modifyler;
-					}
-				}
-			}
-		}
-
-
 		public T GetBehaviour<T>() where T : ISMBehaviour
-			=> GetBehaviours<T>()
-				.FirstOrDefault();
+			=> (T)GetBehaviour( typeof( T ) );
 
 		public ISMBehaviour GetBehaviour( Type type )
-			=> GetBehaviours( type )
-				.FirstOrDefault();
+			=> GetBehaviours( type ).FirstOrDefault();
 
 		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
 			=> GetBehaviours( typeof( T ) )
 				.Select( b => (T)b );
 
 		public IEnumerable<ISMBehaviour> GetBehaviours( Type type ) {
-			var currents = new Queue<SMObject>( GetAllTops() );
+			var currents = new Queue<SMObjectBody>( _body.GetAllTops() );
 			while ( !currents.IsEmpty() ) {
 				var o = currents.Dequeue();
-				foreach ( var b in o.GetBehaviours( type ) ) {
+				foreach ( var b in o._object.GetBehaviours( type ) ) {
 					yield return b;
 				}
-				o.GetChildren().ForEach( c => currents.Enqueue( c ) );
+				o.GetChildren().ForEach( oc => currents.Enqueue( oc ) );
 			}
-		}
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-			_toStringer.SetValue( nameof( _group ), i => _toStringer.DefaultValue( GetAllTops(), i, true ) );
 		}
 	}
 }

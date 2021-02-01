@@ -6,10 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using Cysharp.Threading.Tasks;
 	using MultiEvent;
 	using Task.Base;
 	using Extension;
@@ -29,7 +27,7 @@ namespace SubmarineMirage.Task {
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
 		public SMBehaviourBody _body	{ get; private set; }
-		[SMHide] public SMObject _object	=> _body._object._object;
+		[SMHide] public SMObject _object	=> _body._objectBody._object;
 
 		[SMHide] public bool _isInitialized	=> _body._isInitialized;
 		[SMHide] public bool _isOperable	=> _body._isOperable;
@@ -67,55 +65,13 @@ namespace SubmarineMirage.Task {
 		public abstract void Create();
 
 
+
 		public void DestroyObject() => _object.Destroy();
 
 		public void ChangeActiveObject( bool isActive ) => _object.ChangeActive( isActive );
 
-
-		public T GetBehaviour<T>() where T : SMMonoBehaviour
-			=> _object.GetBehaviour<T>();
-
-		public SMMonoBehaviour GetBehaviour( Type type )
-			=> (SMMonoBehaviour)_object.GetBehaviour( type );
-
-
-		public IEnumerable<T> GetBehaviours<T>() where T : SMMonoBehaviour
-			=> _object.GetBehaviours<T>();
-
-		public IEnumerable<SMMonoBehaviour> GetBehaviours( Type type )
-			=> _object.GetBehaviours( type )
-				.Select( b => (SMMonoBehaviour)b );
-
-
-		public T GetBehaviourInParent<T>() where T : SMMonoBehaviour
-			=> _object.GetBehaviourInParent<T>();
-
-		public SMMonoBehaviour GetBehaviourInParent( Type type )
-			=> (SMMonoBehaviour)_object.GetBehaviourInParent( type );
-
-
-		public IEnumerable<T> GetBehavioursInParent<T>() where T : SMMonoBehaviour
-			=> _object.GetBehavioursInParent<T>();
-
-		public IEnumerable<SMMonoBehaviour> GetBehavioursInParent( Type type )
-			=> _object.GetBehavioursInParent( type )
-				.Select( b => (SMMonoBehaviour)b );
-
-
-		public T GetBehaviourInChildren<T>() where T : SMMonoBehaviour
-			=> _object.GetBehaviourInChildren<T>();
-
-		public SMMonoBehaviour GetBehaviourInChildren( Type type )
-			=> (SMMonoBehaviour)_object.GetBehaviourInChildren( type );
-
-
-		public IEnumerable<T> GetBehavioursInChildren<T>() where T : SMMonoBehaviour
-			=> _object.GetBehavioursInChildren<T>();
-
-		public IEnumerable<SMMonoBehaviour> GetBehavioursInChildren( Type type )
-			=> _object.GetBehavioursInChildren( type )
-				.Select( b => (SMMonoBehaviour)b );
-
+		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
+			=> _object.ChangeParent( parent, isWorldPositionStays );
 
 
 		public T AddBehaviour<T>() where T : SMMonoBehaviour
@@ -126,14 +82,50 @@ namespace SubmarineMirage.Task {
 
 
 
-		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
-			=> _object.ChangeParent( parent, isWorldPositionStays );
+		public T GetBehaviour<T>() where T : ISMBehaviour
+			=> _body.GetBehaviour<T>();
+
+		public ISMBehaviour GetBehaviour( Type type )
+			=> _body.GetBehaviour( type );
+
+		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
+			=> _body.GetBehaviours<T>();
+
+		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
+			=> _body.GetBehaviours( type );
+
+
+		public T GetBehaviourInParent<T>() where T : ISMBehaviour
+			=> _object.GetBehaviourInParent<T>();
+
+		public ISMBehaviour GetBehaviourInParent( Type type )
+			=> _object.GetBehaviourInParent( type );
+
+		public IEnumerable<T> GetBehavioursInParent<T>() where T : ISMBehaviour
+			=> _object.GetBehavioursInParent<T>();
+
+		public IEnumerable<ISMBehaviour> GetBehavioursInParent( Type type )
+			=> _object.GetBehavioursInParent( type );
+
+
+		public T GetBehaviourInChildren<T>() where T : ISMBehaviour
+			=> _object.GetBehaviourInChildren<T>();
+
+		public ISMBehaviour GetBehaviourInChildren( Type type )
+			=> _object.GetBehaviourInChildren( type );
+
+		public IEnumerable<T> GetBehavioursInChildren<T>() where T : ISMBehaviour
+			=> _object.GetBehavioursInChildren<T>();
+
+		public IEnumerable<ISMBehaviour> GetBehavioursInChildren( Type type )
+			=> _object.GetBehavioursInChildren( type );
 
 
 		
 		public virtual void SetToString() {}
 		public override string ToString( int indent ) => _toStringer.Run( indent );
 		public override string ToLineString( int indent = 0 ) => _toStringer.RunLine( indent );
+
 
 
 #if DEVELOP

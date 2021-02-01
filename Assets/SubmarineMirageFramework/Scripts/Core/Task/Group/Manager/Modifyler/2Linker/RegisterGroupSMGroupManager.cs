@@ -25,7 +25,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 		public RegisterGroupSMGroupManager( SMGroup target ) : base( target ) {}
 
 		protected override void Cancel() {
-			SMGroupApplyer.DisposeAll( _target );
+			SMGroupBody.DisposeAll( _target );
 			_target._gameObject.Destroy();
 		}
 
@@ -34,8 +34,8 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			if ( _target._isGameObject && _target._lifeSpan == SMTaskLifeSpan.Forever ) {
 				_owner._scene.MoveGroup( _target );
 			}
-			SMGroupManagerApplyer.Link( _owner, _target );
-			SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );
+			SMGroupManagerBody.Link( _owner, _target );
+			SMGroupManagerBody.RegisterRunEventToOwner( _owner, _target );
 
 			await UTask.DontWait();
 		}

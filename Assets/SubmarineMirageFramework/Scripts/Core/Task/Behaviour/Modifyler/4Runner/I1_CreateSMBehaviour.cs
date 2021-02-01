@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Task.Modifyler.Base;
 	using Utility;
 	using Debug;
 
@@ -23,7 +23,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			if ( _owner._ranState != SMTaskRunState.None )	{ return; }
 
 			// 非GameObjectの場合、生成直後だと、継承先コンストラクタ前に実行されてしまう為、1フレーム待機
-			if ( !_owner._behaviour._object._isGameObject ) {
+			if ( !_owner._objectBody._isGameObject ) {
 				await UTask.NextFrame( _owner._asyncCancelerOnDispose );
 			}
 

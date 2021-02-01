@@ -4,84 +4,30 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestGroup
-namespace SubmarineMirage.Task.Group {
-	using System.Collections.Generic;
-	using UnityEngine;
-	using Task.Modifyler.Base;
-	using Task.Group.Modifyler;
-	using Group.Manager;
-	using Scene;
+namespace SubmarineMirage.Task {
+	using SubmarineMirage.Base;
+	using Task.Base;
 	using Debug;
+
 
 
 	// TODO : コメント追加、整頓
 
 
-	public class SMGroup : BaseSMTaskModifylerOwner<SMGroupModifyler> {
-		public SMTaskLifeSpan _lifeSpan	{ get; set; }
-		public SMScene _scene		{ get; set; }
-		[SMHide] public SMGroupManager _groups => _scene?._groups;
 
-		[SMShowLine] public SMGroup _previous	{ get; set; }
-		[SMShowLine] public SMGroup _next		{ get; set; }
+	public class SMGroup : SMStandardBase {
+		[SMShowLine] public SMGroupBody _body	{ get; private set; }
 
-		[SMShowLine] public SMObject _topObject	{ get; set; }
-		[SMHide] public GameObject _gameObject => _topObject._gameObject;
-		[SMHide] public bool _isGameObject => _gameObject != null;
-
-		[SMHide] public SMTaskCanceler _asyncCanceler => _topObject._asyncCanceler;
 
 
 		public SMGroup( SMObject top ) {
-			_modifyler = new SMGroupModifyler( this );
-			_topObject = top;
-
-			SMGroupApplyer.SetAllData( this );
+			_body = new SMGroupBody( this, top );
 
 			_disposables.AddLast( () => {
-				_isFinalizing = true;
-				_ranState = SMTaskRunState.Finalize;
+				_body.Dispose();
 			} );
 		}
 
 		public override void Dispose() => base.Dispose();
-
-
-
-		public SMGroup GetFirst() {
-			SMGroup current = null;
-			for ( current = this; current._previous != null; current = current._previous )	{}
-			return current;
-		}
-		public SMGroup GetLast() {
-			SMGroup current = null;
-			for ( current = this; current._next != null; current = current._next )	{}
-			return current;
-		}
-
-		public IEnumerable<SMGroup> GetBrothers() {
-			for ( var current = GetFirst(); current != null; current = current._next )	{
-				yield return current;
-			}
-		}
-
-
-
-		public bool IsTop( SMObject smObject ) => smObject == _topObject;
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-			_toStringer.SetValue( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
-			_toStringer.SetValue( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
-			_toStringer.SetValue( nameof( _topObject ), i => _toStringer.DefaultValue( _topObject, i, true ) );
-
-			_toStringer.SetLineValue( nameof( _isDispose ), () => _isDispose ? nameof( Dispose ) : "" );
-			_toStringer.SetLineValue( nameof( _previous ), () => $"↑{_previous?._id}" );
-			_toStringer.SetLineValue( nameof( _next ), () => $"↓{_next?._id}" );
-			_toStringer.SetLineValue( nameof( _topObject ), () => $"△{_topObject._id}" );
-		}
 	}
 }

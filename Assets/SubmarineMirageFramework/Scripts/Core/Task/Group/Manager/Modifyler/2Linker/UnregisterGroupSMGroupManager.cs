@@ -23,7 +23,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 		public override async UniTask Run() {
 			_modifyler.Unregister( _target );
-			SMGroupManagerApplyer.Unlink( _owner, _target );
+			SMGroupManagerBody.Unlink( _owner, _target );
 
 			await UTask.DontWait();
 		}

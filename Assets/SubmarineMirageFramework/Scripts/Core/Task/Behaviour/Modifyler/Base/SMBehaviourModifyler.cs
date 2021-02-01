@@ -24,8 +24,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _owner ), i =>
-				_toStringer.DefaultValue( _owner._behaviour, i, true ) );
+			_toStringer.SetValue( nameof( _owner ), i => _toStringer.DefaultValue( _owner, i, true ) );
 		}
 	}
 }

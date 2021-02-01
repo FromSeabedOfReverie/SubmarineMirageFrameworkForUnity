@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Manager.Modifyler {
-	using Task.Modifyler;
+namespace SubmarineMirage.Task.Modifyler.Base {
+	using Task.Base;
 	using Extension;
 
 
@@ -13,15 +13,15 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 	public class SMGroupManagerModifyler
-		: BaseSMTaskModifyler<SMGroupManager, SMGroupManagerModifyler, SMGroupManagerModifyData>
+		: BaseSMTaskModifyler<SMGroupManagerBody, SMGroupManagerModifyler, SMGroupManagerModifyData>
 	{
 		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCancelerOnDisable;
 
 
-		public SMGroupManagerModifyler( SMGroupManager owner ) : base( owner ) {}
+		public SMGroupManagerModifyler( SMGroupManagerBody owner ) : base( owner ) {}
 
 
-		public void Reregister( SMGroupManager newOwner, SMGroup group ) {
+		public void Reregister( SMGroupManagerBody newOwner, SMGroupBody group ) {
 			if ( group == null )	{ return; }
 			_data.RemoveAll(
 				d => d._target == group,
@@ -29,7 +29,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			);
 		}
 
-		public void Unregister( SMGroup remove ) {
+		public void Unregister( SMGroupBody remove ) {
 			if ( remove == null )	{ return; }
 			_data.RemoveAll(
 				d => d._target == remove,

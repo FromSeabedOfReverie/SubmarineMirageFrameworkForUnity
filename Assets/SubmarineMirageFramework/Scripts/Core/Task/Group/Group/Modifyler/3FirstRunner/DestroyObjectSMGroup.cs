@@ -51,15 +51,15 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		async UniTask DestroyGroup() {
 			_owner._isFinalizing = true;
 			_owner._activeState = SMTaskActiveState.Disable;
-			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalDisableSMObject( t ) );
 			}
 			_owner._ranState = SMTaskRunState.FinalDisable;
-			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
 			_owner._ranState = SMTaskRunState.Finalize;
-			SMGroupApplyer.DisposeAll( _owner );
+			SMGroupBody.DisposeAll( _owner );
 			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
 
 			_owner._groups._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
@@ -67,10 +67,10 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 		async UniTask DestroyObject() {
-			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalDisableSMObject( t ) );
 			}
-			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
 			SMObjectBody.DisposeAll( _target );
@@ -78,7 +78,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			GetAllLowers().ForEach( o => _modifyler.Unregister( o ) );
 			SMObjectBody.Unlink( _target );
-			SMGroupApplyer.SetAllData( _owner );
+			SMGroupBody.SetAllData( _owner );
 		}
 	}
 }

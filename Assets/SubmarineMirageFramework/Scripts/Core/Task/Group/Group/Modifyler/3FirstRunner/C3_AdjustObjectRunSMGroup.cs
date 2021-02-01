@@ -51,7 +51,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if (	_owner._ranState >= SMTaskRunState.FinalDisable &&
 					_target._ranState < SMTaskRunState.FinalDisable
 			) {
-				foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new FinalDisableSMObject( t ) );
 				}
 			}
@@ -59,7 +59,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if (	_owner._ranState >= SMTaskRunState.Finalize &&
 					_target._ranState < SMTaskRunState.Finalize
 			) {
-				foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new FinalizeSMObject( t ) );
 				}
 				SMObjectBody.DisposeAll( _target );
@@ -72,7 +72,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if (	_owner._ranState >= SMTaskRunState.Create &&
 					_target._ranState < SMTaskRunState.Create
 			) {
-				foreach ( var t in SMGroupManagerApplyer.ALL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.ALL_RUN_TYPES ) {
 					await RunLower( t, () => new CreateSMObject( t ) );
 				}
 			}
@@ -80,7 +80,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if (	_owner._ranState >= SMTaskRunState.SelfInitialize &&
 					_target._ranState < SMTaskRunState.SelfInitialize
 			) {
-				foreach ( var t in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new SelfInitializeSMObject( t ) );
 				}
 			}
@@ -88,7 +88,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if (	_owner._ranState >= SMTaskRunState.Initialize &&
 					_target._ranState < SMTaskRunState.Initialize
 			) {
-				foreach ( var t in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new InitializeSMObject( t ) );
 				}
 			}
@@ -96,7 +96,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			if (	_owner._ranState >= SMTaskRunState.InitialEnable &&
 					_target._ranState < SMTaskRunState.InitialEnable
 			) {
-				foreach ( var t in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new InitialEnableSMObject( t ) );
 				}
 			}
@@ -106,7 +106,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		async UniTask RunActiveToOwner() {
 			// 全階層で「有効」の場合、実行
 			if ( SMObjectBody.IsActiveInHierarchy( _target ) ) {
-				foreach ( var t in SMGroupManagerApplyer.SEQUENTIAL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new EnableSMObject( t ) );
 				}
 				if ( _owner.IsTop( _target ) )	{ _owner._activeState = SMTaskActiveState.Enable; }
@@ -114,7 +114,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			// 全階層で「無効」の場合、実行
 			} else {
 				if ( _owner.IsTop( _target ) )	{ _owner._activeState = SMTaskActiveState.Disable; }
-				foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+				foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 					// 親に合わせる為、階層が無効でも実行するフラグを設定
 					// 親変更後だと、親は無効、新子は有効の場合がある
 					await RunLower( t, () => new DisableSMObject( t, true ) );

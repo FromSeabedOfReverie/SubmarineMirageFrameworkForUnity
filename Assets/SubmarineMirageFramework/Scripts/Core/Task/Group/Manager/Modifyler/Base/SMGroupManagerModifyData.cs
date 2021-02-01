@@ -4,12 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Manager.Modifyler {
+namespace SubmarineMirage.Task.Modifyler.Base {
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
-	using Task.Modifyler;
-	using Group;
-	using Group.Modifyler;
+	using Task.Base;
 	using Debug;
 
 
@@ -19,20 +17,20 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 	public abstract class SMGroupManagerModifyData
-		: BaseSMTaskModifyData<SMGroupManager, SMGroupManagerModifyler, SMGroupModifyData, SMGroup>
+		: BaseSMTaskModifyData<SMGroupManagerBody, SMGroupManagerModifyler, SMGroupModifyData, SMGroupBody>
 	{
-		[SMShowLine] public SMGroup _target	{ get; private set; }
+		[SMShowLine] public SMGroupBody _target	{ get; private set; }
 
 
-		public SMGroupManagerModifyData( SMGroup target )
+		public SMGroupManagerModifyData( SMGroupBody target )
 			=> _target = target;
 
 
-		protected override UniTask RegisterAndRunLower( SMGroup lowerTarget, SMGroupModifyData data )
+		protected override UniTask RegisterAndRunLower( SMGroupBody lowerTarget, SMGroupModifyData data )
 			=> lowerTarget._modifyler.RegisterAndRun( data );
 
-		protected override IEnumerable<SMGroup> GetAllLowers() => _owner.GetAllGroups();
+		protected override IEnumerable<SMGroupBody> GetAllLowers() => _owner.GetAllGroups();
 
-		protected override bool IsTargetLower( SMGroup lowerTarget, SMTaskType type ) => true;
+		protected override bool IsTargetLower( SMGroupBody lowerTarget, SMTaskType type ) => true;
 	}
 }

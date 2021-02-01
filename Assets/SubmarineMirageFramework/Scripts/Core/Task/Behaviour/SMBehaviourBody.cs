@@ -5,7 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Base {
+	using System;
+	using System.Linq;
 	using System.Collections.Generic;
+	using KoganeUnityLib;
 	using MultiEvent;
 	using Task.Modifyler.Base;
 	using Task.Modifyler;
@@ -23,7 +26,7 @@ namespace SubmarineMirage.Task.Base {
 		public SMTaskLifeSpan _lifeSpan	=> _behaviour._lifeSpan;
 
 		public ISMBehaviour _behaviour	{ get; private set; }
-		public SMObjectBody _object		{ get; set; }
+		public SMObjectBody _objectBody	{ get; set; }
 
 		[SMShowLine] public SMBehaviourBody _previous	{ get; set; }
 		[SMShowLine] public SMBehaviourBody _next		{ get; set; }
@@ -50,7 +53,7 @@ namespace SubmarineMirage.Task.Base {
 
 			if ( _behaviour is SMBehaviour ) {
 				var o = new SMObject( null, new ISMBehaviour[] { _behaviour }, null );
-				_object = o._body;
+				_objectBody = o._body;
 			}
 
 			_isRunInitialActive = _type != SMTaskType.DontWork && IsActiveInHierarchyAndMonoBehaviour();
@@ -75,108 +78,110 @@ namespace SubmarineMirage.Task.Base {
 
 		public override void Dispose() => base.Dispose();
 
-
-
-		public void Link( SMObjectBody smObject ) {
-			var last = smObject._behaviour.GetBehaviourAtLast();
-			last._next = this;
-			_previous = last;
-			_object = smObject;
+		public void DisposeBrothers( SMTaskType type ) {
+			GetBrothers()
+				.Where( b => b._type == type )
+				.Reverse()
+				.ForEach( b => b._behaviour.Dispose() );
 		}
 
 
+
+		public void Link( SMObjectBody objectBody ) {
+			var last = objectBody._behaviourBody.GetLast();
+			last._next = this;
+			_previous = last;
+			_objectBody = objectBody;
+		}
+
 		public void Unlink() {
-			if ( _object._behaviour == this )	{ _object._behaviour = _next; }
-			if ( _previous != null )			{ _previous._next = _next; }
-			if ( _next != null )				{ _next._previous = _previous; }
+			if ( _objectBody._behaviourBody == this )	{ _objectBody._behaviourBody = _next; }
+			if ( _previous != null )					{ _previous._next = _next; }
+			if ( _next != null )						{ _next._previous = _previous; }
 			_previous = null;
 			_next = null;
 		}
 
 
 
-		public void StopAsyncOnDisable() {
-			_asyncCancelerOnDisable.Cancel();
-		}
+		public void StopAsyncOnDisable() => _asyncCancelerOnDisable.Cancel();
 
 
 
 		public bool IsActiveInMonoBehaviour() {
-			if ( !_object._isGameObject )	{ return true; }
+			if ( !_objectBody._isGameObject )	{ return true; }
 
 			var mb = (SMMonoBehaviour)_behaviour;
 			return mb.enabled;
 		}
 
 		public bool IsActiveInHierarchyAndMonoBehaviour() {
-			if ( !_object._isGameObject )	{ return true; }
+			if ( !_objectBody._isGameObject )	{ return true; }
 
 			var mb = (SMMonoBehaviour)_behaviour;
-			return _object._gameObject.activeInHierarchy && mb.enabled;
+			return _objectBody._gameObject.activeInHierarchy && mb.enabled;
 		}
 
 
 
-		public void RegisterRunEventToOwner( SMObjectBody smObject ) {
-			var add = this;
-
-			if (	smObject._ranState >= SMTaskRunState.FinalDisable &&
-					add._ranState < SMTaskRunState.FinalDisable &&
-					add._type != SMTaskType.DontWork
+		public void RegisterRunEventToOwner() {
+			if (	_objectBody._ranState >= SMTaskRunState.FinalDisable &&
+					_ranState < SMTaskRunState.FinalDisable &&
+					_type != SMTaskType.DontWork
 			) {
-				var isActive = smObject.IsActiveInHierarchy();
-				add._modifyler.Register( new FinalDisableSMBehaviour( isActive ) );
+				var isActive = _objectBody.IsActiveInHierarchy();
+				_modifyler.Register( new FinalDisableSMBehaviour( isActive ) );
 			}
 
-			if (	smObject._ranState >= SMTaskRunState.Finalize &&
-					add._ranState < SMTaskRunState.Finalize
+			if (	_objectBody._ranState >= SMTaskRunState.Finalize &&
+					_ranState < SMTaskRunState.Finalize
 			) {
-				if ( add._type != SMTaskType.DontWork ) {
-					add._modifyler.Register( new FinalizeSMBehaviour() );
+				if ( _type != SMTaskType.DontWork ) {
+					_modifyler.Register( new FinalizeSMBehaviour() );
 				} else {
-					add.Dispose();
+					_behaviour.Dispose();
 				}
 			}
 
-			if ( smObject._isFinalizing )	{ return; }
+			if ( _objectBody._isFinalizing )	{ return; }
 
 
-			if (	smObject._ranState >= SMTaskRunState.Create &&
-					add._ranState < SMTaskRunState.Create
+			if (	_objectBody._ranState >= SMTaskRunState.Create &&
+					_ranState < SMTaskRunState.Create
 			) {
-				add._modifyler.Register( new CreateSMBehaviour() );
+				_modifyler.Register( new CreateSMBehaviour() );
 			}
 
-			if ( add._type == SMTaskType.DontWork )	{ return; }
+			if ( _type == SMTaskType.DontWork )	{ return; }
 
 
-			if (	smObject._ranState >= SMTaskRunState.SelfInitialize &&
-					add._ranState < SMTaskRunState.SelfInitialize
+			if (	_objectBody._ranState >= SMTaskRunState.SelfInitialize &&
+					_ranState < SMTaskRunState.SelfInitialize
 			) {
-				add._modifyler.Register( new SelfInitializeSMBehaviour() );
+				_modifyler.Register( new SelfInitializeSMBehaviour() );
 			}
 
-			if (	smObject._ranState >= SMTaskRunState.Initialize &&
-					add._ranState < SMTaskRunState.Initialize
+			if (	_objectBody._ranState >= SMTaskRunState.Initialize &&
+					_ranState < SMTaskRunState.Initialize
 			) {
-				add._modifyler.Register( new InitializeSMBehaviour() );
+				_modifyler.Register( new InitializeSMBehaviour() );
 			}
 
-			if (	smObject._ranState >= SMTaskRunState.InitialEnable &&
-					add._ranState < SMTaskRunState.InitialEnable
+			if (	_objectBody._ranState >= SMTaskRunState.InitialEnable &&
+					_ranState < SMTaskRunState.InitialEnable
 			) {
-				var isActive = smObject.IsActiveInHierarchy();
-				add._modifyler.Register( new InitialEnableSMBehaviour( isActive ) );
+				var isActive = _objectBody.IsActiveInHierarchy();
+				_modifyler.Register( new InitialEnableSMBehaviour( isActive ) );
 			}
 
-			if ( !smObject._isInitialized )	{ return; }
+			if ( !_objectBody._isInitialized )	{ return; }
 
 
-			if ( smObject.IsActiveInHierarchy() ) {
-				add._modifyler.Register( new EnableSMBehaviour() );
+			if ( _objectBody.IsActiveInHierarchy() ) {
+				_modifyler.Register( new EnableSMBehaviour() );
 
 			} else {
-				add._modifyler.Register( new DisableSMBehaviour() );
+				_modifyler.Register( new DisableSMBehaviour() );
 			}
 		}
 
@@ -192,7 +197,6 @@ namespace SubmarineMirage.Task.Base {
 			if ( _ranState == SMTaskRunState.InitialEnable )	{ _ranState = SMTaskRunState.FixedUpdate; }
 		}
 
-
 		public void Update() {
 			if ( !_isOperable )	{ return; }
 			if ( !_isActive )	{ return; }
@@ -202,7 +206,6 @@ namespace SubmarineMirage.Task.Base {
 
 			if ( _ranState == SMTaskRunState.FixedUpdate )	{ _ranState = SMTaskRunState.Update; }
 		}
-
 
 		public void LateUpdate() {
 			if ( !_isOperable )	{ return; }
@@ -216,17 +219,37 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-		public SMBehaviourBody GetBehaviourAtLast() {
+		public SMBehaviourBody GetFirst()
+			=> _objectBody._behaviourBody;
+
+		public SMBehaviourBody GetLast() {
 			SMBehaviourBody current = null;
 			for ( current = this; current._next != null; current = current._next )	{}
 			return current;
 		}
 
-		public IEnumerable<SMBehaviourBody> GetBehaviours() {
-			for ( var current = _object._behaviour; current != null; current = current._next ) {
+		public IEnumerable<SMBehaviourBody> GetBrothers() {
+			for ( var current = GetFirst(); current != null; current = current._next ) {
 				yield return current;
 			}
 		}
+
+
+		public T GetBehaviour<T>() where T : ISMBehaviour
+			=> (T)GetBehaviour( typeof( T ) );
+
+		public ISMBehaviour GetBehaviour( Type type )
+			=> GetBehaviours( type ).FirstOrDefault();
+
+
+		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
+			=> GetBehaviours( typeof( T ) )
+				.Select( b => (T)b );
+
+		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
+			=> GetBrothers()
+				.Select( b => b._behaviour )
+				.Where( b => b.GetType().IsInheritance( type ) );
 
 
 
@@ -236,7 +259,7 @@ namespace SubmarineMirage.Task.Base {
 
 			_toStringer.SetValue( nameof( _id ), i => $"{_id} ↑{_previous?._id} ↓{_next?._id}" );
 			_toStringer.SetValue( nameof( _behaviour ), i => $"{_behaviour._id} {_behaviour.GetAboutName()}" );
-			_toStringer.SetValue( nameof( _object ), i => _toStringer.DefaultValue( _object, i, true ) );
+			_toStringer.SetValue( nameof( _objectBody ), i => _toStringer.DefaultValue( _objectBody, i, true ) );
 
 			_toStringer.SetValue( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
 			_toStringer.SetValue( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );

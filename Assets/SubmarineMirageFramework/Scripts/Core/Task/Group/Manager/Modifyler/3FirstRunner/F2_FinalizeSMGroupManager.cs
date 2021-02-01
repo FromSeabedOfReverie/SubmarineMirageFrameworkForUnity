@@ -26,7 +26,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
 
 
-			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalizeSMGroup( t ) );
 			}
 

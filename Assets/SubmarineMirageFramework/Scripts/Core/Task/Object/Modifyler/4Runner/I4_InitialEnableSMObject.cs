@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Object.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Behaviour.Modifyler;
+	using Task.Modifyler.Base;
 	using Debug;
 
 
@@ -27,7 +27,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 			_owner._isDisabling = false;
 
-			var isActiveInHierarchy = SMObjectBody.IsActiveInHierarchy( _owner );
+			var isActiveInHierarchy = _owner.IsActiveInHierarchy();
 			await RunLower( _runType, () => new InitialEnableSMBehaviour( isActiveInHierarchy ) );
 
 			if ( _runType == SMTaskRunAllType.Parallel ) {

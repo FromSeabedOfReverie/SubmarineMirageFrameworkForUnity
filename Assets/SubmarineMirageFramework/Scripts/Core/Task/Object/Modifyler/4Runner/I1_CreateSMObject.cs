@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Object.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Behaviour.Modifyler;
+	using Task.Modifyler.Base;
 	using Debug;
 
 

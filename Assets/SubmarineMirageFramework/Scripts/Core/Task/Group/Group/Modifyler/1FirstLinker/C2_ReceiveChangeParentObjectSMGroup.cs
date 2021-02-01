@@ -41,7 +41,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 		public override async UniTask Run() {
 			SMObjectBody.LinkChild( _parent, _target );
-			SMGroupApplyer.SetAllData( _owner );
+			SMGroupBody.SetAllData( _owner );
 
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
 

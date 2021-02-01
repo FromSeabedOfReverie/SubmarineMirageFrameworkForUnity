@@ -32,7 +32,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 
 
 			_owner._activeState = SMTaskActiveState.Disable;
-			foreach ( var t in SMGroupManagerApplyer.REVERSE_SEQUENTIAL_RUN_TYPES ) {
+			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalDisableSMGroup( t ) );
 			}
 			_owner._ranState = SMTaskRunState.FinalDisable;

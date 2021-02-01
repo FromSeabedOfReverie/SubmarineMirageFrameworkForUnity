@@ -4,9 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Object.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Behaviour.Modifyler;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Debug;
 
 
@@ -19,7 +20,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 		public FinalDisableSMObject( SMTaskRunAllType runType ) : base( runType ) {}
 
-		public override void Set( SMObject owner ) {
+		public override void Set( SMObjectBody owner ) {
 			base.Set( owner );
 			_owner._isFinalizing = true;
 		}
@@ -32,7 +33,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 			_owner._activeState = SMTaskActiveState.Disable;
 			_owner._isDisabling = true;
 
-			var isActiveInHierarchy = SMObjectBody.IsActiveInHierarchy( _owner );
+			var isActiveInHierarchy = _owner.IsActiveInHierarchy();
 			await RunLower( _runType, () => new FinalDisableSMBehaviour( isActiveInHierarchy ) );
 
 			if ( _runType == SMTaskRunAllType.ReverseSequential ) {

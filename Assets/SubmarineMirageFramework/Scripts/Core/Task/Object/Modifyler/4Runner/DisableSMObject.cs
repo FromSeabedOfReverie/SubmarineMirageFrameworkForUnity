@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Object.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Behaviour.Modifyler;
+	using Task.Modifyler.Base;
 	using Debug;
 
 
@@ -25,7 +25,7 @@ namespace SubmarineMirage.Task.Object.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( !_isAdjustParent && !SMObjectBody.IsActiveInHierarchy( _owner ) )	{ return; }
+			if ( !_isAdjustParent && !_owner.IsActiveInHierarchy() )	{ return; }
 			if ( !_owner._isOperable )	{ return; }
 			if ( _owner._activeState == SMTaskActiveState.Disable && !_owner._isDisabling )	{ return; }
 

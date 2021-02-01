@@ -4,9 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Utility;
 	using Debug;
 
@@ -34,9 +35,9 @@ namespace SubmarineMirage.Task.Modifyler {
 
 			var lastActiveState = _owner._activeState;
 			_owner._activeState = SMTaskActiveState.Disable;
-			SMBehaviourApplyer.StopAsyncOnDisable( _owner );
+			_owner.StopAsyncOnDisable();
 
-			if (	_isActiveInHierarchy && SMBehaviourApplyer.IsActiveInMonoBehaviour( _owner ) &&
+			if (	_isActiveInHierarchy && _owner.IsActiveInMonoBehaviour() &&
 					lastActiveState != SMTaskActiveState.Disable
 			) {
 				_owner._disableEvent.Run();

@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler.Base {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using Task.Base;
@@ -19,7 +18,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	public abstract class SMObjectModifyData
-		: BaseSMTaskModifyData<SMObject, SMObjectModifyler, SMBehaviourModifyData, SMBehaviourBody>
+		: BaseSMTaskModifyData<SMObjectBody, SMObjectModifyler, SMBehaviourModifyData, SMBehaviourBody>
 	{
 		[SMShowLine] protected SMTaskRunAllType _runType	{ get; private set; }
 
@@ -27,7 +26,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		public SMObjectModifyData( SMTaskRunAllType runType )
 			=> _runType = runType;
 
-		public override void Set( SMObject owner ) {
+		public override void Set( SMObjectBody owner ) {
 			base.Set( owner );
 			if ( _owner == null ) {
 				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に削除済\n{_owner}" );
@@ -39,9 +38,9 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 			=> lowerTarget._modifyler.RegisterAndRun( data );
 
 		protected override IEnumerable<SMBehaviourBody> GetAllLowers()
-			=> _owner.GetBehaviours().Select( b => b._body );
+			=> _owner._behaviourBody.GetBrothers();
 
 		protected override bool IsTargetLower( SMBehaviourBody lowerTarget, SMTaskType type )
-			=> lowerTarget._behaviour._type == type;
+			=> lowerTarget._type == type;
 	}
 }

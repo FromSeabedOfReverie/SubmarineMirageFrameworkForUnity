@@ -42,22 +42,41 @@ namespace SubmarineMirage.Task {
 
 
 
+		public void Destroy()
+			=> _body._groupBody._modifyler.Register( new DestroyObjectSMGroup( this ) );
+
+		public void ChangeActive( bool isActive ) {
+			if ( isActive )	{ _body._groupBody._modifyler.Register( new EnableObjectSMGroup( this ) ); }
+			else			{ _body._groupBody._modifyler.Register( new DisableObjectSMGroup( this ) ); }
+		}
+
+		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
+			=> _body._groupBody._modifyler.Register(
+				new SendChangeParentObjectSMGroup( this, parent, isWorldPositionStays ) );
+
+
+		public T AddBehaviour<T>() where T : SMMonoBehaviour
+			=> (T)AddBehaviour( typeof( T ) );
+
+		public SMMonoBehaviour AddBehaviour( Type type ) {
+			var data = new AddBehaviourSMGroup( this, type );
+			_body._groupBody._modifyler.Register( data );
+			return data._behaviour;
+		}
+
+
+
 		public T GetBehaviour<T>() where T : ISMBehaviour
-			=> (T)GetBehaviour( typeof( T ) );
+			=> _body._behaviourBody.GetBehaviour<T>();
 
 		public ISMBehaviour GetBehaviour( Type type )
-			=> GetBehaviours( type ).FirstOrDefault();
+			=> _body._behaviourBody.GetBehaviour( type );
 
-		
 		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
-			=> GetBehaviours( typeof( T ) )
-				.Select( b => (T)b );
+			=> _body._behaviourBody.GetBehaviours<T>();
 
 		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
-			=> _body._behaviour.GetBehaviours()
-				.Select( b => b._behaviour )
-				.Where( b => b.GetType().IsInheritance( type ) );
-
+			=> _body._behaviourBody.GetBehaviours( type );
 
 
 		public T GetBehaviourInParent<T>() where T : ISMBehaviour
@@ -75,7 +94,6 @@ namespace SubmarineMirage.Task {
 				.SelectMany( o => o._object.GetBehaviours( type ) );
 
 
-
 		public T GetBehaviourInChildren<T>() where T : ISMBehaviour
 			=> (T)GetBehaviourInChildren( typeof( T ) );
 
@@ -89,28 +107,5 @@ namespace SubmarineMirage.Task {
 		public IEnumerable<ISMBehaviour> GetBehavioursInChildren( Type type )
 			=> _body.GetAllChildren()
 				.SelectMany( o => o._object.GetBehaviours( type ) );
-
-
-
-		public T AddBehaviour<T>() where T : SMMonoBehaviour
-			=> (T)AddBehaviour( typeof( T ) );
-
-		public SMMonoBehaviour AddBehaviour( Type type ) {
-			var data = new AddBehaviourSMGroup( this, type );
-			_body._group._modifyler.Register( data );
-			return data._behaviour;
-		}
-
-		public void Destroy()
-			=> _body._group._modifyler.Register( new DestroyObjectSMGroup( this ) );
-
-		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
-			=> _body._group._modifyler.Register(
-				new SendChangeParentObjectSMGroup( this, parent, isWorldPositionStays ) );
-
-		public void ChangeActive( bool isActive ) {
-			if ( isActive )	{ _body._group._modifyler.Register( new EnableObjectSMGroup( this ) ); }
-			else			{ _body._group._modifyler.Register( new DisableObjectSMGroup( this ) ); }
-		}
 	}
 }

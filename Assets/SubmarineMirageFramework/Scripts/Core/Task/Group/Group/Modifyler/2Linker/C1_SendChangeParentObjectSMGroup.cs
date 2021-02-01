@@ -113,7 +113,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			// シーンが異なる場合、再設定し、内部で管理者を変更
 			if ( _owner._scene._rawScene != _target._gameObject.scene ) {
-				SMGroupApplyer.SetAllData( _owner );
+				SMGroupBody.SetAllData( _owner );
 			}
 		}
 
@@ -123,7 +123,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			// 子を解除し、元グループを再設定
 			SMObjectBody.Unlink( _target );
-			SMGroupApplyer.SetAllData( _owner );
+			SMGroupBody.SetAllData( _owner );
 
 			// 新グループ作成し、親に合わせた活動変更を予約
 			var g = new SMGroup( _target );
@@ -172,7 +172,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			// 子を解除し、元グループを再設定
 			SMObjectBody.Unlink( _target );
-			SMGroupApplyer.SetAllData( _owner );
+			SMGroupBody.SetAllData( _owner );
 
 			// 新グループに、子の追加を予約
 			parent._group._modifyler.Register( new ReceiveChangeParentObjectSMGroup( _target, parent ) );

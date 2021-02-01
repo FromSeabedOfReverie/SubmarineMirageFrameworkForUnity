@@ -25,14 +25,14 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 		public ReceiveReregisterGroupSMGroupManager( SMGroup target ) : base( target ) {}
 
 		protected override void Cancel() {
-			SMGroupApplyer.DisposeAll( _target );
+			SMGroupBody.DisposeAll( _target );
 			_target._gameObject.Destroy();
 		}
 
 
 		public override async UniTask Run() {
-			SMGroupManagerApplyer.Link( _owner, _target );
-			SMGroupManagerApplyer.RegisterRunEventToOwner( _owner, _target );
+			SMGroupManagerBody.Link( _owner, _target );
+			SMGroupManagerBody.RegisterRunEventToOwner( _owner, _target );
 
 			await UTask.DontWait();
 		}

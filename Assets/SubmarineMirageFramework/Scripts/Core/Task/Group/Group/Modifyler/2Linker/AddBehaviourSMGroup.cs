@@ -50,7 +50,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			}
 
 			SMBehaviourApplyer.Link( _target, _behaviour );
-			SMGroupApplyer.SetAllData( _owner );
+			SMGroupBody.SetAllData( _owner );
 
 			SMBehaviourApplyer.RegisterRunEventToOwner( _target, _behaviour );
 

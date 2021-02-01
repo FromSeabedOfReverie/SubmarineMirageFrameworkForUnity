@@ -21,7 +21,7 @@ namespace SubmarineMirage.Task {
 		public virtual SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.InScene;
 
 		public SMBehaviourBody _body	{ get; private set; }
-		[SMHide] public SMObject _object	=> _body._object._object;
+		[SMHide] public SMObject _object	=> _body._objectBody._object;
 
 		[SMHide] public bool _isInitialized	=> _body._isInitialized;
 		[SMHide] public bool _isOperable	=> _body._isOperable;
@@ -41,7 +41,8 @@ namespace SubmarineMirage.Task {
 		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 
-		public SMBehaviour( bool isDebug = false ) {
+
+		public SMBehaviour() {
 			_body = new SMBehaviourBody( this );
 
 			_disposables.AddLast( () => {
@@ -49,9 +50,10 @@ namespace SubmarineMirage.Task {
 			} );
 		}
 
+		public override void Dispose() => base.Dispose();
+
 		public abstract void Create();
 
-		public override void Dispose() => base.Dispose();
 
 
 		public void DestroyObject() => _object.Destroy();

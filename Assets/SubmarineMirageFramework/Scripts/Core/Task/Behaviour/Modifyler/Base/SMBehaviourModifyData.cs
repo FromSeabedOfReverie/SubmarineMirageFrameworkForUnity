@@ -4,15 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestBehaviourModifyler
 namespace SubmarineMirage.Task.Modifyler.Base {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Task.Base;
-	using Utility;
 
 
 
@@ -31,10 +28,16 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		}
 
 
-		protected override UniTask RegisterAndRunLower( Unit lowerTarget, Unit data ) => UTask.DontWait();
+		protected override UniTask RegisterAndRunLower( Unit lowerTarget, Unit data )
+			=> throw new InvalidOperationException(
+				$"非対応 : {nameof( SMBehaviourModifyData )}.{nameof( RegisterAndRunLower )}" );
 
-		protected override IEnumerable<Unit> GetAllLowers() => Enumerable.Empty<Unit>();
+		protected override IEnumerable<Unit> GetAllLowers()
+			=> throw new InvalidOperationException(
+				$"非対応 : {nameof( SMBehaviourModifyData )}.{nameof( GetAllLowers )}" );
 
-		protected override bool IsTargetLower( Unit lowerTarget, SMTaskType type ) => false;
+		protected override bool IsTargetLower( Unit lowerTarget, SMTaskType type )
+			=> throw new InvalidOperationException(
+				$"非対応 : {nameof( SMBehaviourModifyData )}.{nameof( IsTargetLower )}" );
 	}
 }

@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler.Base {
 	using KoganeUnityLib;
-	using Task.Modifyler;
-	using Object;
+	using Task.Base;
 	using Extension;
 
 
@@ -17,13 +16,13 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 	public class SMGroupModifyler
-		: BaseSMTaskModifyler<SMGroup, SMGroupModifyler, SMGroupModifyData>
+		: BaseSMTaskModifyler<SMGroupBody, SMGroupModifyler, SMGroupModifyData>
 	{
-		protected override SMTaskCanceler _asyncCanceler => _owner._topObject._asyncCanceler;
+		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCanceler;
 
 
 
-		public SMGroupModifyler( SMGroup owner ) : base( owner ) {}
+		public SMGroupModifyler( SMGroupBody owner ) : base( owner ) {}
 
 
 
@@ -33,12 +32,12 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			remove.Dispose();
 		}
 
-		public void Reregister( SMGroup newOwner ) => _data.RemoveAll(
-			d => d._target._group == newOwner,
+		public void Reregister( SMGroupBody newOwner ) => _data.RemoveAll(
+			d => d._target._groupBody == newOwner,
 			d => newOwner._modifyler.Register( d )
 		);
 
-		public void Unregister( SMObject remove ) => _data.RemoveAll(
+		public void Unregister( SMObjectBody remove ) => _data.RemoveAll(
 			d => d._target == remove,
 			d => d.Dispose()
 		);

@@ -30,7 +30,7 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 				_target._scene.MoveGroup( _target );
 			}
 
-			SMGroupManagerApplyer.Unlink( _owner, _target );
+			SMGroupManagerBody.Unlink( _owner, _target );
 			_target._groups._modifyler.Register( new ReceiveReregisterGroupSMGroupManager( _target ) );
 			_modifyler.Reregister( _target._groups, _target );
 

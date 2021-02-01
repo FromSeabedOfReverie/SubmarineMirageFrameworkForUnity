@@ -66,13 +66,13 @@ namespace SubmarineMirage.Scene {
 			} );
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ =>
-				SMGroupManagerApplyer.FixedUpdate( _groups )
+				SMGroupManagerBody.FixedUpdate( _groups )
 			);
 			_updateEvent.AddLast().Subscribe( _ =>
-				SMGroupManagerApplyer.Update( _groups )
+				SMGroupManagerBody.Update( _groups )
 			);
 			_lateUpdateEvent.AddLast().Subscribe( _ =>
-				SMGroupManagerApplyer.LateUpdate( _groups )
+				SMGroupManagerBody.LateUpdate( _groups )
 			);
 		}
 
