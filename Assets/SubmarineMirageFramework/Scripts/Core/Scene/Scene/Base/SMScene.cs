@@ -14,10 +14,8 @@ namespace SubmarineMirage.Scene {
 	using UniRx;
 	using KoganeUnityLib;
 	using MultiEvent;
-	using Task.Behaviour;
-	using Task.Group;
-	using Task.Group.Manager;
-	using Task.Group.Manager.Modifyler;
+	using Task;
+	using Task.Base;
 	using FSM.State;
 	using Extension;
 	using Utility;
@@ -32,7 +30,7 @@ namespace SubmarineMirage.Scene {
 	public abstract class SMScene : SMState<SMSceneManager, SMSceneInternalFSM> {
 		[SMShowLine] public string _name	{ get; protected set; }
 		public Scene _rawScene	{ get; protected set; }
-		public SMGroupManager _groups	{ get; private set; }
+		public SMGroupManagerBody _groupManagerBody	{ get; private set; }
 
 		[SMHide] protected readonly SMMultiAsyncEvent _createBehavioursEvent = new SMMultiAsyncEvent();
 
@@ -40,10 +38,12 @@ namespace SubmarineMirage.Scene {
 		public SMScene() {
 			SetSceneName();
 			ReloadRawScene();
-			_groups = new SMGroupManager( this );
+
+			var groupManager = new SMGroupManager( this );
+			_groupManagerBody = groupManager._body;
 
 			_disposables.AddLast( () => {
-				_groups.Dispose();
+				_groupManagerBody._manager.Dispose();
 			} );
 
 			_enterEvent.AddLast( async canceler => {
@@ -55,25 +55,19 @@ namespace SubmarineMirage.Scene {
 				}
 				if ( this is MainSMScene )	{ SceneManager.SetActiveScene( _rawScene ); }
 				await _createBehavioursEvent.Run( canceler );
-				await _groups.Enter();
+				await _groupManagerBody.Enter();
 			} );
 
 			_exitEvent.AddLast( async canceler => {
-				await _groups.Exit();
+				await _groupManagerBody.Exit();
 				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 				ReloadRawScene();
 				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
 			} );
 
-			_fixedUpdateEvent.AddLast().Subscribe( _ =>
-				SMGroupManagerBody.FixedUpdate( _groups )
-			);
-			_updateEvent.AddLast().Subscribe( _ =>
-				SMGroupManagerBody.Update( _groups )
-			);
-			_lateUpdateEvent.AddLast().Subscribe( _ =>
-				SMGroupManagerBody.LateUpdate( _groups )
-			);
+			_fixedUpdateEvent.AddLast().Subscribe( _ => _groupManagerBody.FixedUpdate() );
+			_updateEvent.AddLast().Subscribe( _ => _groupManagerBody.Update() );
+			_lateUpdateEvent.AddLast().Subscribe( _ => _groupManagerBody.LateUpdate() );
 		}
 
 
@@ -85,8 +79,8 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public void MoveGroup( SMGroup group )
-			=> SceneManager.MoveGameObjectToScene( group._gameObject, _rawScene );
+		public void MoveGroup( SMGroupBody groupBody )
+			=> SceneManager.MoveGameObjectToScene( groupBody._gameObject, _rawScene );
 
 
 		public bool IsInBuild() {
@@ -100,15 +94,15 @@ namespace SubmarineMirage.Scene {
 
 
 		public T GetBehaviour<T>() where T : ISMBehaviour
-			=> _groups.GetBehaviour<T>();
+			=> _groupManagerBody._manager.GetBehaviour<T>();
 
 		public ISMBehaviour GetBehaviour( Type type )
-			=> _groups.GetBehaviour( type );
+			=> _groupManagerBody._manager.GetBehaviour( type );
 
 		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
-			=> _groups.GetBehaviours<T>();
+			=> _groupManagerBody._manager.GetBehaviours<T>();
 
 		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
-			=> _groups.GetBehaviours( type );
+			=> _groupManagerBody._manager.GetBehaviours( type );
 	}
 }

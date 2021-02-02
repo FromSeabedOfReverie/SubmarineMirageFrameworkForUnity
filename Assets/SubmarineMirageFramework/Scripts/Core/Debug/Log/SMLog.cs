@@ -55,6 +55,7 @@ namespace SubmarineMirage.Debug {
 
 #if TestSMLog
 			SMLog.Debug( SMLogTag.Task,				SMLogTag.Task );
+			SMLog.Debug( SMLogTag.Service,			SMLogTag.Service );
 			SMLog.Debug( SMLogTag.Singleton,		SMLogTag.Singleton );
 			SMLog.Debug( SMLogTag.FSM,				SMLogTag.FSM );
 			SMLog.Debug( SMLogTag.Build,			SMLogTag.Build );

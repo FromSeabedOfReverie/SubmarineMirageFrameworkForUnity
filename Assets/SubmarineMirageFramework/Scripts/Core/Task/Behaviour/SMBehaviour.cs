@@ -5,9 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task {
+	using System;
 	using SubmarineMirage.Base;
 	using MultiEvent;
 	using Task.Base;
+	using Utility;
 	using Debug;
 
 
@@ -37,8 +39,8 @@ namespace SubmarineMirage.Task {
 		[SMHide] public SMMultiSubject _disableEvent			=> _body._disableEvent;
 		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 
 
@@ -50,9 +52,22 @@ namespace SubmarineMirage.Task {
 			} );
 		}
 
+		public void Setup() {
+			var group = new SMGroup( null, new ISMBehaviour[] { this } );
+			_body._objectBody = group._body._objectBody;
+		}
+
 		public override void Dispose() => base.Dispose();
 
 		public abstract void Create();
+
+
+
+		public static T Generate<T>() where T : ISMBehaviour
+			=> SMBehaviourBody.Generate<T>();
+
+		public static ISMBehaviour Generate( Type type )
+			=> SMBehaviourBody.Generate( type );
 
 
 

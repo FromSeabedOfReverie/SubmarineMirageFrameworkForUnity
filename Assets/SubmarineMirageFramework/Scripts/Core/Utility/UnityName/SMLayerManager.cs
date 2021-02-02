@@ -12,7 +12,7 @@ namespace SubmarineMirage.Utility {
 	/// ■ 層の管理クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMLayerManager : SMUnityName<SMLayerManager, SMLayerManager.Name> {
+	public class SMLayerManager : SMUnityName<SMLayerManager.Name> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------

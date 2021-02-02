@@ -4,10 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestGroupManagerModifyler
-namespace SubmarineMirage.Task.Group.Manager.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Group.Modifyler;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -22,10 +22,10 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 
 
-		public RegisterGroupSMGroupManager( SMGroup target ) : base( target ) {}
+		public RegisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}
 
 		protected override void Cancel() {
-			SMGroupBody.DisposeAll( _target );
+			_target.DisposeAllObjects();
 			_target._gameObject.Destroy();
 		}
 
@@ -34,8 +34,8 @@ namespace SubmarineMirage.Task.Group.Manager.Modifyler {
 			if ( _target._isGameObject && _target._lifeSpan == SMTaskLifeSpan.Forever ) {
 				_owner._scene.MoveGroup( _target );
 			}
-			SMGroupManagerBody.Link( _owner, _target );
-			SMGroupManagerBody.RegisterRunEventToOwner( _owner, _target );
+			_owner.Link( _target );
+			_target.RegisterRunEventToOwner();
 
 			await UTask.DontWait();
 		}

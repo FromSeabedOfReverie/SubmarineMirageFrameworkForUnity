@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestGroupModifyler
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Behaviour;
-	using Object;
-	using Object.Modifyler;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -23,10 +21,10 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 	public class ReceiveChangeParentObjectSMGroup : SMGroupModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstLinker;
-		[SMShowLine] SMObject _parent	{ get; set; }
+		[SMShowLine] SMObjectBody _parent	{ get; set; }
 
 
-		public ReceiveChangeParentObjectSMGroup( SMObject target, SMObject parent ) : base( target ) {
+		public ReceiveChangeParentObjectSMGroup( SMObjectBody target, SMObjectBody parent ) : base( target ) {
 			_parent = parent;
 			if ( !_target._isGameObject ) {
 				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}未所持の為、親適用不可 :\n{_target}" );
@@ -34,14 +32,14 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		}
 
 		protected override void Cancel() {
-			SMObjectBody.DisposeAll( _target );
+			_target.DisposeAllChildren();
 			_target._gameObject.Destroy();
 		}
 
 
 		public override async UniTask Run() {
-			SMObjectBody.LinkChild( _parent, _target );
-			SMGroupBody.SetAllData( _owner );
+			_parent.LinkChild( _target );
+			_owner.SetAllData();
 
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
 

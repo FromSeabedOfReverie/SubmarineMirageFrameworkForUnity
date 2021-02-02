@@ -13,10 +13,10 @@ namespace SubmarineMirage.Scene {
 	using Base;
 	using Service;
 	using MultiEvent;
-	using Task;
-	using Task.Behaviour;
+	using Task.Base;
 	using FSM;
 	using Extension;
+	using Utility;
 	using Debug;
 	using Debug.ToString;
 
@@ -49,7 +49,7 @@ namespace SubmarineMirage.Scene {
 #if DEVELOP
 		[SMHide] public SMMultiSubject _onGUIEvent				=> _body._onGUIEvent;
 #endif
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 		[SMHide] public SMSceneFSM _fsm	=> _body._fsm;
 		public SMSceneManagerBody _body	{ get; private set; }

@@ -10,8 +10,8 @@ namespace SubmarineMirage.Task.Base {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using Task.Modifyler;
 	using Task.Modifyler.Base;
-	using Task.Group.Manager.Modifyler;
 	using Scene;
 	using Utility;
 	using Debug;
@@ -45,7 +45,7 @@ namespace SubmarineMirage.Task.Base {
 
 		public bool _isEnter	{ get; private set; }
 
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
 
 
 
@@ -117,8 +117,6 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		async UniTask Load() {
-			if ( _scene._fsm._fsmType == SMSceneType.Forever )	{ return; }
-
 			var currents = new Queue<Transform>(
 				_scene._rawScene.GetRootGameObjects().Select( go => go.transform )
 			);
@@ -126,7 +124,7 @@ namespace SubmarineMirage.Task.Base {
 				var current = currents.Dequeue();
 				var bs = current.GetComponents<SMMonoBehaviour>();
 				if ( !bs.IsEmpty() ) {
-					new SMObject( current.gameObject, bs, null );
+					new SMGroup( current.gameObject, bs );
 					await UTask.NextFrame( _asyncCancelerOnDisable );
 				} else {
 					foreach ( Transform child in current ) {
@@ -135,12 +133,6 @@ namespace SubmarineMirage.Task.Base {
 				}
 			}
 		}
-
-
-
-		public void RunAllModifylers()
-			=> GetAllModifylers()
-				.ForEach( m => m.Run().Forget() );
 
 
 
@@ -185,10 +177,16 @@ namespace SubmarineMirage.Task.Base {
 
 
 
+		public void RunAllModifylers()
+			=> GetAllModifylers()
+				.ForEach( m => m.Run().Forget() );
+
+
+
 		public IEnumerable<SMGroupBody> GetAllGroups()
 			=> _groupBody?.GetBrothers() ?? Enumerable.Empty<SMGroupBody>();
 
-		public IEnumerable<SMObjectBody> GetAllTops()
+		public IEnumerable<SMObjectBody> GetAllTopObjects()
 			=> GetAllGroups().Select( g => g._objectBody );
 
 
@@ -212,7 +210,8 @@ namespace SubmarineMirage.Task.Base {
 
 		public override void SetToString() {
 			base.SetToString();
-			_toStringer.SetValue( nameof( _groupBody ), i => _toStringer.DefaultValue( GetAllTops(), i, true ) );
+			_toStringer.SetValue( nameof( _groupBody ), i =>
+				_toStringer.DefaultValue( GetAllTopObjects(), i, true ) );
 		}
 	}
 }

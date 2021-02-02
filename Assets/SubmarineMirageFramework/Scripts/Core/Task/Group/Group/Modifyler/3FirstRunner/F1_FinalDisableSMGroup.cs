@@ -4,9 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Object.Modifyler;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Debug;
 
 
@@ -23,7 +24,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		public FinalDisableSMGroup( SMTaskRunAllType runType ) : base( null )
 			=> _runType = runType;
 
-		public override void Set( SMGroup owner ) {
+		public override void Set( SMGroupBody owner ) {
 			base.Set( owner );
 			_owner._isFinalizing = true;
 		}

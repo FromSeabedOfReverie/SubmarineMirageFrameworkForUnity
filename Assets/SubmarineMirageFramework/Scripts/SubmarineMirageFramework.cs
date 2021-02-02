@@ -10,7 +10,6 @@ namespace SubmarineMirage {
 	using UniRx;
 	using Base;
 	using Service;
-	using Task;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -26,7 +25,7 @@ namespace SubmarineMirage {
 	public class SubmarineMirageFramework : SMStandardBase, ISMService {
 		public static bool s_isPlayTest	{ get; set; }
 		public bool _isInitialized	{ get; private set; }
-		[SMHide] readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
+		[SMHide] readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
 
 		public SubmarineMirageFramework() {
@@ -71,6 +70,8 @@ namespace SubmarineMirage {
 			SMServiceLocator.Register<SMIDCounter>();
 			SMServiceLocator.Register<SMDecorationManager>();
 			SMServiceLocator.Register<SMLog>();
+//			SMServiceLocator.Register<SMTagManager>();
+//			SMServiceLocator.Register<SMLayerManager>();
 
 			await registerSettingsEvent();
 
@@ -80,7 +81,6 @@ namespace SubmarineMirage {
 
 			var scene = SMServiceLocator.Register<SMSceneManager>();
 			scene._body.Setup();
-//			SMMonoBehaviourSingletonManager.CreateInstance();
 
 			await scene._body.Initialize();
 

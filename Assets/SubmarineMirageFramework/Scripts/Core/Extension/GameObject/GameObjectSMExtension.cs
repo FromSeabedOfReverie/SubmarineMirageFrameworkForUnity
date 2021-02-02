@@ -10,6 +10,7 @@ namespace SubmarineMirage.Extension {
 	using UnityEngine;
 	using UniRx;
 	using KoganeUnityLib;
+	using Service;
 	using Utility;
 	///====================================================================================================
 	/// <summary>
@@ -62,9 +63,11 @@ namespace SubmarineMirage.Extension {
 		/// ● 指定層の子達のゲーム物を全取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static IEnumerable<GameObject> GetChildrenInLayer( this GameObject self, SMLayerManager.Name layer )
-		{
-			var id = SMLayerManager.s_instance.ToInt( layer );
+		public static IEnumerable<GameObject> GetChildrenInLayer( this GameObject self,
+																	SMLayerManager.Name layer
+		) {
+			var layerManager = SMServiceLocator.Resolve<SMLayerManager>();
+			var id = layerManager.ToInt( layer );
 			return self.GetChildren()
 				.Where( go => go.layer == id );
 		}

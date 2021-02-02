@@ -9,7 +9,7 @@ namespace SubmarineMirage.FSM.Test {
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Task.Behaviour;
+	using Task;
 	using FSM;
 	using FSM.State;
 

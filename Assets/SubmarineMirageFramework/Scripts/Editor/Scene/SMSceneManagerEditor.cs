@@ -9,8 +9,7 @@ namespace SubmarineMirage.EditorScene {
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
-	using Task.Object;
-	using Task.Group;
+	using Task.Base;
 	using Scene;
 	using Extension;
 	using Debug;
@@ -59,7 +58,7 @@ namespace SubmarineMirage.EditorScene {
 					ShowHeading2( scene._name );
 
 					EditorGUI.indentLevel++;
-					scene._groups.GetAllGroups().ForEach( g => ShowGroup( g ) );
+					scene._groupManagerBody.GetAllGroups().ForEach( g => ShowGroup( g ) );
 					EditorGUI.indentLevel--;
 				} );
 				EditorGUI.indentLevel--;
@@ -67,47 +66,49 @@ namespace SubmarineMirage.EditorScene {
 			EditorGUILayout.Space();
 		}
 
-		void ShowGroup( SMGroup group ) {
+		void ShowGroup( SMGroupBody groupBody ) {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( string.Join( "\n",
-				$"{group._id}, {group._lifeSpan}( {group._scene.GetAboutName()} )",
-				$"↑ {group._previous?.ToLineString()}",
-				$"↓ {group._next?.ToLineString()}",
+				$"{groupBody._id}, {groupBody._lifeSpan}( {groupBody._managerBody._scene.GetAboutName()} )",
+				$"↑ {groupBody._previous?.ToLineString()}",
+				$"↓ {groupBody._next?.ToLineString()}",
 
-				$"{( group._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
-					+ $"{( group._isDispose ? "Dispose" : "" )}"
+				$"{( groupBody._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
+					+ $"{( groupBody._isDispose ? "Dispose" : "" )}"
 			) );
 
-			EditorGUILayout.SelectableLabel( group.ToLineString(), GUILayout.Height( 16 ) );
+			EditorGUILayout.SelectableLabel( groupBody.ToLineString(), GUILayout.Height( 16 ) );
 
-			ShowObject( group._topObject );
+			ShowObject( groupBody._objectBody );
 
 			EditorGUI.indentLevel--;
 		}
 
-		void ShowObject( SMObject smObject ) {
+		void ShowObject( SMObjectBody objectBody ) {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( string.Join( "\n",
-				$"{smObject._id}",
+				$"{objectBody._id}",
 
-				$"{( smObject._gameObject != null ? smObject._gameObject.name : "null" )}",
-				string.Join( "\n", smObject.GetBehaviours().Select( b => $"    {b.ToLineString()}" ) ),
+				$"{( objectBody._gameObject != null ? objectBody._gameObject.name : "null" )}",
+				string.Join( "\n", objectBody._behaviourBody.GetBrothers().Select( b =>
+					$"    {b.ToLineString()}"
+				) ),
 
-				$"← {smObject._parent?.ToLineString()}",
-				$"↑ {smObject._previous?.ToLineString()}",
-				$"↓ {smObject._next?.ToLineString()}",
+				$"← {objectBody._parent?.ToLineString()}",
+				$"↑ {objectBody._previous?.ToLineString()}",
+				$"↓ {objectBody._next?.ToLineString()}",
 				$"→",
-				string.Join( "\n", smObject.GetChildren().Select( o => $"    {o.ToLineString()}" ) ),
+				string.Join( "\n", objectBody.GetChildren().Select( o => $"    {o.ToLineString()}" ) ),
 
-				$"{( smObject._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
-					+ $"{( smObject._isDispose ? "Dispose" : "" )}"
+				$"{( objectBody._asyncCanceler._isCancel ? "Cancel, " : "" )}"
+					+ $"{( objectBody._isDispose ? "Dispose" : "" )}"
 			) );
 
-			EditorGUILayout.SelectableLabel( smObject.ToLineString(), GUILayout.Height( 16 ) );
+			EditorGUILayout.SelectableLabel( objectBody.ToLineString(), GUILayout.Height( 16 ) );
 
-			smObject.GetChildren().ForEach( child => ShowObject( child ) );
+			objectBody.GetChildren().ForEach( c => ShowObject( c ) );
 
 			EditorGUI.indentLevel--;
 		}

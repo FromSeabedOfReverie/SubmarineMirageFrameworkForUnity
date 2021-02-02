@@ -4,9 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Object.Modifyler;
+	using Task.Modifyler.Base;
 	using Debug;
 
 
@@ -32,7 +32,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
 				_owner._ranState = SMTaskRunState.Finalize;
-				_owner.Dispose();
+				_owner._group.Dispose();
 			}
 		}
 	}

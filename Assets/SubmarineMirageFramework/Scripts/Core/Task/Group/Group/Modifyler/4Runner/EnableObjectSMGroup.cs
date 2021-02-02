@@ -4,11 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Object;
-	using Object.Modifyler;
-	using Group.Manager.Modifyler;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Debug;
 
 
@@ -21,13 +20,13 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 
 
-		public EnableObjectSMGroup( SMObject target ) : base( target ) {}
+		public EnableObjectSMGroup( SMObjectBody target ) : base( target ) {}
 
 
 		public override async UniTask Run() {
 			if ( !_owner._isOperable )	{ return; }
 			if ( _owner._activeState != SMTaskActiveState.Enable && !_owner.IsTop( _target ) )	{ return; }
-			if ( !SMObjectBody.IsActiveInParentHierarchy( _target ) )	{ return; }
+			if ( !_target.IsActiveInParentHierarchy() )	{ return; }
 
 
 			if ( _target._isGameObject )	{ _target._gameObject.SetActive( true ); }

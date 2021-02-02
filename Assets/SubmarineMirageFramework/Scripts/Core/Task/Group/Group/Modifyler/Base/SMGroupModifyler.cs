@@ -8,6 +8,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	using KoganeUnityLib;
 	using Task.Base;
 	using Extension;
+	using Utility;
 
 
 
@@ -18,7 +19,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	public class SMGroupModifyler
 		: BaseSMTaskModifyler<SMGroupBody, SMGroupModifyler, SMGroupModifyData>
 	{
-		protected override SMTaskCanceler _asyncCanceler => _owner._asyncCanceler;
+		protected override SMAsyncCanceler _asyncCanceler => _owner._asyncCanceler;
 
 
 

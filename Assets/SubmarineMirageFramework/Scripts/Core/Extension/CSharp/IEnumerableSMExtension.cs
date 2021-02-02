@@ -14,19 +14,19 @@ namespace SubmarineMirage.Extension {
 
 
 	public static class IEnumerableSMExtension {
-		public static void ForEach( this IEnumerable self, Action<object> action ) {
+		public static void ForEachRaw( this IEnumerable self, Action<object> action ) {
 			foreach ( var o in self ) {
 				action( o );
 			}
 		}
 
-		public static IEnumerable<T> Select<T>( this IEnumerable self, Func<object, T> selector ) {
+		public static IEnumerable<T> SelectRaw<T>( this IEnumerable self, Func<object, T> selector ) {
 			foreach ( var o in self ) {
 				yield return selector( o );
 			}
 		}
 
-		public static int Count( this IEnumerable self ) {
+		public static int CountRaw( this IEnumerable self ) {
 			var i = 0;
 			foreach ( var o in self ) {
 				i++;

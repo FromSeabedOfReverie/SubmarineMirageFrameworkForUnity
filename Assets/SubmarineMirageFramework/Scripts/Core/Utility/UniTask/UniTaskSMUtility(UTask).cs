@@ -13,7 +13,6 @@ namespace SubmarineMirage.Utility {
 	using UnityEngine;
 	using UnityEngine.Events;
 	using UnityEngine.Networking;
-	using Task;
 
 	// 本当はこう書かなければならないが、記述を省く為、省略
 	// 全書類に跨る、別名定義機能は、C#に無い
@@ -66,22 +65,22 @@ namespace SubmarineMirage.Utility {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Never( SMTaskCanceler canceler )
+		public static UniTask Never( SMAsyncCanceler canceler )
 			=> UniTask.Never( canceler.ToToken() );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Yield( SMTaskCanceler canceler, PlayerLoopTiming timing = PlayerLoopTiming.Update )
+		public static UniTask Yield( SMAsyncCanceler canceler, PlayerLoopTiming timing = PlayerLoopTiming.Update )
 			=> UniTask.Yield( timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask NextFrame( SMTaskCanceler canceler,
+		public static UniTask NextFrame( SMAsyncCanceler canceler,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => UniTask.NextFrame( timing, canceler.ToToken() );
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( SMTaskCanceler canceler, int millisecondsDelay, bool ignoreTimeScale = false,
+		public static UniTask Delay( SMAsyncCanceler canceler, int millisecondsDelay, bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( millisecondsDelay == 0 )	{ return Empty; }
@@ -89,7 +88,7 @@ namespace SubmarineMirage.Utility {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( SMTaskCanceler canceler, TimeSpan delayTimeSpan, bool ignoreTimeScale = false,
+		public static UniTask Delay( SMAsyncCanceler canceler, TimeSpan delayTimeSpan, bool ignoreTimeScale = false,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( delayTimeSpan == TimeSpan.Zero )	{ return Empty; }
@@ -97,7 +96,7 @@ namespace SubmarineMirage.Utility {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( SMTaskCanceler canceler, int millisecondsDelay, DelayType delayType,
+		public static UniTask Delay( SMAsyncCanceler canceler, int millisecondsDelay, DelayType delayType,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( millisecondsDelay == 0 )	{ return Empty; }
@@ -105,7 +104,7 @@ namespace SubmarineMirage.Utility {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask Delay( SMTaskCanceler canceler, TimeSpan delayTimeSpan, DelayType delayType,
+		public static UniTask Delay( SMAsyncCanceler canceler, TimeSpan delayTimeSpan, DelayType delayType,
 										PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( delayTimeSpan == TimeSpan.Zero )	{ return Empty; }
@@ -114,7 +113,7 @@ namespace SubmarineMirage.Utility {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask DelayFrame( SMTaskCanceler canceler, int delayFrameCount,
+		public static UniTask DelayFrame( SMAsyncCanceler canceler, int delayFrameCount,
 											PlayerLoopTiming delayTiming = PlayerLoopTiming.Update
 		) {
 			if ( delayFrameCount == 0 )	{ return Empty; }
@@ -123,7 +122,7 @@ namespace SubmarineMirage.Utility {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitWhile( SMTaskCanceler canceler, Func<bool> predicate,
+		public static UniTask WaitWhile( SMAsyncCanceler canceler, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
 			if ( !predicate() )	{ return Empty; }
@@ -132,7 +131,7 @@ namespace SubmarineMirage.Utility {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitUntil( SMTaskCanceler canceler, Func<bool> predicate,
+		public static UniTask WaitUntil( SMAsyncCanceler canceler, Func<bool> predicate,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
 			if ( predicate() )	{ return Empty; }
@@ -141,7 +140,7 @@ namespace SubmarineMirage.Utility {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask<U> WaitUntilValueChanged<T, U>( SMTaskCanceler canceler, T target,
+		public static UniTask<U> WaitUntilValueChanged<T, U>( SMAsyncCanceler canceler, T target,
 																Func<T, U> monitorFunction,
 													PlayerLoopTiming monitorTiming = PlayerLoopTiming.Update,
 																IEqualityComparer<U> equalityComparer = null
@@ -152,7 +151,7 @@ namespace SubmarineMirage.Utility {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask WaitUntilCanceled( SMTaskCanceler canceler,
+		public static UniTask WaitUntilCanceled( SMAsyncCanceler canceler,
 													PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) {
 			if ( canceler.ToToken().IsCancellationRequested )	{ return Empty; }
@@ -161,32 +160,32 @@ namespace SubmarineMirage.Utility {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask ToUniTask( this AsyncOperation asyncOperation, SMTaskCanceler canceler,
+		public static UniTask ToUniTask( this AsyncOperation asyncOperation, SMAsyncCanceler canceler,
 											IProgress<float> progress = null,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => asyncOperation.ToUniTask( progress, timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static UniTask<UnityEngine.Object> ToUniTask( this ResourceRequest asyncOperation,
-																SMTaskCanceler canceler,
+																SMAsyncCanceler canceler,
 																IProgress<float> progress = null,
 															PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => asyncOperation.ToUniTask( progress, timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static UniTask<UnityWebRequest> ToUniTask( this UnityWebRequestAsyncOperation asyncOperation,
-															SMTaskCanceler canceler,
+															SMAsyncCanceler canceler,
 															IProgress<float> progress = null,
 															PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => asyncOperation.ToUniTask( progress, timing, canceler.ToToken() );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask ToUniTask( this SMTaskCanceler canceler,
+		public static UniTask ToUniTask( this SMAsyncCanceler canceler,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => WaitUntilCanceled( canceler, timing );
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static UniTask ToUniTask( this IEnumerator enumerator, SMTaskCanceler canceler,
+		public static UniTask ToUniTask( this IEnumerator enumerator, SMAsyncCanceler canceler,
 											PlayerLoopTiming timing = PlayerLoopTiming.Update
 		) => enumerator.ToUniTask( timing, canceler.ToToken() );
 

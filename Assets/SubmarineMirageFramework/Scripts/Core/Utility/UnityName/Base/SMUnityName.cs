@@ -9,20 +9,25 @@ namespace SubmarineMirage.Utility {
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Task.Behaviour;
-	using Singleton;
+	using Service;
+	using Task;
+
+
+	// TODO : コメント追加、整頓
+
+
 	///====================================================================================================
 	/// <summary>
 	/// ■ Unity設定の名称使用の基盤クラス
 	/// </summary>
 	///====================================================================================================
-	public abstract class SMUnityName<TManager, TName> : SMSingleton<TManager>
-		where TManager : SMBehaviour, new()
-		where TName : Enum
-	{
+	public abstract class SMUnityName<TName> : SMBehaviour, ISMService where TName : Enum {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
+
 		/// <summary>名称のキャッシュ一覧の辞書</summary>
 		readonly Dictionary<TName, string> _namesCache = EnumUtils.GetValues<TName>()
 				.ToDictionary( name => name, name => name.ToString() );

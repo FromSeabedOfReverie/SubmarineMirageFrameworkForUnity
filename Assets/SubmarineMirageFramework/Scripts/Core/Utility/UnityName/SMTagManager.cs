@@ -11,7 +11,7 @@ namespace SubmarineMirage.Utility {
 	/// ■ 付箋の管理クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMTagManager : SMUnityName<SMTagManager, SMTagManager.Name> {
+	public class SMTagManager : SMUnityName<SMTagManager.Name> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
@@ -19,8 +19,6 @@ namespace SubmarineMirage.Utility {
 		public enum Name {
 			/// <summary>未設定</summary>
 			Untagged,
-			/// <summary>シングルトン管理</summary>
-			Singletons,
 
 			// TODO : リファクタリング次第で、以下タグは不要になるかもしれない
 

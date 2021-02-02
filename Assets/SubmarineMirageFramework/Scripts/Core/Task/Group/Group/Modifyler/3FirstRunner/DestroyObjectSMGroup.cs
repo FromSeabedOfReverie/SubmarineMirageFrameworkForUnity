@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestGroupModifyler
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Object;
-	using Object.Modifyler;
-	using Group.Manager.Modifyler;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Extension;
 	using Debug;
 
@@ -25,10 +23,10 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		[SMShowLine] bool _isLastFinalizing	{ get; set; }
 
 
-		public DestroyObjectSMGroup( SMObject target ) : base( target ) {}
+		public DestroyObjectSMGroup( SMObjectBody target ) : base( target ) {}
 
 
-		public override void Set( SMGroup owner ) {
+		public override void Set( SMGroupBody owner ) {
 			base.Set( owner );
 
 			_isLastFinalizing = _owner._isFinalizing;
@@ -59,10 +57,10 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
 			_owner._ranState = SMTaskRunState.Finalize;
-			SMGroupBody.DisposeAll( _owner );
+			_owner.DisposeAllObjects();
 			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
 
-			_owner._groups._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
+			_owner._managerBody._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
 		}
 
 
@@ -73,12 +71,12 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
-			SMObjectBody.DisposeAll( _target );
+			_target.DisposeAllChildren();
 			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
 
 			GetAllLowers().ForEach( o => _modifyler.Unregister( o ) );
-			SMObjectBody.Unlink( _target );
-			SMGroupBody.SetAllData( _owner );
+			_target.Unlink();
+			_owner.SetAllData();
 		}
 	}
 }

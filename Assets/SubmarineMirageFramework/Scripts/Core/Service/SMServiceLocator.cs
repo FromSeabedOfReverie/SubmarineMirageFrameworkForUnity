@@ -11,7 +11,7 @@ namespace SubmarineMirage.Service {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Task;
-	using Task.Behaviour;
+	using Task.Base;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -55,7 +55,7 @@ namespace SubmarineMirage.Service {
 			if ( instance == null )	{ instance = Create( type ); }
 
 			switch ( instance ) {
-				case SMMonoBehaviour b:
+				case ISMBehaviour b:
 					if ( b._lifeSpan != SMTaskLifeSpan.Forever ) {
 						throw new InvalidOperationException(
 							$"{SMTaskLifeSpan.Forever}でない : {nameof( b._lifeSpan )}" );
@@ -77,16 +77,15 @@ namespace SubmarineMirage.Service {
 
 
 		static ISMService Create( Type type ) {
-			if ( type.IsInheritance( typeof( SMMonoBehaviour ) ) ) {
-				var o = SMObjectSMUtility.Create( type );
-				return (ISMService)o._behaviourBody;
+			if ( type.IsInheritance( typeof( ISMBehaviour ) ) ) {
+				return (ISMService)SMBehaviourBody.Generate( type );
 
 			} else if ( type.IsInheritance( typeof( MonoBehaviourSMExtension ) ) ) {
 				var go = new GameObject( type.GetAboutName() );
 				return (ISMService)go.AddComponent( type );
 
 			} else {
-				return (ISMService)type.Create();
+				return type.Create<ISMService>();
 			}
 		}
 
@@ -101,6 +100,7 @@ namespace SubmarineMirage.Service {
 			if ( isDispose ) {
 				var instance = s_container.GetOrDefault( type );
 				instance?.Dispose();
+// TODO : ISMBehaviourの場合、リンク解除、GameObject破棄等を行う
 			}
 			s_container.Remove( type );
 		}
@@ -112,7 +112,7 @@ namespace SubmarineMirage.Service {
 			return (T)s_container.GetOrDefault( typeof( T ) );
 		}
 
-		public static async UniTask<T> WaitResolve<T>( SMTaskCanceler canceler ) where T : class, ISMService {
+		public static async UniTask<T> WaitResolve<T>( SMAsyncCanceler canceler ) where T : class, ISMService {
 			if ( s_isDisposed )	{ return null; }
 
 			var type = typeof( T );

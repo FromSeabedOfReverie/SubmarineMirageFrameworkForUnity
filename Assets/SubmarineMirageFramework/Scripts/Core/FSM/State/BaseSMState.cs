@@ -7,7 +7,7 @@
 namespace SubmarineMirage.FSM.State.Base {
 	using SubmarineMirage.Base;
 	using MultiEvent;
-	using Task;
+	using Utility;
 	using Debug;
 
 
@@ -34,8 +34,8 @@ namespace SubmarineMirage.FSM.State.Base {
 		[SMHide] public SMMultiAsyncEvent _updateAsyncEvent	=> _body._updateAsyncEvent;
 		[SMHide] public SMMultiAsyncEvent _exitEvent		=> _body._exitEvent;
 
-		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDisableAndExit	{ get; }
-		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }
+		[SMHide] public abstract SMAsyncCanceler _asyncCancelerOnDisableAndExit	{ get; }
+		[SMHide] public abstract SMAsyncCanceler _asyncCancelerOnDispose	{ get; }
 
 		public BaseSMStateBody _body	{ get; private set; }
 

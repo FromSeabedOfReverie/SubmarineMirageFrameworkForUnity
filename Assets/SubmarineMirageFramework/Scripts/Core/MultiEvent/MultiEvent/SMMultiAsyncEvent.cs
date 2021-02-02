@@ -8,7 +8,6 @@ namespace SubmarineMirage.MultiEvent {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using Task;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -17,10 +16,10 @@ namespace SubmarineMirage.MultiEvent {
 	// TODO : コメント追加、整頓
 
 
-	public class SMMultiAsyncEvent : BaseSMMultiEvent< Func<SMTaskCanceler, UniTask> > {
+	public class SMMultiAsyncEvent : BaseSMMultiEvent< Func<SMAsyncCanceler, UniTask> > {
 		static readonly string EVENT_KEY = $"{nameof( SMMultiAsyncEvent )}.{nameof( Run )}";
 		string _eventKey	{ get; set; }
-		[SMHide] SMTaskCanceler _canceler	{ get; set; }
+		[SMHide] SMAsyncCanceler _canceler	{ get; set; }
 		[SMHide] Func<bool, bool> _isThrowCancelEvent	{ get; set; }
 		[SMShowLine] public bool _isRunning	{ get; private set; }
 
@@ -38,10 +37,10 @@ namespace SubmarineMirage.MultiEvent {
 			base.Dispose();
 		}
 
-		public override void OnRemove( Func<SMTaskCanceler, UniTask> function ) {}
+		public override void OnRemove( Func<SMAsyncCanceler, UniTask> function ) {}
 
 
-		public async UniTask Run( SMTaskCanceler canceler ) {
+		public async UniTask Run( SMAsyncCanceler canceler ) {
 			CheckDisposeError();
 
 			if ( _isRunning ) {

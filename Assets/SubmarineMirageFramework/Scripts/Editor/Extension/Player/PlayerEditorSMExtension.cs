@@ -7,7 +7,6 @@
 namespace SubmarineMirage.EditorExtension {
 	using UnityEngine;
 	using UnityEditor;
-	using Task;
 	using Utility;
 
 
@@ -65,7 +64,7 @@ namespace SubmarineMirage.EditorExtension {
 			} else {
 				UTask.Void( async () => {
 					SubmarineMirageFramework.Shutdown();
-					using ( var canceler = new SMTaskCanceler() ) {
+					using ( var canceler = new SMAsyncCanceler() ) {
 						await UTask.DelayFrame( canceler, 2 );
 					}
 					EditorApplication.isPlaying = false;

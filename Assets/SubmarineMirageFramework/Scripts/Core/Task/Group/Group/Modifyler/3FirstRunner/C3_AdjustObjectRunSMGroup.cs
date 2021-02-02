@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Behaviour;
-	using Object;
-	using Object.Modifyler;
-	using Group.Manager.Modifyler;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Debug;
 
 
@@ -23,7 +21,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
 
 
-		public AdjustObjectRunSMGroup( SMObject target ) : base( target ) {
+		public AdjustObjectRunSMGroup( SMObjectBody target ) : base( target ) {
 			if ( !_target._isGameObject ) {
 				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}未所持の為、親合致不可 :\n{_target}" );
 			}
@@ -62,7 +60,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new FinalizeSMObject( t ) );
 				}
-				SMObjectBody.DisposeAll( _target );
+				_target.DisposeAllChildren();
 			}
 		}
 
@@ -105,7 +103,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 		async UniTask RunActiveToOwner() {
 			// 全階層で「有効」の場合、実行
-			if ( SMObjectBody.IsActiveInHierarchy( _target ) ) {
+			if ( _target.IsActiveInHierarchy() ) {
 				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new EnableSMObject( t ) );
 				}

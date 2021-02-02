@@ -11,6 +11,7 @@ namespace SubmarineMirage.Task {
 	using MultiEvent;
 	using Task.Base;
 	using Extension;
+	using Utility;
 	using Debug;
 	using Debug.ToString;
 
@@ -43,8 +44,8 @@ namespace SubmarineMirage.Task {
 		[SMHide] public SMMultiSubject _disableEvent			=> _body._disableEvent;
 		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 
 		protected override void Awake() {
@@ -66,9 +67,19 @@ namespace SubmarineMirage.Task {
 
 
 
-		public void DestroyObject() => _object.Destroy();
+		public static T Generate<T>() where T : ISMBehaviour
+			=> SMBehaviourBody.Generate<T>();
 
-		public void ChangeActiveObject( bool isActive ) => _object.ChangeActive( isActive );
+		public static ISMBehaviour Generate( Type type )
+			=> SMBehaviourBody.Generate( type );
+
+
+
+		public void DestroyObject()
+			=> _object.Destroy();
+
+		public void ChangeActiveObject( bool isActive )
+			=> _object.ChangeActive( isActive );
 
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
 			=> _object.ChangeParent( parent, isWorldPositionStays );

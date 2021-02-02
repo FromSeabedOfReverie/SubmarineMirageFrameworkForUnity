@@ -12,8 +12,8 @@ namespace SubmarineMirage.Task {
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Base;
 	using Task.Base;
-	using Task.Group.Modifyler;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -25,13 +25,14 @@ namespace SubmarineMirage.Task {
 	public class SMObject : SMStandardBase {
 		[SMShowLine] public SMObjectBody _body	{ get; private set; }
 
-		[SMHide] public bool _isGameObject	=> _body._isGameObject;
-		public SMTaskCanceler _asyncCanceler => _body._asyncCanceler;
+		public SMAsyncCanceler _asyncCanceler => _body._asyncCanceler;
 
 
 
-		public SMObject( GameObject gameObject, IEnumerable<ISMBehaviour> behaviours, SMObject parent ) {
-			_body = new SMObjectBody( this, gameObject, behaviours, parent );
+		public SMObject( SMGroupBody groupBody, SMObjectBody parentBody, GameObject gameObject,
+							IEnumerable<ISMBehaviour> behaviours
+		) {
+			_body = new SMObjectBody( this, groupBody, parentBody, gameObject, behaviours );
 
 			_disposables.AddLast( () => {
 				_body.Dispose();
@@ -42,27 +43,35 @@ namespace SubmarineMirage.Task {
 
 
 
-		public void Destroy()
-			=> _body._groupBody._modifyler.Register( new DestroyObjectSMGroup( this ) );
-
-		public void ChangeActive( bool isActive ) {
-			if ( isActive )	{ _body._groupBody._modifyler.Register( new EnableObjectSMGroup( this ) ); }
-			else			{ _body._groupBody._modifyler.Register( new DisableObjectSMGroup( this ) ); }
+		public static SMObject Instantiate( GameObject original, Vector3? position = null,
+											Quaternion? rotation = null
+		) {
+			var go = (
+				position.HasValue	? original.Instantiate( position.Value, rotation.Value )
+									: original.Instantiate()
+			);
+			var bs = go.GetComponents<SMMonoBehaviour>();
+			var group = new SMGroup( go, bs );
+			return group._body._objectBody._object;
 		}
 
+
+
+		public void Destroy()
+			=> _body.Destroy();
+
+		public void ChangeActive( bool isActive )
+			=> _body.ChangeActive( isActive );
+
 		public void ChangeParent( Transform parent, bool isWorldPositionStays = true )
-			=> _body._groupBody._modifyler.Register(
-				new SendChangeParentObjectSMGroup( this, parent, isWorldPositionStays ) );
+			=> _body.ChangeParent( parent, isWorldPositionStays );
 
 
 		public T AddBehaviour<T>() where T : SMMonoBehaviour
-			=> (T)AddBehaviour( typeof( T ) );
+			=> _body.AddBehaviour<T>();
 
-		public SMMonoBehaviour AddBehaviour( Type type ) {
-			var data = new AddBehaviourSMGroup( this, type );
-			_body._groupBody._modifyler.Register( data );
-			return data._behaviour;
-		}
+		public SMMonoBehaviour AddBehaviour( Type type )
+			=> _body.AddBehaviour( type );
 
 
 

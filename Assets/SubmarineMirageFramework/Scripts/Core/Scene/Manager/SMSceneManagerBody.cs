@@ -14,8 +14,8 @@ namespace SubmarineMirage.Scene {
 	using Base;
 	using Service;
 	using MultiEvent;
-	using Task;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -42,7 +42,7 @@ namespace SubmarineMirage.Scene {
 #if DEVELOP
 		[SMHide] public readonly SMMultiSubject _onGUIEvent = new SMMultiSubject();
 #endif
-		[SMHide] public readonly SMTaskCanceler _asyncCancelerOnDispose	= new SMTaskCanceler();
+		[SMHide] public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
 
 		[SMHide] public SMSceneManager _owner	{ get; private set; }
 		public SMSceneFSM _fsm	{ get; private set; }
@@ -82,7 +82,7 @@ namespace SubmarineMirage.Scene {
 			var fsms = setting._fsmSceneTypes.ToDictionary(
 				pair => pair.Key,
 				pair => {
-					var scenes = pair.Value.Select( t => (SMScene)t.Create() );
+					var scenes = pair.Value.Select( t => t.Create<SMScene>() );
 					switch ( pair.Key ) {
 						case SMSceneType.Forever:
 							return new SMSceneInternalFSM( scenes, typeof( ForeverSMScene ) );
@@ -98,7 +98,7 @@ namespace SubmarineMirage.Scene {
 				}
 			);
 			if ( !setting._chunkSceneTypes.IsNullOrEmpty() ) {
-				var scenes = setting._chunkSceneTypes.Select( t => (SMScene)t.Create() );
+				var scenes = setting._chunkSceneTypes.Select( t => t.Create<SMScene>() );
 				fsms[SMSceneType.FieldChunk1]
 					= new SMSceneInternalFSM( scenes, typeof( FieldChunkSMScene ), false );
 				fsms[SMSceneType.FieldChunk2]

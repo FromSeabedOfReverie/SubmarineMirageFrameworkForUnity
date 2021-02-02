@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Task.Base {
 	using SubmarineMirage.Base;
 	using MultiEvent;
+	using Utility;
 
 
 	// TODO : コメント追加、整頓
@@ -33,8 +34,8 @@ namespace SubmarineMirage.Task.Base {
 		SMMultiSubject _disableEvent			{ get; }
 		SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		SMTaskCanceler _asyncCancelerOnDisable	{ get; }
-		SMTaskCanceler _asyncCancelerOnDispose	{ get; }
+		SMAsyncCanceler _asyncCancelerOnDisable	{ get; }
+		SMAsyncCanceler _asyncCancelerOnDispose	{ get; }
 
 		void Create();
 		void DestroyObject();

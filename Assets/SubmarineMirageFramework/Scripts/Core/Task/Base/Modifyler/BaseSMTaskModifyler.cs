@@ -31,7 +31,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		protected TOwner _owner	{ get; private set; }
 		protected readonly LinkedList<TData> _data = new LinkedList<TData>();
 		bool _isRunning	{ get; set; }
-		protected abstract SMTaskCanceler _asyncCanceler	{ get; }
+		protected abstract SMAsyncCanceler _asyncCanceler	{ get; }
 		ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
 
 

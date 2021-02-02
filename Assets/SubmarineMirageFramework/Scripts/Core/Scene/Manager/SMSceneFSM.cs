@@ -10,7 +10,7 @@ namespace SubmarineMirage.Scene {
 	using System.Collections.Generic;
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
-	using Task.Behaviour;
+	using Task.Base;
 	using FSM;
 	using Debug;
 
@@ -67,12 +67,10 @@ namespace SubmarineMirage.Scene {
 
 
 		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
-			=> GetBehaviours<T>( sceneType )
-				.FirstOrDefault();
+			=> (T)GetBehaviour( typeof( T ), sceneType );
 
 		public ISMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
-			=> GetBehaviours( type, sceneType )
-				.FirstOrDefault();
+			=> GetBehaviours( type, sceneType ).FirstOrDefault();
 
 		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
 			=> GetBehaviours( typeof( T ), sceneType )

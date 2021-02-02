@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
 	using UnityEngine;
+	using Service;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲーム物の便利クラス
@@ -28,7 +29,8 @@ namespace SubmarineMirage.Utility {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public static T FindComponentWithTag<T>( SMTagManager.Name tag ) where T : Component {
-			var s = SMTagManager.s_instance.Get( tag );
+			var tagManager = SMServiceLocator.Resolve<SMTagManager>();
+			var s = tagManager.Get( tag );
 			var go = GameObject.FindWithTag( s );
 			return go != null ? go.GetComponent<T>() : null;
 		}

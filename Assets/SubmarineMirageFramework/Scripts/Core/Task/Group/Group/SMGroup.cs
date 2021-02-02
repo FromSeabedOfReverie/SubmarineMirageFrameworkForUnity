@@ -5,6 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task {
+	using System.Collections.Generic;
+	using UnityEngine;
 	using SubmarineMirage.Base;
 	using Task.Base;
 	using Debug;
@@ -20,9 +22,17 @@ namespace SubmarineMirage.Task {
 
 
 
-		public SMGroup( SMObject top ) {
-			_body = new SMGroupBody( this, top );
+		public SMGroup( GameObject gameObject, IEnumerable<ISMBehaviour> behaviours ) {
+			_body = new SMGroupBody( this, gameObject, behaviours );
+			SMGroupSub();
+		}
 
+		public SMGroup( SMObjectBody objectBody ) {
+			_body = new SMGroupBody( this, objectBody );
+			SMGroupSub();
+		}
+
+		void SMGroupSub() {
 			_disposables.AddLast( () => {
 				_body.Dispose();
 			} );

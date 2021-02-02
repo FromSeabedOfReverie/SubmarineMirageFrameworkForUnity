@@ -9,8 +9,8 @@ namespace SubmarineMirage.TestBase {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Base;
-	using Task;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -20,8 +20,8 @@ namespace SubmarineMirage.TestBase {
 	public abstract class SMRawTest : BaseSMTest, ISMRawBase {
 		[SMHide] public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
 		public bool _isDispose => _disposables.IsDisposed;
-		[SMHide] protected Func<SMTaskCanceler, UniTask> _createEvent	{ get; set; }
-		[SMHide] protected Func<SMTaskCanceler, UniTask> _initializeEvent	{ get; set; }
+		[SMHide] protected Func<SMAsyncCanceler, UniTask> _createEvent	{ get; set; }
+		[SMHide] protected Func<SMAsyncCanceler, UniTask> _initializeEvent	{ get; set; }
 		[SMHide] protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
 
 

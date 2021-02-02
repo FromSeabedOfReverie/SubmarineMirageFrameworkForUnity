@@ -8,7 +8,6 @@ namespace SubmarineMirage.TestBase.Test {
 	using System.Collections;
 	using UnityEngine;
 	using Base;
-	using Task;
 	using Utility;
 	using Debug;
 
@@ -18,7 +17,7 @@ namespace SubmarineMirage.TestBase.Test {
 
 	public class TestSMTestBody : SMStandardBase {
 		BaseSMTest _owner	{ get; set; }
-		SMTaskCanceler _asyncCanceler => _owner._asyncCanceler;
+		SMAsyncCanceler _asyncCanceler => _owner._asyncCanceler;
 
 
 		public TestSMTestBody( BaseSMTest owner )

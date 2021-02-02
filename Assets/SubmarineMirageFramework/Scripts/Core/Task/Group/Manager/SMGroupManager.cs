@@ -14,7 +14,6 @@ namespace SubmarineMirage.Task {
 	using SubmarineMirage.Base;
 	using Task.Base;
 	using Scene;
-	using Extension;
 	using Debug;
 
 
@@ -51,7 +50,7 @@ namespace SubmarineMirage.Task {
 				.Select( b => (T)b );
 
 		public IEnumerable<ISMBehaviour> GetBehaviours( Type type ) {
-			var currents = new Queue<SMObjectBody>( _body.GetAllTops() );
+			var currents = new Queue<SMObjectBody>( _body.GetAllTopObjects() );
 			while ( !currents.IsEmpty() ) {
 				var o = currents.Dequeue();
 				foreach ( var b in o._object.GetBehaviours( type ) ) {

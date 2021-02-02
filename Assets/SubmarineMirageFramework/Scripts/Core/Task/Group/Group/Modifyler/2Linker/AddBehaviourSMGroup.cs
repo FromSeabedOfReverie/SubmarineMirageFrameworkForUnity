@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestGroupModifyler
-namespace SubmarineMirage.Task.Group.Modifyler {
+namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Behaviour;
-	using Behaviour.Modifyler;
-	using Object;
+	using Task.Base;
+	using Task.Modifyler.Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -25,7 +23,7 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 
 
 
-		public AddBehaviourSMGroup( SMObject target, Type type ) : base( target ) {
+		public AddBehaviourSMGroup( SMObjectBody target, Type type ) : base( target ) {
 			if ( !_target._isGameObject ) {
 				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_target}" );
 			}
@@ -49,10 +47,10 @@ namespace SubmarineMirage.Task.Group.Modifyler {
 				return;
 			}
 
-			SMBehaviourApplyer.Link( _target, _behaviour );
-			SMGroupBody.SetAllData( _owner );
+			_target._behaviourBody.Link( _behaviour._body );
+			_owner.SetAllData();
 
-			SMBehaviourApplyer.RegisterRunEventToOwner( _target, _behaviour );
+			_behaviour._body.RegisterRunEventToOwner();
 
 			await UTask.DontWait();
 		}

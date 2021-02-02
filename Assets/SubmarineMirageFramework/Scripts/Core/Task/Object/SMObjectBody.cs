@@ -5,12 +5,14 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Base {
+	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
 	using Task.Modifyler.Base;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -34,21 +36,21 @@ namespace SubmarineMirage.Task.Base {
 		[SMHide] public bool _isGameObject	=> _gameObject != null;
 		public bool _isDisabling	{ get; set; }
 
-		public readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
+		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
 
 
-		public SMObjectBody( SMObject smObject, GameObject gameObject, IEnumerable<ISMBehaviour> behaviours,
-								SMObject parent
+		public SMObjectBody( SMObject smObject, SMGroupBody groupBody, SMObjectBody parentBody,
+								GameObject gameObject, IEnumerable<ISMBehaviour> behaviours
 		) {
 			_modifyler = new SMObjectModifyler( this );
 			_object = smObject;
+			_groupBody = groupBody;
 			_gameObject = gameObject;
 
+			SetupParent( parentBody );
 			SetupBehaviours( behaviours );
-			SetupParent( parent );
 			SetupChildren();
-			SetupTop();
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
@@ -56,6 +58,29 @@ namespace SubmarineMirage.Task.Base {
 
 				_asyncCanceler.Dispose();
 			} );
+		}
+
+		public override void Dispose() => base.Dispose();
+
+		public void DisposeAllChildren() {
+			var os = GetAllChildren()
+				.Reverse()
+				.ToArray();
+			SMGroupManagerBody.DISPOSE_TASK_TYPES.ForEach( t => {
+				os.ForEach( o =>
+					o._behaviourBody.DisposeBrothers( t )
+				);
+			} );
+			os.ForEach( o => o._object.Dispose() );
+		}
+
+
+
+		void SetupParent( SMObjectBody parentBody ) {
+			if ( !_isGameObject )		{ return; }
+			if ( parentBody == null )	{ return; }
+
+			parentBody.LinkChild( this );
 		}
 
 		void SetupBehaviours( IEnumerable<ISMBehaviour> behaviours ) {
@@ -76,13 +101,6 @@ namespace SubmarineMirage.Task.Base {
 			} );
 		}
 
-		void SetupParent( SMObject parent ) {
-			if ( !_isGameObject )	{ return; }
-			if ( parent == null )	{ return; }
-
-			parent._body.LinkChild( this );
-		}
-
 		void SetupChildren() {
 			if ( !_isGameObject )	{ return; }
 
@@ -92,35 +110,12 @@ namespace SubmarineMirage.Task.Base {
 				foreach ( Transform child in currents.Dequeue() ) {
 					var bs = child.GetComponents<SMMonoBehaviour>();
 					if ( !bs.IsEmpty() ) {
-						new SMObject( child.gameObject, bs, _object );
+						new SMObject( _groupBody, this, child.gameObject, bs );
 					} else {
 						currents.Enqueue( child );
 					}
 				}
 			}
-		}
-
-		void SetupTop() {
-			if ( _parent != null )	{ return; }
-
-			var g = new SMGroup( _object );
-			_groupBody = g._body;
-		}
-
-
-
-		public override void Dispose() => base.Dispose();
-
-		public void DisposeAllChildren() {
-			var os = GetAllChildren()
-				.Reverse()
-				.ToArray();
-			SMGroupManagerBody.DISPOSE_TASK_TYPES.ForEach( t => {
-				os.ForEach( o =>
-					o._behaviourBody.DisposeBrothers( t )
-				);
-			} );
-			os.ForEach( o => o._object.Dispose() );
 		}
 
 
@@ -210,6 +205,24 @@ namespace SubmarineMirage.Task.Base {
 				_ranState = SMTaskRunState.LateUpdate;
 			}
 		}
+
+
+
+		public void Destroy()
+			=> _groupBody.DestroyObject( this );
+
+		public void ChangeActive( bool isActive )
+			=> _groupBody.ChangeActiveObject( this, isActive );
+
+		public void ChangeParent( Transform parent, bool isWorldPositionStays )
+			=> _groupBody.ChangeParentObject( this, parent, isWorldPositionStays );
+
+
+		public T AddBehaviour<T>() where T : SMMonoBehaviour
+			=> _groupBody.AddBehaviour<T>( this );
+
+		public SMMonoBehaviour AddBehaviour( Type type )
+			=> _groupBody.AddBehaviour( this, type );
 
 
 

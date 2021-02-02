@@ -14,7 +14,6 @@ namespace SubmarineMirage.TestBase {
 	using Cysharp.Threading.Tasks;
 	using Base;
 	using Service;
-	using Task;
 	using Utility;
 	using Debug;
 	using EditorExtension;
@@ -29,7 +28,7 @@ namespace SubmarineMirage.TestBase {
 	public abstract class BaseSMTest : BaseSM, IBaseSMTest, IPrebuildSetup {
 		protected string _testName => TestContext.CurrentContext.Test.Name;
 		protected bool _isInitialized	{ get; set; }
-		[SMHide] public readonly SMTaskCanceler _asyncCanceler = new SMTaskCanceler();
+		[SMHide] public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
 
 		// 実行前の呼び出し

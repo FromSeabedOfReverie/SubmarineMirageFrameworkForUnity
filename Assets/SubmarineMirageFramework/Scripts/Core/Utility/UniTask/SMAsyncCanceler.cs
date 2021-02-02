@@ -4,8 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestTaskCanceler
-namespace SubmarineMirage.Task {
+//#define TestAsyncCanceler
+namespace SubmarineMirage.Utility {
 	using System.Linq;
 	using System.Threading;
 	using System.Collections.Generic;
@@ -21,17 +21,17 @@ namespace SubmarineMirage.Task {
 
 
 
-	public class SMTaskCanceler : SMStandardBase {
+	public class SMAsyncCanceler : SMStandardBase {
 		CancellationTokenSource _canceler = new CancellationTokenSource();
 		public CancellationToken _lastCanceledToken	{ get; private set; }
 		public SMMultiSubject _cancelEvent	{ get; private set; } = new SMMultiSubject();
 		public bool _isCancel	=> _isDispose || _canceler.IsCancellationRequested;
 
-		SMTaskCanceler _parent;
-		public readonly List<SMTaskCanceler> _children = new List<SMTaskCanceler>();
+		SMAsyncCanceler _parent;
+		public readonly LinkedList<SMAsyncCanceler> _children = new LinkedList<SMAsyncCanceler>();
 
 
-		public SMTaskCanceler() {
+		public SMAsyncCanceler() {
 			_disposables.AddLast( () => {
 				CancelBody( false );
 				_canceler.Dispose();
@@ -44,32 +44,32 @@ namespace SubmarineMirage.Task {
 					_children.Clear();
 				}
 			} );
-#if TestTaskCanceler
-			_disposables.AddLast( () => SMLog.Debug( $"{nameof( SMTaskCanceler )}.{nameof( Dispose )}\n{this}" ) );
+#if TestAsyncCanceler
+			_disposables.AddLast( () => SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( Dispose )}\n{this}" ) );
 #endif
 		}
 
 		void Unlink() {
 			if ( _parent != null ) {
-				_parent._children.Remove( c => c == this );
+				_parent._children.Remove( this );
 				_parent = null;
 			}
 		}
 
 
-		public void SetParent( SMTaskCanceler parent ) {
+		public void SetParent( SMAsyncCanceler parent ) {
 			Unlink();
 			_parent = parent;
-			_parent._children.Add( this );
+			_parent._children.AddLast( this );
 		}
 
-		public SMTaskCanceler CreateChild() {
-			var child = new SMTaskCanceler();
+		public SMAsyncCanceler CreateChild() {
+			var child = new SMAsyncCanceler();
 			child._parent = this;
-			_children.Add( child );
-#if TestTaskCanceler
+			_children.AddLast( child );
+#if TestAsyncCanceler
 			SMLog.Debug( string.Join( "\n",
-				$"{nameof( SMTaskCanceler )}.{nameof( CreateChild )}",
+				$"{nameof( SMAsyncCanceler )}.{nameof( CreateChild )}",
 				$"this : {this}",
 				$"{nameof( child )} : {child}"
 			) );
@@ -79,8 +79,8 @@ namespace SubmarineMirage.Task {
 
 
 		void CancelBody( bool isReCreate = true ) {
-#if TestTaskCanceler
-			SMLog.Debug( $"{nameof( SMTaskCanceler )}.{nameof( CancelBody )}\n{this}" );
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( CancelBody )}\n{this}" );
 #endif
 			if ( _canceler == null )	{ return; }
 			_canceler.Cancel();
@@ -89,12 +89,12 @@ namespace SubmarineMirage.Task {
 				_canceler.Dispose();
 				_canceler = new CancellationTokenSource();
 			}
-#if TestTaskCanceler
-			SMLog.Debug( $"{nameof( SMTaskCanceler )}.{nameof( _cancelEvent.Run )}\n{this}" );
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( _cancelEvent.Run )}\n{this}" );
 #endif
 			_cancelEvent.Run();
-#if TestTaskCanceler
-			SMLog.Debug( $"{nameof( SMTaskCanceler )}.{nameof( _children )}.{nameof( CancelBody )}\n{this}" );
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( _children )}.{nameof( CancelBody )}\n{this}" );
 #endif
 			_children.ForEach( c => c.CancelBody() );
 		}
@@ -102,8 +102,8 @@ namespace SubmarineMirage.Task {
 		public void Cancel() => CancelBody();
 
 
-		IEnumerable<SMTaskCanceler> GetChildren() {
-			var currents = new Queue<SMTaskCanceler>( new [] {this} );
+		IEnumerable<SMAsyncCanceler> GetChildren() {
+			var currents = new Queue<SMAsyncCanceler>( new [] {this} );
 			while ( !currents.IsEmpty() ) {
 				var canceler = currents.Dequeue();
 				yield return canceler;
@@ -112,7 +112,7 @@ namespace SubmarineMirage.Task {
 		}
 
 		public bool IsCanceledBy( CancellationToken token ) {
-#if TestTaskCanceler
+#if TestAsyncCanceler
 			SMLog.Debug( string.Join( "\n",
 				$"{nameof( token )} : {token.GetHashCode()}",
 				$"{nameof( GetChildren )} last : "
@@ -127,7 +127,7 @@ namespace SubmarineMirage.Task {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CancellationToken ToToken() {
 			var token = _canceler.Token;
-#if TestTaskCanceler
+#if TestAsyncCanceler
 			SMLog.Debug( $"{nameof( token )} : {token.GetHashCode()}" );
 #endif
 			return token;

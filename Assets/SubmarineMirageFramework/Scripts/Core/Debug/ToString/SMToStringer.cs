@@ -67,7 +67,7 @@ namespace SubmarineMirage.Debug.ToString {
 					var parentI = StringSMUtility.IndentSpace( indent );
 					indent++;
 					var memberI = StringSMUtility.IndentSpace( indent );
-					var membersS = string.Join( ",\n", enumerable.Select( o =>
+					var membersS = string.Join( ",\n", enumerable.SelectRaw( o =>
 						$"{memberI}{DefaultValue( o, indent, isUseInternalLineString )}"
 					) );
 					return $"{{\n{membersS}\n{parentI}}}";
@@ -100,7 +100,7 @@ namespace SubmarineMirage.Debug.ToString {
 					return type.GetAboutName();
 
 				case IEnumerable enumerable:
-					return enumerable.Count().ToString();
+					return enumerable.CountRaw().ToString();
 
 				default:
 					var t = value.GetType();

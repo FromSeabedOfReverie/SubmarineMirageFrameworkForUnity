@@ -12,9 +12,9 @@ namespace SubmarineMirage.FSM.Base {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using MultiEvent;
-	using Task;
 	using FSM.Modifyler;
 	using FSM.State.Base;
+	using Utility;
 	using Debug;
 
 
@@ -41,7 +41,7 @@ namespace SubmarineMirage.FSM.Base {
 		[SMHide] public override SMMultiSubject _disableEvent			=> _owner._disableEvent;
 		[SMHide] public override SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
-		[SMHide] public override SMTaskCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
+		[SMHide] public override SMAsyncCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
 
 		[SMHide] protected TOwner _owner	{ get; private set; }
 		[SMShowLine] public TState _state	{ get; set; }

@@ -9,8 +9,8 @@ namespace SubmarineMirage.FSM.Base {
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Base;
 	using MultiEvent;
-	using Task;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -35,8 +35,8 @@ namespace SubmarineMirage.FSM.Base {
 		[SMHide] public abstract SMMultiSubject _disableEvent			{ get; }
 		[SMHide] public abstract SMMultiAsyncEvent _finalizeEvent		{ get; }
 
-		[SMHide] public SMTaskCanceler _asyncCancelerOnDisableAndExit	=> _body._asyncCancelerOnDisableAndExit;
-		[SMHide] public abstract SMTaskCanceler _asyncCancelerOnDispose	{ get; }
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _body._asyncCancelerOnDisableAndExit;
+		[SMHide] public abstract SMAsyncCanceler _asyncCancelerOnDispose	{ get; }
 
 		public SMFSMBody _body	{ get; private set; }
 

@@ -177,14 +177,12 @@ namespace SubmarineMirage.Extension {
 		/// <summary>
 		/// ● インスタンス作成
 		/// </summary>
-		public static object Create( this Type self ) {
-			return Activator.CreateInstance( self );
-		}
+		public static object Create( this Type self )
+			=> Activator.CreateInstance( self );
 		/// <summary>
 		/// ● インスタンス作成（型指定）
 		/// </summary>
-		public static T Create<T>( this Type self ) {
-			return (T)Activator.CreateInstance( self );
-		}
+		public static T Create<T>( this Type self )
+			=> (T)Create( self );
 	}
 }

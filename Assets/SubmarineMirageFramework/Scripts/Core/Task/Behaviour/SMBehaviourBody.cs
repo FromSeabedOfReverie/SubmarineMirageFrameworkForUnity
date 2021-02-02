@@ -8,11 +8,13 @@ namespace SubmarineMirage.Task.Base {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
+	using UnityEngine;
 	using KoganeUnityLib;
 	using MultiEvent;
-	using Task.Modifyler.Base;
 	using Task.Modifyler;
+	using Task.Modifyler.Base;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -22,15 +24,14 @@ namespace SubmarineMirage.Task.Base {
 
 
 	public class SMBehaviourBody : BaseSMTaskModifylerOwner<SMBehaviourModifyler> {
-		public SMTaskType _type			=> _behaviour._type;
-		public SMTaskLifeSpan _lifeSpan	=> _behaviour._lifeSpan;
-
 		public ISMBehaviour _behaviour	{ get; private set; }
 		public SMObjectBody _objectBody	{ get; set; }
 
 		[SMShowLine] public SMBehaviourBody _previous	{ get; set; }
 		[SMShowLine] public SMBehaviourBody _next		{ get; set; }
 
+		public SMTaskType _type			=> _behaviour._type;
+		public SMTaskLifeSpan _lifeSpan	=> _behaviour._lifeSpan;
 		public bool _isRunInitialActive	{ get; set; }
 		public bool _isRunFinalize	{ get; set; }
 
@@ -43,18 +44,13 @@ namespace SubmarineMirage.Task.Base {
 		public readonly SMMultiSubject _disableEvent = new SMMultiSubject();
 		public readonly SMMultiAsyncEvent _finalizeEvent = new SMMultiAsyncEvent();
 
-		public readonly SMTaskCanceler _asyncCancelerOnDisable = new SMTaskCanceler();
-		public readonly SMTaskCanceler _asyncCancelerOnDispose = new SMTaskCanceler();
+		public readonly SMAsyncCanceler _asyncCancelerOnDisable = new SMAsyncCanceler();
+		public readonly SMAsyncCanceler _asyncCancelerOnDispose = new SMAsyncCanceler();
 
 
 		public SMBehaviourBody( ISMBehaviour behaviour ) {
 			_modifyler = new SMBehaviourModifyler( this );
 			_behaviour = behaviour;
-
-			if ( _behaviour is SMBehaviour ) {
-				var o = new SMObject( null, new ISMBehaviour[] { _behaviour }, null );
-				_objectBody = o._body;
-			}
 
 			_isRunInitialActive = _type != SMTaskType.DontWork && IsActiveInHierarchyAndMonoBehaviour();
 
@@ -87,11 +83,11 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-		public void Link( SMObjectBody objectBody ) {
-			var last = objectBody._behaviourBody.GetLast();
-			last._next = this;
-			_previous = last;
-			_objectBody = objectBody;
+		public void Link( SMBehaviourBody add ) {
+			var last = GetLast();
+			last._next = add;
+			add._previous = last;
+			add._objectBody = _objectBody;
 		}
 
 		public void Unlink() {
@@ -215,6 +211,29 @@ namespace SubmarineMirage.Task.Base {
 			_lateUpdateEvent.Run();
 
 			if ( _ranState == SMTaskRunState.Update )	{ _ranState = SMTaskRunState.LateUpdate; }
+		}
+
+
+
+		public static T Generate<T>() where T : ISMBehaviour
+			=> (T)Generate( typeof( T ) );
+
+		public static ISMBehaviour Generate( Type type ) {
+			if ( type.IsInheritance( typeof( SMBehaviour ) ) ) {
+				var b = type.Create<SMBehaviour>();
+				b.Setup();
+				return b;
+
+			} else if ( type.IsInheritance( typeof( SMMonoBehaviour ) ) ) {
+				var go = new GameObject( type.GetAboutName() );
+				var b = (ISMBehaviour)go.AddComponent( type );
+				new SMGroup( go, new ISMBehaviour[] { b } );
+				return b;
+
+			} else {
+				throw new InvalidOperationException(
+					$"{nameof( ISMBehaviour )}でない為、作成不可 : {type.GetAboutName()}" );
+			}
 		}
 
 
