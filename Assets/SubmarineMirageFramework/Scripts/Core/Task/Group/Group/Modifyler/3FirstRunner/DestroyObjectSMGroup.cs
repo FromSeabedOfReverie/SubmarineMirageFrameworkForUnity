@@ -9,6 +9,7 @@ namespace SubmarineMirage.Task.Modifyler {
 	using KoganeUnityLib;
 	using Task.Base;
 	using Task.Modifyler.Base;
+	using Scene;
 	using Extension;
 	using Debug;
 
@@ -76,7 +77,15 @@ namespace SubmarineMirage.Task.Modifyler {
 
 			GetAllLowers().ForEach( o => _modifyler.Unregister( o ) );
 			_target.Unlink();
-			_owner.SetAllData();
+
+			var iFSM = _owner._managerBody._scene._fsm;
+			var isForever = iFSM._fsmType == SMSceneType.Forever;
+			var mainManager = iFSM._fsm._mainFSM._scene?._groupManagerBody;
+			var manager = (
+				isForever || mainManager == null	? _owner._managerBody
+													: mainManager
+			);
+			_owner.SetManager( manager );
 		}
 	}
 }

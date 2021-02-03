@@ -26,14 +26,11 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		protected override void Cancel() {
 			_target.DisposeAllObjects();
-			_target._gameObject.Destroy();
+			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
 		}
 
 
 		public override async UniTask Run() {
-			if ( _target._isGameObject && _target._lifeSpan == SMTaskLifeSpan.Forever ) {
-				_owner._scene.MoveGroup( _target );
-			}
 			_owner.Link( _target );
 			_target.RegisterRunEventToOwner();
 

@@ -10,7 +10,6 @@ namespace SubmarineMirage.Task.Base {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
-	using Service;
 	using Task.Modifyler;
 	using Task.Modifyler.Base;
 	using Scene;
@@ -28,7 +27,6 @@ namespace SubmarineMirage.Task.Base {
 		public SMGroupManagerBody _managerBody	{ get; set; }
 		[SMShowLine] public SMObjectBody _objectBody	{ get; set; }
 
-		[SMHide] SMSceneManager _sceneManager	{ get; set; }
 		[SMHide] public GameObject _gameObject => _objectBody._gameObject;
 
 		[SMShowLine] public SMGroupBody _previous	{ get; set; }
@@ -41,25 +39,28 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-		public SMGroupBody( SMGroup group, GameObject gameObject, IEnumerable<ISMBehaviour> behaviours ) {
+		public SMGroupBody( SMGroup group, SMGroupManagerBody managerBody, GameObject gameObject,
+							IEnumerable<ISMBehaviour> behaviours
+		) {
 			SMGroupBodySub( group );
 
 			var smObject = new SMObject( this, null, gameObject, behaviours );
 			_objectBody = smObject._body;
-			SetAllData();
+
+			SetManager( managerBody );
 		}
 
-		public SMGroupBody( SMGroup group, SMObjectBody objectBody ) {
+		public SMGroupBody( SMGroup group, SMGroupManagerBody managerBody, SMObjectBody objectBody ) {
 			SMGroupBodySub( group );
 
 			_objectBody = objectBody;
-			SetAllData();
+
+			SetManager( managerBody );
 		}
 
 		void SMGroupBodySub( SMGroup group ) {
 			_modifyler = new SMGroupModifyler( this );
 			_group = group;
-			_sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
@@ -76,38 +77,44 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-		public void SetAllData() {
-			var lastManagerBody = _managerBody;
-			var allObjects = _objectBody.GetAllChildren();
-			var allBehaviours = allObjects.SelectMany( o => o._behaviourBody.GetBrothers() );
-
-			_lifeSpan = allBehaviours.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever ) ?
-				SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
-
-			if ( _lifeSpan == SMTaskLifeSpan.Forever ) {
-				_managerBody = _sceneManager._fsm._foreverScene._groupManagerBody;
-			} else if ( _isGameObject ) {
-				_managerBody = _sceneManager._fsm.GetScene( _gameObject.scene )._groupManagerBody;
-			} else if ( _sceneManager._fsm._mainFSM._scene != null ) {
-				_managerBody = _sceneManager._fsm._mainFSM._scene._groupManagerBody;
-			} else {
-				var mainFSM = _sceneManager._fsm._mainFSM;
-				_managerBody = mainFSM.GetState( mainFSM._startStateType )._groupManagerBody;
-			}
+		public void SetManager( SMGroupManagerBody newManagerBody ) {
 			// 親子変更等で、無理矢理、削除不能化した場合を考慮
-			if ( _managerBody._scene == _sceneManager._fsm._foreverScene ) {
-				_lifeSpan = SMTaskLifeSpan.Forever;
+			var iFSM = newManagerBody._scene._fsm;
+			var isForever = iFSM._fsmType == SMSceneType.Forever;
+			if ( !isForever ) {
+				isForever = _objectBody.GetAllChildren()
+					.SelectMany( o => o._behaviourBody.GetBrothers() )
+					.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever );
+				if ( isForever ) {
+					newManagerBody = iFSM._fsm._foreverScene._groupManagerBody;
+				}
 			}
+			_lifeSpan = isForever ? SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
 
-// TODO : 廃止
-			allObjects.ForEach( o => o._groupBody = this );
-
-			if ( lastManagerBody == null ) {
+			if ( _managerBody == null ) {
+				_managerBody = newManagerBody;
+				if ( _isGameObject )	{ _managerBody._scene.MoveGroup( this ); }
 				_managerBody._modifyler.Register( new RegisterGroupSMGroupManager( this ) );
-			} else if ( _managerBody != lastManagerBody ) {
+
+			} else if ( _managerBody != newManagerBody ) {
+				var lastManagerBody = _managerBody;
+				_managerBody = newManagerBody;
 				lastManagerBody._modifyler.Register( new SendReregisterGroupSMGroupManager( this ) );
 			}
 		}
+
+		public void SetAllData() {
+			var allObjects = _objectBody.GetAllChildren();
+// TODO : 廃止
+			allObjects.ForEach( o => o._groupBody = this );
+		}
+
+/*
+		public void SetAllObjectGroups( SMGroupBody groupBody ) {
+			_objectBody.GetAllChildren()
+				.ForEach( o => o._groupBody = groupBody );
+		}
+*/
 
 
 

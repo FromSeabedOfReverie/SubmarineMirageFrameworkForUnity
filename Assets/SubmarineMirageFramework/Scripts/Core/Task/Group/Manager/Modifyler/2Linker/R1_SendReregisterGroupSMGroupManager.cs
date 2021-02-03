@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
+	using System;
 	using Cysharp.Threading.Tasks;
 	using Task.Base;
 	using Task.Modifyler.Base;
@@ -21,15 +22,18 @@ namespace SubmarineMirage.Task.Modifyler {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 
 
-		public SendReregisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}
+		public SendReregisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {
+			if ( !_target._isGameObject ) {
+				throw new NotSupportedException( $"{nameof( SMBehaviour )}は、階層変更不可 :\n{_target}" );
+			}
+		}
 
 
 		public override async UniTask Run() {
 			if ( _owner._isFinalizing )	{ return; }
 
-			if ( _target._isGameObject ) {
-				_target._managerBody._scene.MoveGroup( _target );
-			}
+
+			_target._managerBody._scene.MoveGroup( _target );
 
 			_owner.Unlink( _target );
 			_target._managerBody._modifyler.Register( new ReceiveReregisterGroupSMGroupManager( _target ) );

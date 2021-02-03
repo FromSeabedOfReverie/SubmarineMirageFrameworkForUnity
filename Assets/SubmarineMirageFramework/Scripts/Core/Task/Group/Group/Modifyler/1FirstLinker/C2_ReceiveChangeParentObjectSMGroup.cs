@@ -6,9 +6,12 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using System;
+	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using KoganeUnityLib;
 	using Task.Base;
 	using Task.Modifyler.Base;
+	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -39,7 +42,15 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public override async UniTask Run() {
 			_parent.LinkChild( _target );
-			_owner.SetAllData();
+
+			var iFSM = _owner._managerBody._scene._fsm;
+			var isForever = iFSM._fsmType == SMSceneType.Forever;
+			var mainManager = iFSM._fsm._mainFSM._scene?._groupManagerBody;
+			var manager = (
+				!isForever || mainManager == null	? _owner._managerBody
+													: mainManager
+			);
+			_owner.SetManager( manager );
 
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
 

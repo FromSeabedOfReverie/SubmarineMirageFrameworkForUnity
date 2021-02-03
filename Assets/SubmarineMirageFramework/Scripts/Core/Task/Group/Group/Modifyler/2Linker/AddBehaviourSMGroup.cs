@@ -25,11 +25,11 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public AddBehaviourSMGroup( SMObjectBody target, Type type ) : base( target ) {
 			if ( !_target._isGameObject ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{_target}" );
+				throw new NotSupportedException( $"{nameof( SMBehaviour )}は、追加不可 :\n{_target}" );
 			}
 			_behaviour = (SMMonoBehaviour)_target._gameObject.AddComponent( type );
 			if ( _behaviour == null ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}で無い為、追加不可 :\n{type}" );
+				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}でない為、追加不可 :\n{type}" );
 			}
 		}
 
@@ -48,7 +48,10 @@ namespace SubmarineMirage.Task.Modifyler {
 			}
 
 			_target._behaviourBody.Link( _behaviour._body );
-			_owner.SetAllData();
+
+			if ( _behaviour._lifeSpan == SMTaskLifeSpan.Forever ) {
+				_owner.SetManager( _owner._managerBody._scene._fsm._fsm._foreverScene._groupManagerBody );
+			}
 
 			_behaviour._body.RegisterRunEventToOwner();
 

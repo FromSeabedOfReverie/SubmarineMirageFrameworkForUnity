@@ -22,13 +22,15 @@ namespace SubmarineMirage.Task {
 
 
 
-		public SMGroup( GameObject gameObject, IEnumerable<ISMBehaviour> behaviours ) {
-			_body = new SMGroupBody( this, gameObject, behaviours );
+		public SMGroup( SMGroupManagerBody managerBody, GameObject gameObject,
+						IEnumerable<ISMBehaviour> behaviours
+		) {
+			_body = new SMGroupBody( this, managerBody, gameObject, behaviours );
 			SMGroupSub();
 		}
 
-		public SMGroup( SMObjectBody objectBody ) {
-			_body = new SMGroupBody( this, objectBody );
+		public SMGroup( SMGroupManagerBody managerBody, SMObjectBody objectBody ) {
+			_body = new SMGroupBody( this, managerBody, objectBody );
 			SMGroupSub();
 		}
 
