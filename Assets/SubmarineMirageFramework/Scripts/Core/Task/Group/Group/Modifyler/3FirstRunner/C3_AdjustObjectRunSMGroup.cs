@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
-	using System;
 	using Cysharp.Threading.Tasks;
 	using Task.Base;
 	using Task.Modifyler.Base;
@@ -21,11 +20,7 @@ namespace SubmarineMirage.Task.Modifyler {
 		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
 
 
-		public AdjustObjectRunSMGroup( SMObjectBody target ) : base( target ) {
-			if ( !_target._isGameObject ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}未所持の為、親合致不可 :\n{_target}" );
-			}
-		}
+		public AdjustObjectRunSMGroup( SMObjectBody target ) : base( target ) {}
 
 
 		public override async UniTask Run() {

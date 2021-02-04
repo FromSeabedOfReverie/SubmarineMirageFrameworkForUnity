@@ -12,6 +12,7 @@ namespace SubmarineMirage.Task {
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Base;
 	using Task.Base;
+	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -30,7 +31,7 @@ namespace SubmarineMirage.Task {
 
 
 		public SMObject( SMGroupBody groupBody, SMObjectBody parentBody, GameObject gameObject,
-							IEnumerable<ISMBehaviour> behaviours
+							IEnumerable<SMBehaviour> behaviours
 		) {
 			_body = new SMObjectBody( this, groupBody, parentBody, gameObject, behaviours );
 
@@ -43,15 +44,15 @@ namespace SubmarineMirage.Task {
 
 
 
-		public static SMObject Instantiate( GameObject original, Vector3? position = null,
+		public static SMObject Instantiate( GameObject original, SMScene scene, Vector3? position = null,
 											Quaternion? rotation = null
 		) {
 			var go = (
 				position.HasValue	? original.Instantiate( position.Value, rotation.Value )
 									: original.Instantiate()
 			);
-			var bs = go.GetComponents<SMMonoBehaviour>();
-			var group = new SMGroup( go, bs );
+			var bs = go.GetComponents<SMBehaviour>();
+			var group = new SMGroup( scene._groupManagerBody, go, bs );
 			return group._body._objectBody._object;
 		}
 
@@ -67,53 +68,53 @@ namespace SubmarineMirage.Task {
 			=> _body.ChangeParent( parent, isWorldPositionStays );
 
 
-		public T AddBehaviour<T>() where T : SMMonoBehaviour
+		public T AddBehaviour<T>() where T : SMBehaviour
 			=> _body.AddBehaviour<T>();
 
-		public SMMonoBehaviour AddBehaviour( Type type )
+		public SMBehaviour AddBehaviour( Type type )
 			=> _body.AddBehaviour( type );
 
 
 
-		public T GetBehaviour<T>() where T : ISMBehaviour
-			=> _body._behaviourBody.GetBehaviour<T>();
+		public T GetBehaviour<T>() where T : SMBehaviour
+			=> _body._behaviourBody._behaviour.GetBehaviour<T>();
 
-		public ISMBehaviour GetBehaviour( Type type )
-			=> _body._behaviourBody.GetBehaviour( type );
+		public SMBehaviour GetBehaviour( Type type )
+			=> _body._behaviourBody._behaviour.GetBehaviour( type );
 
-		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
-			=> _body._behaviourBody.GetBehaviours<T>();
+		public IEnumerable<T> GetBehaviours<T>() where T : SMBehaviour
+			=> _body._behaviourBody._behaviour.GetBehaviours<T>();
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
-			=> _body._behaviourBody.GetBehaviours( type );
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type )
+			=> _body._behaviourBody._behaviour.GetBehaviours( type );
 
 
-		public T GetBehaviourInParent<T>() where T : ISMBehaviour
+		public T GetBehaviourInParent<T>() where T : SMBehaviour
 			=> (T)GetBehaviourInParent( typeof( T ) );
 
-		public ISMBehaviour GetBehaviourInParent( Type type )
+		public SMBehaviour GetBehaviourInParent( Type type )
 			=> GetBehavioursInParent( type ).FirstOrDefault();
 
-		public IEnumerable<T> GetBehavioursInParent<T>() where T : ISMBehaviour
+		public IEnumerable<T> GetBehavioursInParent<T>() where T : SMBehaviour
 			=> GetBehavioursInParent( typeof( T ) )
 				.Select( b => (T)b );
 
-		public IEnumerable<ISMBehaviour> GetBehavioursInParent( Type type )
+		public IEnumerable<SMBehaviour> GetBehavioursInParent( Type type )
 			=> _body.GetAllParents()
 				.SelectMany( o => o._object.GetBehaviours( type ) );
 
 
-		public T GetBehaviourInChildren<T>() where T : ISMBehaviour
+		public T GetBehaviourInChildren<T>() where T : SMBehaviour
 			=> (T)GetBehaviourInChildren( typeof( T ) );
 
-		public ISMBehaviour GetBehaviourInChildren( Type type )
+		public SMBehaviour GetBehaviourInChildren( Type type )
 			=> GetBehavioursInChildren( type ).FirstOrDefault();
 
-		public IEnumerable<T> GetBehavioursInChildren<T>() where T : ISMBehaviour
+		public IEnumerable<T> GetBehavioursInChildren<T>() where T : SMBehaviour
 			=> GetBehavioursInChildren( typeof( T ) )
 				.Select( b => (T)b );
 
-		public IEnumerable<ISMBehaviour> GetBehavioursInChildren( Type type )
+		public IEnumerable<SMBehaviour> GetBehavioursInChildren( Type type )
 			=> _body.GetAllChildren()
 				.SelectMany( o => o._object.GetBehaviours( type ) );
 	}

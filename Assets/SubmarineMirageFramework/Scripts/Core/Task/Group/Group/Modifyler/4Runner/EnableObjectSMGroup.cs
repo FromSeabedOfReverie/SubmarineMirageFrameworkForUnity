@@ -29,7 +29,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			if ( !_target.IsActiveInParentHierarchy() )	{ return; }
 
 
-			if ( _target._isGameObject )	{ _target._gameObject.SetActive( true ); }
+			_target._gameObject.SetActive( true );
 
 			foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new EnableSMObject( t ) );

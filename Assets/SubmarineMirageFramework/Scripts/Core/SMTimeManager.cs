@@ -25,7 +25,6 @@ namespace SubmarineMirage {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		public override SMTaskType _type => SMTaskType.FirstWork;
-		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 
 		/// <summary>許容可能な、1フレームの最大更新秒数（これ以上更新に時間が掛かったら、強制補正）</summary>
 		const float MAX_DELTA_TIME = 0.1f;

@@ -9,7 +9,6 @@ namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using Task.Base;
 	using Task.Modifyler.Base;
 	using Extension;
@@ -36,8 +35,11 @@ namespace SubmarineMirage.Task.Modifyler {
 			_parentTransform = parentTransform;
 			_isWorldPositionStays = isWorldPositionStays;
 
-			if ( !_target._isGameObject ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}未所持の為、親変更不可 :\n{_target}" );
+			if ( _parentTransform == null ) {
+				throw new InvalidOperationException( string.Join( "\n",
+					$"親解除は未対応 : {nameof( _parentTransform )} == null",
+					$"{nameof( ReleaseParentObjectSMGroup )}を使用する"
+				) );
 			}
 		}
 
@@ -46,104 +48,106 @@ namespace SubmarineMirage.Task.Modifyler {
 			if ( _owner._isFinalizing )	{ return; }
 
 
-			// ゲーム物の親を変更、タスクを取得
+			// ゲーム物の親を変更
 			_target._gameObject.transform.SetParent( _parentTransform, _isWorldPositionStays );
-			var parent = _target._gameObject.GetComponentInParentUntilOneHierarchy<SMMonoBehaviour>( true )
+			// 親タスクを取得
+			var newParent = _target._gameObject.GetComponentInParentUntilOneHierarchy<SMBehaviour>( true )
 				?._object._body;
+			ShowLog( newParent, true );
 
-			ShowLog( parent, true );
 
-			// 親が既に同じ場合
-			if ( _target._parent == parent ) {
-				// 両方共、親が存在する場合
+			// 過去親 == 新親の場合
+			if ( _target._parent == newParent ) {
+				// 過去親と新親が、存在する場合
 				if ( _target._parent != null ) {
 					ChangeTransformOnly();
-					ShowLog( parent, false );
+					ShowLog( newParent, false );
 					return;
-				// 両方共、親が存在しない場合
+				// 過去親と新親が、存在しない場合
 				} else {
 					ChangeTransformAndScene();
-					ShowLog( parent, false );
+					ShowLog( newParent, false );
 					return;
 				}
 			}
 			// トップになる場合
-			if ( parent == null ) {
+			if ( newParent == null ) {
 				ChangeToTop();	// null一致でない為、_targetは子である
-				ShowLog( parent, false );
+				ShowLog( newParent, false );
 				return;
 			}
 			// 同じグループ内で、変更の場合
-			if ( _owner == parent._groupBody ) {
-				ChangeParentOnly( parent );
-				ShowLog( parent, false );
+			if ( _owner == newParent._groupBody ) {
+				ChangeParentOnly( newParent );
+				ShowLog( newParent, false );
 				return;
 			}
 			// トップから子に、変更の場合
 			if ( _owner.IsTop( _target ) ) {
-				ChangeGroupFromTop( parent );
-				ShowLog( parent, false );
+				ChangeGroupFromTop( newParent );
+				ShowLog( newParent, false );
 				return;
 			}
 
 			// 子から子に、グループ変更
-			ChangeGroupFromChild( parent );
-			ShowLog( parent, false );
+			ChangeGroupFromChild( newParent );
+			ShowLog( newParent, false );
 
 			await UTask.DontWait();
 		}
 
 
 		void ChangeTransformOnly() {
-			// 元々子だった、新親は同じ
-			// 同じ親へ変更する場合、間のTransformが異なる可能性がある
+			// 子 → 子
+			// 新親は同じ（間のTransformが異なる可能性あり）
 
-			// Transform変更を考慮し、親に合わせた活動変更を予約
+			// Transform変更を考慮し、親アクティブに一致させる変更を予約
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
 		}
 
 
 		void ChangeTransformAndScene() {
-			// 元々トップだった、新親は居ない
-			// トップからトップへの変更でも、親のTransform（SMObject無し）が異なる可能性がある
+			// トップ → トップ（親Transformあり）
+			// 新親なし（親Transformあり）
 
-			// Transform変更を考慮し、親に合わせた活動変更を予約
+			// Transform変更を考慮し、親アクティブに一致させる変更を予約
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
 
-			// シーンが異なる場合、再設定し、内部で管理者を変更
-			if ( _owner._managerBody._scene._rawScene != _target._gameObject.scene ) {
-				_owner.SetAllData();
+			// シーンが異なる場合
+			var lastManager = _owner._managerBody;
+			var lastScene = lastManager._scene._rawScene;
+			var newScene = _parentTransform.gameObject.scene;
+			if ( lastScene != newScene ) {
+				var newManager = lastManager._scene._fsm._fsm.GetScene( newScene )._groupManagerBody;
+
+				// 管理者を再設定
+				_owner._managerBody = newManager;
+				lastManager._modifyler.Register( new SendReregisterGroupSMGroupManager( _owner ) );
 			}
 		}
 
 
 		void ChangeToTop() {
-			// 元々子だった、新親は居ない
+			// 子 → トップ（親Transformあり）
 
-			// 子を解除し、元グループを再設定
-			_target.Unlink();
-			_owner.SetAllData();
-
-			// 新グループ作成し、親に合わせた活動変更を予約
-			var group = new SMGroup( _target );
-			var groupBody = group._body;
-			groupBody._ranState = _owner._ranState;
-			groupBody._activeState = _owner._activeState;
-			groupBody._isFinalizing = _owner._isFinalizing;
-			groupBody._modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
-			_modifyler.Reregister( groupBody );	// 元グループの変更を、新グループに再登録
+			// 新グループ作成
+			var newScene = _parentTransform.gameObject.scene;
+			var newManager = _owner._managerBody._scene._fsm._fsm.GetScene( newScene )._groupManagerBody;
+			new SMGroup( newManager, _target );
 		}
 
 
 		void ChangeParentOnly( SMObjectBody parent ) {
-			//  元々トップだった、新親は居る
-			// 元々トップだった場合、子にトップを付ける為、破綻
+			// 子 → 子
+			// 新親あり（グループは同じ）
+
+			// トップ → 子の場合、同じグループのトップが子にくっつく為、循環参照で破綻
 			if ( _owner.IsTop( _target ) ) {
-				throw new NotSupportedException( $"子にトップを接続する為、親変更不可 :\n{_target}" );
+				throw new InvalidOperationException(
+					$"同一グループ内でトップが子に接続する為、循環参照となり親変更不可 :\n{_target}" );
 			}
 
-			// 元々子だった、新親は居る
-			// 子を解除、新親と接続
+			// 親を解除、新親と接続
 			_target.Unlink();
 			parent.LinkChild( _target );
 
@@ -153,32 +157,34 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		void ChangeGroupFromTop( SMObjectBody parent ) {
-			// 元々トップだった、新親は居る
+			// トップ → 子
+			// 新親あり
 
 			// 新グループに、子の追加を予約
 			parent._groupBody._modifyler.Register( new ReceiveChangeParentObjectSMGroup( _target, parent ) );
 
 			// グループ全体を、新グループに移植
 			parent._groupBody._modifyler.Move( _owner._modifyler );
-			_owner._objectBody.GetAllChildren().ForEach( o => o._groupBody = parent._groupBody );
+			_owner._objectBody.SetGroupOfAllChildren( parent._groupBody );
+
+			// グループ解放、登録解除を予約
 			_owner._group.Dispose();
-			// 解放したグループの、登録解除を予約
 			_owner._managerBody._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
 		}
 
 
 		void ChangeGroupFromChild( SMObjectBody parent ) {
-			// 元々子だった、新親は居る
+			// 子 → 子
+			// 新親あり
 
-			// 子を解除し、元グループを再設定
+			// 親を解除
 			_target.Unlink();
-			_owner.SetAllData();
 
 			// 新グループに、子の追加を予約
 			parent._groupBody._modifyler.Register( new ReceiveChangeParentObjectSMGroup( _target, parent ) );
 
 			// 全子の変更データを、元グループから、新グループに再登録
-			_target.GetAllChildren().ForEach( o => o._groupBody = parent._groupBody );
+			_target.SetGroupOfAllChildren( parent._groupBody );
 			_modifyler.Reregister( parent._groupBody );
 		}
 

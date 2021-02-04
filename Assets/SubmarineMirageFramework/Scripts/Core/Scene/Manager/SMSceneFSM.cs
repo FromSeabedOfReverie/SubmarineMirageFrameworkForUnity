@@ -10,7 +10,7 @@ namespace SubmarineMirage.Scene {
 	using System.Collections.Generic;
 	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
-	using Task.Base;
+	using Task;
 	using FSM;
 	using Debug;
 
@@ -66,19 +66,19 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
+		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
 			=> (T)GetBehaviour( typeof( T ), sceneType );
 
-		public ISMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
+		public SMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
 			=> GetBehaviours( type, sceneType ).FirstOrDefault();
 
-		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
+		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
 			=> GetBehaviours( typeof( T ), sceneType )
 				.Select( b => (T)b );
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, SMSceneType? sceneType = null ) {
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type, SMSceneType? sceneType = null ) {
 			if ( sceneType.HasValue ) {
-				return GetFSM( sceneType.Value )?.GetBehaviours( type ) ?? Enumerable.Empty<ISMBehaviour>();
+				return GetFSM( sceneType.Value )?.GetBehaviours( type ) ?? Enumerable.Empty<SMBehaviour>();
 			}
 			return GetFSMs()
 				.SelectMany( fsm => fsm.GetBehaviours( type ) );

@@ -31,7 +31,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			if ( _owner._isRunInitialActive ) {
 				_owner._isRunInitialActive = false;
 
-				if (	_isActiveInHierarchy && _owner.IsActiveInMonoBehaviour() &&
+				if (	_isActiveInHierarchy && _owner.IsActiveInComponent() &&
 						_owner._activeState != SMTaskActiveState.Enable
 				) {
 					_owner._enableEvent.Run();

@@ -39,17 +39,17 @@ namespace SubmarineMirage.Task {
 
 
 
-		public T GetBehaviour<T>() where T : ISMBehaviour
+		public T GetBehaviour<T>() where T : SMBehaviour
 			=> (T)GetBehaviour( typeof( T ) );
 
-		public ISMBehaviour GetBehaviour( Type type )
+		public SMBehaviour GetBehaviour( Type type )
 			=> GetBehaviours( type ).FirstOrDefault();
 
-		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
+		public IEnumerable<T> GetBehaviours<T>() where T : SMBehaviour
 			=> GetBehaviours( typeof( T ) )
 				.Select( b => (T)b );
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type ) {
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type ) {
 			var currents = new Queue<SMObjectBody>( _body.GetAllTopObjects() );
 			while ( !currents.IsEmpty() ) {
 				var o = currents.Dequeue();

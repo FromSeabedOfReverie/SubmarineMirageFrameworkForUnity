@@ -26,7 +26,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		protected override void Cancel() {
 			_target.DisposeAllObjects();
-			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
+			_target._gameObject.Destroy();
 		}
 
 

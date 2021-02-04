@@ -11,7 +11,6 @@ namespace SubmarineMirage.Service {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Task;
-	using Task.Base;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -26,24 +25,25 @@ namespace SubmarineMirage.Service {
 	public static class SMServiceLocator {
 		[SMShowLine] public static bool s_isDisposed	{ get; private set; } = true;
 		public static readonly Dictionary<Type, ISMService> s_container = new Dictionary<Type, ISMService>();
-
+		static SMSceneManager s_sceneManager	{ get; set; }
 
 		static SMServiceLocator() {
 			s_isDisposed = false;
 		}
-
 
 		public static void Dispose() {
 			if ( s_isDisposed )	{ return; }
 
 			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Dispose )}", SMLogTag.Service );
 			s_isDisposed = true;
+
 			s_container.ForEach( pair => pair.Value.Dispose() );
 			s_container.Clear();
+			s_sceneManager = null;
 		}
 
 
-		
+
 		public static ISMService Register( Type type, ISMService instance = null ) {
 			if ( s_isDisposed )	{ return null; }
 			if ( s_container.ContainsKey( type ) ) {
@@ -55,17 +55,16 @@ namespace SubmarineMirage.Service {
 			if ( instance == null )	{ instance = Create( type ); }
 
 			switch ( instance ) {
-				case ISMBehaviour b:
-					if ( b._lifeSpan != SMTaskLifeSpan.Forever ) {
-						throw new InvalidOperationException(
-							$"{SMTaskLifeSpan.Forever}でない : {nameof( b._lifeSpan )}" );
-					}
+				case SMBehaviour b:
 					break;
 				case MonoBehaviourSMExtension b:
-					var _sceneManager = Resolve<SMSceneManager>();
-					if ( _sceneManager != null )	{ _sceneManager.MoveForeverScene( b.gameObject ); }
+					if ( s_sceneManager != null )	{ s_sceneManager.MoveForeverScene( b.gameObject ); }
 					else							{ b.gameObject.DontDestroyOnLoad(); }
 					break;
+			}
+
+			if ( s_sceneManager == null && instance is SMSceneManager ) {
+				s_sceneManager = (SMSceneManager)instance;
 			}
 
 			s_container[type] = instance;
@@ -77,10 +76,10 @@ namespace SubmarineMirage.Service {
 
 
 		static ISMService Create( Type type ) {
-			if ( type.IsInheritance( typeof( ISMBehaviour ) ) ) {
-				return (ISMService)SMBehaviourBody.Generate( type );
+			if ( type.IsInheritance( typeof( SMBehaviour ) ) ) {
+				return (ISMService)SMBehaviour.Generate( type, s_sceneManager._fsm._foreverScene );
 
-			} else if ( type.IsInheritance( typeof( MonoBehaviourSMExtension ) ) ) {
+			} else if ( type.IsInheritance( typeof(MonoBehaviourSMExtension) ) ) {
 				var go = new GameObject( type.GetAboutName() );
 				return (ISMService)go.AddComponent( type );
 
@@ -100,7 +99,7 @@ namespace SubmarineMirage.Service {
 			if ( isDispose ) {
 				var instance = s_container.GetOrDefault( type );
 				instance?.Dispose();
-// TODO : ISMBehaviourの場合、リンク解除、GameObject破棄等を行う
+// TODO : SMBehaviourの場合、リンク解除、GameObject破棄等を行う
 			}
 			s_container.Remove( type );
 		}

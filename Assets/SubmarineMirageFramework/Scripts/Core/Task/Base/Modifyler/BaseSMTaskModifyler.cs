@@ -73,7 +73,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 					_data.Enqueue( data );
 					break;
 			}
-			if ( !_isRunning )	{ Run().Forget(); }
+			Run().Forget();
 		}
 
 		public async UniTask RegisterAndRun( TData data ) {

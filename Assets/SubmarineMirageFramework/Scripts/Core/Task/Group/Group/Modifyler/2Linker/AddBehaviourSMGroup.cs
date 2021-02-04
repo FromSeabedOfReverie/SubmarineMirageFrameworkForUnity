@@ -19,17 +19,15 @@ namespace SubmarineMirage.Task.Modifyler {
 
 	public class AddBehaviourSMGroup : SMGroupModifyData {
 		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
-		[SMShowLine] public SMMonoBehaviour _behaviour	{ get; private set; }
+		[SMShowLine] public SMBehaviour _behaviour	{ get; private set; }
 
 
 
 		public AddBehaviourSMGroup( SMObjectBody target, Type type ) : base( target ) {
-			if ( !_target._isGameObject ) {
-				throw new NotSupportedException( $"{nameof( SMBehaviour )}は、追加不可 :\n{_target}" );
-			}
-			_behaviour = (SMMonoBehaviour)_target._gameObject.AddComponent( type );
+			_behaviour = (SMBehaviour)_target._gameObject.AddComponent( type );
 			if ( _behaviour == null ) {
-				throw new NotSupportedException( $"{nameof( SMMonoBehaviour )}でない為、追加不可 :\n{type}" );
+				throw new NotSupportedException(
+					$"{nameof( SMBehaviour )}でない為、追加不可 :\n{type.GetAboutName()}" );
 			}
 		}
 
@@ -48,11 +46,6 @@ namespace SubmarineMirage.Task.Modifyler {
 			}
 
 			_target._behaviourBody.Link( _behaviour._body );
-
-			if ( _behaviour._lifeSpan == SMTaskLifeSpan.Forever ) {
-				_owner.SetManager( _owner._managerBody._scene._fsm._fsm._foreverScene._groupManagerBody );
-			}
-
 			_behaviour._body.RegisterRunEventToOwner();
 
 			await UTask.DontWait();

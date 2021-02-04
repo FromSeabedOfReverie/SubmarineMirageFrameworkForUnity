@@ -10,7 +10,7 @@ namespace SubmarineMirage.Scene {
 	using System.Collections.Generic;
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
+	using Task;
 	using FSM;
 	using FSM.Modifyler;
 	using Debug;
@@ -65,16 +65,16 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public T GetBehaviour<T>() where T : class, ISMBehaviour
+		public T GetBehaviour<T>() where T : SMBehaviour
 			=> _scene?.GetBehaviour<T>();
 
-		public ISMBehaviour GetBehaviour( Type type )
+		public SMBehaviour GetBehaviour( Type type )
 			=> _scene?.GetBehaviour( type );
 
-		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
+		public IEnumerable<T> GetBehaviours<T>() where T : SMBehaviour
 			=> _scene?.GetBehaviours<T>() ?? Enumerable.Empty<T>();
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
-			=> _scene?.GetBehaviours( type ) ?? Enumerable.Empty<ISMBehaviour>();
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type )
+			=> _scene?.GetBehaviours( type ) ?? Enumerable.Empty<SMBehaviour>();
 	}
 }

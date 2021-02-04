@@ -35,7 +35,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				await RunLower( t, () => new DisableSMObject( t ) );
 			}
 
-			if ( _target._isGameObject )	{ _target._gameObject.SetActive( false ); }
+			_target._gameObject.SetActive( false );
 		}
 	}
 }

@@ -122,9 +122,9 @@ namespace SubmarineMirage.Task.Base {
 			);
 			while ( !currents.IsEmpty() ) {
 				var current = currents.Dequeue();
-				var bs = current.GetComponents<SMMonoBehaviour>();
+				var bs = current.GetComponents<SMBehaviour>();
 				if ( !bs.IsEmpty() ) {
-					new SMGroup( current.gameObject, bs );
+					new SMGroup( this, current.gameObject, bs );
 					await UTask.NextFrame( _asyncCancelerOnDisable );
 				} else {
 					foreach ( Transform child in current ) {

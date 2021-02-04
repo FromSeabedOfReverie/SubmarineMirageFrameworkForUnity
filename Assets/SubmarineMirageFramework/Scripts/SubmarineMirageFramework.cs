@@ -72,6 +72,7 @@ namespace SubmarineMirage {
 			SMServiceLocator.Register<SMLog>();
 //			SMServiceLocator.Register<SMTagManager>();
 //			SMServiceLocator.Register<SMLayerManager>();
+//			SMServiceLocator.Register<SMTimeManager>();
 
 			await registerSettingsEvent();
 

@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Base {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
@@ -32,30 +31,43 @@ namespace SubmarineMirage.Task.Base {
 		[SMShowLine] public SMGroupBody _previous	{ get; set; }
 		[SMShowLine] public SMGroupBody _next		{ get; set; }
 
-		public SMTaskLifeSpan _lifeSpan	{ get; set; }
-		[SMHide] public bool _isGameObject => _gameObject != null;
-
 		[SMHide] public SMAsyncCanceler _asyncCanceler => _objectBody._asyncCanceler;
 
 
 
 		public SMGroupBody( SMGroup group, SMGroupManagerBody managerBody, GameObject gameObject,
-							IEnumerable<ISMBehaviour> behaviours
+							IEnumerable<SMBehaviour> behaviours
 		) {
 			SMGroupBodySub( group );
 
 			var smObject = new SMObject( this, null, gameObject, behaviours );
 			_objectBody = smObject._body;
 
-			SetManager( managerBody );
+			_managerBody = managerBody;
+			_managerBody._scene.MoveGroup( this );
+			_managerBody._modifyler.Register( new RegisterGroupSMGroupManager( this ) );
 		}
 
 		public SMGroupBody( SMGroup group, SMGroupManagerBody managerBody, SMObjectBody objectBody ) {
 			SMGroupBodySub( group );
 
 			_objectBody = objectBody;
+			var lastGroup = _objectBody._groupBody;
 
-			SetManager( managerBody );
+			_ranState = lastGroup._ranState;
+			_activeState = lastGroup._activeState;
+			_isFinalizing = lastGroup._isFinalizing;
+
+			// 親を解除、新グループを再設定
+			_objectBody.Unlink();
+			_objectBody.SetGroupOfAllChildren( this );
+
+			// 親アクティブに一致させる変更を予約
+			_modifyler.Register( new AdjustObjectRunSMGroup( _objectBody ) );
+			lastGroup._modifyler.Reregister( this );	// 元グループの変更を、新グループに再登録
+
+			_managerBody = managerBody;
+			_managerBody._modifyler.Register( new RegisterGroupSMGroupManager( this ) );
 		}
 
 		void SMGroupBodySub( SMGroup group ) {
@@ -74,47 +86,6 @@ namespace SubmarineMirage.Task.Base {
 			_objectBody.DisposeAllChildren();
 			_group.Dispose();
 		}
-
-
-
-		public void SetManager( SMGroupManagerBody newManagerBody ) {
-			// 親子変更等で、無理矢理、削除不能化した場合を考慮
-			var iFSM = newManagerBody._scene._fsm;
-			var isForever = iFSM._fsmType == SMSceneType.Forever;
-			if ( !isForever ) {
-				isForever = _objectBody.GetAllChildren()
-					.SelectMany( o => o._behaviourBody.GetBrothers() )
-					.Any( b => b._lifeSpan == SMTaskLifeSpan.Forever );
-				if ( isForever ) {
-					newManagerBody = iFSM._fsm._foreverScene._groupManagerBody;
-				}
-			}
-			_lifeSpan = isForever ? SMTaskLifeSpan.Forever : SMTaskLifeSpan.InScene;
-
-			if ( _managerBody == null ) {
-				_managerBody = newManagerBody;
-				if ( _isGameObject )	{ _managerBody._scene.MoveGroup( this ); }
-				_managerBody._modifyler.Register( new RegisterGroupSMGroupManager( this ) );
-
-			} else if ( _managerBody != newManagerBody ) {
-				var lastManagerBody = _managerBody;
-				_managerBody = newManagerBody;
-				lastManagerBody._modifyler.Register( new SendReregisterGroupSMGroupManager( this ) );
-			}
-		}
-
-		public void SetAllData() {
-			var allObjects = _objectBody.GetAllChildren();
-// TODO : 廃止
-			allObjects.ForEach( o => o._groupBody = this );
-		}
-
-/*
-		public void SetAllObjectGroups( SMGroupBody groupBody ) {
-			_objectBody.GetAllChildren()
-				.ForEach( o => o._groupBody = groupBody );
-		}
-*/
 
 
 
@@ -226,15 +197,20 @@ namespace SubmarineMirage.Task.Base {
 			else			{ _modifyler.Register( new DisableObjectSMGroup( objectBody ) ); }
 		}
 
-		public void ChangeParentObject( SMObjectBody objectBody, Transform parent, bool isWorldPositionStays )
-			=> _modifyler.Register(
-				new SendChangeParentObjectSMGroup( objectBody, parent, isWorldPositionStays ) );
+		public void ChangeParentObject( SMObjectBody objectBody, Transform parent, bool isWorldPositionStays ) {
+			if ( parent != null ) {
+				_modifyler.Register(
+					new SendChangeParentObjectSMGroup( objectBody, parent, isWorldPositionStays ) );
+			} else {
+				_modifyler.Register( new ReleaseParentObjectSMGroup( objectBody, isWorldPositionStays ) );
+			}
+		}
 
 
-		public T AddBehaviour<T>( SMObjectBody objectBody ) where T : SMMonoBehaviour
+		public T AddBehaviour<T>( SMObjectBody objectBody ) where T : SMBehaviour
 			=> (T)AddBehaviour( objectBody, typeof( T ) );
 
-		public SMMonoBehaviour AddBehaviour( SMObjectBody objectBody, Type type ) {
+		public SMBehaviour AddBehaviour( SMObjectBody objectBody, Type type ) {
 			var data = new AddBehaviourSMGroup( objectBody, type );
 			_modifyler.Register( data );
 			return data._behaviour;

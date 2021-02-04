@@ -9,7 +9,6 @@ namespace SubmarineMirage.Task.Modifyler {
 	using KoganeUnityLib;
 	using Task.Base;
 	using Task.Modifyler.Base;
-	using Scene;
 	using Extension;
 	using Debug;
 
@@ -59,7 +58,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			}
 			_owner._ranState = SMTaskRunState.Finalize;
 			_owner.DisposeAllObjects();
-			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
+			_owner._gameObject.Destroy();
 
 			_owner._managerBody._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
 		}
@@ -73,19 +72,10 @@ namespace SubmarineMirage.Task.Modifyler {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
 			_target.DisposeAllChildren();
-			if ( _target._isGameObject )	{ _target._gameObject.Destroy(); }
+			_target._gameObject.Destroy();
 
 			GetAllLowers().ForEach( o => _modifyler.Unregister( o ) );
 			_target.Unlink();
-
-			var iFSM = _owner._managerBody._scene._fsm;
-			var isForever = iFSM._fsmType == SMSceneType.Forever;
-			var mainManager = iFSM._fsm._mainFSM._scene?._groupManagerBody;
-			var manager = (
-				isForever || mainManager == null	? _owner._managerBody
-													: mainManager
-			);
-			_owner.SetManager( manager );
 		}
 	}
 }

@@ -33,7 +33,6 @@ namespace SubmarineMirage.Task.Base {
 		[SMShowLine] public SMObjectBody _parent	{ get; set; }
 		[SMShowLine] public SMObjectBody _child		{ get; set; }
 
-		[SMHide] public bool _isGameObject	=> _gameObject != null;
 		public bool _isDisabling	{ get; set; }
 
 		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
@@ -41,7 +40,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 		public SMObjectBody( SMObject smObject, SMGroupBody groupBody, SMObjectBody parentBody,
-								GameObject gameObject, IEnumerable<ISMBehaviour> behaviours
+								GameObject gameObject, IEnumerable<SMBehaviour> behaviours
 		) {
 			_modifyler = new SMObjectModifyler( this );
 			_object = smObject;
@@ -77,13 +76,12 @@ namespace SubmarineMirage.Task.Base {
 
 
 		void SetupParent( SMObjectBody parentBody ) {
-			if ( !_isGameObject )		{ return; }
 			if ( parentBody == null )	{ return; }
 
 			parentBody.LinkChild( this );
 		}
 
-		void SetupBehaviours( IEnumerable<ISMBehaviour> behaviours ) {
+		void SetupBehaviours( IEnumerable<SMBehaviour> behaviours ) {
 			var bodies = behaviours.Select( b => b._body );
 			_behaviourBody = bodies.First();
 
@@ -95,20 +93,16 @@ namespace SubmarineMirage.Task.Base {
 				}
 				last = b;
 
-				b._objectBody = this;
-				b._asyncCancelerOnDisable.SetParent( _asyncCanceler );
-				b._asyncCancelerOnDispose.SetParent( _asyncCanceler );
+				b.SetupObject( this );
 			} );
 		}
 
 		void SetupChildren() {
-			if ( !_isGameObject )	{ return; }
-
 			var currents = new Queue<Transform>();
 			currents.Enqueue( _gameObject.transform );
 			while ( !currents.IsEmpty() ) {
 				foreach ( Transform child in currents.Dequeue() ) {
-					var bs = child.GetComponents<SMMonoBehaviour>();
+					var bs = child.GetComponents<SMBehaviour>();
 					if ( !bs.IsEmpty() ) {
 						new SMObject( _groupBody, this, child.gameObject, bs );
 					} else {
@@ -117,6 +111,12 @@ namespace SubmarineMirage.Task.Base {
 				}
 			}
 		}
+
+
+
+		public void SetGroupOfAllChildren( SMGroupBody groupBody )
+			=> GetAllChildren()
+				.ForEach( o => o._groupBody = groupBody );
 
 
 
@@ -147,15 +147,10 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-		public bool IsActiveInHierarchy() {
-			if ( !_isGameObject )	{ return true; }
-
-			return _gameObject.activeInHierarchy;
-		}
+		public bool IsActiveInHierarchy()
+			=> _gameObject.activeInHierarchy;
 
 		public bool IsActiveInParentHierarchy() {
-			if ( !_isGameObject )	{ return true; }
-
 			var parent = _gameObject.transform.parent;
 			if ( parent == null )	{ return true; }
 
@@ -218,10 +213,10 @@ namespace SubmarineMirage.Task.Base {
 			=> _groupBody.ChangeParentObject( this, parent, isWorldPositionStays );
 
 
-		public T AddBehaviour<T>() where T : SMMonoBehaviour
+		public T AddBehaviour<T>() where T : SMBehaviour
 			=> _groupBody.AddBehaviour<T>( this );
 
-		public SMMonoBehaviour AddBehaviour( Type type )
+		public SMBehaviour AddBehaviour( Type type )
 			=> _groupBody.AddBehaviour( this, type );
 
 
@@ -282,7 +277,7 @@ namespace SubmarineMirage.Task.Base {
 			base.SetToString();
 
 
-			_toStringer.SetValue( nameof( _gameObject ), i => _gameObject != null ? _gameObject.name : "null" );
+			_toStringer.SetValue( nameof( _gameObject ), i => _gameObject.name );
 			_toStringer.SetValue( nameof( _behaviourBody ), i =>
 				_toStringer.DefaultValue( _behaviourBody.GetBrothers(), i, true ) );
 			_toStringer.SetValue( nameof( _parent ), i => _toStringer.DefaultValue( _parent, i, true ) );
@@ -292,7 +287,7 @@ namespace SubmarineMirage.Task.Base {
 			_toStringer.SetValue( nameof( _asyncCanceler ), i => $"_isCancel : {_asyncCanceler._isCancel}" );
 
 
-			_toStringer.SetLineValue( nameof( _gameObject ), () => _gameObject != null ? _gameObject.name : "null" );
+			_toStringer.SetLineValue( nameof( _gameObject ), () => _gameObject.name );
 			_toStringer.SetLineValue( nameof( _behaviourBody ), () => string.Join( ",",
 				_behaviourBody.GetBrothers().Select( b => b.GetAboutName() )
 			) );

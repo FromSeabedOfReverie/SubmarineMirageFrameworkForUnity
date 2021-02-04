@@ -93,16 +93,16 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public T GetBehaviour<T>() where T : ISMBehaviour
+		public T GetBehaviour<T>() where T : SMBehaviour
 			=> _groupManagerBody._manager.GetBehaviour<T>();
 
-		public ISMBehaviour GetBehaviour( Type type )
+		public SMBehaviour GetBehaviour( Type type )
 			=> _groupManagerBody._manager.GetBehaviour( type );
 
-		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
+		public IEnumerable<T> GetBehaviours<T>() where T : SMBehaviour
 			=> _groupManagerBody._manager.GetBehaviours<T>();
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type )
 			=> _groupManagerBody._manager.GetBehaviours( type );
 	}
 }

@@ -21,8 +21,7 @@ namespace SubmarineMirage.FSM.Test {
 
 	public class Human : SMBehaviour, ISMFSMOwner<HumanFSM> {
 		public HumanFSM _fsm	{ get; private set; }
-		public Human() => _fsm = new HumanFSM( this );
-		public override void Create() {}
+		public override void Create() => _fsm = new HumanFSM( this );
 		public void _Owner() {
 			_fsm._OwnerFSM();
 		}
@@ -72,8 +71,7 @@ namespace SubmarineMirage.FSM.Test {
 
 	public class Dragon : SMBehaviour, ISMFSMOwner<DragonFSM> {
 		public DragonFSM _fsm	{ get; private set; }
-		public Dragon() => _fsm = new DragonFSM( this );
-		public override void Create() {}
+		public override void Create() => _fsm = new DragonFSM( this );
 		public void _Owner() {
 			_fsm._OwnerFSM();
 		}
@@ -202,8 +200,7 @@ namespace SubmarineMirage.FSM.Test {
 
 	public class Dummy : SMBehaviour, ISMFSMOwner<DummyFSM> {
 		public DummyFSM _fsm	{ get; private set; }
-		public Dummy() => _fsm = new DummyFSM( this );
-		public override void Create() {}
+		public override void Create() => _fsm = new DummyFSM( this );
 	}
 
 	public enum DummyFSMType {

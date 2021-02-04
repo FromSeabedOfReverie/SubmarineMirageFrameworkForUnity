@@ -37,7 +37,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			_owner._activeState = SMTaskActiveState.Disable;
 			_owner.StopAsyncOnDisable();
 
-			if (	_isActiveInHierarchy && _owner.IsActiveInMonoBehaviour() &&
+			if (	_isActiveInHierarchy && _owner.IsActiveInComponent() &&
 					lastActiveState != SMTaskActiveState.Disable
 			) {
 				_owner._disableEvent.Run();

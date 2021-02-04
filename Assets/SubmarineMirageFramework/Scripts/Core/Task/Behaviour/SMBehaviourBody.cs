@@ -5,10 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Base {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
-	using UnityEngine;
 	using KoganeUnityLib;
 	using MultiEvent;
 	using Task.Modifyler;
@@ -24,14 +22,13 @@ namespace SubmarineMirage.Task.Base {
 
 
 	public class SMBehaviourBody : BaseSMTaskModifylerOwner<SMBehaviourModifyler> {
-		public ISMBehaviour _behaviour	{ get; private set; }
+		public SMBehaviour _behaviour	{ get; private set; }
 		public SMObjectBody _objectBody	{ get; set; }
 
 		[SMShowLine] public SMBehaviourBody _previous	{ get; set; }
 		[SMShowLine] public SMBehaviourBody _next		{ get; set; }
 
-		public SMTaskType _type			=> _behaviour._type;
-		public SMTaskLifeSpan _lifeSpan	=> _behaviour._lifeSpan;
+		public SMTaskType _type	=> _behaviour._type;
 		public bool _isRunInitialActive	{ get; set; }
 		public bool _isRunFinalize	{ get; set; }
 
@@ -48,11 +45,11 @@ namespace SubmarineMirage.Task.Base {
 		public readonly SMAsyncCanceler _asyncCancelerOnDispose = new SMAsyncCanceler();
 
 
-		public SMBehaviourBody( ISMBehaviour behaviour ) {
+		public SMBehaviourBody( SMBehaviour behaviour ) {
 			_modifyler = new SMBehaviourModifyler( this );
 			_behaviour = behaviour;
 
-			_isRunInitialActive = _type != SMTaskType.DontWork && IsActiveInHierarchyAndMonoBehaviour();
+			_isRunInitialActive = _type != SMTaskType.DontWork && IsActiveInHierarchyAndComponent();
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
@@ -81,6 +78,12 @@ namespace SubmarineMirage.Task.Base {
 				.ForEach( b => b._behaviour.Dispose() );
 		}
 
+		public void SetupObject( SMObjectBody objectBody ) {
+			_objectBody = objectBody;
+			_asyncCancelerOnDisable.SetParent( _objectBody._asyncCanceler );
+			_asyncCancelerOnDispose.SetParent( _objectBody._asyncCanceler );
+		}
+
 
 
 		public void Link( SMBehaviourBody add ) {
@@ -104,19 +107,11 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-		public bool IsActiveInMonoBehaviour() {
-			if ( !_objectBody._isGameObject )	{ return true; }
+		public bool IsActiveInComponent()
+			=> _behaviour.enabled;
 
-			var mb = (SMMonoBehaviour)_behaviour;
-			return mb.enabled;
-		}
-
-		public bool IsActiveInHierarchyAndMonoBehaviour() {
-			if ( !_objectBody._isGameObject )	{ return true; }
-
-			var mb = (SMMonoBehaviour)_behaviour;
-			return _objectBody._gameObject.activeInHierarchy && mb.enabled;
-		}
+		public bool IsActiveInHierarchyAndComponent()
+			=> _objectBody._gameObject.activeInHierarchy && _behaviour.enabled;
 
 
 
@@ -215,29 +210,6 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-		public static T Generate<T>() where T : ISMBehaviour
-			=> (T)Generate( typeof( T ) );
-
-		public static ISMBehaviour Generate( Type type ) {
-			if ( type.IsInheritance( typeof( SMBehaviour ) ) ) {
-				var b = type.Create<SMBehaviour>();
-				b.Setup();
-				return b;
-
-			} else if ( type.IsInheritance( typeof( SMMonoBehaviour ) ) ) {
-				var go = new GameObject( type.GetAboutName() );
-				var b = (ISMBehaviour)go.AddComponent( type );
-				new SMGroup( go, new ISMBehaviour[] { b } );
-				return b;
-
-			} else {
-				throw new InvalidOperationException(
-					$"{nameof( ISMBehaviour )}でない為、作成不可 : {type.GetAboutName()}" );
-			}
-		}
-
-
-
 		public SMBehaviourBody GetFirst()
 			=> _objectBody._behaviourBody;
 
@@ -252,23 +224,6 @@ namespace SubmarineMirage.Task.Base {
 				yield return current;
 			}
 		}
-
-
-		public T GetBehaviour<T>() where T : ISMBehaviour
-			=> (T)GetBehaviour( typeof( T ) );
-
-		public ISMBehaviour GetBehaviour( Type type )
-			=> GetBehaviours( type ).FirstOrDefault();
-
-
-		public IEnumerable<T> GetBehaviours<T>() where T : ISMBehaviour
-			=> GetBehaviours( typeof( T ) )
-				.Select( b => (T)b );
-
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type )
-			=> GetBrothers()
-				.Select( b => b._behaviour )
-				.Where( b => b.GetType().IsInheritance( type ) );
 
 
 

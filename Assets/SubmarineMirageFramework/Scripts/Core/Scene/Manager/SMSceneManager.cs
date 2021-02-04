@@ -13,7 +13,7 @@ namespace SubmarineMirage.Scene {
 	using Base;
 	using Service;
 	using MultiEvent;
-	using Task.Base;
+	using Task;
 	using FSM;
 	using Extension;
 	using Utility;
@@ -87,16 +87,16 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
+		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
 			=> _fsm.GetBehaviour<T>( sceneType );
 
-		public ISMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
+		public SMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
 			=> _fsm.GetBehaviour( type, sceneType );
 
-		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : ISMBehaviour
+		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
 			=> _fsm.GetBehaviours<T>( sceneType );
 
-		public IEnumerable<ISMBehaviour> GetBehaviours( Type type, SMSceneType? sceneType = null )
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type, SMSceneType? sceneType = null )
 			=> _fsm.GetBehaviours( type, sceneType );
 
 

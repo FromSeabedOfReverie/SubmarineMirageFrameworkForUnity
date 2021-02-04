@@ -19,7 +19,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( !_owner.IsActiveInMonoBehaviour() )	{ return; }
+			if ( !_owner.IsActiveInComponent() )	{ return; }
 			if ( _owner._isFinalizing )	{ return; }
 			if ( !_owner._isInitialized ) {
 				_owner._isRunInitialActive = _owner._objectBody.IsActiveInHierarchy();

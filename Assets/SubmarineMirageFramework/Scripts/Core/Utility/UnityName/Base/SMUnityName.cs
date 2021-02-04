@@ -26,17 +26,10 @@ namespace SubmarineMirage.Utility {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		public override SMTaskType _type => SMTaskType.FirstWork;
-		public override SMTaskLifeSpan _lifeSpan => SMTaskLifeSpan.Forever;
 
 		/// <summary>名称のキャッシュ一覧の辞書</summary>
 		readonly Dictionary<TName, string> _namesCache = EnumUtils.GetValues<TName>()
 				.ToDictionary( name => name, name => name.ToString() );
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● コンストラクタ
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		protected SMUnityName() {}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 取得（文字列）

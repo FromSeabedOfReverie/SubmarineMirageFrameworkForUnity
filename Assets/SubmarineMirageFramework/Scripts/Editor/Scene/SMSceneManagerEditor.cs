@@ -70,7 +70,7 @@ namespace SubmarineMirage.EditorScene {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( string.Join( "\n",
-				$"{groupBody._id}, {groupBody._lifeSpan}( {groupBody._managerBody._scene.GetAboutName()} )",
+				$"{groupBody._id}, {groupBody._managerBody._scene.GetAboutName()}",
 				$"↑ {groupBody._previous?.ToLineString()}",
 				$"↓ {groupBody._next?.ToLineString()}",
 
@@ -91,7 +91,7 @@ namespace SubmarineMirage.EditorScene {
 			GUI.SetNextControlName( string.Join( "\n",
 				$"{objectBody._id}",
 
-				$"{( objectBody._gameObject != null ? objectBody._gameObject.name : "null" )}",
+				objectBody._gameObject.name,
 				string.Join( "\n", objectBody._behaviourBody.GetBrothers().Select( b =>
 					$"    {b.ToLineString()}"
 				) ),

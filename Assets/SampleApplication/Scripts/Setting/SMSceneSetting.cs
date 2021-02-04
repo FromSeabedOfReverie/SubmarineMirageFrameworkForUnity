@@ -25,7 +25,7 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 		_fsmSceneTypes = new Dictionary<SMSceneType, Type[]> {
 			{
 				SMSceneType.Forever,
-				new Type[] { typeof( ForeverSampleSMScene ), }
+				new Type[] { typeof( ForeverSMScene ), }
 			}, {
 				SMSceneType.Main,
 				new Type[] {

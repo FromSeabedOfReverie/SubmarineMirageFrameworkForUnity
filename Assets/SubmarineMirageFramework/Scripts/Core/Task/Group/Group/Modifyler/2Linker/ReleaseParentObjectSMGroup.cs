@@ -8,7 +8,6 @@ namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Task.Base;
 	using Task.Modifyler.Base;
-	using Extension;
 	using Utility;
 	using Debug;
 
@@ -18,25 +17,30 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	public class ReceiveChangeParentObjectSMGroup : SMGroupModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.FirstLinker;
-		[SMShowLine] SMObjectBody _parent	{ get; set; }
+	public class ReleaseParentObjectSMGroup : SMGroupModifyData {
+		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] bool _isWorldPositionStays	{ get; set; }
 
 
-		public ReceiveChangeParentObjectSMGroup( SMObjectBody target, SMObjectBody parent ) : base( target ) {
-			_parent = parent;
-		}
 
-		protected override void Cancel() {
-			_target.DisposeAllChildren();
-			_target._gameObject.Destroy();
+		public ReleaseParentObjectSMGroup( SMObjectBody target, bool isWorldPositionStays ) : base( target ) {
+			_isWorldPositionStays = isWorldPositionStays;
 		}
 
 
 		public override async UniTask Run() {
-			_parent.LinkChild( _target );
+			if ( _owner._isFinalizing )	{ return; }
 
-			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
+
+			// ゲーム物の親を解除
+			_target._gameObject.transform.SetParent( null, _isWorldPositionStays );
+
+			// トップの場合、未処理
+			if ( _owner.IsTop( _target ) )	{ return; }
+
+			// 新グループ作成
+			new SMGroup( _owner._managerBody, _target );
+
 
 			await UTask.DontWait();
 		}

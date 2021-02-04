@@ -23,18 +23,18 @@ namespace SubmarineMirage.Task {
 
 
 		public SMGroup( SMGroupManagerBody managerBody, GameObject gameObject,
-						IEnumerable<ISMBehaviour> behaviours
+						IEnumerable<SMBehaviour> behaviours
 		) {
 			_body = new SMGroupBody( this, managerBody, gameObject, behaviours );
-			SMGroupSub();
+
+			_disposables.AddLast( () => {
+				_body.Dispose();
+			} );
 		}
 
 		public SMGroup( SMGroupManagerBody managerBody, SMObjectBody objectBody ) {
 			_body = new SMGroupBody( this, managerBody, objectBody );
-			SMGroupSub();
-		}
 
-		void SMGroupSub() {
 			_disposables.AddLast( () => {
 				_body.Dispose();
 			} );
