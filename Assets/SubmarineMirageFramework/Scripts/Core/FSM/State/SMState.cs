@@ -7,7 +7,6 @@
 namespace SubmarineMirage.FSM.State {
 	using FSM.Base;
 	using FSM.State.Base;
-	using Utility;
 	using Debug;
 
 
@@ -18,21 +17,13 @@ namespace SubmarineMirage.FSM.State {
 
 	public abstract class SMState<TOwner, TFSM> : BaseSMState
 		where TOwner : IBaseSMFSMOwner
-		where TFSM : SMFSM
+		where TFSM : BaseSMFSM
 	{
-		[SMHide] public override SMAsyncCanceler _asyncCancelerOnDisableAndExit
-			=> _fsm._asyncCancelerOnDisableAndExit;
-		[SMHide] public override SMAsyncCanceler _asyncCancelerOnDispose	=> _fsm._asyncCancelerOnDispose;
-
-		[SMHide] public TOwner _topOwner	{ get; private set; }
-		[SMHide] public TFSM _fsm	{ get; private set; }
+		[SMHide] public new TOwner _owner	=> (TOwner)base._owner;
+		[SMHide] public new TFSM _fsm		=> (TFSM)base._fsm;
 
 
 		public SMState() {
-			_body._setEvent.AddLast( ( topOwner, fsm ) => {
-				_topOwner = (TOwner)topOwner;
-				_fsm = (TFSM)fsm;
-			} );
 		}
 	}
 }

@@ -6,8 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.Modifyler {
 	using System;
+	using System.Linq;
 	using Cysharp.Threading.Tasks;
-	using FSM.Base;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
 	using Debug;
@@ -18,46 +18,46 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public class ChangeStateSMSingleFSM<TOwner, TState> : SMSingleFSMModifyData<TOwner, TState>
-		where TOwner : IBaseSMFSMOwner
-		where TState : BaseSMState
-	{
-		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.SingleRunner;
+	public class InitialEnterSMFSM : SMFSMModifyData {
+		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.Runner;
 		[SMShowLine] Type _stateType	{ get; set; }
 
 
-		public ChangeStateSMSingleFSM( Type stateType ) {
+		public InitialEnterSMFSM( Type stateType ) {
 			_stateType = stateType;
 		}
 
 
 		public override async UniTask Run() {
-			TState state = null;
+			if ( _owner._isInitialEntered )	{ return; }
+			if ( _owner._stateBody != null ) {
+				throw new InvalidOperationException(
+					$"初期状態遷移前に、既に状態設定済み : {nameof( _owner._stateBody )}" );
+			}
+			SMStateBody state = null;
 			if ( _stateType != null ) {
 				state = _owner.GetState( _stateType );
 				if ( state == null ) {
-					throw new InvalidOperationException( $"状態遷移に、未所持状態を指定 : {_stateType}" );
+					throw new InvalidOperationException(
+						$"初期状態遷移に、未所持状態を指定 : {nameof( _stateType )}" );
 				}
 			}
 
 
-			_owner._body.StopAsyncOnDisableAndExit();
+			_owner._stateBody = state;
+			if ( _owner._stateBody == null )	{ return; }
 
-			if ( _owner._state != null ) {
-				await _owner._state._body.Exit();
+			await _owner._stateBody.Enter();
+			_owner._isInitialEntered = true;
+
+			if ( !_owner._owner._isInitialEnteredFSMs ) {
+				_owner._owner._isInitialEnteredFSMs =
+					_owner.GetBrothers().All( fsm => fsm._isInitialEntered );
 			}
-			if ( _modifyler.IsHaveData() ) {
-				_owner._state = null;
-				return;
-			}
 
-			_owner._state = state;
-			if ( _owner._state == null )	{ return; }
-
-			await _owner._state._body.Enter();
 			if ( _modifyler.IsHaveData() )	{ return; }
 
-			_owner._state._body.UpdateAsync();
+			_owner._stateBody.UpdateAsync();
 		}
 	}
 }

@@ -20,6 +20,7 @@ namespace SubmarineMirage.FSM.Base {
 		bool _isOperable	{ get; }
 		bool _isFinalizing	{ get; }
 		bool _isActive		{ get; }
+		bool _isInitialEnteredFSMs	{ get; set; }
 
 		SMMultiAsyncEvent _selfInitializeEvent	{ get; }
 		SMMultiAsyncEvent _initializeEvent		{ get; }

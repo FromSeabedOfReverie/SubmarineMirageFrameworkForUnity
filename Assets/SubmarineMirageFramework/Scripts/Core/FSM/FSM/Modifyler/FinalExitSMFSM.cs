@@ -5,12 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.Modifyler {
-	using System;
-	using System.Linq;
 	using Cysharp.Threading.Tasks;
-	using FSM.Base;
 	using FSM.Modifyler.Base;
-	using Utility;
 	using Debug;
 
 
@@ -19,25 +15,19 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public class InitialEnterSMParallelFSM<TOwner, TInternalFSM, TEnum>
-		: SMParallelFSMModifyData<TOwner, TInternalFSM, TEnum>
-		where TOwner : IBaseSMFSMOwner
-		where TInternalFSM : SMFSM
-		where TEnum : Enum
-	{
-		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.Runner;
+	public class FinalExitSMFSM : SMFSMModifyData {
+		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
 
 
 		public override async UniTask Run() {
-			if ( _owner._isInitialEntered )	{ return; }
+			_owner.StopAsyncOnDisableAndExit();
 
+			if ( _owner._stateBody != null ) {
+				await _owner._stateBody.Exit();
+				_owner._stateBody = null;
+			}
 
-			await UTask.WaitWhile(
-				_owner._asyncCancelerOnDisableAndExit,
-				() => _owner.GetFSMs().Any( fsm => !fsm._isInitialEntered )
-			);
-
-			_owner._body._isInitialEntered = true;
+			_modifyler.Dispose();
 		}
 	}
 }

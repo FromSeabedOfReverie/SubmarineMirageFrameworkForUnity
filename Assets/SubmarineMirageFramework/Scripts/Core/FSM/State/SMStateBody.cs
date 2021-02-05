@@ -18,10 +18,14 @@ namespace SubmarineMirage.FSM.State.Base {
 
 
 
-	public class BaseSMStateBody : SMStandardBase {
-		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
+	public class SMStateBody : SMStandardBase {
+		[SMHide] public BaseSMState _state		{ get; private set; }
+		[SMHide] public IBaseSMFSMOwner _owner	{ get; private set; }
+		[SMHide] public SMFSMBody _fsmBody		{ get; private set; }
+
+		[SMShowLine] public SMStateRunState _ranState			{ get; set; }
 		[SMShowLine] public SMStateUpdateState _updatedState	{ get; set; }
-		[SMShowLine] public bool _isUpdating	{ get; set; }
+		[SMShowLine] public bool _isUpdating					{ get; set; }
 
 		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
 		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
@@ -36,17 +40,12 @@ namespace SubmarineMirage.FSM.State.Base {
 		[SMHide] public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
 		[SMHide] public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
 
-		[SMHide] public readonly SMMultiEvent<IBaseSMFSMOwner, SMFSM> _setEvent
-			= new SMMultiEvent<IBaseSMFSMOwner, SMFSM>();
-
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _state._asyncCancelerOnDisableAndExit;
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose			=> _state._asyncCancelerOnDispose;
-
-		[SMHide] public BaseSMState _state	{ get; private set; }
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _fsmBody._asyncCancelerOnDisableAndExit;
+		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose			=> _fsmBody._asyncCancelerOnDispose;
 
 
 
-		public BaseSMStateBody( BaseSMState state ) {
+		public SMStateBody( BaseSMState state ) {
 			_state = state;
 
 			_disposables.AddLast( () => {
@@ -66,13 +65,16 @@ namespace SubmarineMirage.FSM.State.Base {
 				_enterEvent.Dispose();
 				_updateAsyncEvent.Dispose();
 				_exitEvent.Dispose();
-
-				_setEvent.Dispose();
 			} );
 		}
 
-		public void Set( IBaseSMFSMOwner topOwner, SMFSM fsm )
-			=> _setEvent.Run( topOwner, fsm );
+		public override void Dispose() => base.Dispose();
+
+
+		public void Setup( IBaseSMFSMOwner owner, SMFSMBody fsmBody ) {
+			_owner = owner;
+			_fsmBody = fsmBody;
+		}
 
 
 

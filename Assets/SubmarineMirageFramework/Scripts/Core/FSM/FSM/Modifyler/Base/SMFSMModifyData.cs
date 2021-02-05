@@ -4,11 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler {
+namespace SubmarineMirage.FSM.Modifyler.Base {
 	using Cysharp.Threading.Tasks;
+	using SubmarineMirage.Base;
 	using FSM.Base;
-	using FSM.Modifyler.Base;
-	using FSM.State.Base;
 	using Debug;
 
 
@@ -17,22 +16,21 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public class FinalExitSMSingleFSM<TOwner, TState> : SMSingleFSMModifyData<TOwner, TState>
-		where TOwner : IBaseSMFSMOwner
-		where TState : BaseSMState
-	{
-		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.FirstRunner;
+	public abstract class SMFSMModifyData : SMLightBase {
+		[SMHide] protected SMFSMBody _owner				{ get; private set; }
+		[SMHide] protected SMFSMModifyler _modifyler	{ get; private set; }
+		[SMShowLine] public abstract SMFSMModifyType _type	{ get; }
 
 
-		public override async UniTask Run() {
-			_owner._body.StopAsyncOnDisableAndExit();
+		public override void Dispose() {}
 
-			if ( _owner._state != null ) {
-				await _owner._state._body.Exit();
-				_owner._state = null;
-			}
 
-			_modifyler.Dispose();
+		public virtual void Set( SMFSMBody owner ) {
+			_owner = owner;
+			_modifyler = _owner._modifyler;
 		}
+
+
+		public abstract UniTask Run();
 	}
 }

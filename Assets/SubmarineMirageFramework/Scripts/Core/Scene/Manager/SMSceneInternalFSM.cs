@@ -45,7 +45,7 @@ namespace SubmarineMirage.Scene {
 
 
 		public UniTask InitialEnter() => _body._modifyler.RegisterAndRun(
-			new InitialEnterSMSingleFSM<SMSceneManager, SMScene>( _startStateType ) );
+			new InitialEnterSMFSM<SMSceneManager, SMScene>( _startStateType ) );
 
 
 		public UniTask ChangeScene<T>() where T : SMScene

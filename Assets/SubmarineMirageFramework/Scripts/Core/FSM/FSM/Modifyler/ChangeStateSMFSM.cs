@@ -7,7 +7,6 @@
 namespace SubmarineMirage.FSM.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using FSM.Base;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
 	using Debug;
@@ -18,44 +17,43 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 
-	public class InitialEnterSMSingleFSM<TOwner, TState> : SMSingleFSMModifyData<TOwner, TState>
-		where TOwner : IBaseSMFSMOwner
-		where TState : BaseSMState
-	{
-		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.Runner;
+	public class ChangeStateSMFSM : SMFSMModifyData {
+		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.SingleRunner;
 		[SMShowLine] Type _stateType	{ get; set; }
 
 
-		public InitialEnterSMSingleFSM( Type stateType ) {
+		public ChangeStateSMFSM( Type stateType ) {
 			_stateType = stateType;
 		}
 
 
 		public override async UniTask Run() {
-			if ( _owner._isInitialEntered )	{ return; }
-			if ( _owner._state != null ) {
-				throw new InvalidOperationException(
-					$"初期状態遷移前に、既に状態設定済み : {nameof( _owner._state )}" );
-			}
-			TState state = null;
+			SMStateBody state = null;
 			if ( _stateType != null ) {
 				state = _owner.GetState( _stateType );
 				if ( state == null ) {
-					throw new InvalidOperationException(
-						$"初期状態遷移に、未所持状態を指定 : {nameof( _stateType )}" );
+					throw new InvalidOperationException( $"状態遷移に、未所持状態を指定 : {_stateType}" );
 				}
 			}
 
 
-			_owner._state = state;
-			if ( _owner._state == null )	{ return; }
+			_owner.StopAsyncOnDisableAndExit();
 
-			await _owner._state._body.Enter();
-			_owner._body._isInitialEntered = true;
+			if ( _owner._stateBody != null ) {
+				await _owner._stateBody.Exit();
+			}
+			if ( _modifyler.IsHaveData() ) {
+				_owner._stateBody = null;
+				return;
+			}
 
+			_owner._stateBody = state;
+			if ( _owner._stateBody == null )	{ return; }
+
+			await _owner._stateBody.Enter();
 			if ( _modifyler.IsHaveData() )	{ return; }
 
-			_owner._state._body.UpdateAsync();
+			_owner._stateBody.UpdateAsync();
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace SubmarineMirage.FSM {
 
 
 	public interface ISMFSMOwner<TFSM> : IBaseSMFSMOwner
-		where TFSM : SMFSM
+		where TFSM : BaseSMFSM
 	{
 		TFSM _fsm { get; }
 	}
