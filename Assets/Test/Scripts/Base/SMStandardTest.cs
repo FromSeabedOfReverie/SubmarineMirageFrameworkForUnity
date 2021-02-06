@@ -17,7 +17,7 @@ namespace SubmarineMirage.TestBase {
 
 	public abstract class SMStandardTest : BaseSMTest, ISMStandardBase {
 		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
-		public bool _isDispose => _disposables._isDispose;
+		[SMShowLine] public bool _isDispose => _disposables._isDispose;
 		[SMHide] public SMToStringer _toStringer	{ get; private set; }
 		[SMHide] protected readonly SMMultiAsyncEvent _createEvent = new SMMultiAsyncEvent();
 		[SMHide] protected readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
@@ -51,7 +51,10 @@ namespace SubmarineMirage.TestBase {
 
 
 		public virtual void SetToString()	{}
-		public override string ToString( int indent ) => _toStringer.Run( indent );
+
+		public override string ToString( int indent, bool isUseHeadIndent = true )
+			=> _toStringer.Run( indent, isUseHeadIndent );
+
 		public override string ToLineString( int indent = 0 ) => _toStringer.RunLine( indent );
 	}
 }

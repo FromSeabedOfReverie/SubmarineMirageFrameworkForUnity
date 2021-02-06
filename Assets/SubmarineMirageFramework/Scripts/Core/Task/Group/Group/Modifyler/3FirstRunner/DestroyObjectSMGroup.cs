@@ -19,7 +19,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class DestroyObjectSMGroup : SMGroupModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
 		[SMShowLine] bool _isLastFinalizing	{ get; set; }
 
 

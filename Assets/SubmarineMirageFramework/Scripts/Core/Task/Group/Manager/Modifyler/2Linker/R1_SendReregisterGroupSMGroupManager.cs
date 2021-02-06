@@ -18,7 +18,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class SendReregisterGroupSMGroupManager : SMGroupManagerModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 
 
 		public SendReregisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}

@@ -27,8 +27,12 @@ namespace SubmarineMirage.Base {
 
 		public override void Dispose() => _disposables.Dispose();
 
-		public virtual void SetToString()	{}
-		public override string ToString( int indent ) => _toStringer.Run( indent );
+
+		public virtual void SetToString() {}
+
+		public override string ToString( int indent, bool isUseHeadIndent = true )
+			=> _toStringer.Run( indent, isUseHeadIndent );
+
 		public override string ToLineString( int indent = 0 ) => _toStringer.RunLine( indent );
 	}
 }

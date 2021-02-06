@@ -83,21 +83,24 @@ namespace SubmarineMirage.MultiEvent {
 		}
 
 
-		public override string ToString( int indent ) {
-			var nameI = StringSMUtility.IndentSpace( indent );
-			var memberI = StringSMUtility.IndentSpace( indent + 1 );
-			var arrayI = StringSMUtility.IndentSpace( indent + 2 );
+		public override string ToString( int indent, bool isUseHeadIndent = true ) {
+			var prefix = StringSMUtility.IndentSpace( indent );
+			var hPrefix = isUseHeadIndent ? prefix : "";
+			indent++;
+			var mPrefix = StringSMUtility.IndentSpace( indent );
+			indent++;
+			var aPrefix = StringSMUtility.IndentSpace( indent );
 
 			return string.Join( "\n",
-				$"{nameI}{this.GetAboutName()}(",
-				$"{memberI}{nameof( _id )} : {_id},",
-				$"{memberI}{nameof( _isDispose )} : {_isDispose},",
-				$"{memberI}{nameof( _events )} :",
+				$"{hPrefix}{this.GetAboutName()}(",
+				$"{mPrefix}{nameof( _id )} : {_id},",
+				$"{mPrefix}{nameof( _isDispose )} : {_isDispose},",
+				$"{mPrefix}{nameof( _events )} :",
 				string.Join( ",\n", _events.Select( pair =>
-					$"{arrayI}{pair.Key} : {pair.Value.GetAboutName()}"
+					$"{aPrefix}{pair.Key} : {pair.Value.GetAboutName()}"
 				) ),
-				$"{memberI}{nameof( _modifyler )} : {_modifyler.ToString( indent + 1 )},",
-				$"{nameI})"
+				$"{mPrefix}{nameof( _modifyler )} : {_modifyler.ToString( indent + 1 )},",
+				$"{prefix})"
 			);
 		}
 	}

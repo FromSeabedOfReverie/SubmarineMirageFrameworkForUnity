@@ -5,8 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
+	using System;
 	using System.Linq;
+	using System.Collections;
+	using System.Collections.Generic;
 	using KoganeUnityLib;
+	using Base;
 	using Utility;
 	using Debug;
 	///====================================================================================================
@@ -64,37 +68,132 @@ namespace SubmarineMirage.Extension {
 		/// <summary>
 		/// ● 文字列に変換（Hide属性以外のみ表示）
 		/// </summary>
-		public static string ToShowString( this object self, int indent = 0 ) {
-			if ( self == null )	{ return "null"; }
+		public static string ToShowString( this object self, int indent = 0,
+												bool isUseInternalLineString = false,
+												bool isUseLineString = false, bool isUseHeadIndent = true
+		) {
+			var prefix = StringSMUtility.IndentSpace( indent );
+			var hPrefix = isUseHeadIndent ? prefix : "";
 
-			var nameI = StringSMUtility.IndentSpace( indent );
-			var memberI = StringSMUtility.IndentSpace( indent + 1 );
+			if ( self == null ) { return $"{hPrefix}null"; }
 
-// TODO : IEnumerable、KeyValuePair等、入れ子に対応する
-			return string.Join( "\n",
-				$"{nameI}{self.GetAboutName()}(",
-				string.Join( ",\n", self.GetType().GetAllNotAttributeMembers<SMHideAttribute>().Select( i =>
-					$"{memberI}{i.Name} : {i.GetValue( self )}"
-				) ),
-				$"{nameI})"
-			);
+			var isNextUseLineString = isUseInternalLineString || isUseLineString;
+
+
+			switch ( self ) {
+				case ISMStandardBase baseSM:
+					if ( isUseLineString )	{ return baseSM.ToLineString( isUseHeadIndent ? indent : 0 ); }
+					else					{ return baseSM.ToString( indent, isUseHeadIndent ); }
+
+				case Type type:
+					return $"{hPrefix}{type.GetAboutName()}";
+
+				case Enum e:
+				case string s:
+					return $"{hPrefix}{self.ToString()}";
+
+				case IEnumerable enumerable:
+					indent++;
+					var ss = string.Join( ",\n", enumerable.SelectRaw( o =>
+						ToShowString( o, indent, isUseInternalLineString, isNextUseLineString, true )
+					) );
+					if ( !ss.IsNullOrEmpty() ) {
+						return string.Join( "\n",
+							$"{hPrefix}{{",
+							ss,
+							$"{prefix}}}"
+						);
+					}
+					return $"{hPrefix}{{}}";
+
+				default:
+					var t = self.GetType();
+
+					if ( t.IsPrimitive ) {
+						return $"{hPrefix}{self.ToString()}";
+					}
+
+					if ( t.IsGenericType ) {
+						var gt = t.GetGenericTypeDefinition();
+						if ( gt == typeof( KeyValuePair<,> ) ) {
+							var k = t.GetProperty( "Key" ).GetValue( self );
+							var v = t.GetProperty( "Value" ).GetValue( self );
+							var sk = ToShowString(
+								k, indent, isUseInternalLineString, isNextUseLineString, true );
+							var sv = ToShowString(
+								v, indent, isUseInternalLineString, isNextUseLineString, false );
+							return $"{sk} : {sv}";
+						}
+					}
+
+
+					indent++;
+					var mPrefix = StringSMUtility.IndentSpace( indent );
+					var members = self.GetType().GetAllNotAttributeMembers<SMHideAttribute>();
+
+					return string.Join( "\n",
+						$"{hPrefix}{self.GetAboutName()}(",
+						string.Join( ",\n", members.Select( i =>
+							$"{mPrefix}{i.Name} : " +
+							ToShowString(
+								i.GetValue( self ), indent, isUseInternalLineString, isNextUseLineString, false )
+						) ),
+						$"{prefix})"
+					);
+			}
 		}
 		/// <summary>
 		/// ● 文字列に変換（ShowLine属性のみ一列表示）
 		/// </summary>
 		public static string ToLineString( this object self, int indent = 0 ) {
-			if ( self == null )	{ return "null"; }
+			var prefix = StringSMUtility.IndentSpace( indent );
 
-			var nameI = StringSMUtility.IndentSpace( indent );
+			if ( self == null )	{ return $"{prefix}null"; }
 
-// TODO : IEnumerable、KeyValuePair等、入れ子に対応する
-			return string.Join( " ",
-				$"{nameI}{self.GetAboutName()}(",
-				string.Join( " ", self.GetType().GetAllAttributeMembers<SMShowLineAttribute>().Select( i =>
-					$"{i.GetValue( self )}"
-				) ),
-				")"
-			);
+
+			switch ( self ) {
+				case ISMStandardBase baseSM:
+					return baseSM.ToLineString( indent );
+
+				case Type type:
+					return $"{prefix}{type.GetAboutName()}";
+
+				case Enum e:
+				case string s:
+					return $"{prefix}{self.ToString()}";
+
+				case IEnumerable enumerable:
+					return prefix + string.Join( ",", enumerable.SelectRaw( o =>
+						ToLineString( o )
+					) );
+
+				default:
+					var t = self.GetType();
+
+					if ( t.IsPrimitive ) {
+						return $"{prefix}{self.ToString()}";
+					}
+
+					if ( t.IsGenericType ) {
+						var gt = t.GetGenericTypeDefinition();
+						if ( gt == typeof( KeyValuePair<,> ) ) {
+							var k = t.GetProperty( "Key" ).GetValue( self );
+							var v = t.GetProperty( "Value" ).GetValue( self );
+							return $"{prefix}{ToLineString( k )}:{ToLineString( v )}";
+						}
+					}
+
+
+					var members = self.GetType().GetAllAttributeMembers<SMShowLineAttribute>();
+
+					return string.Join( " ",
+						$"{prefix}{self.GetAboutName()}(",
+						string.Join( " ", members.Select( i =>
+							ToLineString( i.GetValue( self ) )
+						) ),
+						")"
+					);
+			}
 		}
 	}
 }

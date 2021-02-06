@@ -58,7 +58,7 @@ namespace SubmarineMirage.Service {
 				case SMBehaviour b:
 					break;
 				case MonoBehaviourSMExtension b:
-					if ( s_sceneManager != null )	{ s_sceneManager.MoveForeverScene( b.gameObject ); }
+					if ( s_sceneManager != null )	{ s_sceneManager._body.MoveForeverScene( b.gameObject ); }
 					else							{ b.gameObject.DontDestroyOnLoad(); }
 					break;
 			}
@@ -77,7 +77,7 @@ namespace SubmarineMirage.Service {
 
 		static ISMService Create( Type type ) {
 			if ( type.IsInheritance( typeof( SMBehaviour ) ) ) {
-				return (ISMService)SMBehaviour.Generate( type, s_sceneManager._fsm._foreverScene );
+				return (ISMService)SMBehaviour.Generate( type, s_sceneManager._foreverScene );
 
 			} else if ( type.IsInheritance( typeof(MonoBehaviourSMExtension) ) ) {
 				var go = new GameObject( type.GetAboutName() );

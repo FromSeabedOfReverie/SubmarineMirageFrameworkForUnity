@@ -7,7 +7,6 @@
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
 	using Base;
-	using Service;
 	using Debug;
 
 
@@ -49,8 +48,7 @@ namespace SubmarineMirage.Extension {
 		}
 
 		protected virtual void Awake() {
-			var idCounter = SMServiceLocator.Resolve<SMIDCounter>();
-			_id = idCounter?.GetNewID( this ) ?? 0;
+			_id = SMIDCounter.GetNewID( this );
 		}
 
 		public abstract void Dispose();
@@ -62,7 +60,10 @@ namespace SubmarineMirage.Extension {
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public override string ToString() => ToString( 0 );
-		public virtual string ToString( int indent ) => this.ToShowString( indent );
+
+		public virtual string ToString( int indent, bool isUseHeadIndent = true )
+			=> this.ToShowString( indent, false, false, isUseHeadIndent );
+
 		public virtual string ToLineString( int indent = 0 ) => ObjectSMExtension.ToLineString( this, indent );
 	}
 }

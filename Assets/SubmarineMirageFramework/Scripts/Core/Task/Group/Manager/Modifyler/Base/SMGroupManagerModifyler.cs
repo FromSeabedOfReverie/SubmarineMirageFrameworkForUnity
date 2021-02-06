@@ -8,6 +8,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	using Task.Base;
 	using Extension;
 	using Utility;
+	using Debug;
 
 
 	// TODO : コメント追加、整頓
@@ -16,7 +17,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	public class SMGroupManagerModifyler
 		: BaseSMTaskModifyler<SMGroupManagerBody, SMGroupManagerModifyler, SMGroupManagerModifyData>
 	{
-		protected override SMAsyncCanceler _asyncCanceler => _owner._asyncCancelerOnDisable;
+		[SMHide] protected override SMAsyncCanceler _asyncCanceler => _owner._asyncCancelerOnDisable;
 
 
 		public SMGroupManagerModifyler( SMGroupManagerBody owner ) : base( owner ) {}

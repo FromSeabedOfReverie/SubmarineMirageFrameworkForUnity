@@ -7,7 +7,6 @@
 namespace SubmarineMirage.Debug.ToString {
 	using System;
 	using System.Linq;
-	using System.Collections;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
 	using Base;
@@ -52,72 +51,11 @@ namespace SubmarineMirage.Debug.ToString {
 		}
 
 
-		public string DefaultValue( object value, int indent, bool isUseInternalLineString ) {
-			if ( value == null )	{ return "null"; }
+		public string DefaultValue( object value, int indent, bool isUseInternalLineString )
+			=> value.ToShowString( indent, isUseInternalLineString, false, false );
 
-			switch ( value ) {
-				case IBaseSM baseSM:
-					if ( isUseInternalLineString )	{ return baseSM.ToLineString( indent ); }
-					else							{ return baseSM.ToString( indent ); }
-
-				case Type type:
-					return type.GetAboutName();
-
-				case IEnumerable enumerable:
-					var parentI = StringSMUtility.IndentSpace( indent );
-					indent++;
-					var memberI = StringSMUtility.IndentSpace( indent );
-					var membersS = string.Join( ",\n", enumerable.SelectRaw( o =>
-						$"{memberI}{DefaultValue( o, indent, isUseInternalLineString )}"
-					) );
-					return $"{{\n{membersS}\n{parentI}}}";
-
-				default:
-					var t = value.GetType();
-					if ( t.IsGenericType ) {
-						var gt = t.GetGenericTypeDefinition();
-						if ( gt == typeof( KeyValuePair<,> ) ) {
-							var k = t.GetProperty( "Key" ).GetValue( value );
-							var v = t.GetProperty( "Value" ).GetValue( value );
-							var sk = DefaultValue( k, indent, isUseInternalLineString );
-							var sv = DefaultValue( v, indent, isUseInternalLineString );
-							return $"{sk} : {sv}";
-						}
-					}
-
-					return value.ToString();
-			}
-		}
-
-		public string DefaultLineValue( object value ) {
-			if ( value == null )	{ return "null"; }
-
-			switch ( value ) {
-				case IBaseSM baseSM:
-					return baseSM.ToLineString();
-
-				case Type type:
-					return type.GetAboutName();
-
-				case IEnumerable enumerable:
-					return enumerable.CountRaw().ToString();
-
-				default:
-					var t = value.GetType();
-					if ( t.IsGenericType ) {
-						var gt = t.GetGenericTypeDefinition();
-						if ( gt == typeof( KeyValuePair<,> ) ) {
-							var k = t.GetProperty( "Key" ).GetValue( value );
-							var v = t.GetProperty( "Value" ).GetValue( value );
-							var sk = DefaultLineValue( k );
-							var sv = DefaultLineValue( v );
-							return $"{sk}:{sv}";
-						}
-					}
-
-					return value.ToString();
-			}
-		}
+		public string DefaultLineValue( object value )
+			=> value.ToLineString();
 
 
 		public void SetName( string name, string newName )
@@ -142,23 +80,25 @@ namespace SubmarineMirage.Debug.ToString {
 		public void HideLine( string name ) => _toLineStrings.Remove( name );
 
 
-		public string Run( int indent = 0 ) {
-			var nameI = StringSMUtility.IndentSpace( indent );
+		public string Run( int indent = 0, bool isUseHeadIndent = true ) {
+			var prefix = StringSMUtility.IndentSpace( indent );
+			var hPrefix = isUseHeadIndent ? prefix : "";
 			indent++;
-			var memberI = StringSMUtility.IndentSpace( indent );
+			var mPrefix = StringSMUtility.IndentSpace( indent );
+
 			return string.Join( "\n",
-				$"{nameI}{_owner.GetAboutName()}(",
+				$"{hPrefix}{_owner.GetAboutName()}(",
 				string.Join( ",\n", _toStrings.Select( pair =>
-					$"{memberI}{pair.Value._name} : {pair.Value._valueEvent( indent )}"
+					$"{mPrefix}{pair.Value._name} : {pair.Value._valueEvent( indent )}"
 				) ),
-				$"{nameI})"
+				$"{prefix})"
 			);
 		}
 
 		public string RunLine( int indent = 0 ) {
-			var nameI = StringSMUtility.IndentSpace( indent );
+			var prefix = StringSMUtility.IndentSpace( indent );
 			return string.Join( " ",
-				$"{nameI}{_owner.GetAboutName()}(",
+				$"{prefix}{_owner.GetAboutName()}(",
 				string.Join( " ", _toLineStrings.Select( pair =>
 					$"{pair.Value._valueEvent()}"
 				) ),

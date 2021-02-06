@@ -23,7 +23,9 @@ namespace SubmarineMirage.FSM.Base {
 	public abstract class BaseSMFSM : SMStandardBase {
 		public SMFSMBody _body	{ get; protected set; }
 		[SMHide] public IBaseSMFSMOwner _owner	=> _body._owner;
-		[SMShowLine] public BaseSMState _state	=> _body._stateBody._state;
+		[SMHide] public BaseSMState _state		=> _body._stateBody?._state;
+
+		[SMHide] public Type _fsmType	=> _body._baseStateType;
 
 		[SMHide] public bool _isInitialEntered	=> _body._isInitialEntered;
 		[SMHide] public bool _isInitialized		=> _body._isInitialized;
@@ -55,9 +57,13 @@ namespace SubmarineMirage.FSM.Base {
 		public override void Dispose() => base.Dispose();
 
 		public abstract void Setup( IBaseSMFSMOwner owner, IEnumerable<BaseSMState> states,
-									Type baseStateType = null, Type startStateType = null
+									Type baseStateType = null, Type startStateType = null,
+									bool isInitialEnter = true
 		);
 
+
+		public UniTask InitialEnter( bool isRunSelfOnly = false )
+			=> _body.InitialEnter( isRunSelfOnly );
 
 		public UniTask FinalExit( bool isRunSelfOnly = false )
 			=> _body.FinalExit( isRunSelfOnly );

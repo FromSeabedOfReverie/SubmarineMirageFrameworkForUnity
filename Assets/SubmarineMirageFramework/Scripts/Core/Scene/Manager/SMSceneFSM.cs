@@ -4,12 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene {
+namespace SubmarineMirage.Scene.Base {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine.SceneManagement;
-	using KoganeUnityLib;
+	using Cysharp.Threading.Tasks;
 	using Task;
 	using FSM;
 	using Debug;
@@ -20,45 +20,27 @@ namespace SubmarineMirage.Scene {
 
 
 
-	public class SMSceneFSM : SMParallelFSM<SMSceneManager, SMSceneInternalFSM, SMSceneType> {
-		[SMHide] public SMSceneInternalFSM _foreverFSM	{ get; private set; }
-		[SMHide] public SMSceneInternalFSM _mainFSM		{ get; private set; }
-		[SMHide] public SMScene _foreverScene	{ get; private set; }
-		readonly List<Scene> _firstLoadedRawScenes = new List<Scene>();
+	public class SMSceneFSM : SMFSM<SMSceneManager, SMSceneFSM, SMScene> {
+		[SMHide] public SMScene _scene => _state;
 
 
-		public SMSceneFSM( SMSceneManager owner,　Dictionary<SMSceneType, SMSceneInternalFSM> fsms )
-			: base( owner, fsms )
-		{
-			_foreverFSM = GetFSM( SMSceneType.Forever );
-			_mainFSM = GetFSM( SMSceneType.Main );
-			_foreverScene = _foreverFSM.GetScenes().FirstOrDefault();
 
-			_firstLoadedRawScenes = GetLoadedRawScenes().ToList();
-		}
+		public UniTask ChangeScene<T>() where T : SMScene
+			=> ChangeState<T>();
 
-
-		public bool RemoveFirstLoaded( SMScene scene ) {
-			var count = _firstLoadedRawScenes
-				.RemoveAll( s => s.name == scene._name );
-			return count > 0;
-		}
-
-		public bool IsFirstLoaded( SMScene scene )
-			=> _firstLoadedRawScenes
-				.Any( s => s.name == scene._name );
-
-
-		public IEnumerable<Scene> GetLoadedRawScenes()
-			=> Enumerable.Range( 0, SceneManager.sceneCount - 1 )
-				.Select( i => SceneManager.GetSceneAt( i ) );
+		public UniTask ChangeScene( Type sceneType )
+			=> ChangeState( sceneType );
 
 
 
 		public IEnumerable<SMScene> GetScenes()
-			=> GetFSMs()
-				.SelectMany( fsm => fsm.GetScenes() )
-				.Distinct();
+			=> GetStates();
+
+		public SMScene GetScene( Type stateType )
+			=> GetState( stateType );
+
+		public T GetScene<T>() where T : SMScene
+			=> GetState<T>();
 
 		public SMScene GetScene( Scene rawScene )
 			=> GetScenes()
@@ -66,22 +48,16 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
-			=> (T)GetBehaviour( typeof( T ), sceneType );
+		public T GetBehaviour<T>() where T : SMBehaviour
+			=> _scene?.GetBehaviour<T>();
 
-		public SMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
-			=> GetBehaviours( type, sceneType ).FirstOrDefault();
+		public SMBehaviour GetBehaviour( Type type )
+			=> _scene?.GetBehaviour( type );
 
-		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
-			=> GetBehaviours( typeof( T ), sceneType )
-				.Select( b => (T)b );
+		public IEnumerable<T> GetBehaviours<T>() where T : SMBehaviour
+			=> _scene?.GetBehaviours<T>() ?? Enumerable.Empty<T>();
 
-		public IEnumerable<SMBehaviour> GetBehaviours( Type type, SMSceneType? sceneType = null ) {
-			if ( sceneType.HasValue ) {
-				return GetFSM( sceneType.Value )?.GetBehaviours( type ) ?? Enumerable.Empty<SMBehaviour>();
-			}
-			return GetFSMs()
-				.SelectMany( fsm => fsm.GetBehaviours( type ) );
-		}
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type )
+			=> _scene?.GetBehaviours( type ) ?? Enumerable.Empty<SMBehaviour>();
 	}
 }

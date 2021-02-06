@@ -9,7 +9,6 @@ namespace SubmarineMirage.Debug {
 	using System.Collections.Generic;
 	using KoganeUnityLib;
 	using Base;
-	using Service;
 
 
 
@@ -17,19 +16,15 @@ namespace SubmarineMirage.Debug {
 
 
 
-	public class SMIDCounter : SMStandardBase, ISMService {
-		readonly Dictionary<Type, uint> _idCounts = new Dictionary<Type, uint>();
+	public static class SMIDCounter {
+		static readonly Dictionary<Type, uint> _idCounts = new Dictionary<Type, uint>();
 
 
-		public SMIDCounter() {
-			_disposables.AddLast( () => _idCounts.Clear() );
-		}
 
-
-		public uint GetLastID( Type type )
+		public static uint GetLastID( Type type )
 			=> _idCounts.GetOrDefault( type );
 
-		public uint GetNewID( IBaseSM baseSM ) {
+		public static uint GetNewID( IBaseSM baseSM ) {
 			var type = baseSM.GetType();
 			return _idCounts[type] = GetLastID( type ) + 1;
 		}

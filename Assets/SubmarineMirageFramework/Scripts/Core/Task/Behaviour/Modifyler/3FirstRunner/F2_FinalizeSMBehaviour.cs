@@ -14,7 +14,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class FinalizeSMBehaviour : SMBehaviourModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
 
 
 		public override async UniTask Run() {

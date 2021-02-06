@@ -32,10 +32,11 @@ namespace SubmarineMirage.FSM {
 
 
 		public override void Setup( IBaseSMFSMOwner owner, IEnumerable<BaseSMState> states,
-									Type baseStateType = null, Type startStateType = null
+									Type baseStateType = null, Type startStateType = null,
+									bool isInitialEnter = true
 		) {
 			baseStateType = baseStateType ?? typeof( TState );
-			_body.Setup( owner, states, baseStateType, startStateType );
+			_body.Setup( owner, states, baseStateType, startStateType, isInitialEnter );
 		}
 
 
@@ -49,7 +50,9 @@ namespace SubmarineMirage.FSM {
 			TFSM last = null;
 			generateList.ForEach( data => {
 				var current = generateFSMEvent();
-				current.Setup( owner, data._states, data._baseStateType, data._startStateType );
+				data.CreateStates();
+				current.Setup(
+					owner, data._states, data._baseStateType, data._startStateType, data._isInitialEnter );
 
 				if ( first == null )	{ first = current; }
 				last?._body.Link( current._body );

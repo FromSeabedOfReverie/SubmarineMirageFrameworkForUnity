@@ -33,12 +33,12 @@ namespace SubmarineMirage.FSM.Base {
 		[SMShowLine] public SMStateBody _stateBody	{ get; set; }
 
 		[SMHide] public SMFSMBody _previous	{ get; set; }
-		[SMHide] public SMFSMBody _next		{ get; set; }
+		public SMFSMBody _next		{ get; set; }
 
 		public SMFSMModifyler _modifyler	{ get; private set; }
 
 		public Type _baseStateType	{ get; protected set; }
-		public Type _startStateType	{ get; protected set; }
+		public Type _startStateType	{ get; set; }
 		public string _registerEventName	{ get; private set; }
 		public bool _isInitialEntered		{ get; set; }
 
@@ -67,6 +67,7 @@ namespace SubmarineMirage.FSM.Base {
 			_modifyler = new SMFSMModifyler( this );
 			_registerEventName = _fsm.GetAboutName();
 
+
 			_disposables.AddLast( () => {
 				_modifyler.Dispose();
 				_asyncCancelerOnDisableAndExit.Dispose();
@@ -86,7 +87,7 @@ namespace SubmarineMirage.FSM.Base {
 
 
 		public void Setup( IBaseSMFSMOwner owner, IEnumerable<BaseSMState> states,
-							Type baseStateType, Type startStateType
+							Type baseStateType, Type startStateType, bool isInitialEnter
 		) {
 			_owner = owner;
 			SetupStates( states, baseStateType, startStateType );
@@ -124,7 +125,7 @@ namespace SubmarineMirage.FSM.Base {
 			} );
 
 
-			_modifyler.Register( new InitialEnterSMFSM( _startStateType ) );
+			if ( isInitialEnter )	{ InitialEnter( true ).Forget(); }
 		}
 
 		void SetupStates( IEnumerable<BaseSMState> states, Type baseStateType, Type startStateType ) {
@@ -162,6 +163,13 @@ namespace SubmarineMirage.FSM.Base {
 			=> _asyncCancelerOnDisableAndExit.Cancel();
 
 
+		public async UniTask InitialEnter( bool isRunSelfOnly ) {
+			if ( isRunSelfOnly ) {
+				await _modifyler.RegisterAndRun( new InitialEnterSMFSM( _startStateType ) );
+				return;
+			}
+			await GetBrothers().Select( fsm => fsm.InitialEnter( true ) );
+		}
 
 		public async UniTask FinalExit( bool isRunSelfOnly ) {
 			if ( isRunSelfOnly ) {
@@ -212,6 +220,7 @@ namespace SubmarineMirage.FSM.Base {
 
 		public override void SetToString() {
 			base.SetToString();
+
 			_toStringer.SetValue( nameof( _stateBodies ), i =>
 				_toStringer.DefaultValue( _stateBodies, i, true ) );
 		}

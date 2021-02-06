@@ -23,10 +23,6 @@ namespace SubmarineMirage.Task {
 
 
 	public abstract class SMBehaviour : MonoBehaviourSMExtension, ISMStandardBase {
-		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
-		[SMShowLine] public bool _isDispose => _disposables._isDispose;
-		[SMHide] public SMToStringer _toStringer	{ get; private set; }
-
 		public virtual SMTaskType _type => SMTaskType.Work;
 
 		public SMBehaviourBody _body	{ get; private set; }
@@ -48,6 +44,11 @@ namespace SubmarineMirage.Task {
 
 		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
 		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
+
+		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
+		[SMShowLine] public bool _isDispose => _disposables._isDispose;
+		[SMHide] public SMToStringer _toStringer	{ get; private set; }
+
 
 
 		protected override void Awake() {
@@ -146,7 +147,10 @@ namespace SubmarineMirage.Task {
 
 		
 		public virtual void SetToString() {}
-		public override string ToString( int indent ) => _toStringer.Run( indent );
+
+		public override string ToString( int indent, bool isUseHeadIndent = true )
+			=> _toStringer.Run( indent, isUseHeadIndent );
+
 		public override string ToLineString( int indent = 0 ) => _toStringer.RunLine( indent );
 
 

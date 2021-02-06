@@ -22,7 +22,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class SendChangeParentObjectSMGroup : SMGroupModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 		[SMShowLine] Transform _parentTransform	{ get; set; }
 		[SMShowLine] bool _isWorldPositionStays	{ get; set; }
 
@@ -118,7 +118,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			var lastScene = lastManager._scene._rawScene;
 			var newScene = _parentTransform.gameObject.scene;
 			if ( lastScene != newScene ) {
-				var newManager = lastManager._scene._fsm._fsm.GetScene( newScene )._groupManagerBody;
+				var newManager = lastManager._scene._owner._body.GetScene( newScene )._groupManagerBody;
 
 				// 管理者を再設定
 				_owner._managerBody = newManager;
@@ -132,7 +132,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 			// 新グループ作成
 			var newScene = _parentTransform.gameObject.scene;
-			var newManager = _owner._managerBody._scene._fsm._fsm.GetScene( newScene )._groupManagerBody;
+			var newManager = _owner._managerBody._scene._owner._body.GetScene( newScene )._groupManagerBody;
 			new SMGroup( newManager, _target );
 		}
 

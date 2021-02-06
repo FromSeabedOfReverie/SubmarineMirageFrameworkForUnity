@@ -1,14 +1,15 @@
 {
     "name": "Test",
     "references": [
-        "Application",
-        "Application.Editor",
-        "GameDevWare.Serialization",
+        "UniRx",
+        "UniTask",
         "KoganeUnityLib",
+        "GameDevWare.Serialization",
+        "BuildBaseSMLog",
         "SubmarineMirageFramework",
         "SubmarineMirageFramework.Editor",
-        "UniRx",
-        "UniTask"
+        "Application",
+        "Application.Editor"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

@@ -11,7 +11,6 @@ namespace SubmarineMirage.Task.Base {
 	using KoganeUnityLib;
 	using Task.Modifyler;
 	using Task.Modifyler.Base;
-	using Scene;
 	using Utility;
 	using Debug;
 
@@ -22,8 +21,8 @@ namespace SubmarineMirage.Task.Base {
 
 
 	public class SMGroupBody : BaseSMTaskModifylerOwner<SMGroupModifyler> {
-		public SMGroup _group	{ get; private set; }
-		public SMGroupManagerBody _managerBody	{ get; set; }
+		[SMHide] public SMGroup _group	{ get; private set; }
+		[SMHide] public SMGroupManagerBody _managerBody	{ get; set; }
 		[SMShowLine] public SMObjectBody _objectBody	{ get; set; }
 
 		[SMHide] public GameObject _gameObject => _objectBody._gameObject;

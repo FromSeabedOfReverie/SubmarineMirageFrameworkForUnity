@@ -25,8 +25,8 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		where TOwner : IBaseSMTaskModifylerOwner<TModifyler>
 		where TModifyler : IBaseSMTaskModifyler
 	{
-		protected TOwner _owner	{ get; private set; }
-		protected TModifyler _modifyler	{ get; private set; }
+		[SMHide] protected TOwner _owner	{ get; private set; }
+		[SMHide] protected TModifyler _modifyler	{ get; private set; }
 		[SMShowLine] public abstract SMTaskModifyType _type	{ get; }
 		bool _isCalledDestructor	{ get; set; }
 

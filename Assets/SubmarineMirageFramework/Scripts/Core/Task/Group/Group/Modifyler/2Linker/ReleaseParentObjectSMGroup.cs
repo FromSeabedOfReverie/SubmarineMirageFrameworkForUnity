@@ -18,7 +18,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class ReleaseParentObjectSMGroup : SMGroupModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 		[SMShowLine] bool _isWorldPositionStays	{ get; set; }
 
 

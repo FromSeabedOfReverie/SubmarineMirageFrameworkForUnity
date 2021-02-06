@@ -34,10 +34,12 @@ namespace SubmarineMirage.FSM {
 		public IEnumerator< SMFSMGenerateData<T> > GetEnumerator() => _data.GetEnumerator();
 
 
-		public void Add( IEnumerable<T> states, Type baseStateType = null, Type startStateType = null )
-			=> _data.Add( new SMFSMGenerateData<T>( states, baseStateType, startStateType ) );
+		public void Add( IEnumerable<T> states, Type baseStateType = null, Type startStateType = null,
+							bool isInitialEnter = true
+		) => _data.Add( new SMFSMGenerateData<T>( states, baseStateType, startStateType, isInitialEnter ) );
 
-		public void Add( IEnumerable<Type> stateTypes, Type baseStateType = null, Type startStateType = null )
-			=> _data.Add( new SMFSMGenerateData<T>( stateTypes, baseStateType, startStateType ) );
+		public void Add( IEnumerable<Type> stateTypes, Type baseStateType = null, Type startStateType = null,
+							bool isInitialEnter = true
+		) => _data.Add( new SMFSMGenerateData<T>( stateTypes, baseStateType, startStateType, isInitialEnter ) );
 	}
 }

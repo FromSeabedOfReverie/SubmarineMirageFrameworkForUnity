@@ -17,7 +17,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class DisableObjectSMGroup : SMGroupModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 
 
 		public DisableObjectSMGroup( SMObjectBody target ) : base( target ) {}

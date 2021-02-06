@@ -10,6 +10,7 @@ namespace SubmarineMirage.Extension {
 	using System.Reflection;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
+	using UnityEngine;
 	using KoganeUnityLib;
 	///====================================================================================================
 	/// <summary>
@@ -51,7 +52,7 @@ namespace SubmarineMirage.Extension {
 		public static IEnumerable<Type> GetBaseClasses( this Type self ) {
 			if ( !self.IsClass )	{ yield break; }
 			var oType = typeof( object );
-			var uType = typeof( UnityEngine.Object );
+			var uType = typeof( MonoBehaviour );
 			for ( var current = self; current != oType && current != uType; current = current.BaseType ) {
 				yield return current;
 			}

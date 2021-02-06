@@ -16,7 +16,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class FinalizeSMObject : SMObjectModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
 
 
 		public FinalizeSMObject( SMTaskRunAllType runType ) : base( runType ) {}

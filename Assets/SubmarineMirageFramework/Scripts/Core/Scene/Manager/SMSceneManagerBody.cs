@@ -4,14 +4,16 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestScene
-namespace SubmarineMirage.Scene {
+namespace SubmarineMirage.Scene.Base {
 	using System;
 	using System.Linq;
+	using System.Collections.Generic;
+	using UnityEngine;
+	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using Base;
+	using SubmarineMirage.Base;
 	using Service;
 	using MultiEvent;
 	using Extension;
@@ -25,11 +27,22 @@ namespace SubmarineMirage.Scene {
 
 
 	public class SMSceneManagerBody : SMStandardBase {
+		[SMHide] public SMSceneManager _owner	{ get; private set; }
+		public SMSceneFSM _fsm	{ get; private set; }
+
+		[SMHide] public SMSceneFSM _foreverFSM	{ get; private set; }
+		[SMHide] public SMSceneFSM _mainFSM		{ get; private set; }
+		[SMHide] public SMSceneFSM _uiFSM		{ get; private set; }
+		[SMHide] public SMSceneFSM _debugFSM	{ get; private set; }
+		[SMHide] public SMScene _foreverScene	{ get; private set; }
+
+		List<Scene> _firstLoadedRawScenes	{ get; set; }
+
 		public bool _isInitialized	{ get; set; }
 		public bool _isOperable		=> _isInitialized && !_isFinalizing;
 		public bool _isFinalizing	{ get; set; }
 		public bool _isActive		{ get; set; }
-		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
+		[SMHide] public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
 
 		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent	= new SMMultiAsyncEvent();
 		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent		= new SMMultiAsyncEvent();
@@ -44,13 +57,11 @@ namespace SubmarineMirage.Scene {
 #endif
 		[SMHide] public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
 
-		[SMHide] public SMSceneManager _owner	{ get; private set; }
-		public SMSceneFSM _fsm	{ get; private set; }
-
 
 
 		public SMSceneManagerBody( SMSceneManager owner ) {
 			_owner = owner;
+
 
 			_disposables.AddLast( () => {
 				_isActive = false;
@@ -75,47 +86,10 @@ namespace SubmarineMirage.Scene {
 			} );
 		}
 
-// TODO : 将来的に、Initialize内部から呼び出す
-		// SMScene内部で、SMServiceLocatorから自身を参照する為、Body生成後に、Sceneを遅延生成する
-		public void Setup() {
-			var setting = SMServiceLocator.Resolve<ISMSceneSetting>();
-			var fsms = setting._fsmSceneTypes.ToDictionary(
-				pair => pair.Key,
-				pair => {
-					var scenes = pair.Value.Select( t => t.Create<SMScene>() );
-					switch ( pair.Key ) {
-						case SMSceneType.Forever:
-							return new SMSceneInternalFSM( scenes, typeof( ForeverSMScene ) );
-						case SMSceneType.UI:
-							return new SMSceneInternalFSM( scenes, typeof( UISMScene ) );
-						case SMSceneType.Debug:
-							return new SMSceneInternalFSM( scenes, typeof( DebugSMScene ) );
-						case SMSceneType.Main:
-							return new SMSceneInternalFSM( scenes, typeof( MainSMScene ) );
-						default:
-							return null;
-					}
-				}
-			);
-			if ( !setting._chunkSceneTypes.IsNullOrEmpty() ) {
-				var scenes = setting._chunkSceneTypes.Select( t => t.Create<SMScene>() );
-				fsms[SMSceneType.FieldChunk1]
-					= new SMSceneInternalFSM( scenes, typeof( FieldChunkSMScene ), false );
-				fsms[SMSceneType.FieldChunk2]
-					= new SMSceneInternalFSM( scenes, typeof( FieldChunkSMScene ), false );
-				fsms[SMSceneType.FieldChunk3]
-					= new SMSceneInternalFSM( scenes, typeof( FieldChunkSMScene ), false );
-				fsms[SMSceneType.FieldChunk4]
-					= new SMSceneInternalFSM( scenes, typeof( FieldChunkSMScene ), false );
-			}
-			SMServiceLocator.Unregister<ISMSceneSetting>();
-
-			_fsm = new SMSceneFSM( _owner, fsms );
-		}
-
 
 
 		public async UniTask Initialize() {
+			Setup();
 			return;
 
 			await _selfInitializeEvent.Run( _asyncCancelerOnDispose );
@@ -124,10 +98,30 @@ namespace SubmarineMirage.Scene {
 			_isActive = true;
 			_isInitialized = true;
 
-			await _fsm._foreverFSM.InitialEnter();
-			await _fsm.GetFSMs()
-				.Where( fsm => fsm._fsmType != SMSceneType.Forever )
-				.Select( fsm => fsm.InitialEnter() );
+			await _foreverFSM.InitialEnter( true );
+			await _fsm.InitialEnter();
+		}
+
+		// SMScene内部で、SMServiceLocatorから自身を参照する為、Body生成後に、Sceneを遅延生成する
+		void Setup() {
+			var setting = SMServiceLocator.Resolve<ISMSceneSetting>();
+			_fsm = SMSceneFSM.Generate( _owner, setting._sceneFSMList );
+			SMServiceLocator.Unregister<ISMSceneSetting>();
+
+			_foreverFSM = _fsm.GetFSM<ForeverSMScene>();
+			_mainFSM = _fsm.GetFSM<MainSMScene>();
+			_uiFSM = _fsm.GetFSM<UISMScene>();
+			_debugFSM = _fsm.GetFSM<DebugSMScene>();
+			_foreverScene = _foreverFSM.GetScenes().FirstOrDefault();
+
+			_firstLoadedRawScenes = GetLoadedRawScenes().ToList();
+
+			_fsm.GetFSMs().ForEach( fsm => {
+				fsm._body._startStateType = fsm.GetScenes()
+					.FirstOrDefault( s => IsFirstLoaded( s ) )
+					?.GetType();
+//				SMLog.Debug( fsm._body._startStateType?.GetAboutName() );
+			} );
 		}
 
 
@@ -135,9 +129,9 @@ namespace SubmarineMirage.Scene {
 			return;
 
 			await _fsm.GetFSMs()
-				.Where( fsm => fsm._fsmType != SMSceneType.Forever )
-				.Select( fsm => fsm.FinalExit() );
-			await _fsm.FinalExit();
+				.Where( fsm => fsm != _foreverFSM )
+				.Select( fsm => fsm.FinalExit( true ) );
+			await _foreverFSM.FinalExit( true );
 
 			_isFinalizing = true;
 			_disableEvent.Run();
@@ -146,6 +140,7 @@ namespace SubmarineMirage.Scene {
 
 			SubmarineMirageFramework.Shutdown();
 		}
+
 
 
 		public void FixedUpdate() {
@@ -161,7 +156,6 @@ namespace SubmarineMirage.Scene {
 			_isUpdating.Value = false;
 		}
 
-
 		public void Update() {
 			return;
 			if ( _isDispose )	{ return; }
@@ -174,7 +168,6 @@ namespace SubmarineMirage.Scene {
 			_updateEvent.Run();
 			_isUpdating.Value = false;
 		}
-
 
 		public void LateUpdate() {
 			return;
@@ -189,7 +182,6 @@ namespace SubmarineMirage.Scene {
 			_isUpdating.Value = false;
 		}
 
-
 #if DEVELOP
 		public void OnGUI() {
 			return;
@@ -197,5 +189,48 @@ namespace SubmarineMirage.Scene {
 			_onGUIEvent.Run();
 		}
 #endif
+
+
+
+		public IEnumerable<Scene> GetLoadedRawScenes()
+			=> Enumerable.Range( 0, SceneManager.sceneCount )
+				.Select( i => SceneManager.GetSceneAt( i ) );
+
+		public bool RemoveFirstLoaded( SMScene scene ) {
+			var count = _firstLoadedRawScenes
+				.RemoveAll( s => s.name == scene._name );
+			return count > 0;
+		}
+
+		public bool IsFirstLoaded( SMScene scene )
+			=> _firstLoadedRawScenes
+				.Any( s => s.name == scene._name );
+
+
+
+		public void MoveForeverScene( GameObject gameObject )
+			=> SceneManager.MoveGameObjectToScene( gameObject, _foreverScene._rawScene );
+
+
+
+		public IEnumerable<SMScene> GetScenes()
+			=> _fsm.GetFSMs()
+				.SelectMany( fsm => fsm.GetScenes() )
+				.Distinct();
+
+		public SMScene GetScene( Scene rawScene )
+			=> GetScenes()
+				.FirstOrDefault( s => s._rawScene == rawScene );
+
+
+
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetValue( nameof( _firstLoadedRawScenes ),
+				i => _toStringer.DefaultValue( _firstLoadedRawScenes.Select( s => s.name ), i, false )
+			);
+			_toStringer.Add( nameof( _isUpdating ), i => $"{_isUpdating.Value}" );
+		}
 	}
 }

@@ -17,7 +17,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class InitialEnableSMGroupManager : SMGroupManagerModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 
 
 		public InitialEnableSMGroupManager() : base( null ) {}

@@ -4,13 +4,18 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-using SubmarineMirage.Scene;
+namespace SubmarineMirage.Scene {
+	using SubmarineMirage.Base;
+	using FSM;
+	using Service;
 
 
 
-// TODO : コメント追加、整頓
+	// TODO : コメント追加、整頓
 
 
 
-public class FieldChunk2SMScene : FieldChunkSMScene {
+	public interface ISMSceneSetting : ISMStandardBase, ISMService {
+		SMFSMGenerateList<SMScene> _sceneFSMList	{ get; }
+	}
 }

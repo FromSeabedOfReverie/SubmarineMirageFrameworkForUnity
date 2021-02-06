@@ -15,6 +15,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	using Scene;
 	using Extension;
 	using Utility;
+	using Debug;
 
 
 
@@ -31,8 +32,8 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		protected TOwner _owner	{ get; private set; }
 		protected readonly LinkedList<TData> _data = new LinkedList<TData>();
 		bool _isRunning	{ get; set; }
-		protected abstract SMAsyncCanceler _asyncCanceler	{ get; }
-		ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
+		[SMHide] protected abstract SMAsyncCanceler _asyncCanceler	{ get; }
+		[SMHide] ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
 
 
 		public BaseSMTaskModifyler( TOwner owner ) {

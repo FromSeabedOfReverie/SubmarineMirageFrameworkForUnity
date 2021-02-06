@@ -1,11 +1,12 @@
 {
     "name": "SubmarineMirageFramework.Editor",
     "references": [
-        "GameDevWare.Serialization",
-        "KoganeUnityLib",
-        "SubmarineMirageFramework",
         "UniRx",
-        "UniTask"
+        "UniTask",
+        "KoganeUnityLib",
+        "GameDevWare.Serialization",
+        "BuildBaseSMLog",
+        "SubmarineMirageFramework"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

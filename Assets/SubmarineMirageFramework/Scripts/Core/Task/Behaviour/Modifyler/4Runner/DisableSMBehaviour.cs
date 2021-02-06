@@ -15,7 +15,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class DisableSMBehaviour : SMBehaviourModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 
 
 		public override async UniTask Run() {

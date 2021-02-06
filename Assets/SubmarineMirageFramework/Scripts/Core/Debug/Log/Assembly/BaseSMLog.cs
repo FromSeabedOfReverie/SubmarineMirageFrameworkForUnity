@@ -20,7 +20,7 @@ namespace SubmarineMirage.Debug {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>自身</summary>
-		static BaseSMLog<T> s_instance	{ get; set; }
+		protected static BaseSMLog<T> s_instance	{ get; set; }
 		/// <summary>自身が有効か？</summary>
 		public static bool s_isEnable	{ get; set; }
 

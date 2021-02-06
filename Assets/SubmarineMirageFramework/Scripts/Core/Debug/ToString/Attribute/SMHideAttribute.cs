@@ -7,7 +7,6 @@
 namespace SubmarineMirage.Debug {
 	using System;
 	using Base;
-	using Service;
 	using Extension;
 
 
@@ -23,16 +22,19 @@ namespace SubmarineMirage.Debug {
 		public uint _id	{ get; private set; }
 
 		public SMHideAttribute() {
-			var idCounter = SMServiceLocator.Resolve<SMIDCounter>();
-			_id = idCounter?.GetNewID( this ) ?? 0;
+			_id = SMIDCounter.GetNewID( this );
 		}
 
 		public void Dispose() {}
 
 		~SMHideAttribute() => Dispose();
 
+
 		public override string ToString() => ToString( 0 );
-		public virtual string ToString( int indent ) => this.ToShowString( indent );
+
+		public virtual string ToString( int indent, bool isUseHeadIndent = true )
+			=> this.ToShowString( indent, false, false, isUseHeadIndent );
+
 		public virtual string ToLineString( int indent = 0 ) => ObjectSMExtension.ToLineString( this, indent );
 	}
 }

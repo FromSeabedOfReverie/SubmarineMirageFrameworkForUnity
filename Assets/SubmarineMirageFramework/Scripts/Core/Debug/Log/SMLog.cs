@@ -42,8 +42,7 @@ namespace SubmarineMirage.Debug {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMLog() : base( DebugSetter.s_isUnityEditor ) {
-			var idCounter = SMServiceLocator.Resolve<SMIDCounter>();
-			_id = idCounter?.GetNewID( this ) ?? 0;
+			_id = SMIDCounter.GetNewID( this );
 
 			_toStringer = new SMToStringer( this );
 			SetToString();
@@ -96,7 +95,9 @@ namespace SubmarineMirage.Debug {
 		/// <summary>
 		/// ● 文章変換を設定
 		/// </summary>
-		public virtual void SetToString() {}
+		public virtual void SetToString() {
+			_toStringer.Hide( nameof( s_instance ) );
+		}
 
 		/// <summary>
 		/// ● 文章に変換
@@ -106,7 +107,8 @@ namespace SubmarineMirage.Debug {
 		/// <summary>
 		/// ● 文章に変換（インデントを整列）
 		/// </summary>
-		public virtual string ToString( int indent ) => _toStringer.Run( indent );
+		public virtual string ToString( int indent, bool isUseHeadIndent = true )
+			=> _toStringer.Run( indent, isUseHeadIndent );
 
 		/// <summary>
 		/// ● 1行文章に変換（インデントを整列）

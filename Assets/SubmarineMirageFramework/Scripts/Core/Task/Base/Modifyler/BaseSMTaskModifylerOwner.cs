@@ -24,7 +24,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		public bool _isOperable => _isInitialized && !_isFinalizing;
 		public bool _isFinalizing	{ get; set; }
 		public bool _isActive => _activeState == SMTaskActiveState.Enable;
-		[SMHide] public TModifyler _modifyler	{ get; protected set; }
+		public TModifyler _modifyler	{ get; protected set; }
 
 
 		public BaseSMTaskModifylerOwner() {

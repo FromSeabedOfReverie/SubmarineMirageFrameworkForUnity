@@ -72,13 +72,14 @@ namespace SubmarineMirage.MultiEvent {
 		}
 
 
-		public override string ToString( int indent ) {
-			var memberI = StringSMUtility.IndentSpace( indent + 1 );
+		public override string ToString( int indent, bool isUseHeadIndent = true ) {
+			indent++;
+			var mPrefix = StringSMUtility.IndentSpace( indent );
 
-			return base.ToString( indent ).InsertFirst( ")",
+			return base.ToString( indent, isUseHeadIndent ).InsertFirst( ")",
 				string.Join( "\n",
-					$"{memberI}{nameof( _eventKey )} : {_eventKey},",
-					$"{memberI}{nameof( _isRunning )} : {_isRunning},"
+					$"{mPrefix}{nameof( _eventKey )} : {_eventKey},",
+					$"{mPrefix}{nameof( _isRunning )} : {_isRunning},"
 				)
 				 + "\n"
 			);

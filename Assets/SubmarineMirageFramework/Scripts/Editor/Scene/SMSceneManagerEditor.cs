@@ -51,7 +51,7 @@ namespace SubmarineMirage.EditorScene {
 
 		void ShowAllGroups() {
 			_instance._fsm.GetFSMs().ForEach( fsm => {
-				ShowHeading1( fsm._fsmType.ToString() );
+				ShowHeading1( fsm._fsmType.GetAboutName() );
 
 				EditorGUI.indentLevel++;
 				fsm.GetScenes().ForEach( scene => {

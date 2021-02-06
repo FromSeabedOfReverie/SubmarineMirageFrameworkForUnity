@@ -15,7 +15,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class InitialEnableSMBehaviour : SMBehaviourModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 		[SMShowLine] bool _isActiveInHierarchy	{ get; set; }
 
 

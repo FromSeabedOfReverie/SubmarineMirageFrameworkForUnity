@@ -1,10 +1,10 @@
 {
     "name": "SubmarineMirageFramework",
     "references": [
-        "GameDevWare.Serialization",
-        "KoganeUnityLib",
         "UniRx",
         "UniTask",
+        "KoganeUnityLib",
+        "GameDevWare.Serialization",
         "BuildBaseSMLog"
     ],
     "optionalUnityReferences": [],

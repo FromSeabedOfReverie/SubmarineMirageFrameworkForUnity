@@ -15,7 +15,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class FinalDisableSMObject : SMObjectModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
 
 
 		public FinalDisableSMObject( SMTaskRunAllType runType ) : base( runType ) {}

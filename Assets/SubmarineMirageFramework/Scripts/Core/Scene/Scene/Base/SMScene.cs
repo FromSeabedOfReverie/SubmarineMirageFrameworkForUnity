@@ -17,6 +17,7 @@ namespace SubmarineMirage.Scene {
 	using Task;
 	using Task.Base;
 	using FSM.State;
+	using Scene.Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -27,10 +28,10 @@ namespace SubmarineMirage.Scene {
 
 
 
-	public abstract class SMScene : SMState<SMSceneManager, SMSceneInternalFSM> {
+	public abstract class SMScene : SMState<SMSceneManager, SMSceneFSM> {
 		[SMShowLine] public string _name	{ get; protected set; }
 		public Scene _rawScene	{ get; protected set; }
-		public SMGroupManagerBody _groupManagerBody	{ get; private set; }
+		[SMHide] public SMGroupManagerBody _groupManagerBody	{ get; private set; }
 
 		[SMHide] protected readonly SMMultiAsyncEvent _createBehavioursEvent = new SMMultiAsyncEvent();
 
@@ -48,7 +49,7 @@ namespace SubmarineMirage.Scene {
 
 			_enterEvent.AddLast( async canceler => {
 // TODO : ForeverScene等、作成系シーンで、読込ガードされる？
-				var isRemove = _fsm._fsm.RemoveFirstLoaded( this );
+				var isRemove = _owner._body.RemoveFirstLoaded( this );
 				if ( !isRemove ) {
 					await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive ).ToUniTask( canceler );
 					ReloadRawScene();

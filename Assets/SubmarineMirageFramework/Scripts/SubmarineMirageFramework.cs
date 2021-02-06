@@ -67,7 +67,6 @@ namespace SubmarineMirage {
 			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown() ) );
 
 			await initializePluginEvent();
-			SMServiceLocator.Register<SMIDCounter>();
 			SMServiceLocator.Register<SMDecorationManager>();
 			SMServiceLocator.Register<SMLog>();
 //			SMServiceLocator.Register<SMTagManager>();
@@ -76,13 +75,7 @@ namespace SubmarineMirage {
 
 			await registerSettingsEvent();
 
-			var hoge = SMServiceLocator.Resolve<ISMSceneSetting>();
-			SMLog.Debug( hoge );
-			SMLog.Debug( hoge.ToLineString() );
-
 			var scene = SMServiceLocator.Register<SMSceneManager>();
-			scene._body.Setup();
-
 			await scene._body.Initialize();
 
 			if ( s_isPlayTest ) {
@@ -91,6 +84,10 @@ namespace SubmarineMirage {
 			}
 
 			_isInitialized = true;
+
+
+			var hoge = SMServiceLocator.Resolve<SMSceneManager>();
+			SMLog.Debug( hoge?.ToShowString() );
 		}
 
 

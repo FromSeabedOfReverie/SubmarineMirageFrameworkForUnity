@@ -39,11 +39,11 @@ namespace SubmarineMirage.Task.Base {
 			SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork,
 		};
 
-		public SMGroupManager _manager	{ get; private set; }
-		public SMScene _scene	{ get; private set; }
+		[SMHide] public SMGroupManager _manager	{ get; private set; }
+		[SMHide] public SMScene _scene	{ get; private set; }
 		public SMGroupBody _groupBody	{ get; set; }
 
-		public bool _isEnter	{ get; private set; }
+		[SMShowLine] public bool _isEnter	{ get; private set; }
 
 		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
 

@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-using System.Collections.Generic;
 using System;
-using KoganeUnityLib;
 using SubmarineMirage.Base;
+using SubmarineMirage.FSM;
 using SubmarineMirage.Scene;
 
 
@@ -17,42 +16,43 @@ using SubmarineMirage.Scene;
 
 
 public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
-	public Dictionary<SMSceneType, Type[]> _fsmSceneTypes	{ get; private set; }
-	public Type[] _chunkSceneTypes	{ get; private set; }
+	public SMFSMGenerateList<SMScene> _sceneFSMList	{ get; private set; }
 
 
 	public SMSceneSetting() {
-		_fsmSceneTypes = new Dictionary<SMSceneType, Type[]> {
+		_sceneFSMList = new SMFSMGenerateList<SMScene> {
 			{
-				SMSceneType.Forever,
-				new Type[] { typeof( ForeverSMScene ), }
+				new Type[] { typeof( ForeverSMScene ), },
+				typeof( ForeverSMScene ),
+				null,
+				false
 			}, {
-				SMSceneType.Main,
 				new Type[] {
 					typeof( TitleSMScene ),
 					typeof( FieldSMScene ),
 					typeof( GameOverSMScene ),
 					typeof( GameClearSMScene ),
 					typeof( TestSMScene ),
-				}
+				},
+				typeof( MainSMScene ),
+				null,
+				false
 			}, {
-				SMSceneType.UI,
-				new Type[] { typeof( UISMScene ), }
+				new Type[] { typeof( UISMScene ), },
+				typeof( UISMScene ),
+				null,
+				false
 			}, {
-				SMSceneType.Debug,
-				new Type[] { typeof( DebugSMScene ), }
+				new Type[] { typeof( DebugSMScene ), },
+				typeof( DebugSMScene ),
+				null,
+				false
 			},
 		};
-		_chunkSceneTypes = new Type[] {
-			typeof( FieldChunk1SMScene ),
-			typeof( FieldChunk2SMScene ),
-			typeof( FieldChunk3SMScene ),
-			typeof( FieldChunk4SMScene ),
-		};
+
 
 		_disposables.AddLast( () => {
-			_fsmSceneTypes.Clear();
-			_chunkSceneTypes.Clear();
+			_sceneFSMList.Dispose();
 		} );
 	}
 }

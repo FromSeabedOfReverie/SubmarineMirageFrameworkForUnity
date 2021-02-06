@@ -60,13 +60,7 @@ namespace SubmarineMirage.EditorService {
 			EditorGUI.indentLevel++;
 
 			SMServiceLocator.s_container.ForEach( pair => {
-				GUI.SetNextControlName(
-					pair.Value.GetAboutName()
-
-// TODO : ToStringで無限ループ
-//						pair.Value.ToString()
-
-				);
+				GUI.SetNextControlName( pair.Value.ToString() );
 				EditorGUILayout.SelectableLabel(
 					$"{pair.Key.GetAboutName()} : {pair.Value.GetAboutName()}",
 					GUILayout.Height( 16 )

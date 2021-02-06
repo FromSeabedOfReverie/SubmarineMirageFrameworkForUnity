@@ -4,17 +4,16 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestScene
 namespace SubmarineMirage.Scene {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
-	using UnityEngine;
-	using UnityEngine.SceneManagement;
-	using Base;
+	using SubmarineMirage.Base;
 	using Service;
 	using MultiEvent;
 	using Task;
 	using FSM;
+	using Scene.Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -29,9 +28,16 @@ namespace SubmarineMirage.Scene {
 	public class SMSceneManager
 		: MonoBehaviourSMExtension, ISMFSMOwner<SMSceneFSM>, ISMStandardBase, ISMService
 	{
-		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
-		[SMShowLine] public bool _isDispose => _disposables._isDispose;
-		[SMHide] public SMToStringer _toStringer	{ get; private set; }
+		public SMSceneManagerBody _body	{ get; private set; }
+
+		[SMHide] public SMSceneFSM _fsm			=> _body._fsm;
+		[SMHide] public SMSceneFSM _foreverFSM	=> _body._foreverFSM;
+		[SMHide] public SMSceneFSM _mainFSM		=> _body._mainFSM;
+		[SMHide] public SMSceneFSM _uiFSM		=> _body._uiFSM;
+		[SMHide] public SMSceneFSM _debugFSM	=> _body._debugFSM;
+		[SMHide] public SMScene _foreverScene	=> _body._foreverScene;
+
+		[SMShowLine] public bool _isInitialEnteredFSMs	{ get; set; }
 
 		[SMHide] public bool _isInitialized	=> _body._isInitialized;
 		[SMHide] public bool _isOperable	=> _body._isOperable;
@@ -51,8 +57,9 @@ namespace SubmarineMirage.Scene {
 #endif
 		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
-		[SMHide] public SMSceneFSM _fsm	=> _body._fsm;
-		public SMSceneManagerBody _body	{ get; private set; }
+		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
+		[SMShowLine] public bool _isDispose => _disposables._isDispose;
+		[SMHide] public SMToStringer _toStringer	{ get; private set; }
 
 
 
@@ -73,6 +80,7 @@ namespace SubmarineMirage.Scene {
 		public override void Dispose() => _disposables.Dispose();
 
 
+
 		void FixedUpdate() => _body?.FixedUpdate();
 		void Update() => _body?.Update();
 		void LateUpdate() => _body?.LateUpdate();
@@ -82,27 +90,44 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public void MoveForeverScene( GameObject rawObject )
-			=> SceneManager.MoveGameObjectToScene( rawObject, _fsm._foreverScene._rawScene );
+		public T GetBehaviour<T>( Type sceneType = null ) where T : SMBehaviour
+			=> GetBehaviours<T>( sceneType )
+				.FirstOrDefault();
+
+		public T GetBehaviour<T, TScene>() where T : SMBehaviour where TScene : SMScene
+			=> GetBehaviours<T, TScene>()
+				.FirstOrDefault();
+
+		public SMBehaviour GetBehaviour( Type type, Type sceneType = null )
+			=> GetBehaviours( type, sceneType )
+				.FirstOrDefault();
+
+
+		public IEnumerable<T> GetBehaviours<T>( Type sceneType = null ) where T : SMBehaviour
+			=> GetBehaviours( typeof( T ), sceneType )
+				.Select( b => (T)b );
+
+		public IEnumerable<T> GetBehaviours<T, TScene>() where T : SMBehaviour where TScene : SMScene
+			=> GetBehaviours( typeof( T ), typeof( TScene ) )
+				.Select( b => (T)b );
+
+		public IEnumerable<SMBehaviour> GetBehaviours( Type type, Type sceneType = null ) {
+			if ( sceneType != null ) {
+				return _fsm.GetFSM( sceneType )
+					?.GetBehaviours( type )
+					?? Enumerable.Empty<SMBehaviour>();
+			}
+			return _fsm.GetFSMs()
+				.SelectMany( fsm => fsm.GetBehaviours( type ) );
+		}
 
 
 
-		public T GetBehaviour<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
-			=> _fsm.GetBehaviour<T>( sceneType );
+		public virtual void SetToString() {}
 
-		public SMBehaviour GetBehaviour( Type type, SMSceneType? sceneType = null )
-			=> _fsm.GetBehaviour( type, sceneType );
+		public override string ToString( int indent, bool isUseHeadIndent = true )
+			=> _toStringer.Run( indent, isUseHeadIndent );
 
-		public IEnumerable<T> GetBehaviours<T>( SMSceneType? sceneType = null ) where T : SMBehaviour
-			=> _fsm.GetBehaviours<T>( sceneType );
-
-		public IEnumerable<SMBehaviour> GetBehaviours( Type type, SMSceneType? sceneType = null )
-			=> _fsm.GetBehaviours( type, sceneType );
-
-
-
-		public virtual void SetToString()	{}
-		public override string ToString( int indent ) => _toStringer.Run( indent );
 		public override string ToLineString( int indent = 0 ) => _toStringer.RunLine( indent );
 	}
 }

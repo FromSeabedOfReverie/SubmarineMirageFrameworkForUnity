@@ -14,7 +14,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class InitializeSMObject : SMObjectModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
 
 
 		public InitializeSMObject( SMTaskRunAllType runType ) : base( runType ) {}

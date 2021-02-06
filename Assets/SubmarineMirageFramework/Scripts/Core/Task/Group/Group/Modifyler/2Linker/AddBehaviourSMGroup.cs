@@ -18,7 +18,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class AddBehaviourSMGroup : SMGroupModifyData {
-		public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
 		[SMShowLine] public SMBehaviour _behaviour	{ get; private set; }
 
 

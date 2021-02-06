@@ -22,7 +22,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 	public class SMObjectBody : BaseSMTaskModifylerOwner<SMObjectModifyler> {
-		public SMObject _object	{ get; private set; }
+		[SMHide] public SMObject _object	{ get; private set; }
 		[SMShowLine] public SMGroupBody _groupBody	{ get; set; }
 		[SMShowLine] public SMBehaviourBody _behaviourBody	{ get; set; }
 

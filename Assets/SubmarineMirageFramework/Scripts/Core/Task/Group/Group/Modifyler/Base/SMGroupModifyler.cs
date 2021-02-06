@@ -9,6 +9,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	using Task.Base;
 	using Extension;
 	using Utility;
+	using Debug;
 
 
 
@@ -19,7 +20,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	public class SMGroupModifyler
 		: BaseSMTaskModifyler<SMGroupBody, SMGroupModifyler, SMGroupModifyData>
 	{
-		protected override SMAsyncCanceler _asyncCanceler => _owner._asyncCanceler;
+		[SMHide] protected override SMAsyncCanceler _asyncCanceler => _owner._asyncCanceler;
 
 
 
