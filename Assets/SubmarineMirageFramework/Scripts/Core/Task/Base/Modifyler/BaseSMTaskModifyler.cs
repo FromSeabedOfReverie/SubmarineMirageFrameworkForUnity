@@ -30,10 +30,21 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		where TData : class, IBaseSMTaskModifyData<TOwner, TModifyler>
 	{
 		protected TOwner _owner	{ get; private set; }
-		protected readonly LinkedList<TData> _data = new LinkedList<TData>();
-		bool _isRunning	{ get; set; }
-		[SMHide] protected abstract SMAsyncCanceler _asyncCanceler	{ get; }
-		[SMHide] ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
+		[SMShow] protected readonly LinkedList<TData> _data = new LinkedList<TData>();
+		[SMShow] bool _isRunning	{ get; set; }
+		protected abstract SMAsyncCanceler _asyncCanceler	{ get; }
+		ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
+
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.Add( nameof( _owner ), i => _toStringer.DefaultValue( _owner, i, true ) );
+			_toStringer.SetValue( nameof( _data ), i => _toStringer.DefaultValue( _data, i, true ) );
+		}
+#endregion
+
 
 
 		public BaseSMTaskModifyler( TOwner owner ) {
@@ -98,12 +109,5 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 		public UniTask WaitRunning()
 			=> UTask.WaitWhile( _asyncCanceler, () => _isRunning || !_data.IsEmpty() );
-
-
-		public override void SetToString() {
-			base.SetToString();
-			_toStringer.SetValue( nameof( _owner ), i => _toStringer.DefaultValue( _owner, i, true ) );
-			_toStringer.SetValue( nameof( _data ), i => _toStringer.DefaultValue( _data, i, true ) );
-		}
 	}
 }

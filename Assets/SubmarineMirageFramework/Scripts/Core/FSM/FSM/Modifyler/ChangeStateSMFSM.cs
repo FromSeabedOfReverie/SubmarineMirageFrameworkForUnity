@@ -28,6 +28,11 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( !_owner._isInitialEntered ) {
+				_owner._startStateType = _stateType;
+				return;
+			}
+
 			SMStateBody state = null;
 			if ( _stateType != null ) {
 				state = _owner.GetState( _stateType );

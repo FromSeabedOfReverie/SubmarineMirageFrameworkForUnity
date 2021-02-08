@@ -25,9 +25,9 @@ namespace SubmarineMirage.Debug {
 		public static bool s_isEnable	{ get; set; }
 
 		/// <summary>タグ装飾一覧の辞書</summary>
-		readonly Dictionary<T, string> _tagFormats = new Dictionary<T, string>();
+		protected readonly Dictionary<T, string> _tagFormats = new Dictionary<T, string>();
 		/// <summary>Unityエディタで実行中か？</summary>
-		bool _isEditor	{ get; set; }
+		protected bool _isEditor	{ get; set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除

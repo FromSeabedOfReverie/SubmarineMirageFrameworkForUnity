@@ -22,20 +22,53 @@ namespace SubmarineMirage.Task.Base {
 
 
 	public class SMObjectBody : BaseSMTaskModifylerOwner<SMObjectModifyler> {
-		[SMHide] public SMObject _object	{ get; private set; }
-		[SMShowLine] public SMGroupBody _groupBody	{ get; set; }
+		public SMObject _object	{ get; private set; }
+		public SMGroupBody _groupBody	{ get; set; }
 		[SMShowLine] public SMBehaviourBody _behaviourBody	{ get; set; }
 
 		[SMShowLine] public GameObject _gameObject	{ get; private set; }
 
-		[SMShowLine] public SMObjectBody _previous	{ get; set; }
-		[SMShowLine] public SMObjectBody _next		{ get; set; }
-		[SMShowLine] public SMObjectBody _parent	{ get; set; }
-		[SMShowLine] public SMObjectBody _child		{ get; set; }
+		public SMObjectBody _previous	{ get; set; }
+		public SMObjectBody _next		{ get; set; }
+		public SMObjectBody _parent	{ get; set; }
+		public SMObjectBody _child		{ get; set; }
 
-		public bool _isDisabling	{ get; set; }
+		[SMShow] public bool _isDisabling	{ get; set; }
 
 		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
+
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+
+			_toStringer.SetValue( nameof( _gameObject ), i => _gameObject.name );
+			_toStringer.SetValue( nameof( _behaviourBody ), i =>
+				_toStringer.DefaultValue( _behaviourBody.GetBrothers(), i, true ) );
+			_toStringer.Add( nameof( _parent ), i => _toStringer.DefaultValue( _parent, i, true ) );
+			_toStringer.Add( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
+			_toStringer.Add( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
+			_toStringer.Add( nameof( _child ), i => _toStringer.DefaultValue( GetChildren(), i, true ) );
+
+
+			_toStringer.SetLineValue( nameof( _gameObject ), () => _gameObject.name );
+			_toStringer.SetLineValue( nameof( _behaviourBody ), () => string.Join( ",",
+				_behaviourBody.GetBrothers().Select( b => b.GetAboutName() )
+			) );
+			_toStringer.AddLine( nameof( _groupBody ), () => $"△{_groupBody._objectBody._id}" );
+			_toStringer.AddLine( nameof( _parent ), () => $"←{_parent?._id}" );
+			_toStringer.AddLine( nameof( _previous ), () => $"↑{_previous?._id}" );
+			_toStringer.AddLine( nameof( _next ), () => $"↓{_next?._id}" );
+			_toStringer.AddLine( nameof( _child ), () => "→" + string.Join( ",",
+				GetChildren().Select( o => o._id )
+			) );
+
+			_toStringer.AddLine( nameof( _ranState ), () => _toStringer.DefaultLineValue( _ranState ) );
+			_toStringer.AddLine( nameof( _isActive ), () => _isActive ? "◯" : "×" );
+		}
+#endregion
 
 
 
@@ -269,38 +302,6 @@ namespace SubmarineMirage.Task.Base {
 				yield return o;
 				o.GetChildren().ForEach( c => currents.Enqueue( c ) );
 			}
-		}
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-
-
-			_toStringer.SetValue( nameof( _gameObject ), i => _gameObject.name );
-			_toStringer.SetValue( nameof( _behaviourBody ), i =>
-				_toStringer.DefaultValue( _behaviourBody.GetBrothers(), i, true ) );
-			_toStringer.SetValue( nameof( _parent ), i => _toStringer.DefaultValue( _parent, i, true ) );
-			_toStringer.SetValue( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
-			_toStringer.SetValue( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
-			_toStringer.SetValue( nameof( _child ), i => _toStringer.DefaultValue( GetChildren(), i, true ) );
-			_toStringer.SetValue( nameof( _asyncCanceler ), i => $"_isCancel : {_asyncCanceler._isCancel}" );
-
-
-			_toStringer.SetLineValue( nameof( _gameObject ), () => _gameObject.name );
-			_toStringer.SetLineValue( nameof( _behaviourBody ), () => string.Join( ",",
-				_behaviourBody.GetBrothers().Select( b => b.GetAboutName() )
-			) );
-			_toStringer.SetLineValue( nameof( _groupBody ), () => $"△{_groupBody._objectBody._id}" );
-			_toStringer.SetLineValue( nameof( _parent ), () => $"←{_parent?._id}" );
-			_toStringer.SetLineValue( nameof( _previous ), () => $"↑{_previous?._id}" );
-			_toStringer.SetLineValue( nameof( _next ), () => $"↓{_next?._id}" );
-			_toStringer.SetLineValue( nameof( _child ), () => "→" + string.Join( ",",
-				GetChildren().Select( o => o._id )
-			) );
-
-			_toStringer.AddLine( nameof( _ranState ), () => _toStringer.DefaultLineValue( _ranState ) );
-			_toStringer.AddLine( nameof( _isActive ), () => _isActive ? "◯" : "×" );
 		}
 	}
 }

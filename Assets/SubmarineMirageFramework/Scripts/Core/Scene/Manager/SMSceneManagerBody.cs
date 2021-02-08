@@ -15,7 +15,7 @@ namespace SubmarineMirage.Scene.Base {
 	using KoganeUnityLib;
 	using SubmarineMirage.Base;
 	using Service;
-	using MultiEvent;
+	using Event;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -27,40 +27,58 @@ namespace SubmarineMirage.Scene.Base {
 
 
 	public class SMSceneManagerBody : SMStandardBase {
-		[SMHide] public SMSceneManager _owner	{ get; private set; }
-		public SMSceneFSM _fsm	{ get; private set; }
+		public SMSceneManager _owner	{ get; private set; }
+		[SMShow] public SMSceneFSM _fsm	{ get; private set; }
 
-		[SMHide] public SMSceneFSM _foreverFSM	{ get; private set; }
-		[SMHide] public SMSceneFSM _mainFSM		{ get; private set; }
-		[SMHide] public SMSceneFSM _uiFSM		{ get; private set; }
-		[SMHide] public SMSceneFSM _debugFSM	{ get; private set; }
-		[SMHide] public SMScene _foreverScene	{ get; private set; }
+		public SMSceneFSM _foreverFSM	{ get; private set; }
+		public SMSceneFSM _mainFSM		{ get; private set; }
+		public SMSceneFSM _uiFSM		{ get; private set; }
+		public SMSceneFSM _debugFSM	{ get; private set; }
 
-		List<Scene> _firstLoadedRawScenes	{ get; set; }
+		public SMScene _foreverScene	{ get; private set; }
+		Scene _rawSceneUntilDispose	{ get; set; }
 
-		public bool _isInitialized	{ get; set; }
-		public bool _isOperable		=> _isInitialized && !_isFinalizing;
-		public bool _isFinalizing	{ get; set; }
-		public bool _isActive		{ get; set; }
-		[SMHide] public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
+		[SMShow] List<Scene> _firstLoadedRawScenes	{ get; set; } = new List<Scene>();
 
-		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent	= new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent		= new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiSubject _enableEvent			= new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _fixedUpdateEvent		= new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _updateEvent			= new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _lateUpdateEvent		= new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _disableEvent			= new SMMultiSubject();
-		[SMHide] public readonly SMMultiAsyncEvent _finalizeEvent		= new SMMultiAsyncEvent();
+		[SMShow] public bool _isInitialized	{ get; set; }
+		[SMShow] public bool _isOperable		=> _isInitialized && !_isFinalizing;
+		[SMShow] public bool _isFinalizing	{ get; set; }
+		[SMShow] public bool _isActive		{ get; set; }
+		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
+		bool _isCalledFinalize	{ get; set; }
+
+		public readonly SMAsyncEvent _selfInitializeEvent	= new SMAsyncEvent();
+		public readonly SMAsyncEvent _initializeEvent		= new SMAsyncEvent();
+		public readonly SMSubject _enableEvent			= new SMSubject();
+		public readonly SMSubject _fixedUpdateEvent		= new SMSubject();
+		public readonly SMSubject _updateEvent			= new SMSubject();
+		public readonly SMSubject _lateUpdateEvent		= new SMSubject();
+		public readonly SMSubject _disableEvent			= new SMSubject();
+		public readonly SMAsyncEvent _finalizeEvent		= new SMAsyncEvent();
 #if DEVELOP
-		[SMHide] public readonly SMMultiSubject _onGUIEvent = new SMMultiSubject();
+		public readonly SMSubject _onGUIEvent = new SMSubject();
 #endif
-		[SMHide] public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
+		public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
+
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetValue( nameof( _fsm ), i =>
+				_toStringer.DefaultValue( _fsm?.GetFSMs(), i, true ) );
+			_toStringer.SetValue( nameof( _firstLoadedRawScenes ), i =>
+				_toStringer.DefaultValue( _firstLoadedRawScenes.Select( s => s.name ), i, false ) );
+			_toStringer.Add( nameof( _isUpdating ), i => $"{_isUpdating.Value}" );
+		}
+#endregion
 
 
 
 		public SMSceneManagerBody( SMSceneManager owner ) {
 			_owner = owner;
+			_rawSceneUntilDispose = SceneManager.CreateScene( "UntilDispose" );
 
 
 			_disposables.AddLast( () => {
@@ -90,7 +108,7 @@ namespace SubmarineMirage.Scene.Base {
 
 		public async UniTask Initialize() {
 			Setup();
-			return;
+//			return;
 
 			await _selfInitializeEvent.Run( _asyncCancelerOnDispose );
 			await _initializeEvent.Run( _asyncCancelerOnDispose );
@@ -122,11 +140,18 @@ namespace SubmarineMirage.Scene.Base {
 					?.GetType();
 //				SMLog.Debug( fsm._body._startStateType?.GetAboutName() );
 			} );
+			// 不明なシーンを設定
+			var scene = _mainFSM.GetScene<UnknownMainSMScene>();
+			scene.Setup();
 		}
 
 
 		public async UniTask Finalize() {
-			return;
+			if ( _isCalledFinalize )	{ return; }
+			_isCalledFinalize = true;
+//			SMLog.Debug( "Finalize実行中" );
+
+			await UTask.WaitWhile( _asyncCancelerOnDispose, () => !_isInitialized );
 
 			await _fsm.GetFSMs()
 				.Where( fsm => fsm != _foreverFSM )
@@ -194,17 +219,27 @@ namespace SubmarineMirage.Scene.Base {
 
 		public IEnumerable<Scene> GetLoadedRawScenes()
 			=> Enumerable.Range( 0, SceneManager.sceneCount )
-				.Select( i => SceneManager.GetSceneAt( i ) );
+				.Select( i => SceneManager.GetSceneAt( i ) )
+				.Where( rs => rs.name != _rawSceneUntilDispose.name );
 
-		public bool RemoveFirstLoaded( SMScene scene ) {
-			var count = _firstLoadedRawScenes
-				.RemoveAll( s => s.name == scene._name );
-			return count > 0;
-		}
+		public bool RemoveFirstLoaded( SMScene scene )
+			=> _firstLoadedRawScenes
+				.RemoveFind( s => s.name == scene._name );
 
 		public bool IsFirstLoaded( SMScene scene )
 			=> _firstLoadedRawScenes
 				.Any( s => s.name == scene._name );
+
+		public IEnumerable<Scene> GetUnknownScenes() {
+			var scenes = _firstLoadedRawScenes.Copy();
+
+			_fsm.GetFSMs()
+				.Where( fsm => fsm._body._startStateType != null )
+				.Select( fsm => fsm.GetScene( fsm._body._startStateType ) )
+				.ForEach( s => scenes.Remove( rs => rs.name == s._name ) );
+
+			return scenes;
+		}
 
 
 
@@ -221,16 +256,5 @@ namespace SubmarineMirage.Scene.Base {
 		public SMScene GetScene( Scene rawScene )
 			=> GetScenes()
 				.FirstOrDefault( s => s._rawScene == rawScene );
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-
-			_toStringer.SetValue( nameof( _firstLoadedRawScenes ),
-				i => _toStringer.DefaultValue( _firstLoadedRawScenes.Select( s => s.name ), i, false )
-			);
-			_toStringer.Add( nameof( _isUpdating ), i => $"{_isUpdating.Value}" );
-		}
 	}
 }

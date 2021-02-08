@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.State.Base {
 	using SubmarineMirage.Base;
-	using MultiEvent;
+	using Event;
 	using FSM.Base;
 	using Utility;
 	using Debug;
@@ -18,29 +18,29 @@ namespace SubmarineMirage.FSM.State.Base {
 
 
 	public abstract class BaseSMState : SMStandardBase {
-		public SMStateBody _body	{ get; private set; }
-		[SMHide] public IBaseSMFSMOwner _owner	=> _body._owner;
-		[SMHide] public BaseSMFSM _fsm			=> _body._fsmBody._fsm;
+		[SMShow] public SMStateBody _body	{ get; private set; }
+		public IBaseSMFSMOwner _owner	=> _body._owner;
+		public BaseSMFSM _fsm			=> _body._fsmBody._fsm;
 
-		[SMHide] public SMStateRunState _ranState			=> _body._ranState;
-		[SMHide] public SMStateUpdateState _updatedState	=> _body._updatedState;
-		[SMHide] public bool _isUpdating					=> _body._isUpdating;
+		public SMStateRunState _ranState			=> _body._ranState;
+		public SMStateUpdateState _updatedState	=> _body._updatedState;
+		public bool _isUpdating					=> _body._isUpdating;
 
-		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
-		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
-		[SMHide] public SMMultiSubject _enableEvent				=> _body._enableEvent;
-		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
-		[SMHide] public SMMultiSubject _updateEvent				=> _body._updateEvent;
-		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
-		[SMHide] public SMMultiSubject _disableEvent			=> _body._disableEvent;
-		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
+		public SMAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
+		public SMAsyncEvent _initializeEvent		=> _body._initializeEvent;
+		public SMSubject _enableEvent				=> _body._enableEvent;
+		public SMSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
+		public SMSubject _updateEvent				=> _body._updateEvent;
+		public SMSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
+		public SMSubject _disableEvent			=> _body._disableEvent;
+		public SMAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 
-		[SMHide] public SMMultiAsyncEvent _enterEvent		=> _body._enterEvent;
-		[SMHide] public SMMultiAsyncEvent _updateAsyncEvent	=> _body._updateAsyncEvent;
-		[SMHide] public SMMultiAsyncEvent _exitEvent		=> _body._exitEvent;
+		public SMAsyncEvent _enterEvent		=> _body._enterEvent;
+		public SMAsyncEvent _updateAsyncEvent	=> _body._updateAsyncEvent;
+		public SMAsyncEvent _exitEvent		=> _body._exitEvent;
 
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _body._asyncCancelerOnDisableAndExit;
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose			=> _body._asyncCancelerOnDispose;
+		public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _body._asyncCancelerOnDisableAndExit;
+		public SMAsyncCanceler _asyncCancelerOnDispose			=> _body._asyncCancelerOnDispose;
 
 
 

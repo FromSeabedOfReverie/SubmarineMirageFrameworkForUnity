@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.FSM.Base {
 	using SubmarineMirage.Base;
-	using MultiEvent;
+	using Event;
 	using Utility;
 
 
@@ -22,14 +22,14 @@ namespace SubmarineMirage.FSM.Base {
 		bool _isActive		{ get; }
 		bool _isInitialEnteredFSMs	{ get; set; }
 
-		SMMultiAsyncEvent _selfInitializeEvent	{ get; }
-		SMMultiAsyncEvent _initializeEvent		{ get; }
-		SMMultiSubject _enableEvent				{ get; }
-		SMMultiSubject _fixedUpdateEvent		{ get; }
-		SMMultiSubject _updateEvent				{ get; }
-		SMMultiSubject _lateUpdateEvent			{ get; }
-		SMMultiSubject _disableEvent			{ get; }
-		SMMultiAsyncEvent _finalizeEvent		{ get; }
+		SMAsyncEvent _selfInitializeEvent	{ get; }
+		SMAsyncEvent _initializeEvent		{ get; }
+		SMSubject _enableEvent				{ get; }
+		SMSubject _fixedUpdateEvent		{ get; }
+		SMSubject _updateEvent				{ get; }
+		SMSubject _lateUpdateEvent			{ get; }
+		SMSubject _disableEvent			{ get; }
+		SMAsyncEvent _finalizeEvent		{ get; }
 
 		SMAsyncCanceler _asyncCancelerOnDispose	{ get; }
 	}

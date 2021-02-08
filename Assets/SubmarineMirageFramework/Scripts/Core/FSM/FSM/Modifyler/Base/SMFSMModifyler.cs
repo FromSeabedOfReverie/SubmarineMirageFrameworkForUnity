@@ -21,9 +21,17 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 	public class SMFSMModifyler : SMStandardBase {
-		[SMHide] SMFSMBody _owner	{ get; set; }
-		readonly LinkedList<SMFSMModifyData> _data = new LinkedList<SMFSMModifyData>();
+		SMFSMBody _owner	{ get; set; }
+		[SMShow] readonly LinkedList<SMFSMModifyData> _data = new LinkedList<SMFSMModifyData>();
 		[SMShowLine] bool _isRunning	{ get; set; }
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+			_toStringer.SetValue( nameof( _data ), i => _toStringer.DefaultValue( _data, i, true ) );
+		}
+#endregion
 
 
 		public SMFSMModifyler( SMFSMBody owner ) {
@@ -71,6 +79,7 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 					_data.Enqueue( data );
 					break;
 			}
+			SMLog.Debug( this );
 			Run().Forget();
 		}
 
@@ -84,6 +93,7 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 			if ( _isRunning )	{ return; }
 
 			_isRunning = true;
+			SMLog.Warning( "Run" );
 			while ( IsHaveData() ) {
 				if ( _isDispose )			{ break; }
 				if ( !_owner._isOperable )	{ break; }
@@ -97,11 +107,5 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 		public UniTask WaitRunning()
 			=> UTask.WaitWhile( _owner._asyncCancelerOnDispose, () => _isRunning || IsHaveData() );
-
-
-		public override void SetToString() {
-			base.SetToString();
-			_toStringer.SetValue( nameof( _data ), i => _toStringer.DefaultValue( _data, i, true ) );
-		}
 	}
 }

@@ -12,7 +12,7 @@ namespace SubmarineMirage.FSM.Base {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SubmarineMirage.Base;
-	using MultiEvent;
+	using Event;
 	using FSM.Modifyler;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
@@ -27,42 +27,54 @@ namespace SubmarineMirage.FSM.Base {
 
 
 	public class SMFSMBody : SMStandardBase {
-		[SMHide] public BaseSMFSM _fsm			{ get; private set; }
-		[SMHide] public IBaseSMFSMOwner _owner	{ get; private set; }
-		Dictionary<Type, SMStateBody> _stateBodies	{ get; set; }
+		public BaseSMFSM _fsm			{ get; private set; }
+		public IBaseSMFSMOwner _owner	{ get; private set; }
+		[SMShow] Dictionary<Type, SMStateBody> _stateBodies	{ get; set; }
 		[SMShowLine] public SMStateBody _stateBody	{ get; set; }
 
-		[SMHide] public SMFSMBody _previous	{ get; set; }
+		public SMFSMBody _previous	{ get; set; }
 		public SMFSMBody _next		{ get; set; }
 
-		public SMFSMModifyler _modifyler	{ get; private set; }
+		[SMShow] public SMFSMModifyler _modifyler	{ get; private set; }
 
-		public Type _baseStateType	{ get; protected set; }
-		public Type _startStateType	{ get; set; }
-		public string _registerEventName	{ get; private set; }
-		public bool _isInitialEntered		{ get; set; }
+		[SMShowLine] public Type _baseStateType	{ get; protected set; }
+		[SMShow] public Type _startStateType	{ get; set; }
+		[SMShow] public string _registerEventName	{ get; private set; }
+		[SMShow] public bool _isInitialEntered		{ get; set; }
 
-		[SMHide] public bool _isInitialized	=> _owner._isInitialized;
-		[SMHide] public bool _isOperable	=> _owner._isOperable;
-		[SMHide] public bool _isFinalizing	=> _owner._isFinalizing;
-		[SMHide] public bool _isActive		=> _owner._isActive;
+		public bool _isInitialized	=> _owner._isInitialized;
+		public bool _isOperable	=> _owner._isOperable;
+		public bool _isFinalizing	=> _owner._isFinalizing;
+		public bool _isActive		=> _owner._isActive;
 
-		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
-		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _owner._initializeEvent;
-		[SMHide] public SMMultiSubject _enableEvent				=> _owner._enableEvent;
-		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
-		[SMHide] public SMMultiSubject _updateEvent				=> _owner._updateEvent;
-		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
-		[SMHide] public SMMultiSubject _disableEvent			=> _owner._disableEvent;
-		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
+		public SMAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
+		public SMAsyncEvent _initializeEvent		=> _owner._initializeEvent;
+		public SMSubject _enableEvent				=> _owner._enableEvent;
+		public SMSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
+		public SMSubject _updateEvent				=> _owner._updateEvent;
+		public SMSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
+		public SMSubject _disableEvent			=> _owner._disableEvent;
+		public SMAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
 
-		[SMHide] public readonly SMAsyncCanceler _asyncCancelerOnDisableAndExit = new SMAsyncCanceler();
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
+		public readonly SMAsyncCanceler _asyncCancelerOnDisableAndExit = new SMAsyncCanceler();
+		public SMAsyncCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
 
 
 
-		public SMFSMBody( BaseSMFSM fsm
-		) {
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetValue( nameof( _stateBodies ), i =>
+				_toStringer.DefaultValue( _stateBodies, i, true ) );
+			_toStringer.Add( nameof( _previous ), i => _toStringer.DefaultLineValue( _previous ) );
+			_toStringer.Add( nameof( _next ), i => _toStringer.DefaultLineValue( _next ) );
+		}
+#endregion
+
+
+
+		public SMFSMBody( BaseSMFSM fsm ) {
 			_fsm = fsm;
 			_modifyler = new SMFSMModifyler( this );
 			_registerEventName = _fsm.GetAboutName();
@@ -214,15 +226,6 @@ namespace SubmarineMirage.FSM.Base {
 			for ( var current = GetFirst(); current != null; current = current._next ) {
 				yield return current;
 			}
-		}
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-
-			_toStringer.SetValue( nameof( _stateBodies ), i =>
-				_toStringer.DefaultValue( _stateBodies, i, true ) );
 		}
 	}
 }

@@ -9,7 +9,7 @@ namespace SubmarineMirage.Debug {
 	using UnityEngine;
 	using Base;
 	using Service;
-	using MultiEvent;
+	using Event;
 	using Utility;
 	using Debug.ToString;
 
@@ -30,10 +30,10 @@ namespace SubmarineMirage.Debug {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		[SMShowLine] public uint _id	{ get; private set; }
-		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
+		public SMDisposable _disposables	{ get; private set; } = new SMDisposable();
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;
-		[SMHide] public SMToStringer _toStringer	{ get; private set; }
-		[SMHide] SMDecorationManager _decorationManager	{ get; set; }
+		public SMToStringer _toStringer	{ get; private set; }
+		SMDecorationManager _decorationManager	{ get; set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -96,7 +96,9 @@ namespace SubmarineMirage.Debug {
 		/// ● 文章変換を設定
 		/// </summary>
 		public virtual void SetToString() {
-			_toStringer.Hide( nameof( s_instance ) );
+			_toStringer.Add( nameof( s_isEnable ), i => _toStringer.DefaultValue( s_isEnable, i, false ) );
+			_toStringer.Add( nameof( _isEditor ), i => _toStringer.DefaultValue( _isEditor, i, false ) );
+			_toStringer.Add( nameof( _tagFormats ), i => _toStringer.DefaultValue( _tagFormats, i, false ) );
 		}
 
 		/// <summary>

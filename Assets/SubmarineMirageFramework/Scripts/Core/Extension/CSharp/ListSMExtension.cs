@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
+	using System;
 	using System.Collections.Generic;
 
 
@@ -19,6 +20,14 @@ namespace SubmarineMirage.Extension {
 			var result = self.Copy();
 			result.Reverse();
 			return result;
+		}
+
+		public static bool RemoveFind<T>( this List<T> self, Predicate<T> findEvent ) {
+			var i = self.FindIndex( findEvent );
+			if ( i == -1 )	{ return false; }
+
+			self.RemoveAt( i );
+			return true;
 		}
 	}
 }

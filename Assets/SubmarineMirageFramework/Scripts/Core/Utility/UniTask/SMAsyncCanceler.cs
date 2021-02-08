@@ -12,7 +12,7 @@ namespace SubmarineMirage.Utility {
 	using System.Runtime.CompilerServices;
 	using KoganeUnityLib;
 	using SubmarineMirage.Base;
-	using MultiEvent;
+	using Event;
 	using Debug;
 
 
@@ -22,14 +22,35 @@ namespace SubmarineMirage.Utility {
 
 
 	public class SMAsyncCanceler : SMStandardBase {
-		CancellationTokenSource _canceler = new CancellationTokenSource();
+		static readonly CancellationToken s_defaultCanceledToken;
+		CancellationTokenSource _canceler	{ get; set; } = new CancellationTokenSource();
 		public CancellationToken _lastCanceledToken	{ get; private set; }
-		public SMMultiSubject _cancelEvent	{ get; private set; } = new SMMultiSubject();
-		public bool _isCancel	=> _isDispose || _canceler.IsCancellationRequested;
+		[SMShow] public SMSubject _cancelEvent	{ get; private set; } = new SMSubject();
+		[SMShow] public bool _isCancel	=> _isDispose || _canceler.IsCancellationRequested;
 
-		SMAsyncCanceler _parent;
-		public readonly LinkedList<SMAsyncCanceler> _children = new LinkedList<SMAsyncCanceler>();
+		SMAsyncCanceler _parent	{ get; set; }
+		[SMShow] public readonly LinkedList<SMAsyncCanceler> _children = new LinkedList<SMAsyncCanceler>();
 
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.Add( nameof( _parent ), i => $"{( _parent != null ? 1 : 0 )}" );
+			_toStringer.SetValue( nameof( _children ), i => $"{_children.Count}" );
+			_toStringer.Add( nameof( _canceler ), i => $"{_canceler?.GetHashCode()}" );
+			_toStringer.Add( nameof( _lastCanceledToken ), i => $"{_lastCanceledToken.GetHashCode()}" );
+		}
+#endregion
+
+
+		static SMAsyncCanceler() {
+			var c = new CancellationTokenSource();
+			s_defaultCanceledToken = c.Token;
+			c.Cancel();
+			c.Dispose();
+		}
 
 		public SMAsyncCanceler() {
 			_disposables.AddLast( () => {
@@ -126,20 +147,11 @@ namespace SubmarineMirage.Utility {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CancellationToken ToToken() {
-			var token = _canceler.Token;
+			var token = _canceler?.Token ?? s_defaultCanceledToken;
 #if TestAsyncCanceler
 			SMLog.Debug( $"{nameof( token )} : {token.GetHashCode()}" );
 #endif
 			return token;
-		}
-
-
-		public override void SetToString() {
-			base.SetToString();
-			_toStringer.SetValue( nameof( _parent ), i => $"{( _parent != null ? 1 : 0 )}" );
-			_toStringer.SetValue( nameof( _children ), i => $"{_children.Count}" );
-			_toStringer.SetValue( nameof( _canceler ), i => $"{_canceler?.GetHashCode()}" );
-			_toStringer.SetValue( nameof( _lastCanceledToken ), i => $"{_lastCanceledToken.GetHashCode()}" );
 		}
 	}
 }

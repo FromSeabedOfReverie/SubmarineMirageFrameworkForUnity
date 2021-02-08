@@ -19,8 +19,8 @@ namespace SubmarineMirage.FSM.State {
 		where TOwner : IBaseSMFSMOwner
 		where TFSM : BaseSMFSM
 	{
-		[SMHide] public new TOwner _owner	=> (TOwner)base._owner;
-		[SMHide] public new TFSM _fsm		=> (TFSM)base._fsm;
+		public new TOwner _owner	=> (TOwner)base._owner;
+		public new TFSM _fsm		=> (TFSM)base._fsm;
 
 
 		public SMState() {

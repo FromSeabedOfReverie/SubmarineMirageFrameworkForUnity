@@ -8,7 +8,7 @@ namespace SubmarineMirage.Task.Base {
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using MultiEvent;
+	using Event;
 	using Task.Modifyler;
 	using Task.Modifyler.Base;
 	using Extension;
@@ -25,24 +25,52 @@ namespace SubmarineMirage.Task.Base {
 		public SMBehaviour _behaviour	{ get; private set; }
 		public SMObjectBody _objectBody	{ get; set; }
 
-		[SMShowLine] public SMBehaviourBody _previous	{ get; set; }
-		[SMShowLine] public SMBehaviourBody _next		{ get; set; }
+		public SMBehaviourBody _previous	{ get; set; }
+		public SMBehaviourBody _next		{ get; set; }
 
 		public SMTaskType _type	=> _behaviour._type;
-		public bool _isRunInitialActive	{ get; set; }
-		public bool _isRunFinalize	{ get; set; }
+		[SMShow] public bool _isRunInitialActive	{ get; set; }
+		[SMShow] public bool _isRunFinalize	{ get; set; }
 
-		public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
-		public readonly SMMultiSubject _enableEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _fixedUpdateEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _updateEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _lateUpdateEvent = new SMMultiSubject();
-		public readonly SMMultiSubject _disableEvent = new SMMultiSubject();
-		public readonly SMMultiAsyncEvent _finalizeEvent = new SMMultiAsyncEvent();
+		public readonly SMAsyncEvent _selfInitializeEvent = new SMAsyncEvent();
+		public readonly SMAsyncEvent _initializeEvent = new SMAsyncEvent();
+		public readonly SMSubject _enableEvent = new SMSubject();
+		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
+		public readonly SMSubject _updateEvent = new SMSubject();
+		public readonly SMSubject _lateUpdateEvent = new SMSubject();
+		public readonly SMSubject _disableEvent = new SMSubject();
+		public readonly SMAsyncEvent _finalizeEvent = new SMAsyncEvent();
 
 		public readonly SMAsyncCanceler _asyncCancelerOnDisable = new SMAsyncCanceler();
 		public readonly SMAsyncCanceler _asyncCancelerOnDispose = new SMAsyncCanceler();
+
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+
+			_toStringer.SetValue( nameof( _id ), i => StringSMUtility.IndentSpace( i ) +
+				$"{_id} ↑{_previous?._id} ↓{_next?._id}" );
+			_toStringer.Add( nameof( _behaviour ), i =>
+				_toStringer.DefaultValue( _behaviour, i, true ) );
+			_toStringer.Add( nameof( _objectBody ), i => _toStringer.DefaultValue( _objectBody, i, true ) );
+
+			_toStringer.Add( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
+			_toStringer.Add( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
+
+			_toStringer.Add( nameof( _selfInitializeEvent ), i =>
+				$"_isRunning : {_selfInitializeEvent._isRunning}" );
+			_toStringer.Add( nameof( _initializeEvent ), i => $"_isRunning : {_initializeEvent._isRunning}" );
+			_toStringer.Add( nameof( _finalizeEvent ), i => $"_isRunning : {_finalizeEvent._isRunning}" );
+
+
+			_toStringer.AddLine( nameof( _previous ), () => $"↑{_previous?._id}" );
+			_toStringer.AddLine( nameof( _next ), () => $"↓{_next?._id}" );
+		}
+#endregion
+
 
 
 		public SMBehaviourBody( SMBehaviour behaviour ) {
@@ -223,39 +251,6 @@ namespace SubmarineMirage.Task.Base {
 			for ( var current = GetFirst(); current != null; current = current._next ) {
 				yield return current;
 			}
-		}
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-
-
-			_toStringer.SetValue( nameof( _id ), i => $"{_id} ↑{_previous?._id} ↓{_next?._id}" );
-			_toStringer.SetValue( nameof( _behaviour ), i => $"{_behaviour._id} {_behaviour.GetAboutName()}" );
-			_toStringer.SetValue( nameof( _objectBody ), i => _toStringer.DefaultValue( _objectBody, i, true ) );
-
-			_toStringer.SetValue( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
-			_toStringer.SetValue( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
-
-			_toStringer.SetValue( nameof( _asyncCancelerOnDisable ), i =>
-				$"_isCancel : {_asyncCancelerOnDisable._isCancel}" );
-			_toStringer.SetValue( nameof( _asyncCancelerOnDispose ), i =>
-				$"_isCancel : {_asyncCancelerOnDispose._isCancel}" );
-			_toStringer.SetValue( nameof( _selfInitializeEvent ), i =>
-				$"_isRunning : {_selfInitializeEvent._isRunning}" );
-
-			_toStringer.SetValue( nameof( _initializeEvent ), i => $"_isRunning : {_initializeEvent._isRunning}" );
-			_toStringer.SetValue( nameof( _enableEvent ), i => $"Count : {_enableEvent._events.Count}" );
-			_toStringer.SetValue( nameof( _fixedUpdateEvent ), i => $"Count : {_fixedUpdateEvent._events.Count}" );
-			_toStringer.SetValue( nameof( _updateEvent ), i => $"Count : {_updateEvent._events.Count}" );
-			_toStringer.SetValue( nameof( _lateUpdateEvent ), i => $"Count : {_lateUpdateEvent._events.Count}" );
-			_toStringer.SetValue( nameof( _disableEvent ), i => $"Count : {_disableEvent._events.Count}" );
-			_toStringer.SetValue( nameof( _finalizeEvent ), i => $"_isRunning : {_finalizeEvent._isRunning}" );
-
-
-			_toStringer.SetLineValue( nameof( _previous ), () => $"↑{_previous?._id}" );
-			_toStringer.SetLineValue( nameof( _next ), () => $"↓{_next?._id}" );
 		}
 	}
 }

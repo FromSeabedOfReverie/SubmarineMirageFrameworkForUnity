@@ -21,15 +21,16 @@ namespace SubmarineMirage.Debug.ToString {
 
 
 	public class SMToStringer : SMLightBase {
-		[SMHide] object _owner	{ get; set; }
-		readonly Dictionary<string, SMToStringData> _toStrings = new Dictionary<string, SMToStringData>();
-		readonly Dictionary<string, SMToLineStringData> _toLineStrings =
-			new Dictionary<string, SMToLineStringData>();
+		object _owner	{ get; set; }
+		[SMShow] readonly Dictionary<string, SMToStringData> _toStrings
+			= new Dictionary<string, SMToStringData>();
+		[SMShow] readonly Dictionary<string, SMToLineStringData> _toLineStrings
+			= new Dictionary<string, SMToLineStringData>();
 
 
 		public SMToStringer( object owner ) {
 			_owner = owner;
-			_owner.GetType().GetAllNotAttributeMembers<SMHideAttribute>().ForEach( i =>
+			_owner.GetType().GetAllAttributeMembers<SMShowAttribute>().ForEach( i =>
 				_toStrings[i.Name] = new SMToStringData(
 					i.Name,
 					indent => DefaultValue( i.GetValue( _owner ), indent, false )
@@ -68,11 +69,13 @@ namespace SubmarineMirage.Debug.ToString {
 			=> _toLineStrings[name]._valueEvent = valueEvent;
 
 
-		public void Add( string name, Func<int, string> valueEvent )
-			=> _toStrings[name] = new SMToStringData( name, valueEvent );
+		public void Add( string name, Func<int, string> valueEvent ) {
+			_toStrings[name] = new SMToStringData( name, valueEvent );
+		}
 
-		public void AddLine( string name, Func<string> valueEvent )
-			=> _toLineStrings[name] = new SMToLineStringData( valueEvent );
+		public void AddLine( string name, Func<string> valueEvent ) {
+			_toLineStrings[name] = new SMToLineStringData( valueEvent );
+		}
 
 
 		public void Hide( string name ) => _toStrings.Remove( name );

@@ -10,7 +10,7 @@ namespace SubmarineMirage.Scene {
 	using System.Collections.Generic;
 	using SubmarineMirage.Base;
 	using Service;
-	using MultiEvent;
+	using Event;
 	using Task;
 	using FSM;
 	using Scene.Base;
@@ -28,38 +28,38 @@ namespace SubmarineMirage.Scene {
 	public class SMSceneManager
 		: MonoBehaviourSMExtension, ISMFSMOwner<SMSceneFSM>, ISMStandardBase, ISMService
 	{
-		public SMSceneManagerBody _body	{ get; private set; }
+		[SMShow] public SMSceneManagerBody _body	{ get; private set; }
 
-		[SMHide] public SMSceneFSM _fsm			=> _body._fsm;
-		[SMHide] public SMSceneFSM _foreverFSM	=> _body._foreverFSM;
-		[SMHide] public SMSceneFSM _mainFSM		=> _body._mainFSM;
-		[SMHide] public SMSceneFSM _uiFSM		=> _body._uiFSM;
-		[SMHide] public SMSceneFSM _debugFSM	=> _body._debugFSM;
-		[SMHide] public SMScene _foreverScene	=> _body._foreverScene;
+		public SMSceneFSM _fsm			=> _body._fsm;
+		public SMSceneFSM _foreverFSM	=> _body._foreverFSM;
+		public SMSceneFSM _mainFSM		=> _body._mainFSM;
+		public SMSceneFSM _uiFSM		=> _body._uiFSM;
+		public SMSceneFSM _debugFSM	=> _body._debugFSM;
+		public SMScene _foreverScene	=> _body._foreverScene;
 
 		[SMShowLine] public bool _isInitialEnteredFSMs	{ get; set; }
 
-		[SMHide] public bool _isInitialized	=> _body._isInitialized;
-		[SMHide] public bool _isOperable	=> _body._isOperable;
-		[SMHide] public bool _isFinalizing	=> _body._isFinalizing;
-		[SMHide] public bool _isActive		=> _body._isActive;
+		public bool _isInitialized	=> _body._isInitialized;
+		public bool _isOperable	=> _body._isOperable;
+		public bool _isFinalizing	=> _body._isFinalizing;
+		public bool _isActive		=> _body._isActive;
 
-		[SMHide] public SMMultiAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
-		[SMHide] public SMMultiAsyncEvent _initializeEvent		=> _body._initializeEvent;
-		[SMHide] public SMMultiSubject _enableEvent				=> _body._enableEvent;
-		[SMHide] public SMMultiSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
-		[SMHide] public SMMultiSubject _updateEvent				=> _body._updateEvent;
-		[SMHide] public SMMultiSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
-		[SMHide] public SMMultiSubject _disableEvent			=> _body._disableEvent;
-		[SMHide] public SMMultiAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
+		public SMAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
+		public SMAsyncEvent _initializeEvent		=> _body._initializeEvent;
+		public SMSubject _enableEvent				=> _body._enableEvent;
+		public SMSubject _fixedUpdateEvent		=> _body._fixedUpdateEvent;
+		public SMSubject _updateEvent				=> _body._updateEvent;
+		public SMSubject _lateUpdateEvent			=> _body._lateUpdateEvent;
+		public SMSubject _disableEvent			=> _body._disableEvent;
+		public SMAsyncEvent _finalizeEvent		=> _body._finalizeEvent;
 #if DEVELOP
-		[SMHide] public SMMultiSubject _onGUIEvent				=> _body._onGUIEvent;
+		public SMSubject _onGUIEvent				=> _body._onGUIEvent;
 #endif
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
+		public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
-		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
+		public SMDisposable _disposables	{ get; private set; } = new SMDisposable();
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;
-		[SMHide] public SMToStringer _toStringer	{ get; private set; }
+		public SMToStringer _toStringer	{ get; private set; }
 
 
 
@@ -70,10 +70,15 @@ namespace SubmarineMirage.Scene {
 			SetToString();
 			_body = new SMSceneManagerBody( this );
 
+			var test = new Test.TestSMSceneManager( this );
+			test.SetEvent();
+
 			_disposables.AddLast( () => {
 				_toStringer.Dispose();
 				_body.Dispose();
 				Destroy( gameObject );
+
+				test.Dispose();
 			} );
 		}
 

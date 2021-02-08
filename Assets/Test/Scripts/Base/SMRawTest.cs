@@ -18,11 +18,11 @@ namespace SubmarineMirage.TestBase {
 
 
 	public abstract class SMRawTest : BaseSMTest, ISMRawBase {
-		[SMHide] public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
+		public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
 		[SMShowLine] public bool _isDispose => _disposables.IsDisposed;
-		[SMHide] protected Func<SMAsyncCanceler, UniTask> _createEvent	{ get; set; }
-		[SMHide] protected Func<SMAsyncCanceler, UniTask> _initializeEvent	{ get; set; }
-		[SMHide] protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
+		protected Func<SMAsyncCanceler, UniTask> _createEvent	{ get; set; }
+		protected Func<SMAsyncCanceler, UniTask> _initializeEvent	{ get; set; }
+		protected readonly Subject<Unit> _finalizeEvent = new Subject<Unit>();
 
 
 		protected override void Awake() {

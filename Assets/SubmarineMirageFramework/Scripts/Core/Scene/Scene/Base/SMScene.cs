@@ -13,7 +13,7 @@ namespace SubmarineMirage.Scene {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using MultiEvent;
+	using Event;
 	using Task;
 	using Task.Base;
 	using FSM.State;
@@ -29,16 +29,19 @@ namespace SubmarineMirage.Scene {
 
 
 	public abstract class SMScene : SMState<SMSceneManager, SMSceneFSM> {
-		[SMShowLine] public string _name	{ get; protected set; }
-		public Scene _rawScene	{ get; protected set; }
-		[SMHide] public SMGroupManagerBody _groupManagerBody	{ get; private set; }
+		public SMGroupManagerBody _groupManagerBody	{ get; private set; }
 
-		[SMHide] protected readonly SMMultiAsyncEvent _createBehavioursEvent = new SMMultiAsyncEvent();
+		[SMShow] public Scene _rawScene	{ get; protected set; }
+		[SMShowLine] public string _name	{ get; protected set; }
+		[SMShow] protected string _registerEventName	{ get; private set; }
+
+		public readonly SMAsyncEvent _createBehavioursEvent = new SMAsyncEvent();
 
 
 		public SMScene() {
 			SetSceneName();
 			ReloadRawScene();
+			_registerEventName = this.GetAboutName();
 
 			var groupManager = new SMGroupManager( this );
 			_groupManagerBody = groupManager._body;
@@ -47,28 +50,42 @@ namespace SubmarineMirage.Scene {
 				_groupManagerBody._manager.Dispose();
 			} );
 
-			_enterEvent.AddLast( async canceler => {
+
+			_enterEvent.AddLast( _registerEventName, async canceler => {
+				SMLog.Debug( $"start : {this.GetAboutName()}入口" );
 // TODO : ForeverScene等、作成系シーンで、読込ガードされる？
 				var isRemove = _owner._body.RemoveFirstLoaded( this );
+				SMLog.Debug( $"{this.GetAboutName()}既に読まれてる？ : {isRemove}" );
 				if ( !isRemove ) {
 					await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive ).ToUniTask( canceler );
 					ReloadRawScene();
 				}
-				if ( this is MainSMScene )	{ SceneManager.SetActiveScene( _rawScene ); }
+				if ( this is MainSMScene ) {
+					SMLog.Debug( $"メインシーン : {_rawScene.name}" );
+					SceneManager.SetActiveScene( _rawScene );
+				}
 				await _createBehavioursEvent.Run( canceler );
-				await _groupManagerBody.Enter();
+//				await _groupManagerBody.Enter();
+				SMLog.Debug( $"end : {this.GetAboutName()}入口" );
 			} );
 
-			_exitEvent.AddLast( async canceler => {
-				await _groupManagerBody.Exit();
+			_exitEvent.AddLast( _registerEventName, async canceler => {
+				SMLog.Debug( $"start : {this.GetAboutName()}出口" );
+//				await _groupManagerBody.Exit();
 				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 				ReloadRawScene();
 				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
+				SMLog.Debug( $"end : {this.GetAboutName()}出口" );
 			} );
 
-			_fixedUpdateEvent.AddLast().Subscribe( _ => _groupManagerBody.FixedUpdate() );
-			_updateEvent.AddLast().Subscribe( _ => _groupManagerBody.Update() );
-			_lateUpdateEvent.AddLast().Subscribe( _ => _groupManagerBody.LateUpdate() );
+
+			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => _groupManagerBody.FixedUpdate() );
+			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => _groupManagerBody.Update() );
+			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => _groupManagerBody.LateUpdate() );
+
+			using ( var test = new Test.TestSMScene( this ) ) {
+				test.SetEvent();
+			}
 		}
 
 

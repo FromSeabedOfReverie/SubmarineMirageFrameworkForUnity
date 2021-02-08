@@ -63,10 +63,10 @@ namespace SubmarineMirage.TestBase.Test {
 		public IEnumerator TestCancelCoroutine() => _body.TestCancelCoroutine();
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestDisposeTask() => _body.TestDisposeTask();
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestDisposeCoroutine() => _body.TestDisposeCoroutine();
 	}
 }

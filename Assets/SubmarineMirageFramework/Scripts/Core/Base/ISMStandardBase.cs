@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Base {
-	using MultiEvent;
+	using Event;
 	using Extension;
 	using Debug.ToString;
 
@@ -14,7 +14,7 @@ namespace SubmarineMirage.Base {
 
 
 	public interface ISMStandardBase : IBaseSM, IDisposableSMExtension {
-		SMMultiDisposable _disposables	{ get; }
+		SMDisposable _disposables	{ get; }
 		SMToStringer _toStringer	{ get; }
 
 		void SetToString();

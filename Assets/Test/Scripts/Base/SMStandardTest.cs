@@ -7,7 +7,7 @@
 namespace SubmarineMirage.TestBase {
 	using Cysharp.Threading.Tasks;
 	using Base;
-	using MultiEvent;
+	using Event;
 	using Debug;
 	using Debug.ToString;
 
@@ -16,12 +16,12 @@ namespace SubmarineMirage.TestBase {
 
 
 	public abstract class SMStandardTest : BaseSMTest, ISMStandardBase {
-		[SMHide] public SMMultiDisposable _disposables	{ get; private set; } = new SMMultiDisposable();
+		public SMDisposable _disposables	{ get; private set; } = new SMDisposable();
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;
-		[SMHide] public SMToStringer _toStringer	{ get; private set; }
-		[SMHide] protected readonly SMMultiAsyncEvent _createEvent = new SMMultiAsyncEvent();
-		[SMHide] protected readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
-		[SMHide] protected readonly SMMultiSubject _finalizeEvent = new SMMultiSubject();
+		public SMToStringer _toStringer	{ get; private set; }
+		protected readonly SMAsyncEvent _createEvent = new SMAsyncEvent();
+		protected readonly SMAsyncEvent _initializeEvent = new SMAsyncEvent();
+		protected readonly SMSubject _finalizeEvent = new SMSubject();
 
 
 		protected override void Awake() {
@@ -50,7 +50,7 @@ namespace SubmarineMirage.TestBase {
 		public override void Dispose() => _disposables.Dispose();
 
 
-		public virtual void SetToString()	{}
+		public virtual void SetToString() {}
 
 		public override string ToString( int indent, bool isUseHeadIndent = true )
 			=> _toStringer.Run( indent, isUseHeadIndent );

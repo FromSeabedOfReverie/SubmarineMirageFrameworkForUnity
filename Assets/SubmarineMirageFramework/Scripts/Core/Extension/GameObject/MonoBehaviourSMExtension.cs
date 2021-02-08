@@ -29,18 +29,18 @@ namespace SubmarineMirage.Extension {
 		[SMShowLine] public uint _id	{ get; private set; }
 
 		/// <summary>変形のキャッシュ</summary>
-		[SMHide] Transform _transform;
+		Transform _transform;
 		/// <summary>変形のキャッシュを取得</summary>
-		[SMHide] public new Transform transform {
+		public new Transform transform {
 			get {
 				if ( _transform == null )	{ _transform = base.transform; }
 				return _transform;
 			}
 		}
 		/// <summary>ゲーム物のキャッシュ</summary>
-		[SMHide] GameObject _gameObject;
+		GameObject _gameObject;
 		/// <summary>ゲーム物のキャッシュを取得</summary>
-		[SMHide] public new GameObject gameObject {
+		public new GameObject gameObject {
 			get {
 				if ( _gameObject == null )	{ _gameObject = base.gameObject; }
 				return _gameObject;

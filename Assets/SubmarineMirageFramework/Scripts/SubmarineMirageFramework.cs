@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage {
 	using System;
+	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using Base;
@@ -23,22 +24,29 @@ namespace SubmarineMirage {
 
 
 	public class SubmarineMirageFramework : SMStandardBase, ISMService {
-		public static bool s_isPlayTest	{ get; set; }
-		public bool _isInitialized	{ get; private set; }
-		[SMHide] readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
+		[SMShow] public static bool s_isPlayTest	{ get; set; }
+		[SMShow] public bool _isInitialized	{ get; private set; }
+		readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
 
 		public SubmarineMirageFramework() {
 			_disposables.AddLast( () => {
-				s_isPlayTest = false;
 				_isInitialized = false;
 				_asyncCanceler.Dispose();
 			} );
 		}
 
-		public static void Shutdown() {
+		public static void Shutdown( bool isApplicationQuit = true ) {
 			try {
 				SMServiceLocator.Dispose();
+
+				if ( !isApplicationQuit )	{ return; }
+#if UNITY_EDITOR
+				if ( s_isPlayTest )	{ return; }
+				UnityEditor.EditorApplication.isPlaying = false;
+#else
+				Application.Quit();
+#endif
 			} catch ( OperationCanceledException ) {
 			} catch ( Exception e ) {
 				SMLog.Error( e );
@@ -64,7 +72,7 @@ namespace SubmarineMirage {
 
 			await SystemTask.Delay( 1, _asyncCanceler.ToToken() );
 
-			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown() ) );
+			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown( false ) ) );
 
 			await initializePluginEvent();
 			SMServiceLocator.Register<SMDecorationManager>();
@@ -85,9 +93,10 @@ namespace SubmarineMirage {
 
 			_isInitialized = true;
 
-
+			return;
 			var hoge = SMServiceLocator.Resolve<SMSceneManager>();
-			SMLog.Debug( hoge?.ToShowString() );
+			SMLog.Debug( hoge?.ToString() );
+			SMLog.Debug( hoge?.ToLineString() );
 		}
 
 

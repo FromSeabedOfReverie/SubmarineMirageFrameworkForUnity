@@ -17,8 +17,8 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 
 
 	public abstract class SMFSMModifyData : SMLightBase {
-		[SMHide] protected SMFSMBody _owner				{ get; private set; }
-		[SMHide] protected SMFSMModifyler _modifyler	{ get; private set; }
+		protected SMFSMBody _owner				{ get; private set; }
+		protected SMFSMModifyler _modifyler	{ get; private set; }
 		[SMShowLine] public abstract SMFSMModifyType _type	{ get; }
 
 

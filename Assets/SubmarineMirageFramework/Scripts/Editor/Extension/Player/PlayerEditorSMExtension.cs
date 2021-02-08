@@ -63,7 +63,7 @@ namespace SubmarineMirage.EditorExtension {
 
 			} else {
 				UTask.Void( async () => {
-					SubmarineMirageFramework.Shutdown();
+					SubmarineMirageFramework.Shutdown( false );
 					using ( var canceler = new SMAsyncCanceler() ) {
 						await UTask.DelayFrame( canceler, 2 );
 					}

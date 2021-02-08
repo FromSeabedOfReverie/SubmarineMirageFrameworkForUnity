@@ -13,7 +13,7 @@ namespace SubmarineMirage.Base {
 
 
 	public abstract class SMRawBase : BaseSM, ISMRawBase {
-		[SMHide] public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
+		public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
 		[SMShowLine] public bool _isDispose => _disposables.IsDisposed;
 
 		public override void Dispose() => _disposables.Dispose();

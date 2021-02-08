@@ -39,13 +39,24 @@ namespace SubmarineMirage.Task.Base {
 			SMTaskType.Work, SMTaskType.FirstWork, SMTaskType.DontWork,
 		};
 
-		[SMHide] public SMGroupManager _manager	{ get; private set; }
-		[SMHide] public SMScene _scene	{ get; private set; }
+		public SMGroupManager _manager	{ get; private set; }
+		public SMScene _scene	{ get; private set; }
 		public SMGroupBody _groupBody	{ get; set; }
 
 		[SMShowLine] public bool _isEnter	{ get; private set; }
 
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
+		public SMAsyncCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
+
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.Add( nameof( _groupBody ), i =>
+				_toStringer.DefaultValue( GetAllTopObjects(), i, true ) );
+		}
+#endregion
 
 
 
@@ -204,14 +215,6 @@ namespace SubmarineMirage.Task.Base {
 					}
 				}
 			}
-		}
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-			_toStringer.SetValue( nameof( _groupBody ), i =>
-				_toStringer.DefaultValue( GetAllTopObjects(), i, true ) );
 		}
 	}
 }

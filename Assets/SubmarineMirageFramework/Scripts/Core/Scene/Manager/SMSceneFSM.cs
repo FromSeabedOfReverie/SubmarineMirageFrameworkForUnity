@@ -12,6 +12,7 @@ namespace SubmarineMirage.Scene.Base {
 	using Cysharp.Threading.Tasks;
 	using Task;
 	using FSM;
+	using Extension;
 	using Debug;
 
 
@@ -21,26 +22,51 @@ namespace SubmarineMirage.Scene.Base {
 
 
 	public class SMSceneFSM : SMFSM<SMSceneManager, SMSceneFSM, SMScene> {
-		[SMHide] public SMScene _scene => _state;
+		public SMScene _scene => _state;
 
 
 
-		public UniTask ChangeScene<T>() where T : SMScene
-			=> ChangeState<T>();
+		public new UniTask ChangeState<T>() where T : SMScene
+			=> throw new NotSupportedException( $"非対応、{nameof( ChangeScene )}を使用する" );
 
-		public UniTask ChangeScene( Type sceneType )
-			=> ChangeState( sceneType );
+		public new UniTask ChangeState( Type sceneType )
+			=> throw new NotSupportedException( $"非対応、{nameof( ChangeScene )}を使用する" );
+
+		public async UniTask ChangeScene<T>() where T : SMScene {
+			if ( !_isInitialEntered ) {
+				throw new InvalidOperationException(
+					$"初期遷移前に、別シーン遷移は不可能 : {typeof( T ).GetAboutName()}" );
+			}
+			await base.ChangeState<T>();
+		}
+
+		public async UniTask ChangeScene( Type sceneType ) {
+			if ( !_isInitialEntered ) {
+				throw new InvalidOperationException(
+					$"初期遷移前に、別シーン遷移は不可能 : {sceneType.GetAboutName()}" );
+			}
+			await base.ChangeState( sceneType );
+		}
 
 
+
+		public new IEnumerable<SMScene> GetStates()
+			=> throw new NotSupportedException( $"非対応、{nameof( GetScenes )}を使用する" );
+
+		public new SMScene GetState( Type stateType )
+			=> throw new NotSupportedException( $"非対応、{nameof( GetScene )}を使用する" );
+
+		public new T GetState<T>() where T : SMScene
+			=> throw new NotSupportedException( $"非対応、{nameof( GetScene )}を使用する" );
 
 		public IEnumerable<SMScene> GetScenes()
-			=> GetStates();
+			=> base.GetStates();
 
 		public SMScene GetScene( Type stateType )
-			=> GetState( stateType );
+			=> base.GetState( stateType );
 
 		public T GetScene<T>() where T : SMScene
-			=> GetState<T>();
+			=> base.GetState<T>();
 
 		public SMScene GetScene( Scene rawScene )
 			=> GetScenes()

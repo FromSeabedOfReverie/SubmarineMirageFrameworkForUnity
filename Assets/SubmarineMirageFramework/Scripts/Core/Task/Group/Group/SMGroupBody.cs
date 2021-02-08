@@ -21,16 +21,32 @@ namespace SubmarineMirage.Task.Base {
 
 
 	public class SMGroupBody : BaseSMTaskModifylerOwner<SMGroupModifyler> {
-		[SMHide] public SMGroup _group	{ get; private set; }
-		[SMHide] public SMGroupManagerBody _managerBody	{ get; set; }
+		public SMGroup _group	{ get; private set; }
+		public SMGroupManagerBody _managerBody	{ get; set; }
 		[SMShowLine] public SMObjectBody _objectBody	{ get; set; }
 
-		[SMHide] public GameObject _gameObject => _objectBody._gameObject;
+		public GameObject _gameObject => _objectBody._gameObject;
 
-		[SMShowLine] public SMGroupBody _previous	{ get; set; }
-		[SMShowLine] public SMGroupBody _next		{ get; set; }
+		public SMGroupBody _previous	{ get; set; }
+		public SMGroupBody _next		{ get; set; }
 
-		[SMHide] public SMAsyncCanceler _asyncCanceler => _objectBody._asyncCanceler;
+		public SMAsyncCanceler _asyncCanceler => _objectBody._asyncCanceler;
+
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.Add( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
+			_toStringer.Add( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
+			_toStringer.SetValue( nameof( _objectBody ), i => _toStringer.DefaultValue( _objectBody, i, true ) );
+
+			_toStringer.AddLine( nameof( _previous ), () => $"↑{_previous?._id}" );
+			_toStringer.AddLine( nameof( _next ), () => $"↓{_next?._id}" );
+			_toStringer.SetLineValue( nameof( _objectBody ), () => $"△{_objectBody._id}" );
+		}
+#endregion
 
 
 
@@ -233,20 +249,6 @@ namespace SubmarineMirage.Task.Base {
 			for ( var current = GetFirst(); current != null; current = current._next )	{
 				yield return current;
 			}
-		}
-
-
-
-		public override void SetToString() {
-			base.SetToString();
-
-			_toStringer.SetValue( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
-			_toStringer.SetValue( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
-			_toStringer.SetValue( nameof( _objectBody ), i => _toStringer.DefaultValue( _objectBody, i, true ) );
-
-			_toStringer.SetLineValue( nameof( _previous ), () => $"↑{_previous?._id}" );
-			_toStringer.SetLineValue( nameof( _next ), () => $"↓{_next?._id}" );
-			_toStringer.SetLineValue( nameof( _objectBody ), () => $"△{_objectBody._id}" );
 		}
 	}
 }

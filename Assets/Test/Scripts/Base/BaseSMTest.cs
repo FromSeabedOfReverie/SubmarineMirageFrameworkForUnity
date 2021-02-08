@@ -26,15 +26,15 @@ namespace SubmarineMirage.TestBase {
 
 
 	public abstract class BaseSMTest : BaseSM, IBaseSMTest, IPrebuildSetup {
-		protected string _testName => TestContext.CurrentContext.Test.Name;
-		protected bool _isInitialized	{ get; set; }
-		[SMHide] public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
+		[SMShow] protected string _testName => TestContext.CurrentContext.Test.Name;
+		[SMShow] protected bool _isInitialized	{ get; set; }
+		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
 
 		// 実行前の呼び出し
 		public void Setup() {
 			ConsoleEditorSMUtility.Clear();
-			SubmarineMirageFramework.Shutdown();	// 念の為、前回破棄し損ねたデータを削除
+			SubmarineMirageFramework.Shutdown( false );	// 念の為、前回破棄し損ねたデータを削除
 			PlayerEditorSMExtension.instance._type = PlayerEditorSMExtension.Type.Test;
 		}
 
@@ -57,7 +57,7 @@ namespace SubmarineMirage.TestBase {
 
 		// インスタンス破棄時の呼び出し
 		[OneTimeTearDown]
-		protected void OnDestroy() => SubmarineMirageFramework.Shutdown();
+		protected void OnDestroy() => SubmarineMirageFramework.Shutdown( false );
 
 
 		public void StopAsync() => _asyncCanceler.Cancel();

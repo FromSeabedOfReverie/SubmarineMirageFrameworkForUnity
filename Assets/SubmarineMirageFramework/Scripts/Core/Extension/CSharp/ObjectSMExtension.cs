@@ -129,7 +129,7 @@ namespace SubmarineMirage.Extension {
 
 					indent++;
 					var mPrefix = StringSMUtility.IndentSpace( indent );
-					var members = self.GetType().GetAllNotAttributeMembers<SMHideAttribute>();
+					var members = self.GetType().GetAllAttributeMembers<SMShowAttribute>();
 
 					return string.Join( "\n",
 						$"{hPrefix}{self.GetAboutName()}(",

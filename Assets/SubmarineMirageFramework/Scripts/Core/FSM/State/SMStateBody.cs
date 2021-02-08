@@ -7,7 +7,7 @@
 namespace SubmarineMirage.FSM.State.Base {
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Base;
-	using MultiEvent;
+	using Event;
 	using FSM.Base;
 	using Utility;
 	using Debug;
@@ -19,29 +19,29 @@ namespace SubmarineMirage.FSM.State.Base {
 
 
 	public class SMStateBody : SMStandardBase {
-		[SMHide] public BaseSMState _state		{ get; private set; }
-		[SMHide] public IBaseSMFSMOwner _owner	{ get; private set; }
-		[SMHide] public SMFSMBody _fsmBody		{ get; private set; }
+		public BaseSMState _state		{ get; private set; }
+		public IBaseSMFSMOwner _owner	{ get; private set; }
+		public SMFSMBody _fsmBody		{ get; private set; }
 
 		[SMShowLine] public SMStateRunState _ranState			{ get; set; }
 		[SMShowLine] public SMStateUpdateState _updatedState	{ get; set; }
 		[SMShowLine] public bool _isUpdating					{ get; set; }
 
-		[SMHide] public readonly SMMultiAsyncEvent _selfInitializeEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiAsyncEvent _initializeEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiSubject _enableEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _fixedUpdateEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _updateEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _lateUpdateEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiSubject _disableEvent = new SMMultiSubject();
-		[SMHide] public readonly SMMultiAsyncEvent _finalizeEvent = new SMMultiAsyncEvent();
+		public readonly SMAsyncEvent _selfInitializeEvent = new SMAsyncEvent();
+		public readonly SMAsyncEvent _initializeEvent = new SMAsyncEvent();
+		public readonly SMSubject _enableEvent = new SMSubject();
+		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
+		public readonly SMSubject _updateEvent = new SMSubject();
+		public readonly SMSubject _lateUpdateEvent = new SMSubject();
+		public readonly SMSubject _disableEvent = new SMSubject();
+		public readonly SMAsyncEvent _finalizeEvent = new SMAsyncEvent();
 
-		[SMHide] public readonly SMMultiAsyncEvent _enterEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiAsyncEvent _updateAsyncEvent = new SMMultiAsyncEvent();
-		[SMHide] public readonly SMMultiAsyncEvent _exitEvent = new SMMultiAsyncEvent();
+		public readonly SMAsyncEvent _enterEvent = new SMAsyncEvent();
+		public readonly SMAsyncEvent _updateAsyncEvent = new SMAsyncEvent();
+		public readonly SMAsyncEvent _exitEvent = new SMAsyncEvent();
 
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _fsmBody._asyncCancelerOnDisableAndExit;
-		[SMHide] public SMAsyncCanceler _asyncCancelerOnDispose			=> _fsmBody._asyncCancelerOnDispose;
+		public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _fsmBody._asyncCancelerOnDisableAndExit;
+		public SMAsyncCanceler _asyncCancelerOnDispose			=> _fsmBody._asyncCancelerOnDispose;
 
 
 
