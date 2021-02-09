@@ -49,11 +49,17 @@ namespace SubmarineMirage.Scene {
 			_disposables.AddLast( () => {
 				_groupManagerBody._manager.Dispose();
 			} );
+/*
+			var test = new Test.TestSMScene( this );
+			test.SetEvent();
+			_disposables.AddLast( () => {
+				test.Dispose();
+			} );
+*/
 
 
 			_enterEvent.AddLast( _registerEventName, async canceler => {
 				SMLog.Debug( $"start : {this.GetAboutName()}入口" );
-// TODO : ForeverScene等、作成系シーンで、読込ガードされる？
 				var isRemove = _owner._body.RemoveFirstLoaded( this );
 				SMLog.Debug( $"{this.GetAboutName()}既に読まれてる？ : {isRemove}" );
 				if ( !isRemove ) {
@@ -65,13 +71,13 @@ namespace SubmarineMirage.Scene {
 					SceneManager.SetActiveScene( _rawScene );
 				}
 				await _createBehavioursEvent.Run( canceler );
-//				await _groupManagerBody.Enter();
+				await _groupManagerBody.Enter();
 				SMLog.Debug( $"end : {this.GetAboutName()}入口" );
 			} );
 
 			_exitEvent.AddLast( _registerEventName, async canceler => {
 				SMLog.Debug( $"start : {this.GetAboutName()}出口" );
-//				await _groupManagerBody.Exit();
+				await _groupManagerBody.Exit();
 				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 				ReloadRawScene();
 				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
@@ -82,10 +88,6 @@ namespace SubmarineMirage.Scene {
 			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => _groupManagerBody.FixedUpdate() );
 			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => _groupManagerBody.Update() );
 			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => _groupManagerBody.LateUpdate() );
-
-			using ( var test = new Test.TestSMScene( this ) ) {
-				test.SetEvent();
-			}
 		}
 
 

@@ -28,6 +28,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._isFinalizing )		{ return; }
 			if ( !_owner._isInitialEntered ) {
 				_owner._startStateType = _stateType;
 				return;

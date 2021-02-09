@@ -8,7 +8,6 @@ namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
 	using KoganeUnityLib;
-	using Service;
 	using Extension;
 	using Debug;
 
@@ -18,7 +17,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-// TODO : 複数シーン読込後に起動した場合、GetActiveSceneの初期値が不明なので、保留
 	public class UnknownMainSMScene : MainSMScene {
 		public UnknownMainSMScene() {
 		}
@@ -34,7 +32,9 @@ namespace SubmarineMirage.Scene {
 
 			if ( count > 1 ) {
 				throw new InvalidOperationException(
-					$"不明なシーンが複数ある為、{nameof( UnknownMainSMScene )}に設定出来ません" );
+					$"不明なシーンが複数ある為、{nameof( UnknownMainSMScene )}に設定不可 : \n"
+					+ scenes.ToShowString()
+				);
 			}
 
 			_rawScene = scenes.FirstOrDefault();

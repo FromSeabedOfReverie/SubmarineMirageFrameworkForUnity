@@ -13,9 +13,12 @@ namespace SubmarineMirage.Scene.Base {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using SubmarineMirage.Base;
 	using Service;
 	using Event;
+	using Task;
+	using Task.Modifyler.Base;
+	using Scene.Modifyler;
+	using Scene.Modifyler.Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -26,26 +29,21 @@ namespace SubmarineMirage.Scene.Base {
 
 
 
-	public class SMSceneManagerBody : SMStandardBase {
-		public SMSceneManager _owner	{ get; private set; }
-		[SMShow] public SMSceneFSM _fsm	{ get; private set; }
+	public class SMSceneManagerBody : BaseSMTaskModifylerOwner<SMSceneManagerModifyler> {
+		public SMSceneManager _sceneManager	{ get; private set; }
+		[SMShow] public SMSceneFSM _fsm	{ get; set; }
 
-		public SMSceneFSM _foreverFSM	{ get; private set; }
-		public SMSceneFSM _mainFSM		{ get; private set; }
-		public SMSceneFSM _uiFSM		{ get; private set; }
-		public SMSceneFSM _debugFSM	{ get; private set; }
+		public SMSceneFSM _foreverFSM	{ get; set; }
+		public SMSceneFSM _mainFSM		{ get; set; }
+		public SMSceneFSM _uiFSM		{ get; set; }
+		public SMSceneFSM _debugFSM	{ get; set; }
 
-		public SMScene _foreverScene	{ get; private set; }
+		public SMScene _foreverScene	{ get; set; }
 		Scene _rawSceneUntilDispose	{ get; set; }
+		[SMShow] public List<Scene> _firstLoadedRawScenes	{ get; set; } = new List<Scene>();
 
-		[SMShow] List<Scene> _firstLoadedRawScenes	{ get; set; } = new List<Scene>();
-
-		[SMShow] public bool _isInitialized	{ get; set; }
-		[SMShow] public bool _isOperable		=> _isInitialized && !_isFinalizing;
-		[SMShow] public bool _isFinalizing	{ get; set; }
-		[SMShow] public bool _isActive		{ get; set; }
 		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
-		bool _isCalledFinalize	{ get; set; }
+		public bool _isFinalDisabling	{ get; set; }
 
 		public readonly SMAsyncEvent _selfInitializeEvent	= new SMAsyncEvent();
 		public readonly SMAsyncEvent _initializeEvent		= new SMAsyncEvent();
@@ -58,6 +56,7 @@ namespace SubmarineMirage.Scene.Base {
 #if DEVELOP
 		public readonly SMSubject _onGUIEvent = new SMSubject();
 #endif
+		public readonly SMAsyncCanceler _asyncCancelerOnDisable = new SMAsyncCanceler();
 		public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
 
 
@@ -76,18 +75,22 @@ namespace SubmarineMirage.Scene.Base {
 
 
 
-		public SMSceneManagerBody( SMSceneManager owner ) {
-			_owner = owner;
+		public SMSceneManagerBody( SMSceneManager sceneManager ) {
+			_modifyler = new SMSceneManagerModifyler( this );
+			_modifyler.SetupSceneUpdating( _isUpdating );
+
+			_sceneManager = sceneManager;
 			_rawSceneUntilDispose = SceneManager.CreateScene( "UntilDispose" );
 
 
 			_disposables.AddLast( () => {
-				_isActive = false;
 				_isFinalizing = true;
+				_ranState = SMTaskRunState.Finalize;
 
 				_isUpdating.Dispose();
 				_fsm.Dispose();
 
+				_asyncCancelerOnDisable.Dispose();
 				_asyncCancelerOnDispose.Dispose();
 
 				_selfInitializeEvent.Dispose();
@@ -104,113 +107,74 @@ namespace SubmarineMirage.Scene.Base {
 			} );
 		}
 
+		public override void Dispose() => base.Dispose();
+
+
+
+		public void StopAsyncOnDisable() => _asyncCancelerOnDisable.Cancel();
+
+
+
+		public bool IsActiveInHierarchyAndComponent()
+			=> _sceneManager.gameObject.activeInHierarchy && _sceneManager.enabled;
+
 
 
 		public async UniTask Initialize() {
-			Setup();
-//			return;
-
-			await _selfInitializeEvent.Run( _asyncCancelerOnDispose );
-			await _initializeEvent.Run( _asyncCancelerOnDispose );
-			_enableEvent.Run();
-			_isActive = true;
-			_isInitialized = true;
-
-			await _foreverFSM.InitialEnter( true );
-			await _fsm.InitialEnter();
+			await _modifyler.RegisterAndRun( new CreateSMSceneManager() );
+			await _modifyler.RegisterAndRun( new SelfInitializeSMSceneManager() );
+			await _modifyler.RegisterAndRun( new InitializeSMSceneManager() );
+			await _modifyler.RegisterAndRun( new InitialEnableSMSceneManager() );
 		}
-
-		// SMScene内部で、SMServiceLocatorから自身を参照する為、Body生成後に、Sceneを遅延生成する
-		void Setup() {
-			var setting = SMServiceLocator.Resolve<ISMSceneSetting>();
-			_fsm = SMSceneFSM.Generate( _owner, setting._sceneFSMList );
-			SMServiceLocator.Unregister<ISMSceneSetting>();
-
-			_foreverFSM = _fsm.GetFSM<ForeverSMScene>();
-			_mainFSM = _fsm.GetFSM<MainSMScene>();
-			_uiFSM = _fsm.GetFSM<UISMScene>();
-			_debugFSM = _fsm.GetFSM<DebugSMScene>();
-			_foreverScene = _foreverFSM.GetScenes().FirstOrDefault();
-
-			_firstLoadedRawScenes = GetLoadedRawScenes().ToList();
-
-			_fsm.GetFSMs().ForEach( fsm => {
-				fsm._body._startStateType = fsm.GetScenes()
-					.FirstOrDefault( s => IsFirstLoaded( s ) )
-					?.GetType();
-//				SMLog.Debug( fsm._body._startStateType?.GetAboutName() );
-			} );
-			// 不明なシーンを設定
-			var scene = _mainFSM.GetScene<UnknownMainSMScene>();
-			scene.Setup();
-		}
-
 
 		public async UniTask Finalize() {
-			if ( _isCalledFinalize )	{ return; }
-			_isCalledFinalize = true;
-//			SMLog.Debug( "Finalize実行中" );
-
-			await UTask.WaitWhile( _asyncCancelerOnDispose, () => !_isInitialized );
-
-			await _fsm.GetFSMs()
-				.Where( fsm => fsm != _foreverFSM )
-				.Select( fsm => fsm.FinalExit( true ) );
-			await _foreverFSM.FinalExit( true );
-
-			_isFinalizing = true;
-			_disableEvent.Run();
-			_isActive = false;
-			await _finalizeEvent.Run( _asyncCancelerOnDispose );
-
-			SubmarineMirageFramework.Shutdown();
+			await _modifyler.RegisterAndRun( new FinalDisableSMSceneManager() );
+			await _modifyler.RegisterAndRun( new FinalizeSMSceneManager() );
 		}
 
 
 
 		public void FixedUpdate() {
-			return;
-			if ( _isDispose )	{ return; }
-			if ( _isUpdating.Value ) {
-				throw new InvalidOperationException( $"更新中に更新され、被った : {nameof( FixedUpdate )}" );
-			}
+			if ( !_isOperable )	{ return; }
+			if ( !_isActive )	{ return; }
+			if ( _ranState < SMTaskRunState.InitialEnable )	{ return; }
 
 			_isUpdating.Value = true;
-// TODO : Foreverが先に実行されるか、確認する
 			_fixedUpdateEvent.Run();
 			_isUpdating.Value = false;
+
+			if ( _ranState == SMTaskRunState.InitialEnable )	{ _ranState = SMTaskRunState.FixedUpdate; }
 		}
+
 
 		public void Update() {
-			return;
-			if ( _isDispose )	{ return; }
-			if ( _isUpdating.Value ) {
-				throw new InvalidOperationException( $"更新中に更新され、被った : {nameof( Update )}" );
-			}
+			if ( !_isOperable )	{ return; }
+			if ( !_isActive )	{ return; }
+			if ( _ranState < SMTaskRunState.FixedUpdate )	{ return; }
 
 			_isUpdating.Value = true;
-// TODO : Foreverが先に実行されるか、確認する
 			_updateEvent.Run();
 			_isUpdating.Value = false;
+
+			if ( _ranState == SMTaskRunState.FixedUpdate )	{ _ranState = SMTaskRunState.Update; }
 		}
+
 
 		public void LateUpdate() {
-			return;
-			if ( _isDispose )	{ return; }
-			if ( _isUpdating.Value ) {
-				throw new InvalidOperationException( $"更新中に更新され、被った : {nameof( LateUpdate )}" );
-			}
+			if ( !_isOperable )	{ return; }
+			if ( !_isActive )		{ return; }
+			if ( _ranState < SMTaskRunState.Update )	{ return; }
 
 			_isUpdating.Value = true;
-// TODO : Foreverが先に実行されるか、確認する
 			_lateUpdateEvent.Run();
 			_isUpdating.Value = false;
+
+			if ( _ranState == SMTaskRunState.Update )	{ _ranState = SMTaskRunState.LateUpdate; }
 		}
+
 
 #if DEVELOP
 		public void OnGUI() {
-			return;
-			if ( _isDispose )	{ return; }
 			_onGUIEvent.Run();
 		}
 #endif
@@ -229,6 +193,8 @@ namespace SubmarineMirage.Scene.Base {
 		public bool IsFirstLoaded( SMScene scene )
 			=> _firstLoadedRawScenes
 				.Any( s => s.name == scene._name );
+
+
 
 		public IEnumerable<Scene> GetUnknownScenes() {
 			var scenes = _firstLoadedRawScenes.Copy();

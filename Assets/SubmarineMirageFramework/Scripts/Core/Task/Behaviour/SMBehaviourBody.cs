@@ -139,7 +139,7 @@ namespace SubmarineMirage.Task.Base {
 			=> _behaviour.enabled;
 
 		public bool IsActiveInHierarchyAndComponent()
-			=> _objectBody._gameObject.activeInHierarchy && _behaviour.enabled;
+			=> _behaviour.gameObject.activeInHierarchy && _behaviour.enabled;
 
 
 

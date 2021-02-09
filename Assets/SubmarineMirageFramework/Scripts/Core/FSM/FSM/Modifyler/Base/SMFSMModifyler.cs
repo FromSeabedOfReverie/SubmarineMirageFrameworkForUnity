@@ -79,7 +79,7 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 					_data.Enqueue( data );
 					break;
 			}
-			SMLog.Debug( this );
+//			SMLog.Debug( this );
 			Run().Forget();
 		}
 
@@ -93,11 +93,14 @@ namespace SubmarineMirage.FSM.Modifyler.Base {
 			if ( _isRunning )	{ return; }
 
 			_isRunning = true;
-			SMLog.Warning( "Run" );
+//			SMLog.Warning( "Run" );
 			while ( IsHaveData() ) {
-				if ( _isDispose )			{ break; }
-				if ( !_owner._isOperable )	{ break; }
-				if ( !_owner._isActive )	{ break; }
+				if ( _isDispose )				{ break; }
+// TODO : この辺りのフラグ、ごちゃごちゃしてるので、修正
+				if ( !_owner._isFinalizing ) {
+					if ( !_owner._isInitialized )	{ break; }
+					if ( !_owner._isActive )		{ break; }
+				}
 				var d = _data.Dequeue();
 				await d.Run();
 			}

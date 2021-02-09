@@ -37,12 +37,11 @@ namespace SubmarineMirage.Scene {
 		public SMSceneFSM _debugFSM	=> _body._debugFSM;
 		public SMScene _foreverScene	=> _body._foreverScene;
 
-		[SMShowLine] public bool _isInitialEnteredFSMs	{ get; set; }
-
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isOperable	=> _body._isOperable;
 		public bool _isFinalizing	=> _body._isFinalizing;
 		public bool _isActive		=> _body._isActive;
+		[SMShowLine] public bool _isInitialEnteredFSMs	{ get; set; }
 
 		public SMAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
 		public SMAsyncEvent _initializeEvent		=> _body._initializeEvent;
@@ -55,6 +54,7 @@ namespace SubmarineMirage.Scene {
 #if DEVELOP
 		public SMSubject _onGUIEvent				=> _body._onGUIEvent;
 #endif
+		public SMAsyncCanceler _asyncCancelerOnDisable	=> _body._asyncCancelerOnDisable;
 		public SMAsyncCanceler _asyncCancelerOnDispose	=> _body._asyncCancelerOnDispose;
 
 		public SMDisposable _disposables	{ get; private set; } = new SMDisposable();
@@ -70,16 +70,19 @@ namespace SubmarineMirage.Scene {
 			SetToString();
 			_body = new SMSceneManagerBody( this );
 
-			var test = new Test.TestSMSceneManager( this );
-			test.SetEvent();
-
 			_disposables.AddLast( () => {
 				_toStringer.Dispose();
 				_body.Dispose();
 				Destroy( gameObject );
-
+				SubmarineMirageFramework.Shutdown();
+			} );
+///*
+			var test = new Test.TestSMSceneManager( this );
+//			test.SetEvent();
+			_disposables.AddLast( () => {
 				test.Dispose();
 			} );
+//*/
 		}
 
 		public override void Dispose() => _disposables.Dispose();

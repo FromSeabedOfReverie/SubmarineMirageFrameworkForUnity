@@ -31,9 +31,11 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 	{
 		protected TOwner _owner	{ get; private set; }
 		[SMShow] protected readonly LinkedList<TData> _data = new LinkedList<TData>();
+
 		[SMShow] bool _isRunning	{ get; set; }
+		public ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
+
 		protected abstract SMAsyncCanceler _asyncCanceler	{ get; }
-		ReactiveProperty<bool> _isSceneUpdating	{ get; set; }
 
 
 
@@ -49,20 +51,28 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 		public BaseSMTaskModifyler( TOwner owner ) {
 			_owner = owner;
-			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
-			_isSceneUpdating = sceneManager._body._isUpdating;
 
-			_disposables.AddLast(
-				_isSceneUpdating
-					.Where( b => !b )
-					.Subscribe( _ => Run().Forget() )
-			);
+			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
+			SetupSceneUpdating( sceneManager?._body._isUpdating );
+
 			_disposables.AddLast( () => {
 				_data.ForEach( d => d.Dispose() );
 				_data.Clear();
 				_isRunning = false;
 			} );
 		}
+
+		public void SetupSceneUpdating( ReactiveProperty<bool> isSceneUpdating ) {
+			if ( isSceneUpdating == null )	{ return; }
+
+			_isSceneUpdating = isSceneUpdating;
+			_disposables.AddLast(
+				_isSceneUpdating
+					.Where( b => !b )
+					.Subscribe( _ => Run().Forget() )
+			);
+		}
+
 
 		public void Register( TData data ) {
 			data.Set( _owner );

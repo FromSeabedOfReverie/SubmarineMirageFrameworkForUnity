@@ -41,7 +41,6 @@ namespace SubmarineMirage.Scene.Test {
 				typeof( FieldSMScene ),
 				typeof( GameOverSMScene ),
 				typeof( GameClearSMScene ),
-				typeof( global::TestSMScene ),
 			};
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
@@ -49,7 +48,7 @@ namespace SubmarineMirage.Scene.Test {
 					SMLog.Warning( $"遷移押下 : {t.GetAboutName()}" );
 					_sceneManager._mainFSM.ChangeScene( t ).Forget();
 					i = ( i + 1 ) % scenes.Count();
-					SMLog.Debug( _sceneManager._mainFSM._body._modifyler.ToString() );
+//					SMLog.Debug( _sceneManager._mainFSM._body._modifyler.ToString() );
 				} )
 			);
 		}

@@ -4,13 +4,16 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-using SubmarineMirage.Scene;
+namespace SubmarineMirage.TestTask {
+	using Task;
+	using Debug;
 
 
-
-// TODO : コメント追加、整頓
-
+	// TODO : コメント追加、整頓
 
 
-public class TestSMScene : MainSMScene {
+	public class TestB : SMBehaviour {
+		public override void Create() {
+		}
+	}
 }

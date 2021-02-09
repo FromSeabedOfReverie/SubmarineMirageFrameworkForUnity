@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTaskModifyler
+//#define TestTaskModifyler
 namespace SubmarineMirage.Task.Modifyler.Base {
 	using System;
 	using System.Linq;

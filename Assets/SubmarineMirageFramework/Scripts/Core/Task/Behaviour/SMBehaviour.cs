@@ -52,6 +52,7 @@ namespace SubmarineMirage.Task {
 
 
 		protected override void Awake() {
+			SMLog.Debug( nameof( Awake ) );
 			base.Awake();
 
 			_toStringer = new SMToStringer( this );

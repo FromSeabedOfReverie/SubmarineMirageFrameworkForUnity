@@ -29,7 +29,10 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
+			if ( _owner._isFinalizing )		{ return; }
 			if ( _owner._isInitialEntered )	{ return; }
+
+
 			if ( _owner._stateBody != null ) {
 				throw new InvalidOperationException(
 					$"初期状態遷移前に、既に状態設定済み : {nameof( _owner._stateBody )}" );
