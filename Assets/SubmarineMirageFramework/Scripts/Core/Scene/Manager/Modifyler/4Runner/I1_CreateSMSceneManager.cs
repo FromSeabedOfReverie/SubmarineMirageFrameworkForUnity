@@ -57,7 +57,7 @@ namespace SubmarineMirage.Scene.Modifyler {
 //				SMLog.Debug( fsm._body._startStateType?.GetAboutName() );
 			} );
 			// 不明なシーンを設定
-			var scene = _owner._mainFSM.GetScene<UnknownMainSMScene>();
+			var scene = _owner._mainFSM.GetScene<UnknownSMScene>();
 			scene.Setup();
 		}
 	}

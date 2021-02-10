@@ -32,7 +32,7 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 					typeof( FieldSMScene ),
 					typeof( GameOverSMScene ),
 					typeof( GameClearSMScene ),
-					typeof( UnknownMainSMScene ),
+					typeof( UnknownSMScene ),
 				},
 				typeof( MainSMScene ),
 				null,

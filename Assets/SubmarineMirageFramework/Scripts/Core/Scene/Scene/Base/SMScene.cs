@@ -59,29 +59,29 @@ namespace SubmarineMirage.Scene {
 
 
 			_enterEvent.AddLast( _registerEventName, async canceler => {
-				SMLog.Debug( $"start : {this.GetAboutName()}入口" );
+//				SMLog.Debug( $"start : {this.GetAboutName()}入口" );
 				var isRemove = _owner._body.RemoveFirstLoaded( this );
-				SMLog.Debug( $"{this.GetAboutName()}既に読まれてる？ : {isRemove}" );
+//				SMLog.Debug( $"{this.GetAboutName()}既に読まれてる？ : {isRemove}" );
 				if ( !isRemove ) {
 					await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive ).ToUniTask( canceler );
 					ReloadRawScene();
 				}
 				if ( this is MainSMScene ) {
-					SMLog.Debug( $"メインシーン : {_rawScene.name}" );
+//					SMLog.Debug( $"メインシーン : {_rawScene.name}" );
 					SceneManager.SetActiveScene( _rawScene );
 				}
 				await _createBehavioursEvent.Run( canceler );
 				await _groupManagerBody.Enter();
-				SMLog.Debug( $"end : {this.GetAboutName()}入口" );
+//				SMLog.Debug( $"end : {this.GetAboutName()}入口" );
 			} );
 
 			_exitEvent.AddLast( _registerEventName, async canceler => {
-				SMLog.Debug( $"start : {this.GetAboutName()}出口" );
+//				SMLog.Debug( $"start : {this.GetAboutName()}出口" );
 				await _groupManagerBody.Exit();
 				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 				ReloadRawScene();
 				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
-				SMLog.Debug( $"end : {this.GetAboutName()}出口" );
+//				SMLog.Debug( $"end : {this.GetAboutName()}出口" );
 			} );
 
 

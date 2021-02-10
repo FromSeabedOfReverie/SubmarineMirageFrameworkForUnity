@@ -15,103 +15,76 @@ namespace SubmarineMirage.Extension {
 	public static class Vector2SMExtension {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 除算
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static Vector2 Div( this Vector2 a, Vector2 b ) {
-			return new Vector2( a.x / b.x, a.y / b.y );
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 乗算
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public static Vector2 Mult( this Vector2 a, Vector2 b ) {
-			return new Vector2( a.x * b.x, a.y * b.y );
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
 		/// ● 小数切り上げ
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static Vector2 Ceil( this Vector2 a ) {
-			return new Vector2( Mathf.Ceil( a.x ), Mathf.Ceil( a.y ) );
-		}
+		public static Vector2 Ceil( this Vector2 self ) => new Vector2(
+			Mathf.Ceil( self.x ),
+			Mathf.Ceil( self.y )
+		);
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● より小さい
-		///	 大きさの比較ではない
+		///	 長さの比較ではない
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static bool IsLess( this Vector2 a, Vector2 b ) {
-			return (
-				a.x < b.x &&
-				a.y < b.y
-			);
-		}
+		public static bool IsLess( this Vector2 self, Vector2 v ) => (
+			self.x < v.x &&
+			self.y < v.y
+		);
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● より大きい
-		///	 大きさの比較ではない
+		///	 長さの比較ではない
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static bool IsGreater( this Vector2 a, Vector2 b ) {
-			return (
-				a.x > b.x &&
-				a.y > b.y
-			);
-		}
+		public static bool IsGreater( this Vector2 self, Vector2 v ) => (
+			self.x > v.x &&
+			self.y > v.y
+		);
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● より小さい（詳細）
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static bool[] IsLessDetails( this Vector2 a, Vector2 b ) {
-			return new bool[] {
-				a.x < b.x,
-				a.y < b.y
-			};
-		}
+		public static bool[] IsLessDetails( this Vector2 self, Vector2 v ) => new bool[] {
+			self.x < v.x,
+			self.y < v.y
+		};
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● より大きい（詳細）
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static bool[] IsGreaterDetails( this Vector2 a, Vector2 b ) {
-			return new bool[] {
-				a.x > b.x,
-				a.y > b.y
-			};
-		}
+		public static bool[] IsGreaterDetails( this Vector2 self, Vector2 v ) => new bool[] {
+			self.x > v.x,
+			self.y > v.y
+		};
 		///------------------------------------------------------------------------------------------------
 		/// ● 範囲内か？
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 範囲内か？
 		/// </summary>
-		public static bool IsInside( this Vector2 position, SMArea area ) {
-			return area.IsInside( position );
-		}
+		public static bool IsInside( this Vector2 self, SMArea area )
+			=> area.IsInside( self );
 		/// <summary>
 		/// ● 範囲内か？（詳細）
 		/// </summary>
-		public static bool IsInside( this Vector2 position, SMArea area, out bool[] isDetails ) {
-			return area.IsInside( position, out isDetails );
-		}
+		public static bool IsInside( this Vector2 self, SMArea area, out bool[] isDetails )
+			=> area.IsInside( self, out isDetails );
 		///------------------------------------------------------------------------------------------------
 		/// ● 範囲外か？
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 範囲外か？
 		/// </summary>
-		public static bool IsOutside( this Vector2 position, SMArea area ) {
-			return area.IsOutside( position );
-		}
+		public static bool IsOutside( this Vector2 self, SMArea area )
+			=> area.IsOutside( self );
 		/// <summary>
 		/// ● 範囲外か？（詳細）
 		/// </summary>
-		public static bool IsOutside( this Vector2 position, SMArea area, out bool[] isDetails ) {
-			return area.IsOutside( position, out isDetails );
-		}
+		public static bool IsOutside( this Vector2 self, SMArea area, out bool[] isDetails )
+			=> area.IsOutside( self, out isDetails );
 	}
 }

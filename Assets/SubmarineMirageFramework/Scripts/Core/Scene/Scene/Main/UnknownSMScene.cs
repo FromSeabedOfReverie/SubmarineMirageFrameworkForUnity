@@ -17,8 +17,8 @@ namespace SubmarineMirage.Scene {
 
 
 
-	public class UnknownMainSMScene : MainSMScene {
-		public UnknownMainSMScene() {
+	public class UnknownSMScene : MainSMScene {
+		public UnknownSMScene() {
 		}
 
 
@@ -32,7 +32,7 @@ namespace SubmarineMirage.Scene {
 
 			if ( count > 1 ) {
 				throw new InvalidOperationException(
-					$"不明なシーンが複数ある為、{nameof( UnknownMainSMScene )}に設定不可 : \n"
+					$"不明なシーンが複数ある為、{nameof( UnknownSMScene )}に設定不可 : \n"
 					+ scenes.ToShowString()
 				);
 			}

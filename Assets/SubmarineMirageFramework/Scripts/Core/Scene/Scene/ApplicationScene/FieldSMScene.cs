@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+using UnityEngine;
 using SubmarineMirage.Scene;
 
 
@@ -12,5 +13,8 @@ using SubmarineMirage.Scene;
 
 
 
-public class FieldSMScene : MainSMScene {
+public class FieldSMScene : OpenWorldSMScene {
+	protected override Vector3Int _maxChunkCounts	{ get; set; } = new Vector3Int( 6, 4, 6 );
+	protected override int _loadChunkRadius	{ get; set; } = 2;
+	protected override Vector3 _chunkMeterLength	{ get; set; } = new Vector3( 10, 10, 10 );
 }
