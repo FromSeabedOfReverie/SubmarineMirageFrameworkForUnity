@@ -135,7 +135,6 @@ namespace SubmarineMirage.Task.Base {
 				var current = currents.Dequeue();
 				var bs = current.GetComponents<SMBehaviour>();
 				if ( !bs.IsEmpty() ) {
-					SMLog.Debug( nameof( SMGroup ) );
 					new SMGroup( this, current.gameObject, bs );
 					await UTask.NextFrame( _asyncCancelerOnDisable );
 				} else {

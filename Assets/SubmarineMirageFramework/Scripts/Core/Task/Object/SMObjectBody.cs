@@ -115,7 +115,13 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		void SetupBehaviours( IEnumerable<SMBehaviour> behaviours ) {
-			var bodies = behaviours.Select( b => b._body );
+			var bodies = behaviours
+				.Select( b => {
+					b.Constructor();
+					return b._body;
+				} )
+				.ToArray();
+
 			_behaviourBody = bodies.First();
 
 			SMBehaviourBody last = null;

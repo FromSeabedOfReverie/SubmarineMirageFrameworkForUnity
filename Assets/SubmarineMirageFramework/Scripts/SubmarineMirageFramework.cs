@@ -85,6 +85,7 @@ namespace SubmarineMirage {
 
 			var scene = SMServiceLocator.Register<SMSceneManager>();
 			await scene._body.Initialize();
+			SMServiceLocator.Register<DebugDisplay>();
 
 			if ( s_isPlayTest ) {
 				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );

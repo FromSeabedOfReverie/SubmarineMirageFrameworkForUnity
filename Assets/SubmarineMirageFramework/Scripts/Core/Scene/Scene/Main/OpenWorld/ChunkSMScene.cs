@@ -5,7 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
-	using UnityEngine;
+	using UnityEngine.SceneManagement;
+	using Cysharp.Threading.Tasks;
+	using KoganeUnityLib;
+	using Extension;
+	using Utility;
 
 
 
@@ -14,11 +18,31 @@ namespace SubmarineMirage.Scene {
 
 
 	public class ChunkSMScene : SMScene {
+		protected override bool _isUnloadAssets => false;
 
 
 
 		public ChunkSMScene( string name ) {
 			_name = name;
+			ReloadRawScene();
+
+			_enterEvent.AddLast( _registerEventName, async canceler => {
+				await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive ).ToUniTask( canceler );
+				ReloadRawScene();
+			} );
+
+			_exitEvent.AddLast( _registerEventName, async canceler => {
+				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
+				ReloadRawScene();
+			} );
+		}
+
+
+		protected override void SetSceneName() {}
+
+		protected override void ReloadRawScene() {
+			if ( _name.IsNullOrEmpty() )	{ return; }
+			base.ReloadRawScene();
 		}
 	}
 }

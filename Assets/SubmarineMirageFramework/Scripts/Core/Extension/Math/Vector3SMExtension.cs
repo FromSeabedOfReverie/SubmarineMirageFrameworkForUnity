@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
-	using Utility;
 
 
 	// TODO : コメント追加、整頓
@@ -24,5 +23,33 @@ namespace SubmarineMirage.Extension {
 			self.y / v.y,
 			self.z / v.z
 		);
+
+		public static Vector3 Mod( this Vector3 self, int n ) => new Vector3(
+			self.x % n,
+			self.y % n,
+			self.z % n
+		);
+
+
+		public static Vector3Int Sign( this Vector3 self ) => new Vector3Int(
+			(int)Mathf.Sign( self.x ),
+			(int)Mathf.Sign( self.y ),
+			(int)Mathf.Sign( self.z )
+		);
+
+
+		public static Vector3Int OutsideDirection( this Vector3 self ) {
+			var v = self.Mod( 1 );
+
+			if ( v.x < 0 )	{ v.x += 1; }
+			if ( v.y < 0 )	{ v.y += 1; }
+			if ( v.z < 0 )	{ v.z += 1; }
+
+			return new Vector3Int(
+				v.x < 0.5 ? -1 : 1,
+				v.y < 0.5 ? -1 : 1,
+				v.z < 0.5 ? -1 : 1
+			);
+		}
 	}
 }

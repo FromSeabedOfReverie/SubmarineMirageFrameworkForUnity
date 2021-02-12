@@ -6,13 +6,24 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
-	using Utility;
 
 
 	// TODO : コメント追加、整頓
 
 
 	public static class Vector3IntSMExtension {
+		public static readonly Vector3Int s_positiveInfinity = new Vector3Int(
+			int.MaxValue,
+			int.MaxValue,
+			int.MaxValue
+		);
+		public static readonly Vector3Int s_negativeInfinity = new Vector3Int(
+			int.MinValue,
+			int.MinValue,
+			int.MinValue
+		);
+
+
 		public static Vector3Int Add( this Vector3Int self, int a ) => new Vector3Int(
 			self.x + a,
 			self.y + a,
@@ -25,8 +36,10 @@ namespace SubmarineMirage.Extension {
 			self.z - a
 		);
 
+
 		public static Vector3Int FloorToInt( this Vector3 v )
 			=> Vector3Int.FloorToInt( v );
+
 
 		public static bool IsLess( this Vector3Int self, Vector3Int a ) => (
 			self.x < a.x &&

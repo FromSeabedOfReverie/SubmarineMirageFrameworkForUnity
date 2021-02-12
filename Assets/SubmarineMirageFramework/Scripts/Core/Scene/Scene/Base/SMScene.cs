@@ -37,6 +37,8 @@ namespace SubmarineMirage.Scene {
 
 		public readonly SMAsyncEvent _createBehavioursEvent = new SMAsyncEvent();
 
+		protected virtual bool _isUnloadAssets => true;
+
 
 		public SMScene() {
 			SetSceneName();
@@ -80,7 +82,9 @@ namespace SubmarineMirage.Scene {
 				await _groupManagerBody.Exit();
 				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 				ReloadRawScene();
-				await Resources.UnloadUnusedAssets().ToUniTask( canceler );
+				if ( _isUnloadAssets ) {
+					await Resources.UnloadUnusedAssets().ToUniTask( canceler );
+				}
 //				SMLog.Debug( $"end : {this.GetAboutName()}出口" );
 			} );
 
@@ -103,14 +107,8 @@ namespace SubmarineMirage.Scene {
 			=> SceneManager.MoveGameObjectToScene( groupBody._gameObject, _rawScene );
 
 
-		public bool IsInBuild() {
-#if UNITY_EDITOR
-			return UnityEditor.EditorBuildSettings.scenes
-				.Any( s => s.path == _rawScene.path );
-#else
-			return true;
-#endif
-		}
+		public bool IsInBuild()
+			=> _owner._body.IsExistSceneInBuild( _rawScene.path );
 
 
 		public T GetBehaviour<T>() where T : SMBehaviour

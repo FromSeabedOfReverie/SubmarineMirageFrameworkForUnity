@@ -25,10 +25,13 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public AddBehaviourSMGroup( SMObjectBody target, Type type ) : base( target ) {
 			_behaviour = (SMBehaviour)_target._gameObject.AddComponent( type );
+
 			if ( _behaviour == null ) {
 				throw new NotSupportedException(
 					$"{nameof( SMBehaviour )}でない為、追加不可 :\n{type.GetAboutName()}" );
 			}
+
+			_behaviour.Constructor();
 		}
 
 

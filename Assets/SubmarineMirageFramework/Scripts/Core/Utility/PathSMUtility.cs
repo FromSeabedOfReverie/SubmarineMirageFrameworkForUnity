@@ -7,6 +7,13 @@
 namespace SubmarineMirage.Utility {
 	using System;
 	using System.IO;
+
+
+
+	// TODO : コメント追加、整頓
+
+
+
 	///====================================================================================================
 	/// <summary>
 	/// ■ 階層の便利クラス
@@ -35,5 +42,14 @@ namespace SubmarineMirage.Utility {
 				return false;
 			}
 		}
+
+		public static string GetName( string path )
+			=> Path.GetFileNameWithoutExtension( path );
+
+		public static string GetNameAndExtension( string path )
+			=> Path.GetFileName( path );
+
+		public static string GetExtension( string path )
+			=> Path.GetExtension( path );
 	}
 }

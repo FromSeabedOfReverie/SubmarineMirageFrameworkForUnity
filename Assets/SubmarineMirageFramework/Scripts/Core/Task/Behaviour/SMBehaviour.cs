@@ -52,17 +52,19 @@ namespace SubmarineMirage.Task {
 
 
 		protected override void Awake() {
-			SMLog.Debug( nameof( Awake ) );
 			base.Awake();
 
 			_toStringer = new SMToStringer( this );
 			SetToString();
-			_body = new SMBehaviourBody( this );
 
 			_disposables.AddLast( () => {
 				_toStringer.Dispose();
-				_body.Dispose();
+				_body?.Dispose();
 			} );
+		}
+
+		public void Constructor() {
+			_body = new SMBehaviourBody( this );
 		}
 
 		public override void Dispose() => _disposables.Dispose();

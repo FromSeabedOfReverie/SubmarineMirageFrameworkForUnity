@@ -196,7 +196,7 @@ namespace SubmarineMirage.Scene.Base {
 
 
 
-		public IEnumerable<Scene> GetUnknownScenes() {
+		public IEnumerable<Scene> GetUnknownRawScenes() {
 			var scenes = _firstLoadedRawScenes.Copy();
 
 			_fsm.GetFSMs()
@@ -206,6 +206,20 @@ namespace SubmarineMirage.Scene.Base {
 
 			return scenes;
 		}
+
+
+
+		public IEnumerable<string> GetScenePathsInBuild()
+			=> Enumerable.Range( 0, SceneManager.sceneCountInBuildSettings )
+				.Select( i => SceneUtility.GetScenePathByBuildIndex( i ) );
+
+		public bool IsExistSceneInBuild( string path, bool isNameOnly = false )
+			=> GetScenePathsInBuild()
+				.Select( p => {
+					if ( isNameOnly )	{ return PathSMUtility.GetName( p ); }
+					return p;
+				} )
+				.Any( p => p == path );
 
 
 

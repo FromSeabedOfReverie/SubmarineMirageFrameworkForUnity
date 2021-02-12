@@ -26,7 +26,7 @@ namespace SubmarineMirage.Scene {
 			// 中心シーンが設定済の場合、未処理
 			if ( _owner._mainFSM._body._startStateType != null )	{ return; }
 
-			var scenes = _owner._body.GetUnknownScenes();
+			var scenes = _owner._body.GetUnknownRawScenes();
 			var count = scenes.Count();
 			if ( count == 0 )	{ return; }
 
