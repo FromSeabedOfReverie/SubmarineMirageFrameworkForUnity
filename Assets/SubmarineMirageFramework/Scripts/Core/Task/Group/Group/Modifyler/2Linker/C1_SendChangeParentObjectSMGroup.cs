@@ -22,7 +22,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class SendChangeParentObjectSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 		[SMShowLine] Transform _parentTransform	{ get; set; }
 		[SMShowLine] bool _isWorldPositionStays	{ get; set; }
 
@@ -45,7 +45,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
 
 
 			// ゲーム物の親を変更
@@ -77,13 +77,13 @@ namespace SubmarineMirage.Task.Modifyler {
 				return;
 			}
 			// 同じグループ内で、変更の場合
-			if ( _owner == newParent._groupBody ) {
+			if ( _target == newParent._groupBody ) {
 				ChangeParentOnly( newParent );
 				ShowLog( newParent, false );
 				return;
 			}
 			// トップから子に、変更の場合
-			if ( _owner.IsTop( _target ) ) {
+			if ( _target.IsTop( _target ) ) {
 				ChangeGroupFromTop( newParent );
 				ShowLog( newParent, false );
 				return;
@@ -114,15 +114,15 @@ namespace SubmarineMirage.Task.Modifyler {
 			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
 
 			// シーンが異なる場合
-			var lastManager = _owner._managerBody;
+			var lastManager = _target._managerBody;
 			var lastScene = lastManager._scene._rawScene;
 			var newScene = _parentTransform.gameObject.scene;
 			if ( lastScene != newScene ) {
 				var newManager = lastManager._scene._owner._body.GetScene( newScene )._groupManagerBody;
 
 				// 管理者を再設定
-				_owner._managerBody = newManager;
-				lastManager._modifyler.Register( new SendReregisterGroupSMGroupManager( _owner ) );
+				_target._managerBody = newManager;
+				lastManager._modifyler.Register( new SendReregisterGroupSMGroupManager( _target ) );
 			}
 		}
 
@@ -132,7 +132,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 			// 新グループ作成
 			var newScene = _parentTransform.gameObject.scene;
-			var newManager = _owner._managerBody._scene._owner._body.GetScene( newScene )._groupManagerBody;
+			var newManager = _target._managerBody._scene._owner._body.GetScene( newScene )._groupManagerBody;
 			new SMGroup( newManager, _target );
 		}
 
@@ -142,7 +142,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			// 新親あり（グループは同じ）
 
 			// トップ → 子の場合、同じグループのトップが子にくっつく為、循環参照で破綻
-			if ( _owner.IsTop( _target ) ) {
+			if ( _target.IsTop( _target ) ) {
 				throw new InvalidOperationException(
 					$"同一グループ内でトップが子に接続する為、循環参照となり親変更不可 :\n{_target}" );
 			}
@@ -164,12 +164,12 @@ namespace SubmarineMirage.Task.Modifyler {
 			parent._groupBody._modifyler.Register( new ReceiveChangeParentObjectSMGroup( _target, parent ) );
 
 			// グループ全体を、新グループに移植
-			parent._groupBody._modifyler.Move( _owner._modifyler );
-			_owner._objectBody.SetGroupOfAllChildren( parent._groupBody );
+			parent._groupBody._modifyler.Move( _target._modifyler );
+			_target._objectBody.SetGroupOfAllChildren( parent._groupBody );
 
 			// グループ解放、登録解除を予約
-			_owner._group.Dispose();
-			_owner._managerBody._modifyler.Register( new UnregisterGroupSMGroupManager( _owner ) );
+			_target._group.Dispose();
+			_target._managerBody._modifyler.Register( new UnregisterGroupSMGroupManager( _target ) );
 		}
 
 

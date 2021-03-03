@@ -17,15 +17,15 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class EnableObjectSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 
 
 		public EnableObjectSMGroup( SMObjectBody target ) : base( target ) {}
 
 
 		public override async UniTask Run() {
-			if ( !_owner._isOperable )	{ return; }
-			if ( _owner._activeState != SMTaskActiveState.Enable && !_owner.IsTop( _target ) )	{ return; }
+			if ( !_target._isOperable )	{ return; }
+			if ( _target._activeState != SMTaskActiveState.Enable && !_target.IsTop( _target ) )	{ return; }
 			if ( !_target.IsActiveInParentHierarchy() )	{ return; }
 
 
@@ -35,7 +35,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				await RunLower( t, () => new EnableSMObject( t ) );
 			}
 
-			if ( _owner.IsTop( _target ) )	{ _owner._activeState = SMTaskActiveState.Enable; }
+			if ( _target.IsTop( _target ) )	{ _target._activeState = SMTaskActiveState.Enable; }
 		}
 	}
 }

@@ -29,7 +29,7 @@ namespace SubmarineMirage.Scene.Base {
 
 
 
-	public class SMSceneManagerBody : BaseSMTaskModifylerOwner<SMSceneManagerModifyler> {
+	public class SMSceneManagerBody : SMTaskModifyTarget<SMSceneManagerModifyler> {
 		public SMSceneManager _sceneManager	{ get; private set; }
 		[SMShow] public SMSceneFSM _fsm	{ get; set; }
 

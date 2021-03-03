@@ -16,7 +16,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class SelfInitializeSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 		[SMShowLine] SMTaskRunAllType _runType	{ get; set; }
 
 
@@ -25,13 +25,13 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-			if ( _owner._ranState != SMTaskRunState.Create )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( _target._ranState != SMTaskRunState.Create )	{ return; }
 
 
 			await RunLower( _runType, () => new SelfInitializeSMObject( _runType ) );
 
-			if ( _runType == SMTaskRunAllType.Parallel )	{ _owner._ranState = SMTaskRunState.SelfInitialize; }
+			if ( _runType == SMTaskRunAllType.Parallel )	{ _target._ranState = SMTaskRunState.SelfInitialize; }
 		}
 	}
 }

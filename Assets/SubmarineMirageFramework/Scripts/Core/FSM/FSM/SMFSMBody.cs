@@ -11,8 +11,8 @@ namespace SubmarineMirage.FSM.Base {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using SubmarineMirage.Base;
 	using Event;
+	using SubmarineMirage.Modifyler;
 	using FSM.Modifyler;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
@@ -26,7 +26,7 @@ namespace SubmarineMirage.FSM.Base {
 
 
 
-	public class SMFSMBody : SMStandardBase {
+	public class SMFSMBody : SMModifyTarget<SMFSMBody, SMFSMModifyData> {
 		public BaseSMFSM _fsm			{ get; private set; }
 		public IBaseSMFSMOwner _owner	{ get; private set; }
 		[SMShow] Dictionary<Type, SMStateBody> _stateBodies	{ get; set; }
@@ -34,8 +34,6 @@ namespace SubmarineMirage.FSM.Base {
 
 		public SMFSMBody _previous	{ get; set; }
 		public SMFSMBody _next		{ get; set; }
-
-		[SMShow] public SMFSMModifyler _modifyler	{ get; private set; }
 
 		[SMShowLine] public Type _baseStateType	{ get; protected set; }
 		[SMShow] public Type _startStateType	{ get; set; }
@@ -76,12 +74,19 @@ namespace SubmarineMirage.FSM.Base {
 
 		public SMFSMBody( BaseSMFSM fsm ) {
 			_fsm = fsm;
-			_modifyler = new SMFSMModifyler( this );
+
+			// TODO : フラグ、ごちゃごちゃしてるので、修正
+			_modifyler._isCanRunEvent = () => {
+				if ( _isFinalizing )	{ return true; }
+				if ( !_isInitialized )	{ return false; }
+				if ( !_isActive )		{ return false; }
+				return true;
+			};
+
 			_registerEventName = _fsm.GetAboutName();
 
 
 			_disposables.AddLast( () => {
-				_modifyler.Dispose();
 				_asyncCancelerOnDisableAndExit.Dispose();
 
 				GetStates().ForEach( s => s._state.Dispose() );

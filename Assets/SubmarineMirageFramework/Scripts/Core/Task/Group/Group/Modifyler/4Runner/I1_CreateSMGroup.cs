@@ -16,7 +16,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class CreateSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 		[SMShowLine] SMTaskRunAllType _runType	{ get; set; }
 
 
@@ -25,13 +25,14 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-			if ( _owner._ranState != SMTaskRunState.None )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( _target._ranState != SMTaskRunState.None )	{ return; }
 
 
 			await RunLower( _runType, () => new CreateSMObject( _runType ) );
 
-			if ( _runType == SMTaskRunAllType.DontRun )	{ _owner._ranState = SMTaskRunState.Create; }
+// TODO : DontRunは、呼ばれない為、別の更新方法を考える
+			if ( _runType == SMTaskRunAllType.DontRun )	{ _target._ranState = SMTaskRunState.Create; }
 		}
 	}
 }

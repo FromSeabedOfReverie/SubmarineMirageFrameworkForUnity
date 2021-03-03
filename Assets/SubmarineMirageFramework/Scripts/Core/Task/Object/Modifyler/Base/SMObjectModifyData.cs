@@ -18,7 +18,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	public abstract class SMObjectModifyData
-		: BaseSMTaskModifyData<SMObjectBody, SMObjectModifyler, SMBehaviourModifyData, SMBehaviourBody>
+		: SMTaskModifyData<SMObjectBody, SMObjectModifyler, SMBehaviourModifyData, SMBehaviourBody>
 	{
 		[SMShowLine] protected SMTaskRunAllType _runType	{ get; private set; }
 
@@ -28,8 +28,8 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 		public override void Set( SMObjectBody owner ) {
 			base.Set( owner );
-			if ( _owner == null ) {
-				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に削除済\n{_owner}" );
+			if ( _target == null ) {
+				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
 			}
 		}
 
@@ -38,7 +38,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 			=> lowerTarget._modifyler.RegisterAndRun( data );
 
 		protected override IEnumerable<SMBehaviourBody> GetAllLowers()
-			=> _owner._behaviourBody.GetBrothers();
+			=> _target._behaviourBody.GetBrothers();
 
 		protected override bool IsTargetLower( SMBehaviourBody lowerTarget, SMTaskType type )
 			=> lowerTarget._type == type;

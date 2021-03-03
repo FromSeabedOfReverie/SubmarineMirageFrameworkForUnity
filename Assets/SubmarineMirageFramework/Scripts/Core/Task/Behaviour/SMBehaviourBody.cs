@@ -21,7 +21,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-	public class SMBehaviourBody : BaseSMTaskModifylerOwner<SMBehaviourModifyler> {
+	public class SMBehaviourBody : SMTaskModifyTarget<SMBehaviourModifyler> {
 		public SMBehaviour _behaviour	{ get; private set; }
 		public SMObjectBody _objectBody	{ get; set; }
 
@@ -207,9 +207,11 @@ namespace SubmarineMirage.Task.Base {
 
 
 		public void FixedUpdate() {
-			if ( !_isOperable )	{ return; }
-			if ( !_isActive )	{ return; }
+			SMLog.Debug( $"{nameof( SMBehaviourBody )} : {_isFinalizing}, {_isActive}, {_ranState}" );
+			if ( _isFinalizing )	{ return; }
+			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.InitialEnable )	{ return; }
+			SMLog.Debug( $"{nameof( SMBehaviourBody )}.{nameof( FixedUpdate )}" );
 
 			_fixedUpdateEvent.Run();
 
@@ -217,8 +219,8 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		public void Update() {
-			if ( !_isOperable )	{ return; }
-			if ( !_isActive )	{ return; }
+			if ( _isFinalizing )	{ return; }
+			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.FixedUpdate )	{ return; }
 
 			_updateEvent.Run();
@@ -227,7 +229,7 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		public void LateUpdate() {
-			if ( !_isOperable )	{ return; }
+			if ( _isFinalizing )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.Update )	{ return; }
 

@@ -37,7 +37,7 @@ namespace SubmarineMirage.Scene {
 
 		public readonly SMAsyncEvent _createBehavioursEvent = new SMAsyncEvent();
 
-		protected virtual bool _isUnloadAssets => true;
+		protected virtual bool _isUseUnloadUnusedAssets => true;
 
 
 		public SMScene() {
@@ -82,7 +82,7 @@ namespace SubmarineMirage.Scene {
 				await _groupManagerBody.Exit();
 				await SceneManager.UnloadSceneAsync( _name ).ToUniTask( canceler );
 				ReloadRawScene();
-				if ( _isUnloadAssets ) {
+				if ( _isUseUnloadUnusedAssets ) {
 					await Resources.UnloadUnusedAssets().ToUniTask( canceler );
 				}
 //				SMLog.Debug( $"end : {this.GetAboutName()}出口" );

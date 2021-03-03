@@ -15,20 +15,20 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class EnableSMBehaviour : SMBehaviourModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 
 
 		public override async UniTask Run() {
-			if ( !_owner.IsActiveInComponent() )	{ return; }
-			if ( _owner._isFinalizing )	{ return; }
-			if ( !_owner._isInitialized ) {
-				_owner._isRunInitialActive = _owner._objectBody.IsActiveInHierarchy();
+			if ( !_target.IsActiveInComponent() )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( !_target._isInitialized ) {
+				_target._isRunInitialActive = _target._objectBody.IsActiveInHierarchy();
 				return;
 			}
-			if ( _owner._activeState == SMTaskActiveState.Enable )	{ return; }
+			if ( _target._activeState == SMTaskActiveState.Enable )	{ return; }
 
-			_owner._enableEvent.Run();
-			_owner._activeState = SMTaskActiveState.Enable;
+			_target._enableEvent.Run();
+			_target._activeState = SMTaskActiveState.Enable;
 
 			await UTask.DontWait();
 		}

@@ -22,15 +22,15 @@ namespace SubmarineMirage.Scene.Modifyler {
 
 
 	public class CreateSMSceneManager : SMSceneManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-			if ( _owner._ranState != SMTaskRunState.None )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( _target._ranState != SMTaskRunState.None )	{ return; }
 
 			Create();
-			_owner._ranState = SMTaskRunState.Create;
+			_target._ranState = SMTaskRunState.Create;
 
 			await UTask.DontWait();
 		}
@@ -39,25 +39,25 @@ namespace SubmarineMirage.Scene.Modifyler {
 		// SMScene内部で、SMServiceLocatorから自身を参照する為、Body生成後に、Sceneを遅延生成する
 		void Create() {
 			var setting = SMServiceLocator.Resolve<ISMSceneSetting>();
-			_owner._fsm = SMSceneFSM.Generate( _owner._sceneManager, setting._sceneFSMList );
+			_target._fsm = SMSceneFSM.Generate( _target._sceneManager, setting._sceneFSMList );
 			SMServiceLocator.Unregister<ISMSceneSetting>();
 
-			_owner._foreverFSM = _owner._fsm.GetFSM<ForeverSMScene>();
-			_owner._mainFSM = _owner._fsm.GetFSM<MainSMScene>();
-			_owner._uiFSM = _owner._fsm.GetFSM<UISMScene>();
-			_owner._debugFSM = _owner._fsm.GetFSM<DebugSMScene>();
-			_owner._foreverScene = _owner._foreverFSM.GetScenes().FirstOrDefault();
+			_target._foreverFSM = _target._fsm.GetFSM<ForeverSMScene>();
+			_target._mainFSM = _target._fsm.GetFSM<MainSMScene>();
+			_target._uiFSM = _target._fsm.GetFSM<UISMScene>();
+			_target._debugFSM = _target._fsm.GetFSM<DebugSMScene>();
+			_target._foreverScene = _target._foreverFSM.GetScenes().FirstOrDefault();
 
-			_owner._firstLoadedRawScenes = _owner.GetLoadedRawScenes().ToList();
+			_target._firstLoadedRawScenes = _target.GetLoadedRawScenes().ToList();
 
-			_owner._fsm.GetFSMs().ForEach( fsm => {
+			_target._fsm.GetFSMs().ForEach( fsm => {
 				fsm._body._startStateType = fsm.GetScenes()
-					.FirstOrDefault( s => _owner.IsFirstLoaded( s ) )
+					.FirstOrDefault( s => _target.IsFirstLoaded( s ) )
 					?.GetType();
 //				SMLog.Debug( fsm._body._startStateType?.GetAboutName() );
 			} );
 			// 不明なシーンを設定
-			var scene = _owner._mainFSM.GetScene<UnknownSMScene>();
+			var scene = _target._mainFSM.GetScene<UnknownSMScene>();
 			scene.Setup();
 		}
 	}

@@ -18,12 +18,12 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	public abstract class SMBehaviourModifyData
-		: BaseSMTaskModifyData<SMBehaviourBody, SMBehaviourModifyler, Unit, Unit>
+		: SMTaskModifyData<SMBehaviourBody, SMBehaviourModifyler, Unit, Unit>
 	{
 		public override void Set( SMBehaviourBody owner ) {
 			base.Set( owner );
-			if ( _owner == null ) {
-				throw new ObjectDisposedException( $"{nameof( _owner )}", $"既に削除済\n{_owner}" );
+			if ( _target == null ) {
+				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
 			}
 		}
 

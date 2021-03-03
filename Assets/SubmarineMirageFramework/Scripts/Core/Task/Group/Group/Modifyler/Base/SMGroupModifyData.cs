@@ -18,7 +18,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	public abstract class SMGroupModifyData
-		: BaseSMTaskModifyData<SMGroupBody, SMGroupModifyler, SMObjectModifyData, SMObjectBody>
+		: SMTaskModifyData<SMGroupBody, SMGroupModifyler, SMObjectModifyData, SMObjectBody>
 	{
 		[SMShowLine] public SMObjectBody _target	{ get; private set; }
 
@@ -28,7 +28,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 		public override void Set( SMGroupBody owner ) {
 			base.Set( owner );
-			if ( _target == null )	{ _target = _owner._objectBody; }
+			if ( _target == null )	{ _target = base._target._objectBody; }
 			if ( _target == null ) {
 				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
 			}

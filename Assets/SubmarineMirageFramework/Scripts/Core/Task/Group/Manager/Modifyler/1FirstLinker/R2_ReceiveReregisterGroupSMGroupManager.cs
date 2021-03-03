@@ -19,7 +19,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class ReceiveReregisterGroupSMGroupManager : SMGroupManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstLinker;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstLinker;
 
 
 		public ReceiveReregisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}
@@ -31,7 +31,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			_owner.Link( _target );
+			_target.Link( _target );
 			_target.RegisterRunEventToOwner();
 
 			await UTask.DontWait();

@@ -14,15 +14,15 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class InitializeSMBehaviour : SMBehaviourModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-			if ( _owner._ranState != SMTaskRunState.SelfInitialize )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( _target._ranState != SMTaskRunState.SelfInitialize )	{ return; }
 
-			await _owner._initializeEvent.Run( _owner._asyncCancelerOnDispose );
-			_owner._ranState = SMTaskRunState.Initialize;
+			await _target._initializeEvent.Run( _target._asyncCancelerOnDispose );
+			_target._ranState = SMTaskRunState.Initialize;
 		}
 	}
 }

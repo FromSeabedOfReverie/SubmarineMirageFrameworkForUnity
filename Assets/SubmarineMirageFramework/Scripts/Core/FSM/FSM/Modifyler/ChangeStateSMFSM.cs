@@ -7,6 +7,7 @@
 namespace SubmarineMirage.FSM.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
+	using SubmarineMirage.Modifyler;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
 	using Debug;
@@ -18,7 +19,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 	public class ChangeStateSMFSM : SMFSMModifyData {
-		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.SingleRunner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.SingleRunner;
 		[SMShowLine] Type _stateType	{ get; set; }
 
 
@@ -28,38 +29,38 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )		{ return; }
-			if ( !_owner._isInitialEntered ) {
-				_owner._startStateType = _stateType;
+			if ( _target._isFinalizing )		{ return; }
+			if ( !_target._isInitialEntered ) {
+				_target._startStateType = _stateType;
 				return;
 			}
 
 			SMStateBody state = null;
 			if ( _stateType != null ) {
-				state = _owner.GetState( _stateType );
+				state = _target.GetState( _stateType );
 				if ( state == null ) {
 					throw new InvalidOperationException( $"状態遷移に、未所持状態を指定 : {_stateType}" );
 				}
 			}
 
 
-			_owner.StopAsyncOnDisableAndExit();
+			_target.StopAsyncOnDisableAndExit();
 
-			if ( _owner._stateBody != null ) {
-				await _owner._stateBody.Exit();
+			if ( _target._stateBody != null ) {
+				await _target._stateBody.Exit();
 			}
 			if ( _modifyler.IsHaveData() ) {
-				_owner._stateBody = null;
+				_target._stateBody = null;
 				return;
 			}
 
-			_owner._stateBody = state;
-			if ( _owner._stateBody == null )	{ return; }
+			_target._stateBody = state;
+			if ( _target._stateBody == null )	{ return; }
 
-			await _owner._stateBody.Enter();
+			await _target._stateBody.Enter();
 			if ( _modifyler.IsHaveData() )	{ return; }
 
-			_owner._stateBody.UpdateAsync();
+			_target._stateBody.UpdateAsync();
 		}
 	}
 }

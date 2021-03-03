@@ -19,7 +19,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class ReceiveChangeParentObjectSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstLinker;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstLinker;
 		[SMShowLine] SMObjectBody _parent	{ get; set; }
 
 

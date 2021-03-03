@@ -17,26 +17,26 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class FinalDisableSMGroupManager : SMGroupManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 
 
 		public FinalDisableSMGroupManager() : base( null ) {}
 
 		public override void Set( SMGroupManagerBody owner ) {
 			base.Set( owner );
-			_owner._isFinalizing = true;
+			_target._isFinalizing = true;
 		}
 
 
 		public override async UniTask Run() {
-			if ( _owner._ranState >= SMTaskRunState.FinalDisable )	{ return; }
+			if ( _target._ranState >= SMTaskRunState.FinalDisable )	{ return; }
 
 
-			_owner._activeState = SMTaskActiveState.Disable;
+			_target._activeState = SMTaskActiveState.Disable;
 			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalDisableSMGroup( t ) );
 			}
-			_owner._ranState = SMTaskRunState.FinalDisable;
+			_target._ranState = SMTaskRunState.FinalDisable;
 		}
 	}
 }

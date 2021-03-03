@@ -17,7 +17,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	public abstract class SMGroupManagerModifyData
-		: BaseSMTaskModifyData<SMGroupManagerBody, SMGroupManagerModifyler, SMGroupModifyData, SMGroupBody>
+		: SMTaskModifyData<SMGroupManagerBody, SMGroupManagerModifyler, SMGroupModifyData, SMGroupBody>
 	{
 		[SMShowLine] public SMGroupBody _target	{ get; private set; }
 
@@ -29,7 +29,7 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 		protected override UniTask RegisterAndRunLower( SMGroupBody lowerTarget, SMGroupModifyData data )
 			=> lowerTarget._modifyler.RegisterAndRun( data );
 
-		protected override IEnumerable<SMGroupBody> GetAllLowers() => _owner.GetAllGroups();
+		protected override IEnumerable<SMGroupBody> GetAllLowers() => base._target.GetAllGroups();
 
 		protected override bool IsTargetLower( SMGroupBody lowerTarget, SMTaskType type ) => true;
 	}

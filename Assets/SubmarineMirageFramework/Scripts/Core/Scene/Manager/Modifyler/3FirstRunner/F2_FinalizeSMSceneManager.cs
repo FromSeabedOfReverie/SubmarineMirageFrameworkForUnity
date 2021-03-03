@@ -16,17 +16,17 @@ namespace SubmarineMirage.Scene.Modifyler {
 
 
 	public class FinalizeSMSceneManager : SMSceneManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 
 
 		public override async UniTask Run() {
-			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
+			if ( _target._ranState != SMTaskRunState.FinalDisable )	{ return; }
 
 
-			await _owner._finalizeEvent.Run( _owner._asyncCancelerOnDispose );
+			await _target._finalizeEvent.Run( _target._asyncCancelerOnDispose );
 
-			_owner._ranState = SMTaskRunState.Finalize;
-			_owner._sceneManager.Dispose();
+			_target._ranState = SMTaskRunState.Finalize;
+			_target._sceneManager.Dispose();
 		}
 	}
 }

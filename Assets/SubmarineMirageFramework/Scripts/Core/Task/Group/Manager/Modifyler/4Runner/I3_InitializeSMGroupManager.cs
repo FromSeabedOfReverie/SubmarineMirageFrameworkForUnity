@@ -17,21 +17,21 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class InitializeSMGroupManager : SMGroupManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 
 
 		public InitializeSMGroupManager() : base( null ) {}
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-			if ( _owner._ranState != SMTaskRunState.SelfInitialize )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( _target._ranState != SMTaskRunState.SelfInitialize )	{ return; }
 
 
 			foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new InitializeSMGroup( t ) );
 			}
-			_owner._ranState = SMTaskRunState.Initialize;
+			_target._ranState = SMTaskRunState.Initialize;
 		}
 	}
 }

@@ -20,7 +20,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-	public class SMGroupBody : BaseSMTaskModifylerOwner<SMGroupModifyler> {
+	public class SMGroupBody : SMTaskModifyTarget<SMGroupModifyler> {
 		public SMGroup _group	{ get; private set; }
 		public SMGroupManagerBody _managerBody	{ get; set; }
 		[SMShowLine] public SMObjectBody _objectBody	{ get; set; }
@@ -164,9 +164,11 @@ namespace SubmarineMirage.Task.Base {
 
 
 		public void FixedUpdate( SMTaskType type ) {
-			if ( !_isFinalizing )	{ return; }
+//			SMLog.Debug( $"{nameof( SMGroupBody )} : {_isFinalizing}, {_isActive}, {_ranState}" );
+			if ( _isFinalizing )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.InitialEnable )	{ return; }
+			SMLog.Debug( $"{nameof( SMGroupBody )}.{nameof( FixedUpdate )}" );
 
 			_objectBody.GetAllChildren()
 				.ForEach( o => o.FixedUpdate( type ) );
@@ -177,7 +179,7 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		public void Update( SMTaskType type ) {
-			if ( !_isFinalizing )	{ return; }
+			if ( _isFinalizing )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.FixedUpdate )	{ return; }
 
@@ -190,7 +192,7 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		public void LateUpdate( SMTaskType type ) {
-			if ( !_isFinalizing )	{ return; }
+			if ( _isFinalizing )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.Update )	{ return; }
 			

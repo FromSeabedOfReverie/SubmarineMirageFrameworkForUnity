@@ -16,7 +16,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class UnregisterGroupSMGroupManager : SMGroupManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 
 
 		public UnregisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}
@@ -24,7 +24,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public override async UniTask Run() {
 			_modifyler.Unregister( _target );
-			_owner.Unlink( _target );
+			_target.Unlink( _target );
 
 			await UTask.DontWait();
 		}

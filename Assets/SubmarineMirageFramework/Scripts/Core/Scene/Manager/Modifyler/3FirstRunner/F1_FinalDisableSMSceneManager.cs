@@ -19,44 +19,44 @@ namespace SubmarineMirage.Scene.Modifyler {
 
 
 	public class FinalDisableSMSceneManager : SMSceneManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 
 
 		public override void Set( SMSceneManagerBody owner ) {
 			base.Set( owner );
-			_owner._isFinalizing = true;
+			_target._isFinalizing = true;
 		}
 
 
 		public override async UniTask Run() {
-			if ( _owner._ranState >= SMTaskRunState.FinalDisable )	{ return; }
-			if ( _owner._isFinalDisabling )	{ return; }
-			_owner._isFinalDisabling = true;
+			if ( _target._ranState >= SMTaskRunState.FinalDisable )	{ return; }
+			if ( _target._isFinalDisabling )	{ return; }
+			_target._isFinalDisabling = true;
 
 
 			await FinalExit();
 
 
-			var lastActiveState = _owner._activeState;
-			_owner._activeState = SMTaskActiveState.Disable;
-			_owner.StopAsyncOnDisable();
+			var lastActiveState = _target._activeState;
+			_target._activeState = SMTaskActiveState.Disable;
+			_target.StopAsyncOnDisable();
 
-			if (	_owner.IsActiveInHierarchyAndComponent() &&
+			if (	_target.IsActiveInHierarchyAndComponent() &&
 					lastActiveState != SMTaskActiveState.Disable
 			) {
-				_owner._disableEvent.Run();
+				_target._disableEvent.Run();
 			}
 
-			_owner._ranState = SMTaskRunState.FinalDisable;
-			_owner._isFinalDisabling = false;
+			_target._ranState = SMTaskRunState.FinalDisable;
+			_target._isFinalDisabling = false;
 		}
 
 
 		async UniTask FinalExit() {
-			await _owner._fsm.GetFSMs()
-				.Where( fsm => fsm != _owner._foreverFSM )
+			await _target._fsm.GetFSMs()
+				.Where( fsm => fsm != _target._foreverFSM )
 				.Select( fsm => fsm.FinalExit( true ) );
-			await _owner._foreverFSM.FinalExit( true );
+			await _target._foreverFSM.FinalExit( true );
 		}
 	}
 }

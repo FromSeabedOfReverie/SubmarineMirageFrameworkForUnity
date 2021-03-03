@@ -20,7 +20,7 @@ namespace SubmarineMirage.Scene.Modifyler.Base {
 
 
 	public abstract class SMSceneManagerModifyData
-		: BaseSMTaskModifyData<SMSceneManagerBody, SMSceneManagerModifyler, Unit, Unit>
+		: SMTaskModifyData<SMSceneManagerBody, SMSceneManagerModifyler, Unit, Unit>
 	{
 		protected override UniTask RegisterAndRunLower( Unit lowerTarget, Unit data )
 			=> throw new InvalidOperationException(

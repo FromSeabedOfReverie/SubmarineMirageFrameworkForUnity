@@ -13,6 +13,7 @@ namespace SubmarineMirage.Task.Base {
 	using Task.Modifyler;
 	using Task.Modifyler.Base;
 	using Scene;
+	using Extension;
 	using Utility;
 	using Debug;
 
@@ -22,7 +23,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-	public class SMGroupManagerBody : BaseSMTaskModifylerOwner<SMGroupManagerModifyler> {
+	public class SMGroupManagerBody : SMTaskModifyTarget<SMGroupManagerModifyler> {
 		public static readonly SMTaskRunAllType[] SEQUENTIAL_RUN_TYPES = new SMTaskRunAllType[] {
 			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel,
 		};
@@ -107,6 +108,8 @@ namespace SubmarineMirage.Task.Base {
 		public async UniTask Enter() {
 			await Load();
 
+//			SMLog.Debug( GetAllGroups().ToShowString() );
+
 			_isEnter = true;
 
 			await _modifyler.RegisterAndRun( new CreateSMGroupManager() );
@@ -148,9 +151,10 @@ namespace SubmarineMirage.Task.Base {
 
 
 		public void FixedUpdate() {
-			if ( !_isFinalizing )	{ return; }
+			if ( _isFinalizing )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.InitialEnable )	{ return; }
+//			SMLog.Debug( $"{nameof( SMGroupManagerBody )}.{nameof( FixedUpdate )}" );
 
 			var gs = GetAllGroups().ToArray();
 			UPDATE_TASK_TYPES.ForEach( t =>
@@ -161,7 +165,7 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		public void Update() {
-			if ( !_isFinalizing )	{ return; }
+			if ( _isFinalizing )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.FixedUpdate )	{ return; }
 
@@ -174,7 +178,7 @@ namespace SubmarineMirage.Task.Base {
 		}
 
 		public void LateUpdate() {
-			if ( !_isFinalizing )	{ return; }
+			if ( _isFinalizing )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.Update )	{ return; }
 

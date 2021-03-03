@@ -17,9 +17,9 @@ namespace SubmarineMirage.Scene.Modifyler.Base {
 
 
 	public class SMSceneManagerModifyler
-		: BaseSMTaskModifyler<SMSceneManagerBody, SMSceneManagerModifyler, SMSceneManagerModifyData>
+		: SMTaskModifyler<SMSceneManagerBody, SMSceneManagerModifyler, SMSceneManagerModifyData>
 	{
-		protected override SMAsyncCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
+		protected override SMAsyncCanceler _asyncCanceler => _target._asyncCancelerOnDispose;
 
 
 		public SMSceneManagerModifyler( SMSceneManagerBody owner ) : base( owner ) {}

@@ -16,7 +16,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class FinalizeSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 		[SMShowLine] SMTaskRunAllType _runType	{ get; set; }
 
 
@@ -25,14 +25,14 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._ranState != SMTaskRunState.FinalDisable )	{ return; }
+			if ( _target._ranState != SMTaskRunState.FinalDisable )	{ return; }
 
 
 			await RunLower( _runType, () => new FinalizeSMObject( _runType ) );
 
 			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
-				_owner._ranState = SMTaskRunState.Finalize;
-				_owner._group.Dispose();
+				_target._ranState = SMTaskRunState.Finalize;
+				_target._group.Dispose();
 			}
 		}
 	}

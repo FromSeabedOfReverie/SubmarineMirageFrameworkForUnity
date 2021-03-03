@@ -51,5 +51,27 @@ namespace SubmarineMirage.Extension {
 				v.z < 0.5 ? -1 : 1
 			);
 		}
+
+
+
+		public static bool IsLess( this Vector3 self, Vector3 v ) => (
+			self.x < v.x &&
+			self.y < v.y &&
+			self.z < v.z
+		);
+
+		public static bool IsGreater( this Vector3 self, Vector3 v ) => (
+			self.x > v.x &&
+			self.y > v.y &&
+			self.z > v.z
+		);
+
+		public static bool IsInside( this Vector3 self, Vector3 start, Vector3 end ) => (
+			start.IsLess( self ) &&
+			self.IsLess( end )
+		);
+
+		public static bool IsOutside( this Vector3 self, Vector3 start, Vector3 end )
+			=> !IsInside( self, start, end );
 	}
 }

@@ -17,7 +17,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class AdjustObjectRunSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.FirstRunner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 
 
 		public AdjustObjectRunSMGroup( SMObjectBody target ) : base( target ) {}
@@ -25,7 +25,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public override async UniTask Run() {
 			// 全体が「終了中」の場合
-			if ( _owner._isFinalizing )	{
+			if ( _target._isFinalizing )	{
 				await RunFinalizeToOwner();
 				return;
 			}
@@ -33,7 +33,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			await RunInitializeToOwner();
 
 			// 全体が「初期化済」でない場合、未処理
-			if ( !_owner._isInitialized )	{ return; }
+			if ( !_target._isInitialized )	{ return; }
 
 			await RunActiveToOwner();
 		}
@@ -41,7 +41,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		async UniTask RunFinalizeToOwner() {
 			// 全体が「終了無効」済で、未実行の場合、実行
-			if (	_owner._ranState >= SMTaskRunState.FinalDisable &&
+			if (	_target._ranState >= SMTaskRunState.FinalDisable &&
 					_target._ranState < SMTaskRunState.FinalDisable
 			) {
 				foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
@@ -49,7 +49,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				}
 			}
 			// 全体が「終了」済で、未実行の場合、実行
-			if (	_owner._ranState >= SMTaskRunState.Finalize &&
+			if (	_target._ranState >= SMTaskRunState.Finalize &&
 					_target._ranState < SMTaskRunState.Finalize
 			) {
 				foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
@@ -62,7 +62,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		async UniTask RunInitializeToOwner() {
 			// 全体が「作成」済で、未実行の場合、実行
-			if (	_owner._ranState >= SMTaskRunState.Create &&
+			if (	_target._ranState >= SMTaskRunState.Create &&
 					_target._ranState < SMTaskRunState.Create
 			) {
 				foreach ( var t in SMGroupManagerBody.ALL_RUN_TYPES ) {
@@ -70,7 +70,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				}
 			}
 			// 全体が「自身初期化」済で、未実行の場合、実行
-			if (	_owner._ranState >= SMTaskRunState.SelfInitialize &&
+			if (	_target._ranState >= SMTaskRunState.SelfInitialize &&
 					_target._ranState < SMTaskRunState.SelfInitialize
 			) {
 				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
@@ -78,7 +78,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				}
 			}
 			// 全体が「初期化」済で、未実行の場合、実行
-			if (	_owner._ranState >= SMTaskRunState.Initialize &&
+			if (	_target._ranState >= SMTaskRunState.Initialize &&
 					_target._ranState < SMTaskRunState.Initialize
 			) {
 				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
@@ -86,7 +86,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				}
 			}
 			// 全体が「初期有効」済で、未実行の場合、実行
-			if (	_owner._ranState >= SMTaskRunState.InitialEnable &&
+			if (	_target._ranState >= SMTaskRunState.InitialEnable &&
 					_target._ranState < SMTaskRunState.InitialEnable
 			) {
 				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
@@ -102,11 +102,11 @@ namespace SubmarineMirage.Task.Modifyler {
 				foreach ( var t in SMGroupManagerBody.SEQUENTIAL_RUN_TYPES ) {
 					await RunLower( t, () => new EnableSMObject( t ) );
 				}
-				if ( _owner.IsTop( _target ) )	{ _owner._activeState = SMTaskActiveState.Enable; }
+				if ( _target.IsTop( _target ) )	{ _target._activeState = SMTaskActiveState.Enable; }
 
 			// 全階層で「無効」の場合、実行
 			} else {
-				if ( _owner.IsTop( _target ) )	{ _owner._activeState = SMTaskActiveState.Disable; }
+				if ( _target.IsTop( _target ) )	{ _target._activeState = SMTaskActiveState.Disable; }
 				foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 					// 親に合わせる為、階層が無効でも実行するフラグを設定
 					// 親変更後だと、親は無効、新子は有効の場合がある

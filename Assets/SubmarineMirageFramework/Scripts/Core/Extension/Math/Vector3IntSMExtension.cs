@@ -24,16 +24,16 @@ namespace SubmarineMirage.Extension {
 		);
 
 
-		public static Vector3Int Add( this Vector3Int self, int a ) => new Vector3Int(
-			self.x + a,
-			self.y + a,
-			self.z + a
+		public static Vector3Int Add( this Vector3Int self, int n ) => new Vector3Int(
+			self.x + n,
+			self.y + n,
+			self.z + n
 		);
 
-		public static Vector3Int Sub( this Vector3Int self, int a ) => new Vector3Int(
-			self.x - a,
-			self.y - a,
-			self.z - a
+		public static Vector3Int Sub( this Vector3Int self, int n ) => new Vector3Int(
+			self.x - n,
+			self.y - n,
+			self.z - n
 		);
 
 
@@ -41,16 +41,16 @@ namespace SubmarineMirage.Extension {
 			=> Vector3Int.FloorToInt( v );
 
 
-		public static bool IsLess( this Vector3Int self, Vector3Int a ) => (
-			self.x < a.x &&
-			self.y < a.y &&
-			self.z < a.z
+		public static bool IsLess( this Vector3Int self, Vector3Int v ) => (
+			self.x < v.x &&
+			self.y < v.y &&
+			self.z < v.z
 		);
 
-		public static bool IsGreater( this Vector3Int self, Vector3Int a ) => (
-			self.x > a.x &&
-			self.y > a.y &&
-			self.z > a.z
+		public static bool IsGreater( this Vector3Int self, Vector3Int v ) => (
+			self.x > v.x &&
+			self.y > v.y &&
+			self.z > v.z
 		);
 
 		public static bool IsInside( this Vector3Int self, Vector3Int start, Vector3Int end ) => (

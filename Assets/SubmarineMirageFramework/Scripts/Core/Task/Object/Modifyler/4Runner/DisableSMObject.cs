@@ -16,7 +16,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class DisableSMObject : SMObjectModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 		[SMShowLine] bool _isAdjustParent	{ get; set; }
 
 
@@ -25,17 +25,17 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( !_isAdjustParent && !_owner.IsActiveInHierarchy() )	{ return; }
-			if ( !_owner._isOperable )	{ return; }
-			if ( _owner._activeState == SMTaskActiveState.Disable && !_owner._isDisabling )	{ return; }
+			if ( !_isAdjustParent && !_target.IsActiveInHierarchy() )	{ return; }
+			if ( !_target._isOperable )	{ return; }
+			if ( _target._activeState == SMTaskActiveState.Disable && !_target._isDisabling )	{ return; }
 
 
-			_owner._activeState = SMTaskActiveState.Disable;
-			_owner._isDisabling = true;
+			_target._activeState = SMTaskActiveState.Disable;
+			_target._isDisabling = true;
 
 			await RunLower( _runType, () => new DisableSMBehaviour() );
 
-			if ( _runType == SMTaskRunAllType.ReverseSequential )	{ _owner._isDisabling = false; }
+			if ( _runType == SMTaskRunAllType.ReverseSequential )	{ _target._isDisabling = false; }
 		}
 	}
 }

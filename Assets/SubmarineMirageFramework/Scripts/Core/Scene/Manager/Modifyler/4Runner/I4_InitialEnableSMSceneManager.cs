@@ -17,22 +17,22 @@ namespace SubmarineMirage.Scene.Modifyler {
 
 
 	public class InitialEnableSMSceneManager : SMSceneManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-			if ( _owner._ranState != SMTaskRunState.Initialize )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( _target._ranState != SMTaskRunState.Initialize )	{ return; }
 
 
-			if (	_owner.IsActiveInHierarchyAndComponent() &&
-					_owner._activeState != SMTaskActiveState.Enable
+			if (	_target.IsActiveInHierarchyAndComponent() &&
+					_target._activeState != SMTaskActiveState.Enable
 			) {
-				_owner._enableEvent.Run();
-				_owner._activeState = SMTaskActiveState.Enable;
+				_target._enableEvent.Run();
+				_target._activeState = SMTaskActiveState.Enable;
 			}
 
-			_owner._ranState = SMTaskRunState.InitialEnable;
+			_target._ranState = SMTaskRunState.InitialEnable;
 
 
 			await InitialEnter();
@@ -40,8 +40,8 @@ namespace SubmarineMirage.Scene.Modifyler {
 
 
 		async UniTask InitialEnter() {
-			await _owner._foreverFSM.InitialEnter( true );
-			await _owner._fsm.InitialEnter();
+			await _target._foreverFSM.InitialEnter( true );
+			await _target._fsm.InitialEnter();
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class InitialEnableSMBehaviour : SMBehaviourModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 		[SMShowLine] bool _isActiveInHierarchy	{ get; set; }
 
 
@@ -24,22 +24,22 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
-			if ( _owner._ranState != SMTaskRunState.Initialize )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
+			if ( _target._ranState != SMTaskRunState.Initialize )	{ return; }
 
 
-			if ( _owner._isRunInitialActive ) {
-				_owner._isRunInitialActive = false;
+			if ( _target._isRunInitialActive ) {
+				_target._isRunInitialActive = false;
 
-				if (	_isActiveInHierarchy && _owner.IsActiveInComponent() &&
-						_owner._activeState != SMTaskActiveState.Enable
+				if (	_isActiveInHierarchy && _target.IsActiveInComponent() &&
+						_target._activeState != SMTaskActiveState.Enable
 				) {
-					_owner._enableEvent.Run();
-					_owner._activeState = SMTaskActiveState.Enable;
+					_target._enableEvent.Run();
+					_target._activeState = SMTaskActiveState.Enable;
 				}
 			}
 
-			_owner._ranState = SMTaskRunState.InitialEnable;
+			_target._ranState = SMTaskRunState.InitialEnable;
 
 			await UTask.DontWait();
 		}

@@ -8,6 +8,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using System;
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using SubmarineMirage.Modifyler;
 	using FSM.Modifyler.Base;
 	using FSM.State.Base;
 	using Debug;
@@ -19,7 +20,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 	public class InitialEnterSMFSM : SMFSMModifyData {
-		[SMShowLine] public override SMFSMModifyType _type => SMFSMModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 		[SMShowLine] Type _stateType	{ get; set; }
 
 
@@ -29,17 +30,17 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )		{ return; }
-			if ( _owner._isInitialEntered )	{ return; }
+			if ( _target._isFinalizing )		{ return; }
+			if ( _target._isInitialEntered )	{ return; }
 
 
-			if ( _owner._stateBody != null ) {
+			if ( _target._stateBody != null ) {
 				throw new InvalidOperationException(
-					$"初期状態遷移前に、既に状態設定済み : {nameof( _owner._stateBody )}" );
+					$"初期状態遷移前に、既に状態設定済み : {nameof( _target._stateBody )}" );
 			}
 			SMStateBody state = null;
 			if ( _stateType != null ) {
-				state = _owner.GetState( _stateType );
+				state = _target.GetState( _stateType );
 				if ( state == null ) {
 					throw new InvalidOperationException(
 						$"初期状態遷移に、未所持状態を指定 : {nameof( _stateType )}" );
@@ -47,20 +48,20 @@ namespace SubmarineMirage.FSM.Modifyler {
 			}
 
 
-			_owner._stateBody = state;
-			if ( _owner._stateBody == null )	{ return; }
+			_target._stateBody = state;
+			if ( _target._stateBody == null )	{ return; }
 
-			await _owner._stateBody.Enter();
-			_owner._isInitialEntered = true;
+			await _target._stateBody.Enter();
+			_target._isInitialEntered = true;
 
-			if ( !_owner._owner._isInitialEnteredFSMs ) {
-				_owner._owner._isInitialEnteredFSMs =
-					_owner.GetBrothers().All( fsm => fsm._isInitialEntered );
+			if ( !_target._owner._isInitialEnteredFSMs ) {
+				_target._owner._isInitialEnteredFSMs =
+					_target.GetBrothers().All( fsm => fsm._isInitialEntered );
 			}
 
 			if ( _modifyler.IsHaveData() )	{ return; }
 
-			_owner._stateBody.UpdateAsync();
+			_target._stateBody.UpdateAsync();
 		}
 	}
 }

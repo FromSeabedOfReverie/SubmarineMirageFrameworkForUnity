@@ -18,21 +18,21 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class SendReregisterGroupSMGroupManager : SMGroupManagerModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 
 
 		public SendReregisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing )	{ return; }
+			if ( _target._isFinalizing )	{ return; }
 
 
 			var newManager = _target._managerBody;
 
 			newManager._scene.MoveGroup( _target );
 
-			_owner.Unlink( _target );
+			_target.Unlink( _target );
 
 			newManager._modifyler.Register( new ReceiveReregisterGroupSMGroupManager( _target ) );
 			_modifyler.Reregister( newManager, _target );

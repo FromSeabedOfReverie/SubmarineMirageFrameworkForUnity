@@ -18,7 +18,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class AddBehaviourSMGroup : SMGroupModifyData {
-		[SMShowLine] public override SMTaskModifyType _type => SMTaskModifyType.Linker;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 		[SMShowLine] public SMBehaviour _behaviour	{ get; private set; }
 
 
@@ -43,7 +43,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		public override async UniTask Run() {
-			if ( _owner._isFinalizing ) {
+			if ( _target._isFinalizing ) {
 				Cancel();
 				return;
 			}

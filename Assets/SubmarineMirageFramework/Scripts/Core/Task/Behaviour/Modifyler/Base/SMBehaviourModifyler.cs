@@ -16,9 +16,9 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 	public class SMBehaviourModifyler
-		: BaseSMTaskModifyler<SMBehaviourBody, SMBehaviourModifyler, SMBehaviourModifyData>
+		: SMTaskModifyler<SMBehaviourBody, SMBehaviourModifyler, SMBehaviourModifyData>
 	{
-		protected override SMAsyncCanceler _asyncCanceler => _owner._asyncCancelerOnDispose;
+		protected override SMAsyncCanceler _asyncCanceler => _target._asyncCancelerOnDispose;
 
 
 		public SMBehaviourModifyler( SMBehaviourBody owner ) : base( owner ) {}
