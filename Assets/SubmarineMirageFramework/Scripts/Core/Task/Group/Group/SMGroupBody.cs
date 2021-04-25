@@ -4,13 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Base {
+namespace SubmarineMirage.Task {
 	using System;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
 	using Task.Modifyler;
-	using Task.Modifyler.Base;
 	using Utility;
 	using Debug;
 
@@ -20,7 +19,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-	public class SMGroupBody : SMTaskModifyTarget<SMGroupModifyler> {
+	public class SMGroupBody : SMTask {
 		public SMGroup _group	{ get; private set; }
 		public SMGroupManagerBody _managerBody	{ get; set; }
 		[SMShowLine] public SMObjectBody _objectBody	{ get; set; }
@@ -29,6 +28,8 @@ namespace SubmarineMirage.Task.Base {
 
 		public SMGroupBody _previous	{ get; set; }
 		public SMGroupBody _next		{ get; set; }
+
+		[SMShow] protected override Type _baseModifyDataType => typeof( SMGroupModifyData );
 
 		public SMAsyncCanceler _asyncCanceler => _objectBody._asyncCanceler;
 
@@ -79,14 +80,13 @@ namespace SubmarineMirage.Task.Base {
 
 			// 親アクティブに一致させる変更を予約
 			_modifyler.Register( new AdjustObjectRunSMGroup( _objectBody ) );
-			lastGroup._modifyler.Reregister( this );	// 元グループの変更を、新グループに再登録
+			lastGroup.ReregisterModifyler( this );  // 元グループの変更を、新グループに再登録
 
 			_managerBody = managerBody;
 			_managerBody._modifyler.Register( new RegisterGroupSMGroupManager( this ) );
 		}
 
 		void SMGroupBodySub( SMGroup group ) {
-			_modifyler = new SMGroupModifyler( this );
 			_group = group;
 
 			_disposables.AddLast( () => {
@@ -252,5 +252,22 @@ namespace SubmarineMirage.Task.Base {
 				yield return current;
 			}
 		}
+
+
+
+		public void ReregisterModifyler( SMGroupBody newTarget ) => _modifyler.Reregister(
+			newTarget._modifyler,
+			d => {
+				var gd = ( SMGroupModifyData )d;
+				return gd._target._groupBody == newTarget;
+			}
+		);
+
+		public void UnregisterModifyler( SMObjectBody remove ) => _modifyler.Unregister(
+			d => {
+				var gd = ( SMGroupModifyData )d;
+				return gd._target == remove;
+			}
+		);
 	}
 }

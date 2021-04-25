@@ -7,8 +7,7 @@
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Extension;
 	using Debug;
 
@@ -26,8 +25,8 @@ namespace SubmarineMirage.Task.Modifyler {
 		public DestroyObjectSMGroup( SMObjectBody target ) : base( target ) {}
 
 
-		public override void Set( SMGroupBody owner ) {
-			base.Set( owner );
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
 
 			_isLastFinalizing = _target._isFinalizing;
 			if ( _target.IsTop( _target ) )	{ _target._isFinalizing = true; }
@@ -74,7 +73,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			_target.DisposeAllChildren();
 			_target._gameObject.Destroy();
 
-			GetAllLowers().ForEach( o => _modifyler.Unregister( o ) );
+			GetAllLowers().ForEach( o => _target.UnregisterModifyler( o ) );
 			_target.Unlink();
 		}
 	}

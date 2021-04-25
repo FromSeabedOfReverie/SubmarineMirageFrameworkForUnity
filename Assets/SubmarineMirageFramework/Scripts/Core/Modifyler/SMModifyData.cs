@@ -6,8 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
-	using Modifyler.Base;
+	using Base;
 	using Debug;
 
 
@@ -16,12 +15,9 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	public abstract class SMModifyData<TTarget, TData> : SMLightBase, ISMModifyData
-		where TTarget : IBaseSMModifyTarget
-		where TData : ISMModifyData
-	{
-		protected TTarget _target	{ get; private set; }
-		protected SMModifyler<TTarget, TData> _modifyler	{ get; private set; }
+	public abstract class SMModifyData : SMLightBase {
+		public ISMModifyTarget _target	{ get; private set; }
+		protected SMModifyler _modifyler	{ get; private set; }
 
 		[SMShowLine] public abstract SMModifyType _type	{ get; }
 		[SMShow] bool _isCalledDestructor	{ get; set; }
@@ -43,9 +39,9 @@ namespace SubmarineMirage.Modifyler {
 		protected virtual void Cancel() {}
 
 
-		public virtual void Set( IBaseSMModifyTarget target, ISMModifyler modifyler ) {
-			_target = (TTarget)target;
-			_modifyler = (SMModifyler<TTarget, TData>)modifyler;
+		public virtual void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			_target = target;
+			_modifyler = modifyler;
 		}
 
 

@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Modifyler.Test {
 	using Cysharp.Threading.Tasks;
+	using Base;
 	using Utility;
 
 
@@ -14,11 +15,11 @@ namespace SubmarineMirage.Modifyler.Test {
 
 
 
-	public class TestTarget : SMModifyTarget<TestTarget, BaseTestData> {
+	public class TestTarget : SMStandardBase, ISMModifyTarget {
 	}
 
 
-	public abstract class BaseTestData : SMModifyData<TestTarget, BaseTestData> {
+	public abstract class BaseTestData : SMModifyData {
 	}
 
 	public class TestData : BaseTestData {

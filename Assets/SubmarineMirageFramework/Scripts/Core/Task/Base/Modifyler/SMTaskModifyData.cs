@@ -4,13 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler.Base {
+namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Modifyler;
-	using SubmarineMirage.Modifyler.Base;
 	using Extension;
 	using Debug;
 
@@ -20,38 +19,31 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 
-	public abstract class SMTaskModifyData<TTarget, TData, TLowerData, TLowerTarget>
-		: SMModifyData<TTarget, TData>
-		where TTarget : ISMTaskModifyTarget
-		where TData : ISMModifyData
-	{
-		protected async UniTask RunLower( SMTaskRunAllType type, Func<TLowerData> createEvent ) {
-			var ls = GetLowers( type );
+	public abstract class SMTaskModifyData : SMModifyData {
+		protected async UniTask RunLower( SMTaskRunAllType type, Func<SMTaskModifyData> createEvent ) {
+			var tasks = GetLowers( type );
 			switch ( type ) {
 				case SMTaskRunAllType.Sequential:
 				case SMTaskRunAllType.ReverseSequential:
-					foreach ( var l in ls ) {
-						await RegisterAndRunLower( l, createEvent() );
+					foreach ( var t in tasks ) {
+						await t._modifyler.RegisterAndRun( createEvent() );
 					}
 					return;
 				case SMTaskRunAllType.Parallel:
-					await ls.Select( l =>
-						RegisterAndRunLower( l, createEvent() )
+					await tasks.Select( t =>
+						t._modifyler.RegisterAndRun( createEvent() )
 					);
 					return;
 			}
 		}
 
-		protected abstract UniTask RegisterAndRunLower( TLowerTarget lowerTarget, TLowerData data );
-
-
-		IEnumerable<TLowerTarget> GetLowers( SMTaskRunAllType type ) {
-			var t = ToTaskType( type );
-			var ls = GetAllLowers()
-				.Where( l => IsTargetLower( l, t ) );
+		IEnumerable<SMTask> GetLowers( SMTaskRunAllType type ) {
+			var taskType = ToTaskType( type );
+			var tasks = GetAllLowers()
+				.Where( t => IsTargetLower( t, taskType ) );
 			switch ( type ) {
-				case SMTaskRunAllType.ReverseSequential:	return ls.Reverse();
-				default:									return ls;
+				case SMTaskRunAllType.ReverseSequential:	return tasks.Reverse();
+				default:									return tasks;
 			}
 		}
 
@@ -64,8 +56,10 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 			}
 		}
 
-		protected abstract IEnumerable<TLowerTarget> GetAllLowers();
+		protected virtual IEnumerable<SMTask> GetAllLowers()
+			=> Enumerable.Empty<SMTask>();
 
-		protected abstract bool IsTargetLower( TLowerTarget lowerTarget, SMTaskType type );
+		protected virtual bool IsTargetLower( SMTask lowerTask, SMTaskType type )
+			=> true;
 	}
 }

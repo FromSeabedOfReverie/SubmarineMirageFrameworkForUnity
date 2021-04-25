@@ -11,7 +11,6 @@ namespace SubmarineMirage.Task {
 	using UnityEngine;
 	using SubmarineMirage.Base;
 	using Event;
-	using Task.Base;
 	using Scene;
 	using Extension;
 	using Utility;

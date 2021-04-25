@@ -9,8 +9,7 @@ namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -185,7 +184,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 			// 全子の変更データを、元グループから、新グループに再登録
 			_target.SetGroupOfAllChildren( parent._groupBody );
-			_modifyler.Reregister( parent._groupBody );
+			_target.ReregisterModifyler( parent._groupBody );
 		}
 
 

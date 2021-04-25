@@ -4,11 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler.Base {
+namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using System.Collections.Generic;
-	using Cysharp.Threading.Tasks;
-	using Task.Base;
+	using SubmarineMirage.Modifyler;
 	using Debug;
 
 
@@ -17,30 +16,30 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 
-	public abstract class SMObjectModifyData
-		: SMTaskModifyData<SMObjectBody, SMObjectModifyler, SMBehaviourModifyData, SMBehaviourBody>
-	{
+	public abstract class SMObjectModifyData : SMTaskModifyData {
+		public new SMObjectBody _target { get; private set; }
 		[SMShowLine] protected SMTaskRunAllType _runType	{ get; private set; }
 
 
 		public SMObjectModifyData( SMTaskRunAllType runType )
 			=> _runType = runType;
 
-		public override void Set( SMObjectBody owner ) {
-			base.Set( owner );
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+
+			_target = ( SMObjectBody )base._target;
 			if ( _target == null ) {
 				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
 			}
 		}
 
 
-		protected override UniTask RegisterAndRunLower( SMBehaviourBody lowerTarget, SMBehaviourModifyData data )
-			=> lowerTarget._modifyler.RegisterAndRun( data );
-
-		protected override IEnumerable<SMBehaviourBody> GetAllLowers()
+		protected override IEnumerable<SMTask> GetAllLowers()
 			=> _target._behaviourBody.GetBrothers();
 
-		protected override bool IsTargetLower( SMBehaviourBody lowerTarget, SMTaskType type )
-			=> lowerTarget._type == type;
+		protected override bool IsTargetLower( SMTask lowerTask, SMTaskType type ) {
+			var task = ( SMBehaviourBody )lowerTask;
+			return task._type == type;
+		}
 	}
 }

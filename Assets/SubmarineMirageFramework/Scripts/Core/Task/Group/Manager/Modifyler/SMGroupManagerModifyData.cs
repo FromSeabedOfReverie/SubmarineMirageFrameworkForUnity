@@ -4,8 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Modifyler {
-	using Modifyler.Base;
+namespace SubmarineMirage.Task.Modifyler {
+	using System.Collections.Generic;
+	using Debug;
 
 
 
@@ -13,10 +14,17 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	public interface ISMModifyTarget<TTarget, TData> : IBaseSMModifyTarget
-		where TTarget : IBaseSMModifyTarget
-		where TData : ISMModifyData
-	{
-		SMModifyler<TTarget, TData> _modifyler	{ get; }
+	public abstract class SMGroupManagerModifyData : SMTaskModifyData {
+		[SMShowLine] public new SMGroupBody _target	{ get; private set; }
+
+
+		public SMGroupManagerModifyData( SMGroupBody target )
+			=> _target = target;
+
+
+		protected override IEnumerable<SMTask> GetAllLowers() {
+			var t = ( SMGroupManagerBody )base._target;
+			return t.GetAllGroups();
+		}
 	}
 }

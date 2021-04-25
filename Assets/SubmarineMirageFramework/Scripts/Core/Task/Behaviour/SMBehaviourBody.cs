@@ -4,16 +4,16 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Base {
+namespace SubmarineMirage.Task {
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
 	using Event;
 	using Task.Modifyler;
-	using Task.Modifyler.Base;
 	using Extension;
 	using Utility;
 	using Debug;
+	using System;
 
 
 
@@ -21,7 +21,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-	public class SMBehaviourBody : SMTaskModifyTarget<SMBehaviourModifyler> {
+	public class SMBehaviourBody : SMTask {
 		public SMBehaviour _behaviour	{ get; private set; }
 		public SMObjectBody _objectBody	{ get; set; }
 
@@ -31,6 +31,8 @@ namespace SubmarineMirage.Task.Base {
 		public SMTaskType _type	=> _behaviour._type;
 		[SMShow] public bool _isRunInitialActive	{ get; set; }
 		[SMShow] public bool _isRunFinalize	{ get; set; }
+
+		[SMShow] protected override Type _baseModifyDataType => typeof( SMBehaviourModifyData );
 
 		public readonly SMAsyncEvent _selfInitializeEvent = new SMAsyncEvent();
 		public readonly SMAsyncEvent _initializeEvent = new SMAsyncEvent();
@@ -74,7 +76,6 @@ namespace SubmarineMirage.Task.Base {
 
 
 		public SMBehaviourBody( SMBehaviour behaviour ) {
-			_modifyler = new SMBehaviourModifyler( this );
 			_behaviour = behaviour;
 
 			_isRunInitialActive = _type != SMTaskType.DontWork && IsActiveInHierarchyAndComponent();

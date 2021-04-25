@@ -6,8 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Debug;
 
 
@@ -20,8 +19,9 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public FinalDisableSMObject( SMTaskRunAllType runType ) : base( runType ) {}
 
-		public override void Set( SMObjectBody owner ) {
-			base.Set( owner );
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+
 			_target._isFinalizing = true;
 		}
 

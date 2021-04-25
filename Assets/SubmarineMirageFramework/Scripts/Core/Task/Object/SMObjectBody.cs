@@ -4,13 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Base {
+namespace SubmarineMirage.Task {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
-	using Task.Modifyler.Base;
+	using Task.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -21,7 +21,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-	public class SMObjectBody : SMTaskModifyTarget<SMObjectModifyler> {
+	public class SMObjectBody : SMTask {
 		public SMObject _object	{ get; private set; }
 		public SMGroupBody _groupBody	{ get; set; }
 		[SMShowLine] public SMBehaviourBody _behaviourBody	{ get; set; }
@@ -34,6 +34,8 @@ namespace SubmarineMirage.Task.Base {
 		public SMObjectBody _child		{ get; set; }
 
 		[SMShow] public bool _isDisabling	{ get; set; }
+
+		[SMShow] protected override Type _baseModifyDataType => typeof( SMObjectModifyData );
 
 		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
@@ -75,7 +77,6 @@ namespace SubmarineMirage.Task.Base {
 		public SMObjectBody( SMObject smObject, SMGroupBody groupBody, SMObjectBody parentBody,
 								GameObject gameObject, IEnumerable<SMBehaviour> behaviours
 		) {
-			_modifyler = new SMObjectModifyler( this );
 			_object = smObject;
 			_groupBody = groupBody;
 			_gameObject = gameObject;

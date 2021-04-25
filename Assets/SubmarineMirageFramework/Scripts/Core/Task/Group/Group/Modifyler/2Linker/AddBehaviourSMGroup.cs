@@ -7,8 +7,7 @@
 namespace SubmarineMirage.Task.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;

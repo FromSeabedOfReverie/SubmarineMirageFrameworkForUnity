@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Utility;
 	using Debug;
 
@@ -20,7 +20,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public override async UniTask Run() {
 			if ( !_target.IsActiveInComponent() )	{ return; }
-			if ( _target._isFinalizing )	{ return; }
+			if ( _target._isFinalizing )			{ return; }
 			if ( !_target._isInitialized ) {
 				_target._isRunInitialActive = false;
 				return;

@@ -6,8 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Utility;
 	using Debug;
 
@@ -23,8 +22,10 @@ namespace SubmarineMirage.Task.Modifyler {
 		public FinalDisableSMBehaviour( bool isActiveInHierarchy )
 			=> _isActiveInHierarchy = isActiveInHierarchy;
 
-		public override void Set( SMBehaviourBody owner ) {
-			base.Set( owner );
+
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+
 			_target._isFinalizing = true;
 		}
 

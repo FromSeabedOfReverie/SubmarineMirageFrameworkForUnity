@@ -9,8 +9,7 @@ namespace SubmarineMirage.Modifyler {
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using SubmarineMirage.Base;
-	using Modifyler.Base;
+	using Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -21,15 +20,14 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	public class SMModifyler<TTarget, TData> : SMStandardBase, ISMModifyler
-		where TTarget : IBaseSMModifyTarget
-		where TData : ISMModifyData
-	{
-		TTarget _target	{ get; set; }
-		[SMShow] readonly LinkedList<TData> _data = new LinkedList<TData>();
+	public class SMModifyler : SMStandardBase {
+		ISMModifyTarget _target	{ get; set; }
+		[SMShow] Type _baseDataType { get; set; }
+		[SMShow] readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
 
 		[SMShow] public bool _isRunning	{ get; private set; }
 		public Func<bool> _isCanRunEvent	{ private get; set; } = () => true;
+		public bool _isHaveData => !_data.IsEmpty();
 
 		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
@@ -45,8 +43,9 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-		public SMModifyler( IBaseSMModifyTarget target ) {
-			_target = (TTarget)target;
+		public SMModifyler( ISMModifyTarget target, Type baseDataType ) {
+			_target = target;
+			_baseDataType = baseDataType;
 
 			_disposables.AddLast( () => {
 				Reset();
@@ -63,11 +62,20 @@ namespace SubmarineMirage.Modifyler {
 			_data.Clear();
 		}
 
+		public void Move( SMModifyler remove ) {
+			remove._data.ForEach( d => Register( d ) );
+			remove._data.Clear();
+			remove.Dispose();
+		}
 
-		public bool IsHaveData() => !_data.IsEmpty();
 
+		public void Register( SMModifyData data ) {
+			var type = data.GetType();
+			if ( !type.IsInheritance( _baseDataType ) ) {
+				throw new InvalidOperationException(
+					$"基盤状態が違う、データを指定 : {type}, {_baseDataType}" );
+			}
 
-		public void Register( TData data ) {
 			data.Set( _target, this );
 			if ( _isDispose ) {
 				data.Dispose();
@@ -100,8 +108,19 @@ namespace SubmarineMirage.Modifyler {
 			Run().Forget();
 		}
 
+		public void Reregister( SMModifyler newModifyler, Func<SMModifyData, bool> isFindEvent )
+			=> _data.RemoveAll(
+				d => isFindEvent( d ),
+				d => newModifyler.Register( d )
+			);
 
-		public async UniTask RegisterAndRun( TData data ) {
+		public void Unregister( Func<SMModifyData, bool> isFindEvent ) => _data.RemoveAll(
+			d => isFindEvent( d ),
+			d => d.Dispose()
+		);
+
+
+		public async UniTask RegisterAndRun( SMModifyData data ) {
 			Register( data );
 			await WaitRunning();
 		}
@@ -110,8 +129,8 @@ namespace SubmarineMirage.Modifyler {
 			if ( _isRunning )	{ return; }
 
 			_isRunning = true;
-			while ( IsHaveData() ) {
-				if ( _isDispose )	{ break; }
+			while ( _isHaveData ) {
+				if ( _isDispose )			{ break; }
 				if ( !_isCanRunEvent() )	{ break; }
 
 				var d = _data.Dequeue();
@@ -121,6 +140,6 @@ namespace SubmarineMirage.Modifyler {
 		}
 
 		public UniTask WaitRunning()
-			=> UTask.WaitWhile( _asyncCanceler, () => _isRunning || IsHaveData() );
+			=> UTask.WaitWhile( _asyncCanceler, () => _isRunning || _isHaveData );
 	}
 }

@@ -8,7 +8,7 @@ namespace SubmarineMirage.Task.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Debug;
 
 
@@ -30,6 +30,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 			if ( _runType == SMTaskRunAllType.ReverseSequential ) {
 				GetAllLowers()
+					.Select( t => ( SMBehaviourBody )t )
 					.Where( b => b._type == SMTaskType.DontWork )
 					.Reverse()
 					.ForEach( b => b._behaviour.Dispose() );

@@ -4,14 +4,15 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Base {
+namespace SubmarineMirage.Task {
+	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using SubmarineMirage.Modifyler;
 	using Task.Modifyler;
-	using Task.Modifyler.Base;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -23,7 +24,7 @@ namespace SubmarineMirage.Task.Base {
 
 
 
-	public class SMGroupManagerBody : SMTaskModifyTarget<SMGroupManagerModifyler> {
+	public class SMGroupManagerBody : SMTask {
 		public static readonly SMTaskRunAllType[] SEQUENTIAL_RUN_TYPES = new SMTaskRunAllType[] {
 			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel,
 		};
@@ -46,6 +47,8 @@ namespace SubmarineMirage.Task.Base {
 
 		[SMShowLine] public bool _isEnter	{ get; private set; }
 
+		[SMShow] protected override Type _baseModifyDataType => typeof( SMGroupManagerModifyData );
+
 		public SMAsyncCanceler _asyncCancelerOnDisable => _scene._asyncCancelerOnDispose;
 
 
@@ -62,9 +65,9 @@ namespace SubmarineMirage.Task.Base {
 
 
 		public SMGroupManagerBody( SMGroupManager manager, SMScene scene ) {
-			_modifyler = new SMGroupManagerModifyler( this );
 			_manager = manager;
 			_scene = scene;
+			_modifyler._asyncCanceler.SetParent( _asyncCancelerOnDisable );
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
@@ -205,7 +208,7 @@ namespace SubmarineMirage.Task.Base {
 			=> GetAllGroups().Select( g => g._objectBody );
 
 
-		public IEnumerable<IBaseSMTaskModifyler> GetAllModifylers() {
+		public IEnumerable<SMModifyler> GetAllModifylers() {
 			yield return _modifyler;
 
 			foreach ( var g in GetAllGroups() ) {
@@ -219,6 +222,31 @@ namespace SubmarineMirage.Task.Base {
 					}
 				}
 			}
+		}
+
+
+
+		public void ReregisterModifyler( SMGroupManagerBody newTarget, SMGroupBody group ) {
+			if ( group == null ) { return; }
+
+			_modifyler.Reregister(
+				newTarget._modifyler,
+				d => {
+					var gd = ( SMGroupManagerModifyData )d;
+					return gd._target == group;
+				}
+			);
+		}
+
+		public void UnregisterModifyler( SMGroupBody remove ) {
+			if ( remove == null ) { return; }
+
+			_modifyler.Unregister(
+				d => {
+					var gd = ( SMGroupManagerModifyData )d;
+					return gd._target == remove;
+				}
+			);
 		}
 	}
 }

@@ -12,7 +12,6 @@ namespace SubmarineMirage.Task {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SubmarineMirage.Base;
-	using Task.Base;
 	using Scene;
 	using Debug;
 

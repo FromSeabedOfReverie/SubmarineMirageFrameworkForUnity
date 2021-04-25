@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Modifyler.Base {
-	using Task.Base;
-	using Utility;
-	using Debug;
+namespace SubmarineMirage.Task.Modifyler {
+	using System;
+	using SubmarineMirage.Modifyler;
 
 
 
@@ -15,12 +14,17 @@ namespace SubmarineMirage.Task.Modifyler.Base {
 
 
 
-	public class SMObjectModifyler
-		: SMTaskModifyler<SMObjectBody, SMObjectModifyler, SMObjectModifyData>
-	{
-		protected override SMAsyncCanceler _asyncCanceler => _target._asyncCanceler;
+	public abstract class SMBehaviourModifyData : SMTaskModifyData {
+		public new SMBehaviourBody _target { get; private set; }
 
 
-		public SMObjectModifyler( SMObjectBody owner ) : base( owner ) {}
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+
+			_target = ( SMBehaviourBody )base._target;
+			if ( _target == null ) {
+				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
+			}
+		}
 	}
 }
