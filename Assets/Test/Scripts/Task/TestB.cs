@@ -9,9 +9,6 @@ namespace SubmarineMirage.TestTask {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class TestB : SMBehaviour {
 		public override void Create() {
 		}

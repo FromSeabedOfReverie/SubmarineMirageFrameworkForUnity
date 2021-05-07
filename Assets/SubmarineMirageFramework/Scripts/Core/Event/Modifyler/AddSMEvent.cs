@@ -6,11 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event.Modifyler {
 	using System.Collections.Generic;
-	using Event.Modifyler.Base;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class AddSMEvent<T> : SMEventModifyData<T> {

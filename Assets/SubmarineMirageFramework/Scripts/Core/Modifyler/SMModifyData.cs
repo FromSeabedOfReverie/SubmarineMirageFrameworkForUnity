@@ -11,10 +11,6 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class SMModifyData : SMLightBase {
 		public ISMModifyTarget _target	{ get; private set; }
 		protected SMModifyler _modifyler	{ get; private set; }

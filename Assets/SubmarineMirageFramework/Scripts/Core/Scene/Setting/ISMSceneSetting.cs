@@ -5,17 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
-	using SubmarineMirage.Base;
+	using Base;
 	using FSM;
 	using Service;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public interface ISMSceneSetting : ISMStandardBase, ISMService {
-		SMFSMGenerateList<SMScene> _sceneFSMList	{ get; }
+		SMFSMGenerateList _sceneFSMList	{ get; }
 	}
 }

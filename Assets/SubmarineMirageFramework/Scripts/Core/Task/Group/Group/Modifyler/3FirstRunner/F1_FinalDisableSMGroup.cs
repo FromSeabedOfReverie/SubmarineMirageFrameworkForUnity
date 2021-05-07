@@ -11,10 +11,6 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class FinalDisableSMGroup : SMGroupModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 		[SMShowLine] SMTaskRunAllType _runType	{ get; set; }

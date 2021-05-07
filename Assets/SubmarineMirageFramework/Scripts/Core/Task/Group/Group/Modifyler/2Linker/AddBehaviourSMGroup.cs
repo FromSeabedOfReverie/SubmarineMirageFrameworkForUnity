@@ -13,17 +13,14 @@ namespace SubmarineMirage.Task.Modifyler {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class AddBehaviourSMGroup : SMGroupModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 		[SMShowLine] public SMBehaviour _behaviour	{ get; private set; }
 
 
 
-		public AddBehaviourSMGroup( SMObjectBody target, Type type ) : base( target ) {
-			_behaviour = (SMBehaviour)_target._gameObject.AddComponent( type );
+		public AddBehaviourSMGroup( SMObjectBody smObject, Type type ) : base( smObject ) {
+			_behaviour = (SMBehaviour)_object._gameObject.AddComponent( type );
 
 			if ( _behaviour == null ) {
 				throw new NotSupportedException(
@@ -47,7 +44,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				return;
 			}
 
-			_target._behaviourBody.Link( _behaviour._body );
+			_object._behaviourBody.Link( _behaviour._body );
 			_behaviour._body.RegisterRunEventToOwner();
 
 			await UTask.DontWait();

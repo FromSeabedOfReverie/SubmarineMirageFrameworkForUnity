@@ -12,17 +12,13 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class ReleaseParentObjectSMGroup : SMGroupModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 		[SMShowLine] bool _isWorldPositionStays	{ get; set; }
 
 
 
-		public ReleaseParentObjectSMGroup( SMObjectBody target, bool isWorldPositionStays ) : base( target ) {
+		public ReleaseParentObjectSMGroup( SMObjectBody smObject, bool isWorldPositionStays ) : base( smObject ) {
 			_isWorldPositionStays = isWorldPositionStays;
 		}
 
@@ -32,13 +28,13 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 			// ゲーム物の親を解除
-			_target._gameObject.transform.SetParent( null, _isWorldPositionStays );
+			_object._gameObject.transform.SetParent( null, _isWorldPositionStays );
 
 			// トップの場合、未処理
-			if ( _target.IsTop( _target ) )	{ return; }
+			if ( _target.IsTop( _object ) )	{ return; }
 
 			// 新グループ作成
-			new SMGroup( _target._managerBody, _target );
+			new SMGroup( _target._managerBody, _object );
 
 
 			await UTask.DontWait();

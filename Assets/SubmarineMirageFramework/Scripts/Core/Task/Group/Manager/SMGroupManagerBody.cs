@@ -20,10 +20,6 @@ namespace SubmarineMirage.Task {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMGroupManagerBody : SMTask {
 		public static readonly SMTaskRunAllType[] SEQUENTIAL_RUN_TYPES = new SMTaskRunAllType[] {
 			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel,
@@ -67,7 +63,6 @@ namespace SubmarineMirage.Task {
 		public SMGroupManagerBody( SMGroupManager manager, SMScene scene ) {
 			_manager = manager;
 			_scene = scene;
-			_modifyler._asyncCanceler.SetParent( _asyncCancelerOnDisable );
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
@@ -233,7 +228,7 @@ namespace SubmarineMirage.Task {
 				newTarget._modifyler,
 				d => {
 					var gd = ( SMGroupManagerModifyData )d;
-					return gd._target == group;
+					return gd._group == group;
 				}
 			);
 		}
@@ -244,7 +239,7 @@ namespace SubmarineMirage.Task {
 			_modifyler.Unregister(
 				d => {
 					var gd = ( SMGroupManagerModifyData )d;
-					return gd._target == remove;
+					return gd._group == remove;
 				}
 			);
 		}

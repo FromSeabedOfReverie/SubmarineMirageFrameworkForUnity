@@ -8,13 +8,9 @@ namespace SubmarineMirage.Event {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using Event.Base;
 	using Extension;
 	using Utility;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class SMAsyncEvent : BaseSMEvent< Func<SMAsyncCanceler, UniTask> > {

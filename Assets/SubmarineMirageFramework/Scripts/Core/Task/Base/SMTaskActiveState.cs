@@ -7,9 +7,6 @@
 namespace SubmarineMirage.Task {
 
 
-	// TODO : コメント追加、整頓
-
-
 	public enum SMTaskActiveState {
 		Disable,
 		Enable,

@@ -13,10 +13,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class ChunkSMScene : SMScene {
 		protected override bool _isUseUnloadUnusedAssets => false;
 

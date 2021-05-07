@@ -11,9 +11,6 @@ namespace SubmarineMirage.Task.Modifyler {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class EnableSMBehaviour : SMBehaviourModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 

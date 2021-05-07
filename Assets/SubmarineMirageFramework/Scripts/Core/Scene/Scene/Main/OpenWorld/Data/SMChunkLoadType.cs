@@ -8,10 +8,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public enum SMChunkLoadType {
 		Unload,
 		Low,

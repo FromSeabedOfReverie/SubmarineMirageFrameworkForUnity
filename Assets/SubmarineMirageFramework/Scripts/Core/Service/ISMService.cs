@@ -9,10 +9,6 @@ namespace SubmarineMirage.Service {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public interface ISMService : IDisposable {
 	}
 }

@@ -6,14 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene.Modifyler {
 	using Cysharp.Threading.Tasks;
+	using SubmarineMirage.Modifyler;
 	using Task;
-	using Task.Modifyler.Base;
-	using Scene.Modifyler.Base;
-	using Utility;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class InitialEnableSMSceneManager : SMSceneManagerModifyData {

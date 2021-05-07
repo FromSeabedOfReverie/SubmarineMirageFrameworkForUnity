@@ -14,10 +14,6 @@ namespace SubmarineMirage.Extension {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public static class LinkedListSMExtension {
 		public static LinkedList<T> Copy<T>( this LinkedList<T> self )
 			=> new LinkedList<T>( self );

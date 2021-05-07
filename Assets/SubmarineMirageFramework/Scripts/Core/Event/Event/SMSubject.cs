@@ -7,14 +7,8 @@
 namespace SubmarineMirage.Event {
 	using UniRx;
 	using KoganeUnityLib;
-	using Event.Base;
 	using Event.Modifyler;
-	using Event.Modifyler.Base;
 	using Extension;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

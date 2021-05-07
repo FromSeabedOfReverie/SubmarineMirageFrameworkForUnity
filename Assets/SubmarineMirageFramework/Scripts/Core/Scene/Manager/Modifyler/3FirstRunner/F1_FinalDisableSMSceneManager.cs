@@ -7,23 +7,18 @@
 namespace SubmarineMirage.Scene.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
+	using SubmarineMirage.Modifyler;
 	using Task;
-	using Task.Modifyler.Base;
-	using Scene.Base;
-	using Scene.Modifyler.Base;
-	using Utility;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class FinalDisableSMSceneManager : SMSceneManagerModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 
 
-		public override void Set( SMSceneManagerBody owner ) {
-			base.Set( owner );
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+
 			_target._isFinalizing = true;
 		}
 

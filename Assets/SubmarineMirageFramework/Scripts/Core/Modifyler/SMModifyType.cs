@@ -7,9 +7,6 @@
 namespace SubmarineMirage.Modifyler {
 
 
-	// TODO : コメント追加、整頓
-
-
 	public enum SMModifyType {
 		FirstLinker,
 		Linker,

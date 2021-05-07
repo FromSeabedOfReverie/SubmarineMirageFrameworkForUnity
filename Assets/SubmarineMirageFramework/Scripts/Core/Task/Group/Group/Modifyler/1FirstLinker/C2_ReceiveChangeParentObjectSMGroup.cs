@@ -13,29 +13,25 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class ReceiveChangeParentObjectSMGroup : SMGroupModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstLinker;
 		[SMShowLine] SMObjectBody _parent	{ get; set; }
 
 
-		public ReceiveChangeParentObjectSMGroup( SMObjectBody target, SMObjectBody parent ) : base( target ) {
+		public ReceiveChangeParentObjectSMGroup( SMObjectBody smObject, SMObjectBody parent ) : base( smObject ) {
 			_parent = parent;
 		}
 
 		protected override void Cancel() {
-			_target.DisposeAllChildren();
-			_target._gameObject.Destroy();
+			_object.DisposeAllChildren();
+			_object._gameObject.Destroy();
 		}
 
 
 		public override async UniTask Run() {
-			_parent.LinkChild( _target );
+			_parent.LinkChild( _object );
 
-			_modifyler.Register( new AdjustObjectRunSMGroup( _target ) );
+			_modifyler.Register( new AdjustObjectRunSMGroup( _object ) );
 
 			await UTask.DontWait();
 		}

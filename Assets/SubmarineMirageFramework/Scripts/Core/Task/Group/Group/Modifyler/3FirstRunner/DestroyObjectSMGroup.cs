@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
+	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SubmarineMirage.Modifyler;
@@ -13,23 +14,19 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class DestroyObjectSMGroup : SMGroupModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.FirstRunner;
 		[SMShowLine] bool _isLastFinalizing	{ get; set; }
 
 
-		public DestroyObjectSMGroup( SMObjectBody target ) : base( target ) {}
+		public DestroyObjectSMGroup( SMObjectBody smObject ) : base( smObject ) {}
 
 
 		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
 			base.Set( target, modifyler );
 
 			_isLastFinalizing = _target._isFinalizing;
-			if ( _target.IsTop( _target ) )	{ _target._isFinalizing = true; }
+			if ( _target.IsTop( _object ) )	{ _target._isFinalizing = true; }
 		}
 
 
@@ -37,7 +34,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			if ( _isLastFinalizing )	{ return; }
 
 			// 設定時から割込みが入り、トップになる場合がある
-			if ( _target.IsTop( _target ) ) {
+			if ( _target.IsTop( _object ) ) {
 				await DestroyGroup();
 			} else {
 				await DestroyObject();
@@ -70,11 +67,13 @@ namespace SubmarineMirage.Task.Modifyler {
 			foreach ( var t in SMGroupManagerBody.REVERSE_SEQUENTIAL_RUN_TYPES ) {
 				await RunLower( t, () => new FinalizeSMObject( t ) );
 			}
-			_target.DisposeAllChildren();
-			_target._gameObject.Destroy();
+			_object.DisposeAllChildren();
+			_object._gameObject.Destroy();
 
-			GetAllLowers().ForEach( o => _target.UnregisterModifyler( o ) );
-			_target.Unlink();
+			GetAllLowers()
+				.Select( t => ( SMObjectBody )t )
+				.ForEach( o => _target.UnregisterModifyler( o ) );
+			_object.Unlink();
 		}
 	}
 }

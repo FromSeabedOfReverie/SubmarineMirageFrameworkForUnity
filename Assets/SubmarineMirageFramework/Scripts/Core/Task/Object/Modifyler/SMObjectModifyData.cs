@@ -12,10 +12,6 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class SMObjectModifyData : SMTaskModifyData {
 		public new SMObjectBody _target { get; private set; }
 		[SMShowLine] protected SMTaskRunAllType _runType	{ get; private set; }

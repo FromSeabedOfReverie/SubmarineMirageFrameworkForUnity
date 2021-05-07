@@ -8,13 +8,8 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Modifyler;
-	using FSM.Modifyler.Base;
-	using FSM.State.Base;
+	using FSM.State;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -49,7 +44,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 			if ( _target._stateBody != null ) {
 				await _target._stateBody.Exit();
 			}
-			if ( _modifyler.IsHaveData() ) {
+			if ( _modifyler._isHaveData ) {
 				_target._stateBody = null;
 				return;
 			}
@@ -58,7 +53,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 			if ( _target._stateBody == null )	{ return; }
 
 			await _target._stateBody.Enter();
-			if ( _modifyler.IsHaveData() )	{ return; }
+			if ( _modifyler._isHaveData )	{ return; }
 
 			_target._stateBody.UpdateAsync();
 		}

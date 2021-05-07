@@ -11,11 +11,6 @@ namespace SubmarineMirage.Utility {
 	using KoganeUnityLib;
 	using Service;
 	using Task;
-
-
-	// TODO : コメント追加、整頓
-
-
 	///====================================================================================================
 	/// <summary>
 	/// ■ Unity設定の名称使用の基盤クラス
@@ -25,8 +20,8 @@ namespace SubmarineMirage.Utility {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		/// <summary>仕事の型</summary>
 		public override SMTaskType _type => SMTaskType.FirstWork;
-
 		/// <summary>名称のキャッシュ一覧の辞書</summary>
 		readonly Dictionary<TName, string> _namesCache = EnumUtils.GetValues<TName>()
 				.ToDictionary( name => name, name => name.ToString() );

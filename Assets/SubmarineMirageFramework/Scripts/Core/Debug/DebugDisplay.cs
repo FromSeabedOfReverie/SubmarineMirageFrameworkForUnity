@@ -9,7 +9,7 @@ namespace SubmarineMirage.Debug {
 	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
+	using Base;
 	using Service;
 	using Scene;
 	///====================================================================================================

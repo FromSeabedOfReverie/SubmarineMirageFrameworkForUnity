@@ -9,10 +9,6 @@ using SubmarineMirage.Scene;
 
 
 
-// TODO : コメント追加、整頓
-
-
-
 public class FieldSMScene : OpenWorldSMScene {
 	protected override Vector3Int _maxChunkCounts	{ get; set; } = new Vector3Int( 6, 4, 6 );
 	protected override Vector3 _chunkMeterLength	{ get; set; } = new Vector3( 500, 500, 500 );

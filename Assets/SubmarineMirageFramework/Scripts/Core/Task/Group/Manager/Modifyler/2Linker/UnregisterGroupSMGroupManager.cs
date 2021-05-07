@@ -6,25 +6,21 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Utility;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class UnregisterGroupSMGroupManager : SMGroupManagerModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 
 
-		public UnregisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}
+		public UnregisterGroupSMGroupManager( SMGroupBody group ) : base( group ) {}
 
 
 		public override async UniTask Run() {
-			_modifyler.Unregister( _target );
-			_target.Unlink( _target );
+			_target.UnregisterModifyler( _group );
+			_target.Unlink( _group );
 
 			await UTask.DontWait();
 		}

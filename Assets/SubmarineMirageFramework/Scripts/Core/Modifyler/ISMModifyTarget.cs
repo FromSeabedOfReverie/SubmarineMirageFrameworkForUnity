@@ -9,10 +9,6 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public interface ISMModifyTarget : ISMStandardBase {
 	}
 }

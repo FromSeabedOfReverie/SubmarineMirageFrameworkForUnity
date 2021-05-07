@@ -7,9 +7,6 @@
 namespace SubmarineMirage.Base {
 
 
-	// TODO : コメント追加、整頓
-
-
 	public interface ISMLightBase : IBaseSM {
 	}
 }

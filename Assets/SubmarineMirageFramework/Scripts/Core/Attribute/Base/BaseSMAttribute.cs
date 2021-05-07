@@ -12,10 +12,6 @@ namespace SubmarineMirage {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class BaseSMAttribute : Attribute, ISMLightBase {
 		public uint _id	{ get; private set; }
 

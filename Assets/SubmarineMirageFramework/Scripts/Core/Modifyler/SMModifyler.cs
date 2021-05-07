@@ -16,10 +16,6 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMModifyler : SMStandardBase {
 		ISMModifyTarget _target	{ get; set; }
 		[SMShow] Type _baseDataType { get; set; }

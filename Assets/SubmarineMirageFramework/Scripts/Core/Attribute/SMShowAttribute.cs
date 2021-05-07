@@ -9,10 +9,6 @@ namespace SubmarineMirage {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	[AttributeUsage(
 		AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true
 	)]

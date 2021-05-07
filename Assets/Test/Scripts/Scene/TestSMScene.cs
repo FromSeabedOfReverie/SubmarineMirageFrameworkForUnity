@@ -26,10 +26,6 @@ namespace SubmarineMirage.TestScene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class TestSMScene : SMStandardTest {
 		SMSceneManager _sceneManager	{ get; set; }
 		Text _text	{ get; set; }

@@ -11,10 +11,6 @@ namespace SubmarineMirage.EditorExtension {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class PlayerEditorSMExtension : ScriptableSingletonSMExtension<PlayerEditorSMExtension> {
 		public enum Type {
 			Stop,

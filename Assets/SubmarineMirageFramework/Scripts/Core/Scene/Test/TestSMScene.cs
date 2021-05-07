@@ -6,14 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene.Test {
 	using UniRx;
-	using SubmarineMirage.Base;
+	using Base;
 	using Extension;
 	using Utility;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

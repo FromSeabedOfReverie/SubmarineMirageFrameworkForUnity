@@ -13,10 +13,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class UnknownSMScene : MainSMScene {
 		public UnknownSMScene() {
 		}
@@ -26,7 +22,7 @@ namespace SubmarineMirage.Scene {
 			// 中心シーンが設定済の場合、未処理
 			if ( _owner._mainFSM._body._startStateType != null )	{ return; }
 
-			var scenes = _owner._body.GetUnknownRawScenes();
+			var scenes = _owner.GetUnknownRawScenes();
 			var count = scenes.Count();
 			if ( count == 0 )	{ return; }
 

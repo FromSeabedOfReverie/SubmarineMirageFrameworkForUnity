@@ -10,9 +10,6 @@ namespace SubmarineMirage.Base {
 	using Debug.ToString;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public interface ISMStandardBase : IBaseSM, IDisposableSMExtension {
 		SMDisposable _disposables	{ get; }
 		SMToStringer _toStringer	{ get; }

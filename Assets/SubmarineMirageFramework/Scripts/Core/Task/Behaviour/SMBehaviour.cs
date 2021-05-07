@@ -9,16 +9,13 @@ namespace SubmarineMirage.Task {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using SubmarineMirage.Base;
+	using Base;
 	using Event;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
 	using Debug.ToString;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public abstract class SMBehaviour : MonoBehaviourSMExtension, ISMStandardBase {

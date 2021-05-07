@@ -16,10 +16,6 @@ namespace SubmarineMirage.Debug.ToString {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMToStringer : SMLightBase {
 		object _owner	{ get; set; }
 		[SMShow] readonly Dictionary<string, SMToStringData> _toStrings

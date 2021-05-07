@@ -9,10 +9,6 @@ namespace SubmarineMirage.EditorExtension {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	[InitializeOnLoad]
 	public class PlayerEditorWindowSMExtension : EditorWindowSMExtension {
 		static PlayerEditorSMExtension s_body => PlayerEditorSMExtension.instance;

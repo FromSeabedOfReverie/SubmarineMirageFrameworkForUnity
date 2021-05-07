@@ -9,9 +9,6 @@ namespace SubmarineMirage.Extension {
 	using System.Collections.Generic;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class ListSMExtension {
 		public static List<T> Copy<T>( this List<T> self )
 			=> new List<T>( self );

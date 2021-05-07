@@ -7,12 +7,8 @@
 namespace SubmarineMirage.Task {
 	using System.Collections.Generic;
 	using UnityEngine;
-	using SubmarineMirage.Base;
+	using Base;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

@@ -21,10 +21,6 @@ namespace SubmarineMirage.TestBase {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class BaseSMTest : BaseSM, IBaseSMTest, IPrebuildSetup {
 		[SMShow] protected string _testName => TestContext.CurrentContext.Test.Name;
 		[SMShow] protected bool _isInitialized	{ get; set; }

@@ -9,10 +9,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class ForeverSMScene : SMScene {
 		public ForeverSMScene() {
 			_rawScene = SceneManager.CreateScene( _name );

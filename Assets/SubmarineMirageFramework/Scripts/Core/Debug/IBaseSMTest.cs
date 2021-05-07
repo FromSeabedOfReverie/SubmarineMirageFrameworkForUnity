@@ -11,10 +11,6 @@ namespace SubmarineMirage.Debug {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public interface IBaseSMTest : IBaseSM, ISMService {
 		UniTask Initialize();
 	}

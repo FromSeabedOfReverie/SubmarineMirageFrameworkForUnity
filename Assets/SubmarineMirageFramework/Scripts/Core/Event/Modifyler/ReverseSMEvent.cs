@@ -5,10 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event.Modifyler {
-	using Event.Modifyler.Base;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class ReverseSMEvent<T> : SMEventModifyData<T> {

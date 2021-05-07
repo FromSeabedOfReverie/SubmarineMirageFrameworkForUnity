@@ -19,10 +19,6 @@ namespace SubmarineMirage {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SubmarineMirageFramework : SMStandardBase, ISMService {
 		[SMShow] public static bool s_isPlayTest	{ get; set; }
 		[SMShow] public bool _isInitialized	{ get; private set; }

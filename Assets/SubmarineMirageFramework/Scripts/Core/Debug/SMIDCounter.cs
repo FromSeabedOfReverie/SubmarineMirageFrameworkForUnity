@@ -12,10 +12,6 @@ namespace SubmarineMirage.Debug {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public static class SMIDCounter {
 		static readonly Dictionary<Type, uint> _idCounts = new Dictionary<Type, uint>();
 

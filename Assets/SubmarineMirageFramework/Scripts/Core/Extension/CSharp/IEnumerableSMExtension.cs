@@ -10,9 +10,6 @@ namespace SubmarineMirage.Extension {
 	using System.Collections.Generic;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class IEnumerableSMExtension {
 		public static void ForEachRaw( this IEnumerable self, Action<object> action ) {
 			foreach ( var o in self ) {

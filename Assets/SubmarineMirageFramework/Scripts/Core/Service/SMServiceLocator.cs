@@ -18,10 +18,6 @@ namespace SubmarineMirage.Service {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public static class SMServiceLocator {
 		[SMShowLine] public static bool s_isDisposed	{ get; private set; } = true;
 		public static readonly Dictionary<Type, ISMService> s_container = new Dictionary<Type, ISMService>();

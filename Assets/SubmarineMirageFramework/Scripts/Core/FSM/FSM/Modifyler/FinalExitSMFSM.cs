@@ -7,12 +7,7 @@
 namespace SubmarineMirage.FSM.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Modifyler;
-	using FSM.Modifyler.Base;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

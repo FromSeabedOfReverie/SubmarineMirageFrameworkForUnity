@@ -15,10 +15,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMChunkData : BaseSMChunkData {
 		Vector3Int _gridPosition	{ get; set; }
 

@@ -4,31 +4,27 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Base {
+namespace SubmarineMirage.FSM {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Event;
+	using Base;
 	using SubmarineMirage.Modifyler;
+	using Event;
 	using FSM.Modifyler;
-	using FSM.Modifyler.Base;
-	using FSM.State.Base;
+	using FSM.State;
 	using Extension;
 	using Utility;
 	using Debug;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
-	public class SMFSMBody : SMModifyTarget<SMFSMBody, SMFSMModifyData> {
-		public BaseSMFSM _fsm			{ get; private set; }
-		public IBaseSMFSMOwner _owner	{ get; private set; }
+	public class SMFSMBody : SMStandardBase, ISMModifyTarget {
+		public SMFSM _fsm			{ get; private set; }
+		public ISMFSMOwner _owner	{ get; private set; }
 		[SMShow] Dictionary<Type, SMStateBody> _stateBodies	{ get; set; }
 		[SMShowLine] public SMStateBody _stateBody	{ get; set; }
 
@@ -44,6 +40,8 @@ namespace SubmarineMirage.FSM.Base {
 		public bool _isOperable	=> _owner._isOperable;
 		public bool _isFinalizing	=> _owner._isFinalizing;
 		public bool _isActive		=> _owner._isActive;
+
+		public SMModifyler _modifyler { get; private set; }
 
 		public SMAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
 		public SMAsyncEvent _initializeEvent		=> _owner._initializeEvent;
@@ -72,10 +70,11 @@ namespace SubmarineMirage.FSM.Base {
 
 
 
-		public SMFSMBody( BaseSMFSM fsm ) {
+		public SMFSMBody( SMFSM fsm ) {
 			_fsm = fsm;
 
-			// TODO : フラグ、ごちゃごちゃしてるので、修正
+			_modifyler = new SMModifyler( this, typeof( SMFSMModifyData ) );
+// TODO : フラグ、ごちゃごちゃしてるので、修正
 			_modifyler._isCanRunEvent = () => {
 				if ( _isFinalizing )	{ return true; }
 				if ( !_isInitialized )	{ return false; }
@@ -83,10 +82,10 @@ namespace SubmarineMirage.FSM.Base {
 				return true;
 			};
 
-			_registerEventName = _fsm.GetAboutName();
-
 
 			_disposables.AddLast( () => {
+				_modifyler.Dispose();
+
 				_asyncCancelerOnDisableAndExit.Dispose();
 
 				GetStates().ForEach( s => s._state.Dispose() );
@@ -103,7 +102,7 @@ namespace SubmarineMirage.FSM.Base {
 
 
 
-		public void Setup( IBaseSMFSMOwner owner, IEnumerable<BaseSMState> states,
+		public void Setup( ISMFSMOwner owner, IEnumerable<SMState> states,
 							Type baseStateType, Type startStateType, bool isInitialEnter
 		) {
 			_owner = owner;
@@ -145,8 +144,9 @@ namespace SubmarineMirage.FSM.Base {
 			if ( isInitialEnter )	{ InitialEnter( true ).Forget(); }
 		}
 
-		void SetupStates( IEnumerable<BaseSMState> states, Type baseStateType, Type startStateType ) {
+		void SetupStates( IEnumerable<SMState> states, Type baseStateType, Type startStateType ) {
 			_baseStateType = baseStateType;
+			_registerEventName = $"{_fsm.GetAboutName()}<{_baseStateType.GetAboutName()}>";
 
 			_stateBodies = states.ToDictionary(
 				state => {
@@ -162,7 +162,9 @@ namespace SubmarineMirage.FSM.Base {
 
 			_startStateType = startStateType ?? GetStates().First()._state.GetType();
 
-			GetStates().ForEach( s => s.Setup( _owner, this ) );
+			GetStates()
+				.Select( sb => sb._state )
+				.ForEach( s => s.Setup( _owner, _fsm ) );
 		}
 
 

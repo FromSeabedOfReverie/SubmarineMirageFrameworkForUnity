@@ -7,13 +7,6 @@
 namespace SubmarineMirage.Utility {
 	using System;
 	using System.IO;
-
-
-
-	// TODO : コメント追加、整頓
-
-
-
 	///====================================================================================================
 	/// <summary>
 	/// ■ 階層の便利クラス
@@ -21,10 +14,6 @@ namespace SubmarineMirage.Utility {
 	/// </summary>
 	///====================================================================================================
 	public static class PathSMUtility {
-		///------------------------------------------------------------------------------------------------
-		/// ● 要素
-		///------------------------------------------------------------------------------------------------
-
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● URLか？
@@ -42,13 +31,22 @@ namespace SubmarineMirage.Utility {
 				return false;
 			}
 		}
-
+		///------------------------------------------------------------------------------------------------
+		/// ● 取得
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 名前を取得
+		/// </summary>
 		public static string GetName( string path )
 			=> Path.GetFileNameWithoutExtension( path );
-
+		/// <summary>
+		/// ● 名前と拡張子を取得
+		/// </summary>
 		public static string GetNameAndExtension( string path )
 			=> Path.GetFileName( path );
-
+		/// <summary>
+		/// ● 拡張子を取得
+		/// </summary>
 		public static string GetExtension( string path )
 			=> Path.GetExtension( path );
 	}

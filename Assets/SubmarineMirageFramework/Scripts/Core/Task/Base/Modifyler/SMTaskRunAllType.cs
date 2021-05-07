@@ -7,9 +7,6 @@
 namespace SubmarineMirage.Task.Modifyler {
 
 
-	// TODO : コメント追加、整頓
-
-
 	public enum SMTaskRunAllType {
 		DontRun,
 		Sequential,

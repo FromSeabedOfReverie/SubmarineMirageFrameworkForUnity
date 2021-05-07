@@ -9,9 +9,6 @@ namespace SubmarineMirage.Base {
 	using Extension;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public interface ISMRawBase : IBaseSM, IDisposableSMExtension {
 		CompositeDisposable _disposables	{ get; }
 	}

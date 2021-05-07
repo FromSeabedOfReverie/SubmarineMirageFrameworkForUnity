@@ -11,13 +11,9 @@ namespace SubmarineMirage.Task {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using SubmarineMirage.Base;
+	using Base;
 	using Scene;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

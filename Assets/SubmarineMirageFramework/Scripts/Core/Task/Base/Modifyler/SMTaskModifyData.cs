@@ -15,10 +15,6 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class SMTaskModifyData : SMModifyData {
 		protected async UniTask RunLower( SMTaskRunAllType type, Func<SMTaskModifyData> createEvent ) {
 			var tasks = GetLowers( type );

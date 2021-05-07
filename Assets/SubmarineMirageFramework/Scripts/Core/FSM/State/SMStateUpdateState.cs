@@ -8,10 +8,6 @@ namespace SubmarineMirage.FSM.State {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public enum SMStateUpdateState {
 		Disable,
 		FixedUpdate,

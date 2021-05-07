@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene.Base {
+namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -13,30 +13,24 @@ namespace SubmarineMirage.Scene.Base {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using Service;
 	using Event;
 	using Task;
-	using Task.Modifyler.Base;
+	using FSM;
 	using Scene.Modifyler;
-	using Scene.Modifyler.Base;
 	using Extension;
 	using Utility;
 	using Debug;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
-	public class SMSceneManagerBody : SMTaskModifyTarget<SMSceneManagerModifyler> {
+	public class SMSceneManagerBody : SMTask, ISMFSMOwner {
 		public SMSceneManager _sceneManager	{ get; private set; }
-		[SMShow] public SMSceneFSM _fsm	{ get; set; }
+		[SMShow] public SMFSM _fsm	{ get; set; }
 
-		public SMSceneFSM _foreverFSM	{ get; set; }
-		public SMSceneFSM _mainFSM		{ get; set; }
-		public SMSceneFSM _uiFSM		{ get; set; }
-		public SMSceneFSM _debugFSM	{ get; set; }
+		public SMFSM _foreverFSM	{ get; set; }
+		public SMFSM _mainFSM		{ get; set; }
+		public SMFSM _uiFSM		{ get; set; }
+		public SMFSM _debugFSM	{ get; set; }
 
 		public SMScene _foreverScene	{ get; set; }
 		Scene _rawSceneUntilDispose	{ get; set; }
@@ -44,20 +38,24 @@ namespace SubmarineMirage.Scene.Base {
 
 		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
 		public bool _isFinalDisabling	{ get; set; }
+		[SMShowLine] public bool _isInitialEnteredFSMs { get; set; }
 
-		public readonly SMAsyncEvent _selfInitializeEvent	= new SMAsyncEvent();
-		public readonly SMAsyncEvent _initializeEvent		= new SMAsyncEvent();
-		public readonly SMSubject _enableEvent			= new SMSubject();
-		public readonly SMSubject _fixedUpdateEvent		= new SMSubject();
-		public readonly SMSubject _updateEvent			= new SMSubject();
-		public readonly SMSubject _lateUpdateEvent		= new SMSubject();
-		public readonly SMSubject _disableEvent			= new SMSubject();
-		public readonly SMAsyncEvent _finalizeEvent		= new SMAsyncEvent();
+		[SMShow] protected override Type _baseModifyDataType => typeof( SMSceneManagerModifyData );
+
+		public SMAsyncEvent _selfInitializeEvent	{ get; private set; } = new SMAsyncEvent();
+		public SMAsyncEvent _initializeEvent		{ get; private set; } = new SMAsyncEvent();
+		public SMSubject _enableEvent				{ get; private set; } = new SMSubject();
+		public SMSubject _fixedUpdateEvent			{ get; private set; } = new SMSubject();
+		public SMSubject _updateEvent				{ get; private set; } = new SMSubject();
+		public SMSubject _lateUpdateEvent			{ get; private set; } = new SMSubject();
+		public SMSubject _disableEvent				{ get; private set; } = new SMSubject();
+		public SMAsyncEvent _finalizeEvent			{ get; private set; } = new SMAsyncEvent();
 #if DEVELOP
-		public readonly SMSubject _onGUIEvent = new SMSubject();
+		public SMSubject _onGUIEvent				{ get; private set; } = new SMSubject();
 #endif
-		public readonly SMAsyncCanceler _asyncCancelerOnDisable = new SMAsyncCanceler();
-		public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
+
+		public SMAsyncCanceler _asyncCancelerOnDisable	{ get; private set; } = new SMAsyncCanceler();
+		public SMAsyncCanceler _asyncCancelerOnDispose	{ get; private set; } = new SMAsyncCanceler();
 
 
 
@@ -76,8 +74,7 @@ namespace SubmarineMirage.Scene.Base {
 
 
 		public SMSceneManagerBody( SMSceneManager sceneManager ) {
-			_modifyler = new SMSceneManagerModifyler( this );
-			_modifyler.SetupSceneUpdating( _isUpdating );
+			SetupSceneUpdating( _isUpdating );
 
 			_sceneManager = sceneManager;
 			_rawSceneUntilDispose = SceneManager.CreateScene( "UntilDispose" );
@@ -201,7 +198,7 @@ namespace SubmarineMirage.Scene.Base {
 
 			_fsm.GetFSMs()
 				.Where( fsm => fsm._body._startStateType != null )
-				.Select( fsm => fsm.GetScene( fsm._body._startStateType ) )
+				.Select( fsm => ( SMScene )fsm.GetState( fsm._body._startStateType ) )
 				.ForEach( s => scenes.Remove( rs => rs.name == s._name ) );
 
 			return scenes;
@@ -230,7 +227,8 @@ namespace SubmarineMirage.Scene.Base {
 
 		public IEnumerable<SMScene> GetScenes()
 			=> _fsm.GetFSMs()
-				.SelectMany( fsm => fsm.GetScenes() )
+				.SelectMany( fsm => fsm.GetStates() )
+				.Select( s => ( SMScene )s )
 				.Distinct();
 
 		public SMScene GetScene( Scene rawScene )

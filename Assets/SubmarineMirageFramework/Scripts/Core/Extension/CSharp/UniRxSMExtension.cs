@@ -9,9 +9,6 @@ namespace SubmarineMirage.Extension {
 	using UniRx;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class UniRxSMExtension {
 		public static void Add( this CompositeDisposable disposable, Action action )
 			=> disposable.Add( Disposable.Create( action ) );

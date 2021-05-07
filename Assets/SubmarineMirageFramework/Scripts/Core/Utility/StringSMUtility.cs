@@ -7,9 +7,6 @@
 namespace SubmarineMirage.Utility {
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class StringSMUtility {
 		public static string IndentSpace( int indent )
 			=> new string( ' ', indent * 4 );

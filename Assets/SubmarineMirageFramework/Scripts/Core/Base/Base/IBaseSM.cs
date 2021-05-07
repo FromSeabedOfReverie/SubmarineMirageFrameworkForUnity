@@ -8,9 +8,6 @@ namespace SubmarineMirage.Base {
 	using System;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public interface IBaseSM : IDisposable {
 		uint _id	{ get; }
 

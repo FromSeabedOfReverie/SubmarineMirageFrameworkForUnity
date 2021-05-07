@@ -14,10 +14,6 @@ namespace SubmarineMirage.EditorService {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMServiceLocatorEditor : EditorWindowSMExtension {
 		Vector2 _scrollPosition	{ get; set; }
 		string _focusedText	{ get; set; } = string.Empty;

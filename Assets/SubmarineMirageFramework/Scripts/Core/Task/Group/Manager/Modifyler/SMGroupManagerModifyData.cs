@@ -6,25 +6,28 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using System.Collections.Generic;
+	using SubmarineMirage.Modifyler;
 	using Debug;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class SMGroupManagerModifyData : SMTaskModifyData {
-		[SMShowLine] public new SMGroupBody _target	{ get; private set; }
+		public new SMGroupManagerBody _target { get; private set; }
+		[SMShowLine] public SMGroupBody _group	{ get; private set; }
 
 
-		public SMGroupManagerModifyData( SMGroupBody target )
-			=> _target = target;
+		public SMGroupManagerModifyData( SMGroupBody group )
+			=> _group = group;
 
 
-		protected override IEnumerable<SMTask> GetAllLowers() {
-			var t = ( SMGroupManagerBody )base._target;
-			return t.GetAllGroups();
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+
+			_target = ( SMGroupManagerBody )base._target;
 		}
+
+
+		protected override IEnumerable<SMTask> GetAllLowers()
+			=> _target.GetAllGroups();
 	}
 }

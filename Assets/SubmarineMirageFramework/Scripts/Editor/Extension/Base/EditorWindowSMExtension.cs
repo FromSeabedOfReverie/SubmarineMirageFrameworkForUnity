@@ -12,10 +12,6 @@ namespace SubmarineMirage.EditorExtension {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class EditorWindowSMExtension : EditorWindow, ISMLightBase {
 		[SMShowLine] public uint _id	{ get; private set; }
 

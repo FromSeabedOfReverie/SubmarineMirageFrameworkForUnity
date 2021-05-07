@@ -14,9 +14,6 @@ namespace SubmarineMirage.TestBase.Test {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class TestSMRawTest : SMRawTest {
 		TestSMTestBody _body	{ get; set; }
 

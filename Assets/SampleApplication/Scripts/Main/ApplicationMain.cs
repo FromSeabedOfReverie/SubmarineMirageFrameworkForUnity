@@ -18,10 +18,6 @@ using SubmarineMirage.Debug;
 
 
 
-// TODO : コメント追加、整頓
-
-
-
 public static class ApplicationMain {
 	static async UniTask InitializePlugin() {
 		UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;

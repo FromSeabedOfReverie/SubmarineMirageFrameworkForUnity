@@ -9,9 +9,6 @@ namespace SubmarineMirage.Base {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public abstract class BaseSM : IBaseSM {
 		[SMShowLine] public uint _id	{ get; private set; }
 

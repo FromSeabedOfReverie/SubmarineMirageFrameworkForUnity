@@ -6,15 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -22,17 +17,17 @@ namespace SubmarineMirage.Task.Modifyler {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Linker;
 
 
-		public RegisterGroupSMGroupManager( SMGroupBody target ) : base( target ) {}
+		public RegisterGroupSMGroupManager( SMGroupBody group ) : base( group ) {}
 
 		protected override void Cancel() {
-			_target.DisposeAllObjects();
-			_target._gameObject.Destroy();
+			_group.DisposeAllObjects();
+			_group._gameObject.Destroy();
 		}
 
 
 		public override async UniTask Run() {
-			_target.Link( _target );
-			_target.RegisterRunEventToOwner();
+			_target.Link( _group );
+			_group.RegisterRunEventToOwner();
 
 			await UTask.DontWait();
 		}

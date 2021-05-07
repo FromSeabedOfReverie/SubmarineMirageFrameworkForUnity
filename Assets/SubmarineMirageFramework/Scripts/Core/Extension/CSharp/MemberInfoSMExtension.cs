@@ -8,9 +8,6 @@ namespace SubmarineMirage.Extension {
 	using System.Reflection;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class MemberInfoSMExtension {
 		public static object GetValue( this MemberInfo self, object instance ) {
 			switch ( self ) {

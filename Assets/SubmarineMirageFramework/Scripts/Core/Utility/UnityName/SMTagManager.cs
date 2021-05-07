@@ -20,7 +20,7 @@ namespace SubmarineMirage.Utility {
 			/// <summary>未設定</summary>
 			Untagged,
 
-			// TODO : リファクタリング次第で、以下タグは不要になるかもしれない
+// TODO : リファクタリング次第で、以下タグは不要になるかもしれない
 
 			/// <summary>中心カメラ</summary>
 			MainCamera,

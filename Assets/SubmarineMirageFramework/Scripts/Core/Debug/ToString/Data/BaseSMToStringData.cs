@@ -9,10 +9,6 @@ namespace SubmarineMirage.Debug.ToString.Data {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class BaseSMToStringData : SMLightBase {
 		public override void Dispose() {}
 	}

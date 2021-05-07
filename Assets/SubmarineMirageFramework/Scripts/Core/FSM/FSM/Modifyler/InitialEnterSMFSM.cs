@@ -9,13 +9,8 @@ namespace SubmarineMirage.FSM.Modifyler {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Modifyler;
-	using FSM.Modifyler.Base;
-	using FSM.State.Base;
+	using FSM.State;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -59,7 +54,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 					_target.GetBrothers().All( fsm => fsm._isInitialEntered );
 			}
 
-			if ( _modifyler.IsHaveData() )	{ return; }
+			if ( _modifyler._isHaveData )	{ return; }
 
 			_target._stateBody.UpdateAsync();
 		}

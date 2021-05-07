@@ -13,10 +13,6 @@ namespace SubmarineMirage.EditorExtension {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class ScriptableSingletonSMExtension<T> : ScriptableSingleton<T>, ISMLightBase
 		where T : ScriptableObject
 	{

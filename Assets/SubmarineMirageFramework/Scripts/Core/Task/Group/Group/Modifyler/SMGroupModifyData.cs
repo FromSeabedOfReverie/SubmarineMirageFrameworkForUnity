@@ -12,31 +12,28 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class SMGroupModifyData : SMTaskModifyData {
-		[SMShowLine] public new SMObjectBody _target	{ get; private set; }
+		public new SMGroupBody _target	{ get; private set; }
+		[SMShowLine] public SMObjectBody _object { get; private set; }
 
 
-		public SMGroupModifyData( SMObjectBody target )
-			=> _target = target;
+		public SMGroupModifyData( SMObjectBody smObject )
+			=> _object = smObject;
 
 		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
 			base.Set( target, modifyler );
 
-			if ( _target == null ) {
-				var t = ( SMGroupBody )base._target;
-				_target = t._objectBody;
-			}
-			if ( _target == null ) {
-				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
+
+			_target = ( SMGroupBody )base._target;
+
+			if ( _object == null )	{ _object = _target._objectBody; }
+			if ( _object == null ) {
+				throw new ObjectDisposedException( $"{nameof( _object )}", $"既に削除済\n{_object}" );
 			}
 		}
 
 
 		protected override IEnumerable<SMTask> GetAllLowers()
-			=> _target.GetAllChildren();
+			=> _object.GetAllChildren();
 	}
 }

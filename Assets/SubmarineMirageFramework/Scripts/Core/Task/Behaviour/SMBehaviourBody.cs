@@ -17,10 +17,6 @@ namespace SubmarineMirage.Task {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMBehaviourBody : SMTask {
 		public SMBehaviour _behaviour	{ get; private set; }
 		public SMObjectBody _objectBody	{ get; set; }

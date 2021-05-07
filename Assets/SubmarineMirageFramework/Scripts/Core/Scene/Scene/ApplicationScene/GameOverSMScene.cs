@@ -8,9 +8,5 @@ using SubmarineMirage.Scene;
 
 
 
-// TODO : コメント追加、整頓
-
-
-
 public class GameOverSMScene : MainSMScene {
 }

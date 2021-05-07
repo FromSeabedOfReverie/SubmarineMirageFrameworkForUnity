@@ -8,12 +8,11 @@ namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
-	using SubmarineMirage.Base;
+	using Base;
 	using Service;
 	using Event;
 	using Task;
 	using FSM;
-	using Scene.Base;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -21,27 +20,20 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
-	public class SMSceneManager
-		: MonoBehaviourSMExtension, ISMFSMOwner<SMSceneFSM>, ISMStandardBase, ISMService
-	{
+	public class SMSceneManager : MonoBehaviourSMExtension, ISMStandardBase, ISMService {
 		[SMShow] public SMSceneManagerBody _body	{ get; private set; }
 
-		public SMSceneFSM _fsm			=> _body._fsm;
-		public SMSceneFSM _foreverFSM	=> _body._foreverFSM;
-		public SMSceneFSM _mainFSM		=> _body._mainFSM;
-		public SMSceneFSM _uiFSM		=> _body._uiFSM;
-		public SMSceneFSM _debugFSM	=> _body._debugFSM;
+		public SMFSM _fsm			=> _body._fsm;
+		public SMFSM _foreverFSM	=> _body._foreverFSM;
+		public SMFSM _mainFSM		=> _body._mainFSM;
+		public SMFSM _uiFSM		=> _body._uiFSM;
+		public SMFSM _debugFSM	=> _body._debugFSM;
 		public SMScene _foreverScene	=> _body._foreverScene;
 
 		public bool _isInitialized	=> _body._isInitialized;
 		public bool _isOperable	=> _body._isOperable;
 		public bool _isFinalizing	=> _body._isFinalizing;
 		public bool _isActive		=> _body._isActive;
-		[SMShowLine] public bool _isInitialEnteredFSMs	{ get; set; }
 
 		public SMAsyncEvent _selfInitializeEvent	=> _body._selfInitializeEvent;
 		public SMAsyncEvent _initializeEvent		=> _body._initializeEvent;
@@ -121,12 +113,16 @@ namespace SubmarineMirage.Scene {
 
 		public IEnumerable<SMBehaviour> GetBehaviours( Type type, Type sceneType = null ) {
 			if ( sceneType != null ) {
-				return _fsm.GetFSM( sceneType )
+				var scene = ( SMScene )_fsm.GetFSM( sceneType )
+					?._state;
+				return scene
 					?.GetBehaviours( type )
 					?? Enumerable.Empty<SMBehaviour>();
 			}
 			return _fsm.GetFSMs()
-				.SelectMany( fsm => fsm.GetBehaviours( type ) );
+				.Select( fsm => ( SMScene )fsm._state )
+				.SelectMany( s => s?.GetBehaviours( type ) )
+				.Where( s => s != null );
 		}
 
 

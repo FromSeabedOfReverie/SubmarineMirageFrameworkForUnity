@@ -9,15 +9,11 @@ namespace SubmarineMirage.EditorScene {
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
-	using Task.Base;
+	using Task;
 	using Scene;
 	using Extension;
 	using Debug;
 	using EditorExtension;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -35,7 +31,7 @@ namespace SubmarineMirage.EditorScene {
 			base.OnInspectorGUI();
 
 			if ( target == null )	{ return; }
-			_instance = (SMSceneManager)target;
+			_instance = ( SMSceneManager )target;
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
 			ShowAllGroups();
@@ -54,13 +50,15 @@ namespace SubmarineMirage.EditorScene {
 				ShowHeading1( fsm._fsmType.GetAboutName() );
 
 				EditorGUI.indentLevel++;
-				fsm.GetScenes().ForEach( scene => {
-					ShowHeading2( scene._name );
+				fsm.GetStates()
+					.Select( s => ( SMScene )s )
+					.ForEach( scene => {
+						ShowHeading2( scene._name );
 
-					EditorGUI.indentLevel++;
-					scene._groupManagerBody.GetAllGroups().ForEach( g => ShowGroup( g ) );
-					EditorGUI.indentLevel--;
-				} );
+						EditorGUI.indentLevel++;
+						scene._groupManagerBody.GetAllGroups().ForEach( g => ShowGroup( g ) );
+						EditorGUI.indentLevel--;
+					} );
 				EditorGUI.indentLevel--;
 			} );
 			EditorGUILayout.Space();

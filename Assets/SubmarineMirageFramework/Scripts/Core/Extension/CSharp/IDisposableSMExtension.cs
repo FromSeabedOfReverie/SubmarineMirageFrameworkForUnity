@@ -8,9 +8,6 @@ namespace SubmarineMirage.Extension {
 	using System;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public interface IDisposableSMExtension : IDisposable {
 		bool _isDispose	{ get; }
 	}

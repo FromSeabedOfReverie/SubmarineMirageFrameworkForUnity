@@ -8,20 +8,14 @@ namespace SubmarineMirage.FSM {
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
-	using SubmarineMirage.Base;
-	using FSM.State.Base;
+	using Base;
+	using FSM.State;
 	using Debug;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
-	public class SMFSMGenerateList<T> : SMLightBase, IEnumerable< SMFSMGenerateData<T> >
-		where T : BaseSMState
-	{
-		readonly List< SMFSMGenerateData<T> > _data = new List< SMFSMGenerateData<T> >();
+	public class SMFSMGenerateList : SMLightBase, IEnumerable<SMFSMGenerateData> {
+		readonly List<SMFSMGenerateData> _data = new List<SMFSMGenerateData>();
 
 
 		public override void Dispose() {
@@ -31,15 +25,15 @@ namespace SubmarineMirage.FSM {
 
 
 		IEnumerator IEnumerable.GetEnumerator() => _data.GetEnumerator();
-		public IEnumerator< SMFSMGenerateData<T> > GetEnumerator() => _data.GetEnumerator();
+		public IEnumerator<SMFSMGenerateData> GetEnumerator() => _data.GetEnumerator();
 
 
-		public void Add( IEnumerable<T> states, Type baseStateType = null, Type startStateType = null,
+		public void Add( IEnumerable<SMState> states, Type baseStateType = null, Type startStateType = null,
 							bool isInitialEnter = true
-		) => _data.Add( new SMFSMGenerateData<T>( states, baseStateType, startStateType, isInitialEnter ) );
+		) => _data.Add( new SMFSMGenerateData( states, baseStateType, startStateType, isInitialEnter ) );
 
 		public void Add( IEnumerable<Type> stateTypes, Type baseStateType = null, Type startStateType = null,
 							bool isInitialEnter = true
-		) => _data.Add( new SMFSMGenerateData<T>( stateTypes, baseStateType, startStateType, isInitialEnter ) );
+		) => _data.Add( new SMFSMGenerateData( stateTypes, baseStateType, startStateType, isInitialEnter ) );
 	}
 }

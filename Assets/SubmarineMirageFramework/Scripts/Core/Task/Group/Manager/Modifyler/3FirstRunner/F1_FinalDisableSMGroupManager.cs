@@ -6,13 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
-	using Task.Base;
-	using Task.Modifyler.Base;
+	using SubmarineMirage.Modifyler;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -22,8 +17,10 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		public FinalDisableSMGroupManager() : base( null ) {}
 
-		public override void Set( SMGroupManagerBody owner ) {
-			base.Set( owner );
+
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+
 			_target._isFinalizing = true;
 		}
 

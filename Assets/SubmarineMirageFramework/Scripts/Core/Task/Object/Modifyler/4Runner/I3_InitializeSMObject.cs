@@ -10,9 +10,6 @@ namespace SubmarineMirage.Task.Modifyler {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class InitializeSMObject : SMObjectModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
 

@@ -10,14 +10,10 @@ namespace SubmarineMirage.Scene.Test {
 	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
+	using Base;
 	using Extension;
 	using Utility;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -38,7 +34,8 @@ namespace SubmarineMirage.Scene.Test {
 			var i = 0;
 			var scenes = new Type[] {
 				typeof( TitleSMScene ),
-				typeof( FieldSMScene ),
+				typeof( GameSMScene ),
+//				typeof( FieldSMScene ),
 				typeof( GameOverSMScene ),
 				typeof( GameClearSMScene ),
 			};
@@ -46,7 +43,7 @@ namespace SubmarineMirage.Scene.Test {
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
 					var t = scenes[i];
 					SMLog.Warning( $"遷移押下 : {t.GetAboutName()}" );
-					_sceneManager._mainFSM.ChangeScene( t ).Forget();
+					_sceneManager._mainFSM.ChangeState( t ).Forget();
 					i = ( i + 1 ) % scenes.Count();
 //					SMLog.Debug( _sceneManager._mainFSM._body._modifyler.ToString() );
 				} )

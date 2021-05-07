@@ -9,10 +9,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class UISMScene : SMScene {
 		public UISMScene() {
 			_rawScene = SceneManager.CreateScene( _name );

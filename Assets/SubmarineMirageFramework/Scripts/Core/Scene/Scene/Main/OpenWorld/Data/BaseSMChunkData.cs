@@ -6,13 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
+	using Base;
 	using Utility;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -40,14 +36,14 @@ namespace SubmarineMirage.Scene {
 		}
 
 		public virtual void Setup() {
-			_isExistLow = _owner._owner._body.IsExistSceneInBuild( _lowName, true );
-			_isExistHigh = _owner._owner._body.IsExistSceneInBuild( _highName, true );
+			_isExistLow = _owner._owner.IsExistSceneInBuild( _lowName, true );
+			_isExistHigh = _owner._owner.IsExistSceneInBuild( _highName, true );
 
 			if ( _isExistLow )	{ _lowScene = new ChunkSMScene( _lowName ); }
 			if ( _isExistHigh )	{ _highScene = new ChunkSMScene( _highName ); }
 
-			_lowScene?._body.Setup( _owner._owner, _owner._fsm._body );
-			_highScene?._body.Setup( _owner._owner, _owner._fsm._body );
+			_lowScene?.Setup( _owner._owner, _owner._fsm );
+			_highScene?.Setup( _owner._owner, _owner._fsm );
 		}
 
 

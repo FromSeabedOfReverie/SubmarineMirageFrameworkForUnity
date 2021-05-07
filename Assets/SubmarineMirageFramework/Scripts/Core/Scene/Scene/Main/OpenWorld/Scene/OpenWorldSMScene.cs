@@ -16,10 +16,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public abstract class OpenWorldSMScene : MainSMScene {
 		protected abstract Vector3Int _maxChunkCounts	{ get; set; }
 		protected abstract Vector3 _chunkMeterLength	{ get; set; }

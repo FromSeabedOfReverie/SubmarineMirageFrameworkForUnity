@@ -11,10 +11,6 @@ namespace SubmarineMirage.Modifyler.Test {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class TestTarget : SMStandardBase, ISMModifyTarget {
 	}
 

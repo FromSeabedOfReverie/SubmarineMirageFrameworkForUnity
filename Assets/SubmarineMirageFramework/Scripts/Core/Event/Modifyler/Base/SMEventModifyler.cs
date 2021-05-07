@@ -4,19 +4,15 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Event.Modifyler.Base {
+namespace SubmarineMirage.Event.Modifyler {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UniRx;
 	using KoganeUnityLib;
-	using SubmarineMirage.Base;
-	using Event.Base;
+	using Base;
 	using Extension;
 	using Utility;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class SMEventModifyler<T> : SMRawBase {

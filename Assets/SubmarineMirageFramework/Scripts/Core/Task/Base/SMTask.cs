@@ -8,14 +8,10 @@ namespace SubmarineMirage.Task {
 	using System;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
+	using Base;
 	using SubmarineMirage.Modifyler;
 	using Service;
 	using Scene;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 
@@ -28,7 +24,7 @@ namespace SubmarineMirage.Task {
 		public bool _isActive => _activeState == SMTaskActiveState.Enable;
 
 		[SMShow] protected abstract Type _baseModifyDataType { get; }
-		public SMModifyler _modifyler { get; protected set; }
+		public SMModifyler _modifyler { get; private set; }
 		public ReactiveProperty<bool> _isSceneUpdating { get; set; }
 
 

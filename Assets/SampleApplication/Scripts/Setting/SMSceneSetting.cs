@@ -11,16 +11,12 @@ using SubmarineMirage.Scene;
 
 
 
-// TODO : コメント追加、整頓
-
-
-
 public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
-	public SMFSMGenerateList<SMScene> _sceneFSMList	{ get; private set; }
+	public SMFSMGenerateList _sceneFSMList	{ get; private set; }
 
 
 	public SMSceneSetting() {
-		_sceneFSMList = new SMFSMGenerateList<SMScene> {
+		_sceneFSMList = new SMFSMGenerateList {
 			{
 				new Type[] { typeof( ForeverSMScene ), },
 				typeof( ForeverSMScene ),
@@ -29,7 +25,8 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 			}, {
 				new Type[] {
 					typeof( TitleSMScene ),
-					typeof( FieldSMScene ),
+					typeof( GameSMScene ),
+//					typeof( FieldSMScene ),
 					typeof( GameOverSMScene ),
 					typeof( GameClearSMScene ),
 					typeof( UnknownSMScene ),

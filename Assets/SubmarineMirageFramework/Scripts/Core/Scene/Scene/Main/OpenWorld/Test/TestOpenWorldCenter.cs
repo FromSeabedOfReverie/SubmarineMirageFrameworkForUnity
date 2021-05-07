@@ -7,13 +7,9 @@
 namespace SubmarineMirage.Scene.Test {
 	using UnityEngine;
 	using UniRx;
-	using SubmarineMirage.Base;
+	using Base;
 	using Service;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

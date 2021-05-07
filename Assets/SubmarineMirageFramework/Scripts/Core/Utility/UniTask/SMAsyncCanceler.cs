@@ -11,13 +11,9 @@ namespace SubmarineMirage.Utility {
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
 	using KoganeUnityLib;
-	using SubmarineMirage.Base;
+	using Base;
 	using Event;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

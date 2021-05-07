@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.SceneManagement;
@@ -15,20 +14,16 @@ namespace SubmarineMirage.Scene {
 	using KoganeUnityLib;
 	using Event;
 	using Task;
-	using Task.Base;
+	using FSM;
 	using FSM.State;
-	using Scene.Base;
 	using Extension;
 	using Utility;
 	using Debug;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
-	public abstract class SMScene : SMState<SMSceneManager, SMSceneFSM> {
+	public abstract class SMScene : SMState {
+		public new SMSceneManagerBody _owner { get; private set; }
 		public SMGroupManagerBody _groupManagerBody	{ get; private set; }
 
 		[SMShow] public Scene _rawScene	{ get; protected set; }
@@ -62,7 +57,7 @@ namespace SubmarineMirage.Scene {
 
 			_enterEvent.AddLast( _registerEventName, async canceler => {
 //				SMLog.Debug( $"start : {this.GetAboutName()}入口" );
-				var isRemove = _owner._body.RemoveFirstLoaded( this );
+				var isRemove = _owner.RemoveFirstLoaded( this );
 //				SMLog.Debug( $"{this.GetAboutName()}既に読まれてる？ : {isRemove}" );
 				if ( !isRemove ) {
 					await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive ).ToUniTask( canceler );
@@ -95,6 +90,15 @@ namespace SubmarineMirage.Scene {
 		}
 
 
+		public override void Setup( ISMFSMOwner owner, SMFSM fsm ) {
+			base.Setup( owner, fsm );
+			_owner = ( SMSceneManagerBody )base._owner;
+
+// TODO : SMGroupManagerの変更者、停止処理を紐付けるべきか、不明
+//			_groupManagerBody._modifyler._asyncCanceler.SetParent( _asyncCancelerOnDispose );
+		}
+
+
 		protected virtual void SetSceneName()
 			=> _name = this.GetAboutName().RemoveAtLast( "SMScene" );
 
@@ -108,7 +112,7 @@ namespace SubmarineMirage.Scene {
 
 
 		public bool IsInBuild()
-			=> _owner._body.IsExistSceneInBuild( _rawScene.path );
+			=> _owner.IsExistSceneInBuild( _rawScene.path );
 
 
 		public T GetBehaviour<T>() where T : SMBehaviour

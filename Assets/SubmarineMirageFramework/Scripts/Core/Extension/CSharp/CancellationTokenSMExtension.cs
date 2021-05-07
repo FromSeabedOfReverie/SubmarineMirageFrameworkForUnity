@@ -8,9 +8,6 @@ namespace SubmarineMirage.Extension {
 	using System.Threading;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class CancellationTokenSMExtension {
 		public static CancellationTokenSource Link( this CancellationToken self, CancellationToken add ) {
 			return CancellationTokenSource.CreateLinkedTokenSource( self, add );

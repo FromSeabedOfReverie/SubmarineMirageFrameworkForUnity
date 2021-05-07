@@ -9,10 +9,6 @@ namespace SubmarineMirage.Debug {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public static class DebugSetter {
 		[SMShowLine] public static bool s_isDevelop	{ get; private set; }
 		[SMShowLine] public static bool s_isUnityEditor	{ get; private set; }

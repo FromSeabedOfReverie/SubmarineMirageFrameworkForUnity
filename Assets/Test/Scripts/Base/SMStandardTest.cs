@@ -12,9 +12,6 @@ namespace SubmarineMirage.TestBase {
 	using Debug.ToString;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public abstract class SMStandardTest : BaseSMTest, ISMStandardBase {
 		public SMDisposable _disposables	{ get; private set; } = new SMDisposable();
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;

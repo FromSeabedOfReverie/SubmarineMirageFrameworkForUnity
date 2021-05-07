@@ -12,9 +12,6 @@ namespace SubmarineMirage.TestBase.Test {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public class TestSMTestBody : SMStandardBase {
 		BaseSMTest _owner	{ get; set; }
 		SMAsyncCanceler _asyncCanceler => _owner._asyncCanceler;

@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/SampleApplication/Scenes/Title.unity
     guid: 9cd1eea21fddc074d81d90400b560ea2
   - enabled: 1
+    path: Assets/SampleApplication/Scenes/Game.unity
+    guid: cdc8ce4c018423d4e9dac7b1dc363a25
+  - enabled: 1
     path: Assets/SampleApplication/Scenes/GameOver.unity
     guid: c5fc3437e90d4c04593422c03ef2a5fe
   - enabled: 1

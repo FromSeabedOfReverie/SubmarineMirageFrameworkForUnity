@@ -5,12 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event.Modifyler {
-	using Event.Modifyler.Base;
 	using Extension;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public class RemoveSMEvent<T> : SMEventModifyData<T> {

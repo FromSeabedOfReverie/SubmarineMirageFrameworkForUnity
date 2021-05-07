@@ -10,10 +10,6 @@ namespace SubmarineMirage.Debug.ToString.Data {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMToStringData : BaseSMToStringData {
 		[SMShowLine] public string _name	{ get; set; }
 		[SMShowLine] public Func<int, string> _valueEvent	{ get; set; }

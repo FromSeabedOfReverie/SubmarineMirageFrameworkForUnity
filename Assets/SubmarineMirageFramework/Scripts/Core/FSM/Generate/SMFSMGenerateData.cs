@@ -8,26 +8,22 @@ namespace SubmarineMirage.FSM {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
-	using SubmarineMirage.Base;
-	using FSM.State.Base;
+	using Base;
+	using FSM.State;
 	using Extension;
 	using Debug;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
-	public class SMFSMGenerateData<T> : SMLightBase where T : BaseSMState {
-		public IEnumerable<T> _states	{ get; private set; }
+	public class SMFSMGenerateData : SMLightBase {
+		public IEnumerable<SMState> _states	{ get; private set; }
 		IEnumerable<Type> _stateTypes	{ get; set; }
 		public Type _baseStateType		{ get; private set; }
 		public Type _startStateType		{ get; private set; }
 		public bool _isInitialEnter		{ get; private set; }
 
 
-		public SMFSMGenerateData( IEnumerable<T> states, Type baseStateType, Type startStateType,
+		public SMFSMGenerateData( IEnumerable<SMState> states, Type baseStateType, Type startStateType,
 									bool isInitialEnter
 		) {
 			_states = states;
@@ -55,7 +51,7 @@ namespace SubmarineMirage.FSM {
 		public void CreateStates() {
 			if ( _stateTypes == null )	{ return; }
 
-			_states = _stateTypes.Select( t => t.Create<T>() );
+			_states = _stateTypes.Select( t => t.Create<SMState>() );
 			_stateTypes = null;
 		}
 	}

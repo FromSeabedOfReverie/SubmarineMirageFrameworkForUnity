@@ -8,9 +8,6 @@ namespace SubmarineMirage.Extension {
 	using UnityEngine;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class Vector3IntSMExtension {
 		public static readonly Vector3Int s_positiveInfinity = new Vector3Int(
 			int.MaxValue,

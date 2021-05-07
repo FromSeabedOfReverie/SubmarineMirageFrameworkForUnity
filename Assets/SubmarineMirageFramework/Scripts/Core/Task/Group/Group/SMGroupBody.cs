@@ -15,10 +15,6 @@ namespace SubmarineMirage.Task {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMGroupBody : SMTask {
 		public SMGroup _group	{ get; private set; }
 		public SMGroupManagerBody _managerBody	{ get; set; }
@@ -259,14 +255,14 @@ namespace SubmarineMirage.Task {
 			newTarget._modifyler,
 			d => {
 				var gd = ( SMGroupModifyData )d;
-				return gd._target._groupBody == newTarget;
+				return gd._object._groupBody == newTarget;
 			}
 		);
 
 		public void UnregisterModifyler( SMObjectBody remove ) => _modifyler.Unregister(
 			d => {
 				var gd = ( SMGroupModifyData )d;
-				return gd._target == remove;
+				return gd._object == remove;
 			}
 		);
 	}

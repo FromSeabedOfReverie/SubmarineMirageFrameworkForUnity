@@ -14,9 +14,6 @@ namespace SubmarineMirage.TestBase {
 	using Debug;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public abstract class SMRawTest : BaseSMTest, ISMRawBase {
 		public CompositeDisposable _disposables	{ get; private set; } = new CompositeDisposable();
 		[SMShowLine] public bool _isDispose => _disposables.IsDisposed;

@@ -9,10 +9,7 @@ namespace SubmarineMirage.EditorUtility {
 	using UnityEditor;
 
 
-	// TODO : コメント追加、整頓
-
-
-	// TODO : ライセンスに未記入
+// TODO : ライセンスに未記入
 	// 参考URL : https://gist.github.com/baba-s/4db42702de8b4254251dc05f15ac6a10
 	public static class ConsoleEditorSMUtility {
 		public static void Clear() {

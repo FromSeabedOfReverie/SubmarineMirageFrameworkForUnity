@@ -8,9 +8,6 @@ namespace SubmarineMirage.Extension {
 	using UnityEngine;
 
 
-	// TODO : コメント追加、整頓
-
-
 	public static class Vector3SMExtension {
 		public static Vector3 Mult( this Vector3 self, Vector3 v ) => new Vector3(
 			self.x * v.x,

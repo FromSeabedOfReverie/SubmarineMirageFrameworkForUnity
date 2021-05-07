@@ -10,16 +10,11 @@ namespace SubmarineMirage.Task {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
-	using Task.Base;
+	using Base;
 	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
-
-
-
-	// TODO : コメント追加、整頓
 
 
 

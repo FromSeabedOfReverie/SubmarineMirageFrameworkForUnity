@@ -4,16 +4,19 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.Modifyler.Base {
+namespace SubmarineMirage.FSM.Modifyler {
 	using SubmarineMirage.Modifyler;
-	using FSM.Base;
 
 
 
-	// TODO : コメント追加、整頓
+	public abstract class SMFSMModifyData : SMModifyData {
+		public new SMFSMBody _target { get; private set; }
 
 
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
 
-	public abstract class SMFSMModifyData : SMModifyData<SMFSMBody, SMFSMModifyData> {
+			_target = ( SMFSMBody )base._target;
+		}
 	}
 }

@@ -10,13 +10,9 @@ namespace SubmarineMirage.Scene {
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class OpenWorldCenter : SMBehaviour {
 		public override void Create() {
-			var scene = (OpenWorldSMScene)_object._body._groupBody._managerBody._scene;
+			var scene = ( OpenWorldSMScene )_object._body._groupBody._managerBody._scene;
 			scene.Setup( this );
 
 			var test = new Test.TestOpenWorldCenter( this, scene );

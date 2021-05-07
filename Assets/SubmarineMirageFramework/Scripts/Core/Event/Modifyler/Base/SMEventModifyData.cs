@@ -4,14 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Event.Modifyler.Base {
+namespace SubmarineMirage.Event.Modifyler {
 	using System.Collections.Generic;
-	using SubmarineMirage.Base;
-	using Event.Base;
+	using Base;
 	using Debug;
-
-
-	// TODO : コメント追加、整頓
 
 
 	public abstract class SMEventModifyData<T> : SMLightBase {

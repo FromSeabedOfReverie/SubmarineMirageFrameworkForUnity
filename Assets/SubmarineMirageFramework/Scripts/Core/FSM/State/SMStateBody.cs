@@ -4,23 +4,18 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM.State.Base {
+namespace SubmarineMirage.FSM.State {
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
+	using Base;
 	using Event;
-	using FSM.Base;
 	using Utility;
 	using Debug;
 
 
 
-	// TODO : コメント追加、整頓
-
-
-
 	public class SMStateBody : SMStandardBase {
-		public BaseSMState _state		{ get; private set; }
-		public IBaseSMFSMOwner _owner	{ get; private set; }
+		public SMState _state		{ get; private set; }
+		public ISMFSMOwner _owner	{ get; private set; }
 		public SMFSMBody _fsmBody		{ get; private set; }
 
 		[SMShowLine] public SMStateRunState _ranState			{ get; set; }
@@ -45,7 +40,7 @@ namespace SubmarineMirage.FSM.State.Base {
 
 
 
-		public SMStateBody( BaseSMState state ) {
+		public SMStateBody( SMState state ) {
 			_state = state;
 
 			_disposables.AddLast( () => {
@@ -71,9 +66,9 @@ namespace SubmarineMirage.FSM.State.Base {
 		public override void Dispose() => base.Dispose();
 
 
-		public void Setup( IBaseSMFSMOwner owner, SMFSMBody fsmBody ) {
+		public void Setup( ISMFSMOwner owner, SMFSM fsm ) {
 			_owner = owner;
-			_fsmBody = fsmBody;
+			_fsmBody = fsm._body;
 		}
 
 

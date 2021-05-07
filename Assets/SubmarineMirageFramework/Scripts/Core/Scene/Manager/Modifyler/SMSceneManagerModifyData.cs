@@ -4,24 +4,20 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene.Modifyler.Base {
-	using Task.Modifyler.Base;
-	using Scene.Base;
-	using Utility;
-	using Debug;
+namespace SubmarineMirage.Scene.Modifyler {
+	using SubmarineMirage.Modifyler;
+	using Task.Modifyler;
 
 
 
-	// TODO : コメント追加、整頓
+	public abstract class SMSceneManagerModifyData : SMTaskModifyData {
+		public new SMSceneManagerBody _target { get; private set; }
 
 
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
 
-	public class SMSceneManagerModifyler
-		: SMTaskModifyler<SMSceneManagerBody, SMSceneManagerModifyler, SMSceneManagerModifyData>
-	{
-		protected override SMAsyncCanceler _asyncCanceler => _target._asyncCancelerOnDispose;
-
-
-		public SMSceneManagerModifyler( SMSceneManagerBody owner ) : base( owner ) {}
+			_target = ( SMSceneManagerBody )base._target;
+		}
 	}
 }
