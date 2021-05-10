@@ -23,7 +23,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 				_target._stateBody = null;
 			}
 
-			_modifyler.Dispose();
+			_modifyler.Reset();
 		}
 	}
 }

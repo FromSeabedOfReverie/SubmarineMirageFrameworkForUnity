@@ -41,10 +41,9 @@ namespace SubmarineMirage.Task {
 		public void SetupSceneUpdating( ReactiveProperty<bool> isSceneUpdating ) {
 			if ( isSceneUpdating == null ) { return; }
 
-
+			_isSceneUpdating = isSceneUpdating;
 			_modifyler._isCanRunEvent = () => !_isSceneUpdating.Value;
 
-			_isSceneUpdating = isSceneUpdating;
 			_disposables.AddLast(
 				_isSceneUpdating
 					.Where( b => !b )

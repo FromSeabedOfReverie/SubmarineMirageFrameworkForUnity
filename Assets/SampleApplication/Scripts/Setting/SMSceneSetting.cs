@@ -27,13 +27,14 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 					typeof( TitleSMScene ),
 					typeof( GameSMScene ),
 //					typeof( FieldSMScene ),
-					typeof( GameOverSMScene ),
-					typeof( GameClearSMScene ),
+//					typeof( GameOverSMScene ),
+//					typeof( GameClearSMScene ),
 					typeof( UnknownSMScene ),
 				},
 				typeof( MainSMScene ),
 				null,
 				false
+/*
 			}, {
 				new Type[] { typeof( UISMScene ), },
 				typeof( UISMScene ),
@@ -44,6 +45,7 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 				typeof( DebugSMScene ),
 				null,
 				false
+*/
 			},
 		};
 

@@ -11,27 +11,36 @@ namespace SubmarineMirage.EditorScene {
 	using KoganeUnityLib;
 	using Task;
 	using Scene;
+	using Service;
 	using Extension;
 	using Debug;
 	using EditorExtension;
 
 
 
-	[CustomEditor( typeof( SMSceneManager ) )]
-	public class SMSceneManagerEditor : EditorSMExtension {
-		SMSceneManager _instance	{ get; set; }
+	public class SMSceneManagerEditor : EditorWindowSMExtension {
 		Vector2 _scrollPosition	{ get; set; }
 		string _focusedText	{ get; set; } = string.Empty;
+		SMSceneManager _sceneManager;
 
 
 		public override void Dispose()	{}
 
 
-		public override void OnInspectorGUI() {
-			base.OnInspectorGUI();
+		[MenuItem( "Window/SubmarineMirage/SceneManager" )]
+		static void Open() => GetWindow<SMSceneManagerEditor>();
 
-			if ( target == null )	{ return; }
-			_instance = ( SMSceneManager )target;
+
+		void OnGUI() {
+			var name = nameof( SMSceneManager );
+			titleContent = new GUIContent( name );
+			ShowHeading1( name );
+
+			_sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
+			if ( _sceneManager == null ) {
+				ShowDispose();
+				return;
+			}
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
 			ShowAllGroups();
@@ -45,8 +54,13 @@ namespace SubmarineMirage.EditorScene {
 		}
 
 
+		void ShowDispose() {
+			ShowHeading2( nameof( SMServiceLocator.s_isDisposed ) );
+		}
+
+
 		void ShowAllGroups() {
-			_instance._fsm.GetFSMs().ForEach( fsm => {
+			_sceneManager._fsm.GetFSMs().ForEach( fsm => {
 				ShowHeading1( fsm._fsmType.GetAboutName() );
 
 				EditorGUI.indentLevel++;
@@ -63,6 +77,7 @@ namespace SubmarineMirage.EditorScene {
 			} );
 			EditorGUILayout.Space();
 		}
+
 
 		void ShowGroup( SMGroupBody groupBody ) {
 			EditorGUI.indentLevel++;
@@ -83,13 +98,14 @@ namespace SubmarineMirage.EditorScene {
 			EditorGUI.indentLevel--;
 		}
 
+
 		void ShowObject( SMObjectBody objectBody ) {
 			EditorGUI.indentLevel++;
 
 			GUI.SetNextControlName( string.Join( "\n",
 				$"{objectBody._id}",
 
-				objectBody._gameObject.name,
+				objectBody._gameObject != null ? objectBody._gameObject.name : "null",
 				string.Join( "\n", objectBody._behaviourBody.GetBrothers().Select( b =>
 					$"    {b.ToLineString()}"
 				) ),
@@ -111,6 +127,7 @@ namespace SubmarineMirage.EditorScene {
 			EditorGUI.indentLevel--;
 		}
 
+
 		void ShowDetail() {
 			ShowLine();
 			ShowHeading1( "Detail" );
@@ -120,6 +137,7 @@ namespace SubmarineMirage.EditorScene {
 				.ForEach( s => EditorGUILayout.LabelField( s ) );
 			EditorGUI.indentLevel--;
 		}
+
 
 		void ShowLine() {
 			GUILayout.Box(

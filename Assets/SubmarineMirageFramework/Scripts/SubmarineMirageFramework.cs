@@ -73,6 +73,7 @@ namespace SubmarineMirage {
 			await initializePluginEvent();
 			SMServiceLocator.Register<SMDecorationManager>();
 			SMServiceLocator.Register<SMLog>();
+			SMServiceLocator.Register<MainThreadDispatcherSMExtension>();
 //			SMServiceLocator.Register<SMTagManager>();
 //			SMServiceLocator.Register<SMLayerManager>();
 //			SMServiceLocator.Register<SMTimeManager>();
@@ -89,11 +90,6 @@ namespace SubmarineMirage {
 			}
 
 			_isInitialized = true;
-
-			return;
-			var hoge = SMServiceLocator.Resolve<SMSceneManager>();
-			SMLog.Debug( hoge?.ToString() );
-			SMLog.Debug( hoge?.ToLineString() );
 		}
 
 

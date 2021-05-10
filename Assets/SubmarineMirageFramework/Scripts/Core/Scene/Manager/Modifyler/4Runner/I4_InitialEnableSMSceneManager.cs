@@ -20,9 +20,7 @@ namespace SubmarineMirage.Scene.Modifyler {
 			if ( _target._ranState != SMTaskRunState.Initialize )	{ return; }
 
 
-			if (	_target.IsActiveInHierarchyAndComponent() &&
-					_target._activeState != SMTaskActiveState.Enable
-			) {
+			if ( _target._activeState != SMTaskActiveState.Enable ) {
 				_target._enableEvent.Run();
 				_target._activeState = SMTaskActiveState.Enable;
 			}

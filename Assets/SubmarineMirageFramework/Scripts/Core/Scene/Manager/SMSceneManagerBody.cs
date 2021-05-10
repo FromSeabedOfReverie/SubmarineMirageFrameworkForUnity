@@ -29,8 +29,8 @@ namespace SubmarineMirage.Scene {
 
 		public SMFSM _foreverFSM	{ get; set; }
 		public SMFSM _mainFSM		{ get; set; }
-		public SMFSM _uiFSM		{ get; set; }
-		public SMFSM _debugFSM	{ get; set; }
+		public SMFSM _uiFSM			{ get; set; }
+		public SMFSM _debugFSM		{ get; set; }
 
 		public SMScene _foreverScene	{ get; set; }
 		Scene _rawSceneUntilDispose	{ get; set; }
@@ -79,6 +79,15 @@ namespace SubmarineMirage.Scene {
 			_sceneManager = sceneManager;
 			_rawSceneUntilDispose = SceneManager.CreateScene( "UntilDispose" );
 
+			_disposables.AddLast(
+				Observable.EveryFixedUpdate().Subscribe( _ => FixedUpdate() ),
+				Observable.EveryUpdate().Subscribe( _ => Update() ),
+				Observable.EveryLateUpdate().Subscribe( _ => LateUpdate() )
+#if DEVELOP
+				,
+				UniRxSMExtension.EveryOnGUI().Subscribe( _ => OnGUI() )
+#endif
+			);
 
 			_disposables.AddLast( () => {
 				_isFinalizing = true;
@@ -112,11 +121,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public bool IsActiveInHierarchyAndComponent()
-			=> _sceneManager.gameObject.activeInHierarchy && _sceneManager.enabled;
-
-
-
 		public async UniTask Initialize() {
 			await _modifyler.RegisterAndRun( new CreateSMSceneManager() );
 			await _modifyler.RegisterAndRun( new SelfInitializeSMSceneManager() );
@@ -131,7 +135,7 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public void FixedUpdate() {
+		void FixedUpdate() {
 			if ( !_isOperable )	{ return; }
 			if ( !_isActive )	{ return; }
 			if ( _ranState < SMTaskRunState.InitialEnable )	{ return; }
@@ -144,7 +148,7 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public void Update() {
+		void Update() {
 			if ( !_isOperable )	{ return; }
 			if ( !_isActive )	{ return; }
 			if ( _ranState < SMTaskRunState.FixedUpdate )	{ return; }
@@ -157,7 +161,7 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public void LateUpdate() {
+		void LateUpdate() {
 			if ( !_isOperable )	{ return; }
 			if ( !_isActive )		{ return; }
 			if ( _ranState < SMTaskRunState.Update )	{ return; }
@@ -171,7 +175,7 @@ namespace SubmarineMirage.Scene {
 
 
 #if DEVELOP
-		public void OnGUI() {
+		void OnGUI() {
 			_onGUIEvent.Run();
 		}
 #endif

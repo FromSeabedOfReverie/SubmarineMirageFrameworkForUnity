@@ -30,7 +30,6 @@ namespace SubmarineMirage.Debug {
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;
 		public SMToStringer _toStringer	{ get; private set; }
 		SMDecorationManager _decorationManager	{ get; set; }
-
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------

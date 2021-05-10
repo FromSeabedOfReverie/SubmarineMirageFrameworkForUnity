@@ -11,6 +11,7 @@ namespace SubmarineMirage.Scene.Test {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Base;
+	using Service;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -19,6 +20,7 @@ namespace SubmarineMirage.Scene.Test {
 
 	public class TestSMSceneManager : SMStandardBase {
 		SMSceneManager _sceneManager;
+		DebugDisplay _debugDisplay;
 
 
 		public TestSMSceneManager( SMSceneManager sceneManager ) {
@@ -48,6 +50,16 @@ namespace SubmarineMirage.Scene.Test {
 //					SMLog.Debug( _sceneManager._mainFSM._body._modifyler.ToString() );
 				} )
 			);
+/*
+			UTask.Void( async () => {
+				_debugDisplay =
+					await SMServiceLocator.WaitResolve<DebugDisplay>( _sceneManager._asyncCancelerOnDispose );
+			} );
+			_sceneManager._updateEvent.AddLast().Subscribe( _ => {
+				if ( _debugDisplay == null )	{ return; }
+				_debugDisplay.Add( $"{_sceneManager.GetAboutName()} : { _sceneManager._body._ranState }" );
+			} );
+*/
 		}
 
 
@@ -84,10 +96,11 @@ namespace SubmarineMirage.Scene.Test {
 			_sceneManager._lateUpdateEvent.AddLast().Subscribe( _ => {
 				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._lateUpdateEvent )}" );
 			} );
-
+/*
 			_sceneManager._onGUIEvent.AddLast().Subscribe( _ => {
 				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._onGUIEvent )}" );
 			} );
+*/
 		}
 	}
 }

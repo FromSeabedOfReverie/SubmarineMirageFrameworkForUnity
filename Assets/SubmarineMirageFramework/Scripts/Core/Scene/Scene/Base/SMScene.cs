@@ -46,13 +46,13 @@ namespace SubmarineMirage.Scene {
 			_disposables.AddLast( () => {
 				_groupManagerBody._manager.Dispose();
 			} );
-/*
+///*
 			var test = new Test.TestSMScene( this );
 			test.SetEvent();
 			_disposables.AddLast( () => {
 				test.Dispose();
 			} );
-*/
+//*/
 
 
 			_enterEvent.AddLast( _registerEventName, async canceler => {
