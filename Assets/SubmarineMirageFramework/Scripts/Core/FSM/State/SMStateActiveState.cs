@@ -8,10 +8,8 @@ namespace SubmarineMirage.FSM.State {
 
 
 
-	public enum SMStateUpdateState {
+	public enum SMStateActiveState {
 		Disable,
-		FixedUpdate,
-		Update,
-		LateUpdate,
+		Enable,
 	}
 }

@@ -31,10 +31,11 @@ namespace SubmarineMirage.FSM {
 		public SMFSMBody _previous	{ get; set; }
 		public SMFSMBody _next		{ get; set; }
 
-		[SMShowLine] public Type _baseStateType	{ get; protected set; }
-		[SMShow] public Type _startStateType	{ get; set; }
-		[SMShow] public string _registerEventName	{ get; private set; }
-		[SMShow] public bool _isInitialEntered		{ get; set; }
+		[SMShowLine] public Type _baseStateType			{ get; private set; }
+		[SMShow] public Type _startStateType			{ get; set; }
+		[SMShow] public string _registerEventName		{ get; private set; }
+		[SMShow] public bool _isInitialEntered			{ get; set; }
+		[SMShow] public bool _isLockBeforeInitialize	{ get; private set; }
 
 		public bool _isInitialized	=> _owner._isInitialized;
 		public bool _isOperable	=> _owner._isOperable;
@@ -103,7 +104,8 @@ namespace SubmarineMirage.FSM {
 
 
 		public void Setup( ISMFSMOwner owner, IEnumerable<SMState> states,
-							Type baseStateType, Type startStateType, bool isInitialEnter
+							Type baseStateType, Type startStateType,
+							bool isInitialEnter, bool isLockBeforeInitialize
 		) {
 			_owner = owner;
 			SetupStates( states, baseStateType, startStateType );
@@ -141,11 +143,12 @@ namespace SubmarineMirage.FSM {
 			} );
 
 
+			_isLockBeforeInitialize = isLockBeforeInitialize;
 			if ( isInitialEnter )	{ InitialEnter( true ).Forget(); }
 		}
 
 		void SetupStates( IEnumerable<SMState> states, Type baseStateType, Type startStateType ) {
-			_baseStateType = baseStateType;
+			_baseStateType = baseStateType ?? typeof( SMState );
 			_registerEventName = $"{_fsm.GetAboutName()}<{_baseStateType.GetAboutName()}>";
 
 			_stateBodies = states.ToDictionary(

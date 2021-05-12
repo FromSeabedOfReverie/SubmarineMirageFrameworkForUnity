@@ -29,11 +29,15 @@ namespace SubmarineMirage.FSM {
 
 
 		public void Add( IEnumerable<SMState> states, Type baseStateType = null, Type startStateType = null,
-							bool isInitialEnter = true
-		) => _data.Add( new SMFSMGenerateData( states, baseStateType, startStateType, isInitialEnter ) );
+							bool isInitialEnter = true, bool isLockBeforeInitialize = false
+		) => _data.Add( new SMFSMGenerateData(
+			states, baseStateType, startStateType, isInitialEnter, isLockBeforeInitialize
+		) );
 
 		public void Add( IEnumerable<Type> stateTypes, Type baseStateType = null, Type startStateType = null,
-							bool isInitialEnter = true
-		) => _data.Add( new SMFSMGenerateData( stateTypes, baseStateType, startStateType, isInitialEnter ) );
+							bool isInitialEnter = true, bool isLockBeforeInitialize = false
+		) => _data.Add( new SMFSMGenerateData(
+			stateTypes, baseStateType, startStateType, isInitialEnter, isLockBeforeInitialize
+		) );
 	}
 }

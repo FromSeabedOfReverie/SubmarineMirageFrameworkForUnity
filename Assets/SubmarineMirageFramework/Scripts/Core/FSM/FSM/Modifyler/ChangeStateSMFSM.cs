@@ -25,7 +25,14 @@ namespace SubmarineMirage.FSM.Modifyler {
 
 		public override async UniTask Run() {
 			if ( _target._isFinalizing )		{ return; }
+
 			if ( !_target._isInitialEntered ) {
+				if ( _target._isLockBeforeInitialize ) {
+					throw new InvalidOperationException( string.Join( "\n",
+						$"初期遷移前の状態遷移は、ロック中 : {_stateType}",
+						nameof( _target._isLockBeforeInitialize )
+					) );
+				}
 				_target._startStateType = _stateType;
 				return;
 			}
@@ -42,6 +49,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 			_target.StopAsyncOnDisableAndExit();
 
 			if ( _target._stateBody != null ) {
+				_target._stateBody.Disable();
 				await _target._stateBody.Exit();
 			}
 			if ( _modifyler._isHaveData ) {
@@ -53,6 +61,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 			if ( _target._stateBody == null )	{ return; }
 
 			await _target._stateBody.Enter();
+			_target._stateBody.Enable();
 			if ( _modifyler._isHaveData )	{ return; }
 
 			_target._stateBody.UpdateAsync();

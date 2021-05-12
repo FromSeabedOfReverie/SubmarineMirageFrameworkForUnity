@@ -38,8 +38,8 @@ namespace SubmarineMirage.Scene.Test {
 				typeof( TitleSMScene ),
 				typeof( GameSMScene ),
 //				typeof( FieldSMScene ),
-				typeof( GameOverSMScene ),
-				typeof( GameClearSMScene ),
+//				typeof( GameOverSMScene ),
+//				typeof( GameClearSMScene ),
 			};
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
@@ -88,19 +88,17 @@ namespace SubmarineMirage.Scene.Test {
 			} );
 
 			_sceneManager._fixedUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._fixedUpdateEvent )}" );
+//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._fixedUpdateEvent )}" );
 			} );
 			_sceneManager._updateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._updateEvent )}" );
+//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._updateEvent )}" );
 			} );
 			_sceneManager._lateUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._lateUpdateEvent )}" );
+//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._lateUpdateEvent )}" );
 			} );
-/*
 			_sceneManager._onGUIEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._onGUIEvent )}" );
+//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._onGUIEvent )}" );
 			} );
-*/
 		}
 	}
 }

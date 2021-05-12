@@ -47,6 +47,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 			if ( _target._stateBody == null )	{ return; }
 
 			await _target._stateBody.Enter();
+			_target._stateBody.Enable();
 			_target._isInitialEntered = true;
 
 			if ( !_target._owner._isInitialEnteredFSMs ) {

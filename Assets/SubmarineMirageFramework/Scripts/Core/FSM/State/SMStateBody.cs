@@ -8,6 +8,7 @@ namespace SubmarineMirage.FSM.State {
 	using Cysharp.Threading.Tasks;
 	using Base;
 	using Event;
+	using Extension;
 	using Utility;
 	using Debug;
 
@@ -18,9 +19,10 @@ namespace SubmarineMirage.FSM.State {
 		public ISMFSMOwner _owner	{ get; private set; }
 		public SMFSMBody _fsmBody		{ get; private set; }
 
-		[SMShowLine] public SMStateRunState _ranState			{ get; set; }
-		[SMShowLine] public SMStateUpdateState _updatedState	{ get; set; }
-		[SMShowLine] public bool _isUpdating					{ get; set; }
+		[SMShowLine] public SMStateRunState _ranState		{ get; set; }
+		[SMShowLine] public SMStateActiveState _activeState	{ get; set; }
+		public bool _isActive => _activeState == SMStateActiveState.Enable;
+		[SMShowLine] public bool _isUpdating				{ get; set; }
 
 		public readonly SMAsyncEvent _selfInitializeEvent = new SMAsyncEvent();
 		public readonly SMAsyncEvent _initializeEvent = new SMAsyncEvent();
@@ -45,7 +47,7 @@ namespace SubmarineMirage.FSM.State {
 
 			_disposables.AddLast( () => {
 				_ranState = SMStateRunState.Exit;
-				_updatedState = SMStateUpdateState.Disable;
+				_activeState = SMStateActiveState.Disable;
 				_isUpdating = false;
 
 				_selfInitializeEvent.Dispose();
@@ -84,46 +86,55 @@ namespace SubmarineMirage.FSM.State {
 
 
 
-		public void Enable()
-			=> _enableEvent.Run();
+		public void Enable() {
+			if ( _isActive )	{ return; }
+
+			_enableEvent.Run();
+			_activeState = SMStateActiveState.Enable;
+		}
 
 		public void Disable() {
-			_updatedState = SMStateUpdateState.Disable;
+			if ( !_isActive )	{ return; }
+
 			_disableEvent.Run();
+			_activeState = SMStateActiveState.Disable;
 		}
 
 
 
 		public void FixedUpdate() {
-			if ( _ranState != SMStateRunState.Update )			{ return; }
-			if ( _updatedState < SMStateUpdateState.Disable )	{ return; }
+			if ( !_isActive )	{ return; }
+			if ( _ranState < SMStateRunState.UpdateEnter )	{ return; }
 
 			_fixedUpdateEvent.Run();
 
-			if ( _updatedState == SMStateUpdateState.Disable ) {
-				_updatedState = SMStateUpdateState.FixedUpdate;
+			if ( _ranState == SMStateRunState.UpdateEnter ) {
+				_ranState = SMStateRunState.FixedUpdate;
+//				SMLog.Debug( $"{_state.GetAboutName()}.{nameof( FixedUpdate )} : First" );
 			}
 		}
 
 		public void Update() {
-			if ( _ranState != SMStateRunState.Update )				{ return; }
-			if ( _updatedState < SMStateUpdateState.FixedUpdate )	{ return; }
+			if ( !_isActive )	{ return; }
+			if ( _ranState < SMStateRunState.FixedUpdate )	{ return; }
 
 			_updateEvent.Run();
 
-			if ( _updatedState == SMStateUpdateState.FixedUpdate ) {
-				_updatedState = SMStateUpdateState.Update;
+			if ( _ranState == SMStateRunState.FixedUpdate ) {
+				_ranState = SMStateRunState.Update;
+//				SMLog.Debug( $"{_state.GetAboutName()}.{nameof( Update )} : First" );
 			}
 		}
 
 		public void LateUpdate() {
-			if ( _ranState != SMStateRunState.Update )			{ return; }
-			if ( _updatedState < SMStateUpdateState.Update )	{ return; }
+			if ( !_isActive )	{ return; }
+			if ( _ranState < SMStateRunState.Update )	{ return; }
 
 			_lateUpdateEvent.Run();
 
-			if ( _updatedState == SMStateUpdateState.Update ) {
-				_updatedState = SMStateUpdateState.LateUpdate;
+			if ( _ranState == SMStateRunState.Update ) {
+				_ranState = SMStateRunState.LateUpdate;
+//				SMLog.Debug( $"{_state.GetAboutName()}.{nameof( LateUpdate )} : First" );
 			}
 		}
 
@@ -139,20 +150,17 @@ namespace SubmarineMirage.FSM.State {
 		public async UniTask Exit() {
 			if ( _ranState == SMStateRunState.Exit )	{ return; }
 
-			_updatedState = SMStateUpdateState.Disable;
-			_ranState = SMStateRunState.Enter;
-
 			await _exitEvent.Run( _asyncCancelerOnDisableAndExit );
 			_ranState = SMStateRunState.Exit;
 		}
 
 		public void UpdateAsync() {
-			if ( _ranState == SMStateRunState.Exit )	{ return; }
+			if ( _ranState != SMStateRunState.Enter )	{ return; }
 			if ( _isUpdating )	{ return; }
 
 			UTask.Void( async () => {
 				try {
-					_ranState = SMStateRunState.Update;
+					_ranState = SMStateRunState.UpdateEnter;
 					_isUpdating = true;
 					await _updateAsyncEvent.Run( _asyncCancelerOnDisableAndExit );
 				} finally {

@@ -60,7 +60,7 @@ namespace SubmarineMirage.Scene {
 
 ///*
 			var test = new Test.TestSMSceneManager( this );
-			test.SetEvent();
+//			test.SetEvent();
 			_disposables.AddLast( () => {
 				test.Dispose();
 			} );

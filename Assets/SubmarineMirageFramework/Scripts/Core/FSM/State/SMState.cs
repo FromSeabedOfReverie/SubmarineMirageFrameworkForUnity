@@ -18,7 +18,7 @@ namespace SubmarineMirage.FSM.State {
 		public SMFSM _fsm => _body._fsmBody._fsm;
 
 		public SMStateRunState _ranState => _body._ranState;
-		public SMStateUpdateState _updatedState => _body._updatedState;
+		public bool _isActive => _body._isActive;
 		public bool _isUpdating => _body._isUpdating;
 
 		public SMAsyncEvent _selfInitializeEvent => _body._selfInitializeEvent;

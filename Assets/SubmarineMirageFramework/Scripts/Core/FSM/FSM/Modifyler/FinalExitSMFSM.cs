@@ -19,6 +19,7 @@ namespace SubmarineMirage.FSM.Modifyler {
 			_target.StopAsyncOnDisableAndExit();
 
 			if ( _target._stateBody != null ) {
+				_target._stateBody.Disable();
 				await _target._stateBody.Exit();
 				_target._stateBody = null;
 			}

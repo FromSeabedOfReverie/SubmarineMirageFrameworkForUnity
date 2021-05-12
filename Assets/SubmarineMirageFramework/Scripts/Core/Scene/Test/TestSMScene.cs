@@ -47,13 +47,13 @@ namespace SubmarineMirage.Scene.Test {
 			} );
 
 			_scene._fixedUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._fixedUpdateEvent )}" );
+//				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._fixedUpdateEvent )}" );
 			} );
 			_scene._updateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._updateEvent )}" );
+//				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._updateEvent )}" );
 			} );
 			_scene._lateUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._lateUpdateEvent )}" );
+//				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._lateUpdateEvent )}" );
 			} );
 
 			_scene._enterEvent.AddLast( async canceler => {

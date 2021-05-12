@@ -144,7 +144,10 @@ namespace SubmarineMirage.Scene {
 			_fixedUpdateEvent.Run();
 			_isUpdating.Value = false;
 
-			if ( _ranState == SMTaskRunState.InitialEnable )	{ _ranState = SMTaskRunState.FixedUpdate; }
+			if ( _ranState == SMTaskRunState.InitialEnable ) {
+				_ranState = SMTaskRunState.FixedUpdate;
+//				SMLog.Debug( $"{this.GetAboutName()}.{nameof( FixedUpdate )} : First" );
+			}
 		}
 
 
@@ -157,7 +160,10 @@ namespace SubmarineMirage.Scene {
 			_updateEvent.Run();
 			_isUpdating.Value = false;
 
-			if ( _ranState == SMTaskRunState.FixedUpdate )	{ _ranState = SMTaskRunState.Update; }
+			if ( _ranState == SMTaskRunState.FixedUpdate ) {
+				_ranState = SMTaskRunState.Update;
+//				SMLog.Debug( $"{this.GetAboutName()}.{nameof( Update )} : First" );
+			}
 		}
 
 
@@ -170,7 +176,10 @@ namespace SubmarineMirage.Scene {
 			_lateUpdateEvent.Run();
 			_isUpdating.Value = false;
 
-			if ( _ranState == SMTaskRunState.Update )	{ _ranState = SMTaskRunState.LateUpdate; }
+			if ( _ranState == SMTaskRunState.Update ) {
+				_ranState = SMTaskRunState.LateUpdate;
+//				SMLog.Debug( $"{this.GetAboutName()}.{nameof( LateUpdate )} : First" );
+			}
 		}
 
 

@@ -58,11 +58,10 @@ namespace SubmarineMirage.FSM {
 
 		public void Setup( ISMFSMOwner owner, IEnumerable<SMState> states,
 							Type baseStateType = null, Type startStateType = null,
-							bool isInitialEnter = true
-		) {
-			baseStateType = baseStateType ?? typeof( SMState );
-			_body.Setup( owner, states, baseStateType, startStateType, isInitialEnter );
-		}
+							bool isInitialEnter = true, bool isLockBeforeInitialize = false
+		) => _body.Setup(
+			owner, states, baseStateType, startStateType, isInitialEnter, isLockBeforeInitialize
+		);
 
 
 		public static SMFSM Generate( ISMFSMOwner owner, SMFSMGenerateList generateList ) {
@@ -72,7 +71,9 @@ namespace SubmarineMirage.FSM {
 				var current = typeof( SMFSM ).Create<SMFSM>();
 				data.CreateStates();
 				current.Setup(
-					owner, data._states, data._baseStateType, data._startStateType, data._isInitialEnter );
+					owner, data._states, data._baseStateType, data._startStateType,
+					data._isInitialEnter, data._isLockBeforeInitialize
+				);
 
 				if ( first == null )	{ first = current; }
 				last?._body.Link( current._body );

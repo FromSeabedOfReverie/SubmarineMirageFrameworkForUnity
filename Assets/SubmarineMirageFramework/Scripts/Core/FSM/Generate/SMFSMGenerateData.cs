@@ -17,28 +17,31 @@ namespace SubmarineMirage.FSM {
 
 	public class SMFSMGenerateData : SMLightBase {
 		public IEnumerable<SMState> _states	{ get; private set; }
-		IEnumerable<Type> _stateTypes	{ get; set; }
-		public Type _baseStateType		{ get; private set; }
-		public Type _startStateType		{ get; private set; }
-		public bool _isInitialEnter		{ get; private set; }
+		IEnumerable<Type> _stateTypes		{ get; set; }
+		public Type _baseStateType			{ get; private set; }
+		public Type _startStateType			{ get; private set; }
+		public bool _isInitialEnter			{ get; private set; }
+		public bool _isLockBeforeInitialize	{ get; private set; }
 
 
 		public SMFSMGenerateData( IEnumerable<SMState> states, Type baseStateType, Type startStateType,
-									bool isInitialEnter
+									bool isInitialEnter, bool isLockBeforeInitialize
 		) {
 			_states = states;
 			_baseStateType = baseStateType;
 			_startStateType = startStateType;
 			_isInitialEnter = isInitialEnter;
+			_isLockBeforeInitialize = isLockBeforeInitialize;
 		}
 
 		public SMFSMGenerateData( IEnumerable<Type> stateTypes, Type baseStateType, Type startStateType,
-									bool isInitialEnter
+									bool isInitialEnter, bool isLockBeforeInitialize
 		) {
 			_stateTypes = stateTypes;
 			_baseStateType = baseStateType;
 			_startStateType = startStateType;
 			_isInitialEnter = isInitialEnter;
+			_isLockBeforeInitialize = isLockBeforeInitialize;
 		}
 
 

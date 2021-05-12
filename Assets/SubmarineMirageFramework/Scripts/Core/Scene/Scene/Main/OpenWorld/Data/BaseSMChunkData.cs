@@ -90,10 +90,18 @@ namespace SubmarineMirage.Scene {
 
 		protected abstract UniTask ParallelReload( ChunkSMScene enterScene, ChunkSMScene exitScene );
 
-		protected UniTask Enter( ChunkSMScene scene )
-			=> scene?._body.Enter() ?? UTask.DontWait();
+		protected async UniTask Enter( ChunkSMScene scene ) {
+			if ( scene == null )	{ return; }
 
-		protected UniTask Exit( ChunkSMScene scene )
-			=> scene?._body.Exit() ?? UTask.DontWait();
+			await scene._body.Enter();
+			scene._body.Enable();
+		}
+
+		protected async UniTask Exit( ChunkSMScene scene ) {
+			if ( scene == null )	{ return; }
+
+			scene._body.Disable();
+			await scene._body.Exit();
+		}
 	}
 }

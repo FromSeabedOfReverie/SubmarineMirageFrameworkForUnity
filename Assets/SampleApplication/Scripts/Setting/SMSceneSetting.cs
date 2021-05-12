@@ -21,7 +21,8 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 				new Type[] { typeof( ForeverSMScene ), },
 				typeof( ForeverSMScene ),
 				null,
-				false
+				false,
+				true
 			}, {
 				new Type[] {
 					typeof( TitleSMScene ),
@@ -33,18 +34,21 @@ public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
 				},
 				typeof( MainSMScene ),
 				null,
-				false
+				false,
+				true
 /*
 			}, {
 				new Type[] { typeof( UISMScene ), },
 				typeof( UISMScene ),
 				null,
-				false
+				false,
+				true
 			}, {
 				new Type[] { typeof( DebugSMScene ), },
 				typeof( DebugSMScene ),
 				null,
-				false
+				false,
+				true
 */
 			},
 		};
