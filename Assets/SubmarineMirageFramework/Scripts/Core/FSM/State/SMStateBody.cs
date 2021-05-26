@@ -37,8 +37,8 @@ namespace SubmarineMirage.FSM.State {
 		public readonly SMAsyncEvent _updateAsyncEvent = new SMAsyncEvent();
 		public readonly SMAsyncEvent _exitEvent = new SMAsyncEvent();
 
-		public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _fsmBody._asyncCancelerOnDisableAndExit;
-		public SMAsyncCanceler _asyncCancelerOnDispose			=> _fsmBody._asyncCancelerOnDispose;
+		public SMAsyncCanceler _asyncCancelerOnDisableAndExit	=> _fsmBody?._asyncCancelerOnDisableAndExit;
+		public SMAsyncCanceler _asyncCancelerOnDispose			=> _fsmBody?._asyncCancelerOnDispose;
 
 
 

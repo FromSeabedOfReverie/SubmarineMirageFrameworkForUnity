@@ -11,6 +11,7 @@ namespace SubmarineMirage {
 	using UniRx;
 	using Base;
 	using Service;
+	using Task;
 	using Scene;
 	using Extension;
 	using Utility;
@@ -74,6 +75,7 @@ namespace SubmarineMirage {
 			SMServiceLocator.Register<SMDecorationManager>();
 			SMServiceLocator.Register<SMLog>();
 			SMServiceLocator.Register<MainThreadDispatcherSMExtension>();
+			SMServiceLocator.Register<SMTaskManager>();
 //			SMServiceLocator.Register<SMTagManager>();
 //			SMServiceLocator.Register<SMLayerManager>();
 //			SMServiceLocator.Register<SMTimeManager>();
@@ -81,8 +83,8 @@ namespace SubmarineMirage {
 			await registerSettingsEvent();
 
 			var scene = SMServiceLocator.Register<SMSceneManager>();
-			await scene._body.Initialize();
 			SMServiceLocator.Register<DebugDisplay>();
+			await scene._body.Initialize();
 
 			if ( s_isPlayTest ) {
 				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );

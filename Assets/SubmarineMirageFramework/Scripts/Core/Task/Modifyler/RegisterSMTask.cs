@@ -1,0 +1,36 @@
+//---------------------------------------------------------------------------------------------------------
+// ▽ Submarine Mirage Framework for Unity
+//		Copyright (c) 2020 夢想海の水底より(from Seabed of Reverie)
+//		Released under the MIT License :
+//			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
+//---------------------------------------------------------------------------------------------------------
+namespace SubmarineMirage.Task.Modifyler {
+	using Cysharp.Threading.Tasks;
+	using SubmarineMirage.Modifyler;
+	using Utility;
+	using Debug;
+
+
+
+	public class RegisterSMTask : SMTaskModifyData {
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
+		[SMShowLine] SMTask _task;
+
+
+		public RegisterSMTask( SMTask task ) {
+			_task = task;
+		}
+
+		protected override void Cancel() {
+			_task.Dispose();
+		}
+
+
+		public override async UniTask Run() {
+			var last = _target.GetLast( _task._type, true )._previous;
+			last.Link( _task );
+
+			await UTask.DontWait();
+		}
+	}
+}

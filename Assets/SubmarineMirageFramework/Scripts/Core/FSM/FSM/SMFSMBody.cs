@@ -37,24 +37,24 @@ namespace SubmarineMirage.FSM {
 		[SMShow] public bool _isInitialEntered			{ get; set; }
 		[SMShow] public bool _isLockBeforeInitialize	{ get; private set; }
 
-		public bool _isInitialized	=> _owner._isInitialized;
-		public bool _isOperable	=> _owner._isOperable;
-		public bool _isFinalizing	=> _owner._isFinalizing;
-		public bool _isActive		=> _owner._isActive;
+		public bool _isInitialized	=> _owner?._isInitialized ?? false;
+		public bool _isOperable		=> _owner?._isOperable ?? false;
+		public bool _isFinalizing	=> _owner?._isFinalizing ?? false;
+		public bool _isActive		=> _owner?._isActive ?? false;
 
 		public SMModifyler _modifyler { get; private set; }
 
-		public SMAsyncEvent _selfInitializeEvent	=> _owner._selfInitializeEvent;
-		public SMAsyncEvent _initializeEvent		=> _owner._initializeEvent;
-		public SMSubject _enableEvent				=> _owner._enableEvent;
-		public SMSubject _fixedUpdateEvent		=> _owner._fixedUpdateEvent;
-		public SMSubject _updateEvent				=> _owner._updateEvent;
-		public SMSubject _lateUpdateEvent			=> _owner._lateUpdateEvent;
-		public SMSubject _disableEvent			=> _owner._disableEvent;
-		public SMAsyncEvent _finalizeEvent		=> _owner._finalizeEvent;
+		public SMAsyncEvent _selfInitializeEvent	=> _owner?._selfInitializeEvent;
+		public SMAsyncEvent _initializeEvent		=> _owner?._initializeEvent;
+		public SMSubject _enableEvent				=> _owner?._enableEvent;
+		public SMSubject _fixedUpdateEvent			=> _owner?._fixedUpdateEvent;
+		public SMSubject _updateEvent				=> _owner?._updateEvent;
+		public SMSubject _lateUpdateEvent			=> _owner?._lateUpdateEvent;
+		public SMSubject _disableEvent				=> _owner?._disableEvent;
+		public SMAsyncEvent _finalizeEvent			=> _owner?._finalizeEvent;
 
 		public readonly SMAsyncCanceler _asyncCancelerOnDisableAndExit = new SMAsyncCanceler();
-		public SMAsyncCanceler _asyncCancelerOnDispose	=> _owner._asyncCancelerOnDispose;
+		public SMAsyncCanceler _asyncCancelerOnDispose	=> _owner?._asyncCancelerOnDispose;
 
 
 

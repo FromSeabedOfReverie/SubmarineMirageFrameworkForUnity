@@ -21,7 +21,7 @@ namespace SubmarineMirage.Utility {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>仕事の型</summary>
-		public override SMTaskType _type => SMTaskType.FirstWork;
+		public override SMTaskRunType _type => SMTaskRunType.Sequential;
 		/// <summary>名称のキャッシュ一覧の辞書</summary>
 		readonly Dictionary<TName, string> _namesCache = EnumUtils.GetValues<TName>()
 				.ToDictionary( name => name, name => name.ToString() );

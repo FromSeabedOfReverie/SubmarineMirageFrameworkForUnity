@@ -10,6 +10,7 @@ namespace SubmarineMirage.Scene.Test {
 	using UnityEngine;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
+	using KoganeUnityLib;
 	using Base;
 	using Service;
 	using Extension;
@@ -20,7 +21,6 @@ namespace SubmarineMirage.Scene.Test {
 
 	public class TestSMSceneManager : SMStandardBase {
 		SMSceneManager _sceneManager;
-		DebugDisplay _debugDisplay;
 
 
 		public TestSMSceneManager( SMSceneManager sceneManager ) {
@@ -29,7 +29,7 @@ namespace SubmarineMirage.Scene.Test {
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
 					SMLog.Warning( "終了押下！！" );
-					_sceneManager._body.Finalize().Forget();
+					_sceneManager.Finalize().Forget();
 				} )
 			);
 			
@@ -50,16 +50,19 @@ namespace SubmarineMirage.Scene.Test {
 //					SMLog.Debug( _sceneManager._mainFSM._body._modifyler.ToString() );
 				} )
 			);
-/*
+///*
 			UTask.Void( async () => {
-				_debugDisplay =
+				var debugDisplay =
 					await SMServiceLocator.WaitResolve<DebugDisplay>( _sceneManager._asyncCancelerOnDispose );
+				while ( true ) {
+					debugDisplay.Add( $"{_sceneManager.GetAboutName()} : { _sceneManager._ranState }" );
+					_sceneManager.GetScenes().ForEach(
+						s => debugDisplay.Add( $"{s.GetAboutName()} : { s._body._ranState }" )
+					);
+					await UTask.NextFrame( _sceneManager._asyncCancelerOnDispose );
+				}
 			} );
-			_sceneManager._updateEvent.AddLast().Subscribe( _ => {
-				if ( _debugDisplay == null )	{ return; }
-				_debugDisplay.Add( $"{_sceneManager.GetAboutName()} : { _sceneManager._body._ranState }" );
-			} );
-*/
+//*/
 		}
 
 
@@ -95,9 +98,6 @@ namespace SubmarineMirage.Scene.Test {
 			} );
 			_sceneManager._lateUpdateEvent.AddLast().Subscribe( _ => {
 //				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._lateUpdateEvent )}" );
-			} );
-			_sceneManager._onGUIEvent.AddLast().Subscribe( _ => {
-//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._onGUIEvent )}" );
 			} );
 		}
 	}

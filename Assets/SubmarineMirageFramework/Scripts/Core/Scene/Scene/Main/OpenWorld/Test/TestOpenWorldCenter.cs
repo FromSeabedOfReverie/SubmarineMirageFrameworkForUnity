@@ -8,7 +8,6 @@ namespace SubmarineMirage.Scene.Test {
 	using UnityEngine;
 	using UniRx;
 	using Base;
-	using Service;
 	using Debug;
 
 
@@ -17,32 +16,13 @@ namespace SubmarineMirage.Scene.Test {
 		OpenWorldCenter _owner	{ get; set; }
 
 
-		public TestOpenWorldCenter( OpenWorldCenter owner, SMScene scene ) {
+		public TestOpenWorldCenter( OpenWorldCenter owner ) {
 			_owner = owner;
 
-
-			var fps = 0;
-			var count = 0;
-			var nextSecond = 0f;
-			DebugDisplay debugDisplay = null;
 			Application.targetFrameRate = 60;
-			scene._owner._updateEvent.AddLast().Subscribe( _ => {
-				if ( nextSecond > 1 ) {
-					nextSecond = 0;
-					fps = count;
-					count = 0;
-				}
-				count++;
-				nextSecond += Time.deltaTime;
-				if ( debugDisplay == null ) {
-					debugDisplay = SMServiceLocator.Resolve<DebugDisplay>();
-				}
-				debugDisplay.Add( $"FPS : {fps}" );
-			} );
 
-			
 			var angles = Vector3.zero;
-			scene._owner._updateEvent.AddLast().Subscribe( _ => {
+			_owner._updateEvent.AddLast().Subscribe( _ => {
 				var input = new Vector3(
 					Input.GetAxis( "MoveAxisX" ),
 					Input.GetAxis( "DebugAxisY" ),
@@ -60,7 +40,7 @@ namespace SubmarineMirage.Scene.Test {
 
 
 			var distance = 30f;
-			scene._owner._updateEvent.AddLast().Subscribe( _ => {
+			_owner._updateEvent.AddLast().Subscribe( _ => {
 				var input = -Input.GetAxis( "Scroll" );
 				distance += input * 10000 * Time.deltaTime;
 				distance = Mathf.Clamp( distance, 0, 3000 );
@@ -71,7 +51,7 @@ namespace SubmarineMirage.Scene.Test {
 
 
 			var camera = Camera.main.transform;
-			scene._owner._updateEvent.AddLast().Subscribe( _ => {
+			_owner._updateEvent.AddLast().Subscribe( _ => {
 				var input = new Vector3(
 					-Input.GetAxis( "RotateAxisY" ),
 					Input.GetAxis( "RotateAxisX" ),

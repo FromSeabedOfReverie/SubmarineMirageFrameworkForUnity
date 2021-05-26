@@ -4,19 +4,22 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene {
-	using Task;
-	using Debug;
+namespace SubmarineMirage.Task.Marker {
 
 
 
-	public class OpenWorldCenter : SMBehaviour {
-		public override void Create() {
-			var scene = ( OpenWorldSMScene )_object._body._groupBody._managerBody._scene;
-			scene.Setup( this );
+	public class SMTaskMarker : SMTask {
+		[SMShowLine] public override SMTaskRunType _type => _internalType;
+		SMTaskRunType _internalType;
+		[SMShowLine] public SMTaskMarkerType _markerType { get; private set; }
+		[SMShowLine] public string _name { get; private set; }
 
-			var test = new Test.TestOpenWorldCenter( this );
-			_disposables.AddLast( test );
+
+
+		public SMTaskMarker( string name, SMTaskRunType type, SMTaskMarkerType markerType ) {
+			_name = name;
+			_internalType = type;
+			_markerType = markerType;
 		}
 	}
 }

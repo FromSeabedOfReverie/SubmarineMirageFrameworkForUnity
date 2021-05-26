@@ -37,7 +37,7 @@ namespace SubmarineMirage.Utility {
 		}
 
 		/// <summary>処理の型</summary>
-		public override SMTaskType _type => SMTaskType.DontWork;
+		public override SMTaskRunType _type => SMTaskRunType.Dont;
 
 		/// <summary>AIの視界遮断マスク</summary>
 		public int _aiSightObstructMask	=> LayerMask.GetMask( Get( Name.Ground ) );

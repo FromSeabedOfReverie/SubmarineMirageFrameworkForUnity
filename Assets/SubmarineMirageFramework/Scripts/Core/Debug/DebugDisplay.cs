@@ -19,6 +19,7 @@ namespace SubmarineMirage.Debug {
 	///		アプリケーション画面の最前面に、デバック文字を表示する。
 	/// </summary>
 	///====================================================================================================
+// TODO : SMDisplayLogにする
 	public class DebugDisplay : SMStandardBase, ISMService {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
@@ -58,14 +59,17 @@ namespace SubmarineMirage.Debug {
 				} );
 */
 
+// TODO : SMSceneManagerではなく、SMDebugManagerのイベントを参照する
 			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
 			// ● 更新（遅延）
 			//	※毎回、文章登録を初期化する為、全プログラムの一番最後に呼ぶべき。
-			sceneManager._lateUpdateEvent.AddLast().Subscribe( _ => {
-				// 毎フレーム登録を更新する
-				_drawTexts = new ArrayList( _texts );
-				_texts.Clear();
-			} );
+			_disposables.AddLast(
+				Observable.EveryLateUpdate().Subscribe( _ => {
+					// 毎フレーム登録を更新する
+					_drawTexts = new ArrayList( _texts );
+					_texts.Clear();
+				} )
+			);
 
 
 			// ● GUI描画

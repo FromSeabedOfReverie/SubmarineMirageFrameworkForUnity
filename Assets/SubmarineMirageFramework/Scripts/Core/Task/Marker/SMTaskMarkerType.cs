@@ -4,15 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Modifyler {
+namespace SubmarineMirage.Task.Marker {
 
 
-	public enum SMModifyType {
-		FirstLinker,
-		Linker,
-		FirstRunner,
-		SingleRunner,
-		ParallellRunner,
-		Runner,
+	public enum SMTaskMarkerType {
+		First,
+		Last,
 	}
 }

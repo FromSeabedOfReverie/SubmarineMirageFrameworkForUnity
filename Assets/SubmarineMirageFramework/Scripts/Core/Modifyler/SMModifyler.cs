@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Modifyler {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
@@ -20,6 +21,7 @@ namespace SubmarineMirage.Modifyler {
 		ISMModifyTarget _target	{ get; set; }
 		[SMShow] Type _baseDataType { get; set; }
 		[SMShow] readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
+		readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
 
 		[SMShow] public bool _isRunning	{ get; private set; }
 		public Func<bool> _isCanRunEvent	{ private get; set; } = () => true;
@@ -45,6 +47,7 @@ namespace SubmarineMirage.Modifyler {
 
 			_disposables.AddLast( () => {
 				Reset();
+				_runData.Clear();
 
 				_asyncCanceler.Dispose();
 				_isRunning = false;
@@ -97,6 +100,7 @@ namespace SubmarineMirage.Modifyler {
 					_data.Enqueue( data );
 					break;
 
+				case SMModifyType.ParallellRunner:
 				case SMModifyType.Runner:
 					_data.Enqueue( data );
 					break;
@@ -130,7 +134,19 @@ namespace SubmarineMirage.Modifyler {
 				if ( !_isCanRunEvent() )	{ break; }
 
 				var d = _data.Dequeue();
-				await d.Run();
+				_runData.AddLast( d );
+
+				if ( d._type == SMModifyType.ParallellRunner ) {
+					while ( true ) {
+						d = _data.First.Value;
+						if ( d._type != SMModifyType.ParallellRunner )	{ break; }
+						_data.RemoveFirst();
+						_runData.AddLast( d );
+					}
+				}
+
+				await _runData.Select( d => d.Run() );
+				_runData.Clear();
 			}
 			_isRunning = false;
 		}
