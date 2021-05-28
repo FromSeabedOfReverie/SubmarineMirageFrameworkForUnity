@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
-	using System;
 	using SubmarineMirage.Modifyler;
 	using Debug;
 
@@ -20,12 +19,6 @@ namespace SubmarineMirage.Task.Modifyler {
 			base.Set( target, modifyler );
 
 			_target = base._target as SMTaskManager;
-
-/*
-			if ( _target == null ) {
-				throw new ObjectDisposedException( $"{nameof( _target )}", $"既に削除済\n{_target}" );
-			}
-*/
 		}
 
 		protected SMModifyType GetType( SMTask task )

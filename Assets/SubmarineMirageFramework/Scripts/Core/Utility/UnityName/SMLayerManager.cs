@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
 	using UnityEngine;
-	using Task;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 層の管理クラス
@@ -35,9 +34,6 @@ namespace SubmarineMirage.Utility {
 			/// <summary>遠景</summary>
 			DistantView,
 		}
-
-		/// <summary>処理の型</summary>
-		public override SMTaskRunType _type => SMTaskRunType.Dont;
 
 		/// <summary>AIの視界遮断マスク</summary>
 		public int _aiSightObstructMask	=> LayerMask.GetMask( Get( Name.Ground ) );

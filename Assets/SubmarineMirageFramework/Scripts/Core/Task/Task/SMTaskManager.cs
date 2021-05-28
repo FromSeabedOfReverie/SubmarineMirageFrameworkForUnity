@@ -8,6 +8,7 @@ namespace SubmarineMirage.Task {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
+	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
 	using Base;
@@ -22,22 +23,13 @@ namespace SubmarineMirage.Task {
 
 
 	public class SMTaskManager : SMStandardBase, ISMModifyTarget, ISMService {
-		public static readonly SMTaskRunAllType[] SEQUENTIAL_RUN_TYPES = new SMTaskRunAllType[] {
-			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel,
-		};
-		public static readonly SMTaskRunAllType[] REVERSE_SEQUENTIAL_RUN_TYPES = new SMTaskRunAllType[] {
-			SMTaskRunAllType.Parallel, SMTaskRunAllType.ReverseSequential,
-		};
-		public static readonly SMTaskRunAllType[] ALL_RUN_TYPES = new SMTaskRunAllType[] {
-			SMTaskRunAllType.Sequential, SMTaskRunAllType.Parallel, SMTaskRunAllType.DontRun,
-		};
-
 		public static readonly SMTaskRunType[] CREATE_TASK_TYPES = new SMTaskRunType[] {
 			SMTaskRunType.Dont, SMTaskRunType.Sequential, SMTaskRunType.Parallel,
 		};
 		public static readonly SMTaskRunType[] UPDATE_TASK_TYPES = new SMTaskRunType[] {
 			SMTaskRunType.Sequential, SMTaskRunType.Parallel,
 		};
+		public static readonly SMTaskRunType[] DISPOSE_UPDATE_TASK_TYPES = UPDATE_TASK_TYPES.Reverse();
 		public static readonly SMTaskRunType[] DISPOSE_TASK_TYPES = CREATE_TASK_TYPES.Reverse();
 
 		SMTask _root;
@@ -128,8 +120,22 @@ namespace SubmarineMirage.Task {
 
 
 
-		public void Register( SMTask add )
-			=> Register( new RegisterSMTask( add ) );
+		public UniTask Initialize()
+			=> _taskMarkers.InitializeAll();
+
+		public async UniTask Finalize() {
+			await _taskMarkers.FinalizeAll();
+			Dispose();
+		}
+
+
+
+		public void Register( SMTask add, bool isAdjustRun ) {
+			Register( new RegisterSMTask( add ) );
+			if ( isAdjustRun ) {
+				Register( new AdjustRunSMTask( add ) );
+			}
+		}
 
 		public void Unregister( SMTask sub )
 			=> Register( new UnregisterSMTask( sub ) );
@@ -147,7 +153,8 @@ namespace SubmarineMirage.Task {
 
 
 
-		IEnumerable<SMTask> GetAlls( SMTaskRunType type ) => _taskMarkers.GetAlls( type, true );
+		IEnumerable<SMTask> GetAlls( SMTaskRunType type )
+			=> _taskMarkers.GetAlls( type, true );
 
 		IEnumerable<SMTask> GetAlls() {
 			for ( var t = _root; t != null; t = t._next ) {

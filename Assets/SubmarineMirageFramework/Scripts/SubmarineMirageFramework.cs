@@ -12,7 +12,6 @@ namespace SubmarineMirage {
 	using Base;
 	using Service;
 	using Task;
-	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -65,26 +64,26 @@ namespace SubmarineMirage {
 
 		async UniTask Initialize( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent )
 		{
-			DebugSetter.Initialize();
-
 			await SystemTask.Delay( 1, _asyncCanceler.ToToken() );
 
 			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown( false ) ) );
 
 			await initializePluginEvent();
+
 			SMServiceLocator.Register<SMDecorationManager>();
-			SMServiceLocator.Register<SMLog>();
+			SMServiceLocator.Register<SMDebugManager>();
 			SMServiceLocator.Register<MainThreadDispatcherSMExtension>();
-			SMServiceLocator.Register<SMTaskManager>();
+			var taskManager = SMServiceLocator.Register<SMTaskManager>();
 //			SMServiceLocator.Register<SMTagManager>();
 //			SMServiceLocator.Register<SMLayerManager>();
 //			SMServiceLocator.Register<SMTimeManager>();
 
 			await registerSettingsEvent();
 
-			var scene = SMServiceLocator.Register<SMSceneManager>();
-			SMServiceLocator.Register<DebugDisplay>();
-			await scene._body.Initialize();
+//			var scene = SMServiceLocator.Register<SMSceneManager>();
+			SMServiceLocator.Register<SMDisplayLog>();
+			await taskManager.Initialize();
+//			await scene._body.Initialize();
 
 			if ( s_isPlayTest ) {
 				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );

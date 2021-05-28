@@ -7,7 +7,10 @@
 namespace SubmarineMirage.Task.Marker {
 	using System.Linq;
 	using System.Collections.Generic;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using Task;
+	using Task.Modifyler;
 	using Base;
 	using Service;
 
@@ -30,8 +33,6 @@ namespace SubmarineMirage.Task.Marker {
 				} );
 			} );
 
-			Link();
-
 			_disposables.AddLast( () => {
 				SMTaskManager.DISPOSE_TASK_TYPES.ForEach( type => {
 					GetAlls( type, true )
@@ -43,15 +44,48 @@ namespace SubmarineMirage.Task.Marker {
 			} );
 		}
 
-		void Link() {
-			var taskManager = SMServiceLocator.Resolve<SMTaskManager>();
-			if ( taskManager == null )	{ return; }
 
-			SMTaskManager.CREATE_TASK_TYPES.ForEach( t => {
-				MARKER_TYPES.ForEach( i => {
-					taskManager.Register( _markers[t][( int )i] );
-				} );
-			} );
+
+		public async UniTask InitializeAll() {
+			var manager = SMServiceLocator.Resolve<SMTaskManager>();
+
+			SMTaskManager.CREATE_TASK_TYPES
+				.SelectMany( type => GetAlls( type, true ) )
+				.ForEach( task => manager.Register( new CreateSMTask( task ) ) );
+			await manager._modifyler.WaitRunning();
+
+			SMTaskManager.UPDATE_TASK_TYPES
+				.SelectMany( type => GetAlls( type, true ) )
+				.ForEach( task => manager.Register( new SelfInitializeSMTask( task ) ) );
+			await manager._modifyler.WaitRunning();
+
+			SMTaskManager.UPDATE_TASK_TYPES
+				.SelectMany( type => GetAlls( type, true ) )
+				.ForEach( task => manager.Register( new InitializeSMTask( task ) ) );
+			await manager._modifyler.WaitRunning();
+
+			SMTaskManager.UPDATE_TASK_TYPES
+				.SelectMany( type => GetAlls( type, true ) )
+				.ForEach( task => manager.Register( new InitialEnableSMTask( task ) ) );
+			await manager._modifyler.WaitRunning();
+		}
+
+		public async UniTask FinalizeAll() {
+			var manager = SMServiceLocator.Resolve<SMTaskManager>();
+
+			SMTaskManager.DISPOSE_UPDATE_TASK_TYPES
+				.SelectMany( type => GetAlls( type, true ) )
+				.Reverse()
+				.ForEach( task => manager.Register( new FinalDisableSMTask( task ) ) );
+			await manager._modifyler.WaitRunning();
+
+			SMTaskManager.DISPOSE_UPDATE_TASK_TYPES
+				.SelectMany( type => GetAlls( type, true ) )
+				.Reverse()
+				.ForEach( task => manager.Register( new FinalizeSMTask( task ) ) );
+			await manager._modifyler.WaitRunning();
+
+			Dispose();
 		}
 
 

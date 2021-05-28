@@ -6,9 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task {
 	using System;
+	using Cysharp.Threading.Tasks;
 	using Base;
 	using Event;
-	using Task.Modifyler;
+	using Service;
 	using Extension;
 	using Utility;
 
@@ -18,7 +19,7 @@ namespace SubmarineMirage.Task {
 		public SMTask _previous	{ get; set; }
 		public SMTask _next		{ get; set; }
 
-		public SMTaskManager _manager	{ get; set; }
+		protected SMTaskManager _taskManager	{ get; private set; }
 
 		public virtual SMTaskRunType _type		=> SMTaskRunType.Parallel;
 		public SMTaskRunState _ranState			{ get; set; }
@@ -70,11 +71,12 @@ namespace SubmarineMirage.Task {
 
 
 
-		public SMTask() {
-			_manager.Register( this );
+		public SMTask( bool isAdjustRun = true ) {
+			_taskManager = SMServiceLocator.Resolve<SMTaskManager>();
+			_taskManager.Register( this, isAdjustRun );
 
 			_disposables.AddLast( () => {
-				Unlink();
+				_taskManager.Unregister( this );
 
 				_isRequestInitialEnable = false;
 				_isCanActiveEvent = null;
@@ -100,11 +102,13 @@ namespace SubmarineMirage.Task {
 
 
 		public void Link( SMTask add ) {
-			var temp = _next;
+			var last = _next;
 			_next = add;
 			add._previous = this;
-			add._next = temp;
-			temp._previous = add;
+			if ( last != null ) {
+				add._next = last;
+				last._previous = add;
+			}
 		}
 
 		public void Unlink() {
@@ -116,56 +120,8 @@ namespace SubmarineMirage.Task {
 
 
 
-		public void AdjustRun( SMTask previous ) {
-			if (	previous._ranState >= SMTaskRunState.FinalDisable &&
-					_ranState < SMTaskRunState.FinalDisable &&
-					_type != SMTaskRunType.Dont
-			) {
-				_manager.Register( new FinalDisableSMTask( this ) );
-			}
-			if (	previous._ranState >= SMTaskRunState.Finalize &&
-					_ranState < SMTaskRunState.Finalize
-			) {
-				if ( _type != SMTaskRunType.Dont ) {
-					_manager.Register( new FinalizeSMTask( this ) );
-				} else {
-					Dispose();
-				}
-			}
-			if ( previous._isFinalizing ) { return; }
-
-
-			if (	previous._ranState >= SMTaskRunState.Create &&
-					_ranState < SMTaskRunState.Create
-			) {
-				_manager.Register( new CreateSMTask( this ) );
-			}
-			if ( _type == SMTaskRunType.Dont ) { return; }
-
-
-			if (	previous._ranState >= SMTaskRunState.SelfInitialize &&
-					_ranState < SMTaskRunState.SelfInitialize
-			) {
-				_manager.Register( new SelfInitializeSMTask( this ) );
-			}
-			if (	previous._ranState >= SMTaskRunState.Initialize &&
-					_ranState < SMTaskRunState.Initialize
-			) {
-				_manager.Register( new InitializeSMTask( this ) );
-			}
-			if (	previous._ranState >= SMTaskRunState.InitialEnable &&
-					_ranState < SMTaskRunState.InitialEnable
-			) {
-				_manager.Register( new InitialEnableSMTask( this ) );
-			}
-			if ( !previous._isInitialized ) { return; }
-
-
-			if ( previous.IsActiveInHierarchy() ) {
-				_manager.Register( new EnableSMTask( this ) );
-			} else {
-				_manager.Register( new DisableSMTask( this ) );
-			}
+		public virtual async UniTask ChangeActive( bool isActive ) {
+			await UTask.DontWait();
 		}
 
 

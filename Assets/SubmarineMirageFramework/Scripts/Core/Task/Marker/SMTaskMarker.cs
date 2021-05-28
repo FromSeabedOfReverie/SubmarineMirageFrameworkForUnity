@@ -16,10 +16,13 @@ namespace SubmarineMirage.Task.Marker {
 
 
 
-		public SMTaskMarker( string name, SMTaskRunType type, SMTaskMarkerType markerType ) {
+		public SMTaskMarker( string name, SMTaskRunType type, SMTaskMarkerType markerType ) : base( false ) {
 			_name = name;
 			_internalType = type;
 			_markerType = markerType;
+		}
+
+		public override void Create() {
 		}
 	}
 }

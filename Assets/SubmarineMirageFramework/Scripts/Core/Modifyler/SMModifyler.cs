@@ -145,7 +145,12 @@ namespace SubmarineMirage.Modifyler {
 					}
 				}
 
-				await _runData.Select( d => d.Run() );
+				await _runData.Select( async d => {
+//					try {
+						await d.Run();
+//					} catch ( OperationCanceledException ) {
+//					}
+				} );
 				_runData.Clear();
 			}
 			_isRunning = false;

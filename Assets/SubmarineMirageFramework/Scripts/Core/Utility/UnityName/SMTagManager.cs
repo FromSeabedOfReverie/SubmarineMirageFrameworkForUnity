@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
-	using Task;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 付箋の管理クラス
@@ -41,9 +40,6 @@ namespace SubmarineMirage.Utility {
 			/// <summary>地面</summary>
 			Ground,
 		}
-
-		/// <summary>処理の型</summary>
-		public override SMTaskRunType _type => SMTaskRunType.Dont;
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 作成

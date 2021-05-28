@@ -12,16 +12,13 @@ namespace SubmarineMirage.Debug {
 	using Event;
 	using Utility;
 	using Debug.ToString;
-
-
-
 	///====================================================================================================
 	/// <summary>
 	/// ■ デバッグ記録のクラス
 	///		UnityエディタのConsole窓から、クリックで飛べない為、DLL化した基盤クラスを継承する。
 	/// </summary>
 	///====================================================================================================
-	public class SMLog : BaseSMLog<SMLogTag>, ISMStandardBase, ISMService {
+	public class SMLog : BaseSMLog<SMLogTag>, ISMStandardBase {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
@@ -36,11 +33,12 @@ namespace SubmarineMirage.Debug {
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public SMLog() : base( DebugSetter.s_isUnityEditor ) {
+		public SMLog() : base( SMDebugManager.IS_UNITY_EDITOR ) {
 			_id = SMIDCounter.GetNewID( this );
-
 			_toStringer = new SMToStringer( this );
 			SetToString();
+
+			s_isEnable = SMDebugManager.IS_DEVELOP;
 
 			_disposables.AddLast( () => {
 				base.Dispose();
@@ -69,7 +67,8 @@ namespace SubmarineMirage.Debug {
 		/// <summary>
 		/// ● 廃棄
 		/// </summary>
-		public override void Dispose() => _disposables.Dispose();
+		public override void Dispose()
+			=> _disposables.Dispose();
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 登録

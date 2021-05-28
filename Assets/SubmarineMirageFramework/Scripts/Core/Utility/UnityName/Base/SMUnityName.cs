@@ -16,12 +16,12 @@ namespace SubmarineMirage.Utility {
 	/// ■ Unity設定の名称使用の基盤クラス
 	/// </summary>
 	///====================================================================================================
-	public abstract class SMUnityName<TName> : SMBehaviour, ISMService where TName : Enum {
+	public abstract class SMUnityName<TName> : SMTask, ISMService where TName : Enum {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>仕事の型</summary>
-		public override SMTaskRunType _type => SMTaskRunType.Sequential;
+		public override SMTaskRunType _type => SMTaskRunType.Dont;
 		/// <summary>名称のキャッシュ一覧の辞書</summary>
 		readonly Dictionary<TName, string> _namesCache = EnumUtils.GetValues<TName>()
 				.ToDictionary( name => name, name => name.ToString() );
