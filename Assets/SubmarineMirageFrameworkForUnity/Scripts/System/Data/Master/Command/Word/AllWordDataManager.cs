@@ -163,17 +163,6 @@ namespace SubmarineMirageFramework.Data {
 			Log.Debug( ExtractionTextsFromFormattedWords(
 				new List<string>() { "降ル", "雨", "龍" }
 			).ToDeepString() );
-
-
-			Log.Debug( ExtractionTexts(
-				"高級霊魂様、救って下さい、霊的向上を望みます"
-			).ToDeepString() );
-			Log.Debug( ExtractionTextsFromFormattedWords(
-				new List<string>() { "高級霊", "救ウ", "向上" }
-			).ToDeepString() );
-			Log.Debug( ExtractionTextsFromFormattedWords(
-				new List<string>() { "向上", "救ウ", "高級霊" }
-			).ToDeepString() );
 		}
 	}
 }
