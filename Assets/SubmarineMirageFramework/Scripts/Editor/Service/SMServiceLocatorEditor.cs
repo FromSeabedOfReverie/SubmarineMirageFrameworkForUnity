@@ -37,7 +37,7 @@ namespace SubmarineMirage.EditorService {
 			}
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
-			ShowContainer();
+			ShowServices();
 			EditorGUILayout.EndScrollView();
 			ShowDetail();
 
@@ -51,7 +51,7 @@ namespace SubmarineMirage.EditorService {
 			ShowHeading2( nameof( SMServiceLocator.s_isDisposed ) );
 		}
 
-		void ShowContainer() {
+		void ShowServices() {
 			ShowHeading2( nameof( SMServiceLocator.s_container ) );
 			EditorGUI.indentLevel++;
 

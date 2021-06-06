@@ -23,19 +23,16 @@ public static class ApplicationMain {
 
 		DOTween.Init(
 			false,
-#if DEVELOP
-			false,
-#else
-			true,
-#endif
-			LogBehaviour.ErrorsOnly );
+			!SMDebugManager.IS_DEVELOP,
+			LogBehaviour.ErrorsOnly
+		);
 		DOTween.defaultAutoPlay = AutoPlay.None;
 
-#if DEVELOP
-		var prefab = Resources.Load<GameObject>( "LunarConsole" );
-		var go = prefab.Instantiate();
-		go.DontDestroyOnLoad();
-#endif
+		if ( SMDebugManager.IS_DEVELOP ) {
+			var prefab = Resources.Load<GameObject>( "LunarConsole" );
+			var go = prefab.Instantiate();
+			go.DontDestroyOnLoad();
+		}
 
 		await UTask.DontWait();
 	}
@@ -50,9 +47,9 @@ public static class ApplicationMain {
 
 	[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 	static async void Main() {
-		Application.targetFrameRate = 10;
+		Application.targetFrameRate = 5;
 
-		var framework = SMServiceLocator.Register<SubmarineMirageFramework>();
+		var framework = SMServiceLocator.Register( new SubmarineMirageFramework() );
 		await framework.TakeOff( InitializePlugin, RegisterSettings );
 	}
 }

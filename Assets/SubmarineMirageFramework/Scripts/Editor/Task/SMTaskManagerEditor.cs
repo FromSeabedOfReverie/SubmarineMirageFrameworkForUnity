@@ -5,13 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.EditorTask {
-	using System.Linq;
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
 	using Task;
 	using Service;
-	using Extension;
 	using Debug;
 	using EditorExtension;
 
@@ -42,7 +40,7 @@ namespace SubmarineMirage.EditorTask {
 			}
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
-			ShowAllGroups();
+			ShowTasks();
 			EditorGUILayout.EndScrollView();
 			ShowDetail();
 
@@ -58,72 +56,26 @@ namespace SubmarineMirage.EditorTask {
 		}
 
 
-		void ShowAllGroups() {
-			_taskManager._fsm.GetFSMs().ForEach( fsm => {
-				ShowHeading1( fsm._fsmType.GetAboutName() );
+		void ShowTasks() {
+			ShowHeading1( nameof( SMTask ) );
 
+			SMTaskManager.CREATE_TASK_TYPES.ForEach( type => {
+				ShowHeading2( type.ToString() );
 				EditorGUI.indentLevel++;
-				fsm.GetStates()
-					.Select( s => ( SMScene )s )
-					.ForEach( scene => {
-						ShowHeading2( scene._name );
 
-						EditorGUI.indentLevel++;
-						scene._groupManagerBody.GetAllGroups().ForEach( g => ShowGroup( g ) );
-						EditorGUI.indentLevel--;
-					} );
+				_taskManager.GetAlls( type ).ForEach( task => {
+					GUI.SetNextControlName( string.Join( "\n",
+						$"{task._id}",
+						$"↑ {task._previous?.ToLineString()}",
+						$"↓ {task._next?.ToLineString()}",
+						$"{( task._isDispose ? "Dispose" : "" )}"
+					) );
+					EditorGUILayout.SelectableLabel( task.ToLineString(), GUILayout.Height( 16 ) );
+				} );
+
 				EditorGUI.indentLevel--;
+				EditorGUILayout.Space();
 			} );
-			EditorGUILayout.Space();
-		}
-
-
-		void ShowGroup( SMGroupBody groupBody ) {
-			EditorGUI.indentLevel++;
-
-			GUI.SetNextControlName( string.Join( "\n",
-				$"{groupBody._id}, {groupBody._managerBody._scene.GetAboutName()}",
-				$"↑ {groupBody._previous?.ToLineString()}",
-				$"↓ {groupBody._next?.ToLineString()}",
-
-				$"{( groupBody._asyncCanceler._isCancel ? "AsyncCancel, " : "" )}"
-					+ $"{( groupBody._isDispose ? "Dispose" : "" )}"
-			) );
-
-			EditorGUILayout.SelectableLabel( groupBody.ToLineString(), GUILayout.Height( 16 ) );
-
-			ShowObject( groupBody._objectBody );
-
-			EditorGUI.indentLevel--;
-		}
-
-
-		void ShowObject( SMObjectBody objectBody ) {
-			EditorGUI.indentLevel++;
-
-			GUI.SetNextControlName( string.Join( "\n",
-				$"{objectBody._id}",
-
-				objectBody._gameObject != null ? objectBody._gameObject.name : "null",
-				string.Join( "\n", objectBody._behaviourBody.GetBrothers().Select( b =>
-					$"    {b.ToLineString()}"
-				) ),
-
-				$"← {objectBody._parent?.ToLineString()}",
-				$"↑ {objectBody._previous?.ToLineString()}",
-				$"↓ {objectBody._next?.ToLineString()}",
-				$"→",
-				string.Join( "\n", objectBody.GetChildren().Select( o => $"    {o.ToLineString()}" ) ),
-
-				$"{( objectBody._asyncCanceler._isCancel ? "Cancel, " : "" )}"
-					+ $"{( objectBody._isDispose ? "Dispose" : "" )}"
-			) );
-
-			EditorGUILayout.SelectableLabel( objectBody.ToLineString(), GUILayout.Height( 16 ) );
-
-			objectBody.GetChildren().ForEach( c => ShowObject( c ) );
-
-			EditorGUI.indentLevel--;
 		}
 
 

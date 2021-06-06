@@ -38,7 +38,7 @@ namespace SubmarineMirage.TestBase {
 		[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 		static void Main() {
 			if ( PlayerEditorSMExtension.instance._type != PlayerEditorSMExtension.Type.Test )	{ return; }
-			SubmarineMirageFramework.s_isPlayTest = true;
+			SMDebugManager.s_isPlayTest = true;
 		}
 
 		// インスタンス生成直後の呼び出し

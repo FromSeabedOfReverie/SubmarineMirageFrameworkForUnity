@@ -21,6 +21,7 @@ namespace SubmarineMirage.Extension {
 			_disposables.AddLast( () => {
 				_onGUIEvent.OnCompleted();
 				_onGUIEvent.Dispose();
+				gameObject.Destroy();
 			} );
 		}
 

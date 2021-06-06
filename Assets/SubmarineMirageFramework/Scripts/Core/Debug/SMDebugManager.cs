@@ -19,19 +19,23 @@ namespace SubmarineMirage.Debug {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		[SMShowLine] public const bool IS_DEVELOP =
+		[SMShow] public const bool IS_DEVELOP =
 #if DEVELOP
 				true;
 #else
 				false;
 #endif
-		[SMShowLine] public const bool IS_UNITY_EDITOR =
+		[SMShow] public const bool IS_UNITY_EDITOR =
 #if UNITY_EDITOR
 				true;
 #else
 				false;
 #endif
 
+		[SMShow] public static bool s_isPlayTest { get; set; }
+
+		/// <summary>実行型</summary>
+		public override SMTaskRunType _type => SMTaskRunType.Sequential;
 		/// <summary>デバッグ記録</summary>
 		SMLog _log;
 		/// <summary>現在の、1秒間の画面描画回数（FPS）</summary>

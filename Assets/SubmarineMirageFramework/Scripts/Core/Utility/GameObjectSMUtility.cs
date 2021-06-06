@@ -6,7 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
 	using UnityEngine;
+	using KoganeUnityLib;
 	using Service;
+	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲーム物の便利クラス
@@ -14,6 +16,28 @@ namespace SubmarineMirage.Utility {
 	/// </summary>
 	///====================================================================================================
 	public static class GameObjectSMUtility {
+		///------------------------------------------------------------------------------------------------
+		/// ● インスタンス化
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● インスタンス生成
+		/// </summary>
+		public static T Instantiate<T>() where T : MonoBehaviourSMExtension {
+			var type = typeof( T );
+			var go = new GameObject( type.GetAboutName() );
+			var b = go.AddComponent( type ) as T;
+
+// TODO : SMSceneManagerコメント
+/*
+			if ( scene == null ) {
+				var _sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
+				if ( _sceneManager != null )	{ _sceneManager._body.MoveForeverScene( go ); }
+				else							{ go.DontDestroyOnLoad(); }
+			}
+*/
+			go.DontDestroyOnLoad();
+			return b;
+		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 指定名ゲーム物から、部品を取得

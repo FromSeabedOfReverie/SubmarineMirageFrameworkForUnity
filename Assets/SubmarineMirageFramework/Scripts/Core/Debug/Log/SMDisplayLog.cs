@@ -20,6 +20,8 @@ namespace SubmarineMirage.Debug {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		/// <summary>実行型</summary>
+		public override SMTaskRunType _type => SMTaskRunType.Dont;
 		/// <summary>描画するか？</summary>
 		public bool _isDraw = true;
 		/// <summary>背景描画するか？</summary>
@@ -57,7 +59,7 @@ namespace SubmarineMirage.Debug {
 */
 			// ● 更新（遅延）
 			//	※毎回、文章登録を初期化する為、全プログラムの一番最後に呼ぶべき。
-			_updateEvent.AddLast().Subscribe( _ => {
+			_taskManager._lateUpdateEvent.AddLast().Subscribe( _ => {
 				// 毎フレーム登録を更新する
 				_drawTexts = new ArrayList( _texts );
 				_texts.Clear();
@@ -97,11 +99,13 @@ namespace SubmarineMirage.Debug {
 			} );
 #endif
 		}
+
 		/// <summary>
 		/// ● 廃棄
 		/// </summary>
 		public override void Dispose()
 			=> _disposables.Dispose();
+
 		///------------------------------------------------------------------------------------------------
 		/// ● 追加
 		///------------------------------------------------------------------------------------------------

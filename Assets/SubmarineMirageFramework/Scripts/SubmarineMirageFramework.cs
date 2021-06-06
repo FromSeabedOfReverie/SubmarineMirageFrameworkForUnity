@@ -20,12 +20,14 @@ namespace SubmarineMirage {
 
 
 	public class SubmarineMirageFramework : SMStandardBase, ISMService {
-		[SMShow] public static bool s_isPlayTest	{ get; set; }
 		[SMShow] public bool _isInitialized	{ get; private set; }
 		readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
 
+
 		public SubmarineMirageFramework() {
+			SMLog.s_isEnable = SMDebugManager.IS_DEVELOP;   // 真っ先に指定しないと、ログが出ない
+
 			_disposables.AddLast( () => {
 				_isInitialized = false;
 				_asyncCanceler.Dispose();
@@ -37,12 +39,17 @@ namespace SubmarineMirage {
 				SMServiceLocator.Dispose();
 
 				if ( !isApplicationQuit )	{ return; }
+
+				if ( SMDebugManager.s_isPlayTest ) { return; }
+
+				if ( SMDebugManager.IS_UNITY_EDITOR ) {
 #if UNITY_EDITOR
-				if ( s_isPlayTest )	{ return; }
-				UnityEditor.EditorApplication.isPlaying = false;
-#else
-				Application.Quit();
+					UnityEditor.EditorApplication.isPlaying = false;
 #endif
+				} else {
+					Application.Quit();
+				}
+
 			} catch ( OperationCanceledException ) {
 			} catch ( Exception e ) {
 				SMLog.Error( e );
@@ -51,8 +58,10 @@ namespace SubmarineMirage {
 		}
 
 
+
 // TODO : もっと良い開始名を考える
-		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent ) {
+		public async UniTask TakeOff( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent )
+		{
 			try {
 				await Initialize( initializePluginEvent, registerSettingsEvent );
 			} catch ( OperationCanceledException ) {
@@ -70,32 +79,25 @@ namespace SubmarineMirage {
 
 			await initializePluginEvent();
 
-			SMServiceLocator.Register<SMDecorationManager>();
-			SMServiceLocator.Register<SMDebugManager>();
-			SMServiceLocator.Register<MainThreadDispatcherSMExtension>();
-			var taskManager = SMServiceLocator.Register<SMTaskManager>();
-//			SMServiceLocator.Register<SMTagManager>();
-//			SMServiceLocator.Register<SMLayerManager>();
-//			SMServiceLocator.Register<SMTimeManager>();
+			var taskManager = SMServiceLocator.Register( new SMTaskManager() );
+			SMServiceLocator.Register( new SMDecorationManager() );
+			SMServiceLocator.Register( new SMDebugManager() );
+//			SMServiceLocator.Register( new SMTagManager() ) ;
+//			SMServiceLocator.Register( new SMLayerManager() );
+//			SMServiceLocator.Register( new SMTimeManager() );
 
 			await registerSettingsEvent();
 
-//			var scene = SMServiceLocator.Register<SMSceneManager>();
-			SMServiceLocator.Register<SMDisplayLog>();
+//			SMServiceLocator.Register( new SMSceneManager() );
+			SMServiceLocator.Register( new SMDisplayLog() );
 			await taskManager.Initialize();
-//			await scene._body.Initialize();
 
-			if ( s_isPlayTest ) {
+			if ( SMDebugManager.s_isPlayTest ) {
 				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );
 				await test.Initialize();
 			}
 
 			_isInitialized = true;
 		}
-
-
-
-		public UniTask WaitInitialize()
-			=> UTask.WaitWhile( _asyncCanceler, () => !_isInitialized );
 	}
 }

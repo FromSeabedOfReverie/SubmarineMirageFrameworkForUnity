@@ -14,6 +14,10 @@ namespace SubmarineMirage.EditorExtension {
 		static PlayerEditorSMExtension s_body => PlayerEditorSMExtension.instance;
 
 
+
+		static PlayerEditorWindowSMExtension() {
+		}
+
 		public override void Dispose() {}
 
 

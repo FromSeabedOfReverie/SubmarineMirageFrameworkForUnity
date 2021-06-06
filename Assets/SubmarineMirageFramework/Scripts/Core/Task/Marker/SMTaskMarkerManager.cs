@@ -54,17 +54,17 @@ namespace SubmarineMirage.Task.Marker {
 				.ForEach( task => manager.Register( new CreateSMTask( task ) ) );
 			await manager._modifyler.WaitRunning();
 
-			SMTaskManager.UPDATE_TASK_TYPES
+			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
 				.ForEach( task => manager.Register( new SelfInitializeSMTask( task ) ) );
 			await manager._modifyler.WaitRunning();
 
-			SMTaskManager.UPDATE_TASK_TYPES
+			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
 				.ForEach( task => manager.Register( new InitializeSMTask( task ) ) );
 			await manager._modifyler.WaitRunning();
 
-			SMTaskManager.UPDATE_TASK_TYPES
+			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
 				.ForEach( task => manager.Register( new InitialEnableSMTask( task ) ) );
 			await manager._modifyler.WaitRunning();
@@ -73,13 +73,13 @@ namespace SubmarineMirage.Task.Marker {
 		public async UniTask FinalizeAll() {
 			var manager = SMServiceLocator.Resolve<SMTaskManager>();
 
-			SMTaskManager.DISPOSE_UPDATE_TASK_TYPES
+			SMTaskManager.DISPOSE_RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
 				.Reverse()
 				.ForEach( task => manager.Register( new FinalDisableSMTask( task ) ) );
 			await manager._modifyler.WaitRunning();
 
-			SMTaskManager.DISPOSE_UPDATE_TASK_TYPES
+			SMTaskManager.DISPOSE_RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
 				.Reverse()
 				.ForEach( task => manager.Register( new FinalizeSMTask( task ) ) );

@@ -20,7 +20,7 @@ namespace SubmarineMirage.Utility {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>仕事の型</summary>
+		/// <summary>実行型</summary>
 		public override SMTaskRunType _type => SMTaskRunType.Dont;
 		/// <summary>名称のキャッシュ一覧の辞書</summary>
 		readonly Dictionary<TName, string> _namesCache = EnumUtils.GetValues<TName>()

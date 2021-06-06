@@ -5,6 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Modifyler {
+	using System;
+	using UniRx;
 	using SubmarineMirage.Modifyler;
 	using Debug;
 
@@ -12,6 +14,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 	public abstract class SMTaskModifyData : SMModifyData {
 		public new SMTaskManager _target { get; private set; }
+		IDisposable _notUpdateObservable;
 
 
 
@@ -21,10 +24,34 @@ namespace SubmarineMirage.Task.Modifyler {
 			_target = base._target as SMTaskManager;
 		}
 
-		protected SMModifyType GetType( SMTask task )
-			=> (
-				task._type == SMTaskRunType.Parallel	? SMModifyType.ParallellRunner
-														: SMModifyType.Runner
-			);
+		public override void Dispose() {
+			base.Dispose();
+
+			_notUpdateObservable?.Dispose();
+			_notUpdateObservable = null;
+		}
+
+
+
+		protected SMModifyType GetType( SMTask task ) => (
+			task._type == SMTaskRunType.Parallel	? SMModifyType.ParallellRunner
+													: SMModifyType.Runner
+		);
+
+// TODO : リンク変更時に、下記関数を呼ぶ
+		protected void RunWhenNotUpdate( Action runEvent ) {
+			if ( !_target._isUpdating.Value ) {
+				runEvent.Invoke();
+				return;
+			}
+
+			_notUpdateObservable = _target._isUpdating
+				.First( b => !b )
+				.Subscribe( _ => {
+					runEvent.Invoke();
+					_notUpdateObservable?.Dispose();
+					_notUpdateObservable = null;
+				} );
+		}
 	}
 }

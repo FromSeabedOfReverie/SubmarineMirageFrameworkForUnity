@@ -5,7 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
@@ -18,7 +17,7 @@ namespace SubmarineMirage.Task {
 	using Marker;
 	using Service;
 	using Extension;
-	using Utility;
+	using Debug;
 
 
 
@@ -26,71 +25,62 @@ namespace SubmarineMirage.Task {
 		public static readonly SMTaskRunType[] CREATE_TASK_TYPES = new SMTaskRunType[] {
 			SMTaskRunType.Dont, SMTaskRunType.Sequential, SMTaskRunType.Parallel,
 		};
-		public static readonly SMTaskRunType[] UPDATE_TASK_TYPES = new SMTaskRunType[] {
+		public static readonly SMTaskRunType[] RUN_TASK_TYPES = new SMTaskRunType[] {
 			SMTaskRunType.Sequential, SMTaskRunType.Parallel,
 		};
-		public static readonly SMTaskRunType[] DISPOSE_UPDATE_TASK_TYPES = UPDATE_TASK_TYPES.Reverse();
+		public static readonly SMTaskRunType[] DISPOSE_RUN_TASK_TYPES = RUN_TASK_TYPES.Reverse();
 		public static readonly SMTaskRunType[] DISPOSE_TASK_TYPES = CREATE_TASK_TYPES.Reverse();
 
-		SMTask _root;
-		SMTaskMarkerManager _taskMarkers;
+		SMTask _root { get; set; }
+		SMTaskMarkerManager _taskMarkers { get; set; }
 		public SMModifyler _modifyler { get; private set; }
 		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
 
-		readonly SMSubject _fixedUpdateEvent = new SMSubject();
-		readonly SMSubject _updateEvent = new SMSubject();
-		readonly SMSubject _lateUpdateEvent = new SMSubject();
+		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
+		public readonly SMSubject _updateEvent = new SMSubject();
+		public readonly SMSubject _lateUpdateEvent = new SMSubject();
 		public readonly SMSubject _onGUIEvent = new SMSubject();
 
 
 
 		public SMTaskManager() {
+			_modifyler = new SMModifyler( this, typeof( SMTaskModifyData ) );
+
 			_taskMarkers = new SMTaskMarkerManager( this.GetAboutName() );
+			_root = GetFirst( SMTaskRunType.Dont, true );
 			var tasks = new SMTask[] {
-				GetFirst( SMTaskRunType.Dont, true ),
 				GetLast( SMTaskRunType.Dont, true ),
 				GetFirst( SMTaskRunType.Sequential, true ),
 				GetLast( SMTaskRunType.Sequential, true ),
 				GetFirst( SMTaskRunType.Parallel, true ),
 				GetLast( SMTaskRunType.Parallel, true ),
 			};
-			SMTask last = null;
+			var last = _root;
 			tasks.ForEach( current => {
-				if ( last != null ) { last.Link( current ); }
+				last.Link( current );
 				last = current;
 			} );
 
-			_root = GetFirst( SMTaskRunType.Dont, true );
-			_modifyler = new SMModifyler( this, typeof( SMTaskModifyData ) );
-/*
-			_modifyler._isCanRunEvent = () => !_isUpdating.Value;
-			_disposables.AddLast(
-				_isUpdating
-					.Where( b => !b )
-					.Subscribe( _ => _modifyler.Run().Forget() )
-			);
-*/
-
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
 				_isUpdating.Value = true;
-				UPDATE_TASK_TYPES.ForEach( t => {
-					GetAlls( t ).ForEach( t => t.FixedUpdate() );
+				RUN_TASK_TYPES.ForEach( type => {
+					GetAlls( type ).ForEach( task => task.FixedUpdate() );
 				} );
 				_isUpdating.Value = false;
 			} );
 
 			_updateEvent.AddLast().Subscribe( _ => {
 				_isUpdating.Value = true;
-				UPDATE_TASK_TYPES.ForEach( t => {
-					GetAlls( t ).ForEach( t => t.Update() );
+				RUN_TASK_TYPES.ForEach( type => {
+					GetAlls( type ).ForEach( task => task.Update() );
 				} );
 				_isUpdating.Value = false;
 			} );
 
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
 				_isUpdating.Value = true;
-				UPDATE_TASK_TYPES.ForEach( t => {
-					GetAlls( t ).ForEach( t => t.LateUpdate() );
+				RUN_TASK_TYPES.ForEach( type => {
+					GetAlls( type ).ForEach( task => task.LateUpdate() );
 				} );
 				_isUpdating.Value = false;
 			} );
@@ -99,17 +89,18 @@ namespace SubmarineMirage.Task {
 				Observable.EveryFixedUpdate()	.Subscribe( _ => _fixedUpdateEvent.Run() ),
 				Observable.EveryUpdate()		.Subscribe( _ => _updateEvent.Run() ),
 				Observable.EveryLateUpdate()	.Subscribe( _ => _lateUpdateEvent.Run() )
-#if DEVELOP
-				,
-				UniRxSMExtension.EveryOnGUI()	.Subscribe( _ => _onGUIEvent.Run() )
-#endif
 			);
+			if ( SMDebugManager.IS_DEVELOP ) {
+				_disposables.AddLast(
+					UniRxSMExtension.EveryOnGUI().Subscribe( _ => _onGUIEvent.Run() )
+				);
+			}
 
 			_disposables.AddLast( () => {
-				_modifyler.Dispose();
 				_isUpdating.Dispose();
 				_taskMarkers.Dispose();
 				_root = null;
+				_modifyler.Dispose();
 
 				_fixedUpdateEvent.Dispose();
 				_updateEvent.Dispose();
@@ -153,10 +144,10 @@ namespace SubmarineMirage.Task {
 
 
 
-		IEnumerable<SMTask> GetAlls( SMTaskRunType type )
+		public IEnumerable<SMTask> GetAlls( SMTaskRunType type )
 			=> _taskMarkers.GetAlls( type, true );
 
-		IEnumerable<SMTask> GetAlls() {
+		public IEnumerable<SMTask> GetAlls() {
 			for ( var t = _root; t != null; t = t._next ) {
 				yield return t;
 			}

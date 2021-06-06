@@ -6,7 +6,11 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
+	using KoganeUnityLib;
 	using Base;
+	using Service;
+	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -50,6 +54,7 @@ namespace SubmarineMirage.Extension {
 		public abstract void Dispose();
 
 		protected void OnDestroy() => Dispose();
+
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 文字列に変換
