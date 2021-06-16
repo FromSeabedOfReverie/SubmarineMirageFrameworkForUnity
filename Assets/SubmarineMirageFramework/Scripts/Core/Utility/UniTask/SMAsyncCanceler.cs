@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestAsyncCanceler
+#define TestAsyncCanceler
 namespace SubmarineMirage.Utility {
-	using System.Linq;
 	using System.Threading;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using KoganeUnityLib;
 	using Base;
 	using Event;
 	using Debug;
@@ -19,13 +17,16 @@ namespace SubmarineMirage.Utility {
 
 	public class SMAsyncCanceler : SMStandardBase {
 		static readonly CancellationToken s_defaultCanceledToken;
-		CancellationTokenSource _canceler	{ get; set; } = new CancellationTokenSource();
-		public CancellationToken _lastCanceledToken	{ get; private set; }
-		[SMShow] public SMSubject _cancelEvent	{ get; private set; } = new SMSubject();
-		[SMShow] public bool _isCancel	=> _isDispose || _canceler.IsCancellationRequested;
 
-		SMAsyncCanceler _parent	{ get; set; }
-		[SMShow] public readonly LinkedList<SMAsyncCanceler> _children = new LinkedList<SMAsyncCanceler>();
+		SMAsyncCanceler _previous { get; set; }
+		SMAsyncCanceler _next { get; set; }
+
+		CancellationTokenSource _canceler	{ get; set; } = new CancellationTokenSource();
+		[SMShow] public readonly SMSubject _cancelEvent = new SMSubject();
+
+		[SMShow] bool _isRawCancel		=> _canceler?.IsCancellationRequested ?? true;
+		[SMShow] public bool _isCancel	=> _isDispose || _isRawCancel;
+		[SMShow] new bool _isDispose;
 
 
 
@@ -33,12 +34,12 @@ namespace SubmarineMirage.Utility {
 		public override void SetToString() {
 			base.SetToString();
 
-			_toStringer.Add( nameof( _parent ), i => $"{( _parent != null ? 1 : 0 )}" );
-			_toStringer.SetValue( nameof( _children ), i => $"{_children.Count}" );
+			_toStringer.Add( nameof( _previous ), i => $"{ _previous?._id}" );
+			_toStringer.Add( nameof( _next ), i => $"{_next?._id}" );
 			_toStringer.Add( nameof( _canceler ), i => $"{_canceler?.GetHashCode()}" );
-			_toStringer.Add( nameof( _lastCanceledToken ), i => $"{_lastCanceledToken.GetHashCode()}" );
 		}
 #endregion
+
 
 
 		static SMAsyncCanceler() {
@@ -49,105 +50,131 @@ namespace SubmarineMirage.Utility {
 		}
 
 		public SMAsyncCanceler() {
-			_disposables.AddLast( () => {
-				CancelBody( false );
+			_disposables.AddFirst( () => {
+#if TestAsyncCanceler
+				SMLog.Debug( $"{nameof( Dispose )} : start\n{this}" );
+#endif
+				Cancel( false );
 				_canceler.Dispose();
 				_canceler = null;
 				_cancelEvent.Dispose();
-				_cancelEvent = null;
 				Unlink();
-				if ( !_children.IsEmpty() ) {
-					_children.ForEach( c => c._parent = null );
-					_children.Clear();
-				}
+				_isDispose = true;
+#if TestAsyncCanceler
+				SMLog.Debug( $"{nameof( Dispose )} : end\n{this}" );
+#endif
 			} );
 #if TestAsyncCanceler
-			_disposables.AddLast( () => SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( Dispose )}\n{this}" ) );
+			SMLog.Debug( $"Create :\n{this}" );
 #endif
 		}
 
-		void Unlink() {
-			if ( _parent != null ) {
-				_parent._children.Remove( this );
-				_parent = null;
+
+
+		public void Link( SMAsyncCanceler add ) {
+			if ( _isDispose ) { return; }
+
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( Link )} : start\n{this}" );
+#endif
+			var last = _next;
+			_next = add;
+			add._previous = this;
+			if ( last != null ) {
+				add._next = last;
+				last._previous = add;
 			}
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( Link )} : end\n{this}" );
+#endif
 		}
 
+		public void Unlink() {
+			if ( _isDispose ) { return; }
 
-		public void SetParent( SMAsyncCanceler parent ) {
-			Unlink();
-			_parent = parent;
-			_parent._children.AddLast( this );
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( Unlink )} : start\n{this}" );
+#endif
+			if ( _previous != null ) { _previous._next = _next; }
+			if ( _next != null ) { _next._previous = _previous; }
+			_previous = null;
+			_next = null;
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( Unlink )} : end\n{this}" );
+#endif
 		}
 
-		public SMAsyncCanceler CreateChild() {
-			var child = new SMAsyncCanceler();
-			child._parent = this;
-			_children.AddLast( child );
+		public SMAsyncCanceler CreateLinkCanceler() {
+			if ( _isDispose ) { return null; }
+
+			var add = new SMAsyncCanceler();
+			Link( add );
 #if TestAsyncCanceler
 			SMLog.Debug( string.Join( "\n",
-				$"{nameof( SMAsyncCanceler )}.{nameof( CreateChild )}",
+				$"{nameof( CreateLinkCanceler )}",
 				$"this : {this}",
-				$"{nameof( child )} : {child}"
+				$"{nameof( add )} : {add}"
 			) );
 #endif
-			return child;
+			return add;
 		}
 
 
-		void CancelBody( bool isReCreate = true ) {
-#if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( CancelBody )}\n{this}" );
-#endif
-			if ( _canceler == null )	{ return; }
-			_canceler.Cancel();
-			_lastCanceledToken = _canceler.Token;
-			if ( isReCreate ) {
-				_canceler.Dispose();
-				_canceler = new CancellationTokenSource();
+
+		public void Cancel( bool isRecreate = true ) {
+			if ( _isDispose )	{ return; }
+			if ( _isRawCancel ) {
+				if ( isRecreate )	{ Recreate(); }
+				return;
 			}
+
 #if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( _cancelEvent.Run )}\n{this}" );
+			SMLog.Debug( $"{nameof( Cancel )} : start\n{this}" );
 #endif
+			_canceler.Cancel();
+			if ( isRecreate )	{ Recreate( false ); }
 			_cancelEvent.Run();
 #if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( SMAsyncCanceler )}.{nameof( _children )}.{nameof( CancelBody )}\n{this}" );
+			SMLog.Debug( $"{nameof( Cancel )} : end\n{this}" );
 #endif
-			_children.ForEach( c => c.CancelBody() );
+// TODO : 前が削除時に、次は再作成しないの？
+			_next?.Cancel( isRecreate );
 		}
 
-		public void Cancel() => CancelBody();
+		public void Recreate( bool isRecreateNext = true ) {
+			if ( _isDispose )		{ return; }
+			if ( !_isRawCancel )	{ return; }
+
+#if TestAsyncCanceler
+				SMLog.Debug( $"{nameof( Recreate )} : start\n{this}" );
+#endif
+			_canceler.Dispose();
+			_canceler = new CancellationTokenSource();
+#if TestAsyncCanceler
+			SMLog.Debug( $"{nameof( Recreate )} : end\n{this}" );
+#endif
+			if ( isRecreateNext )	{ _next?.Recreate( isRecreateNext ); }
+		}
 
 
-		IEnumerable<SMAsyncCanceler> GetChildren() {
-			var currents = new Queue<SMAsyncCanceler>( new [] {this} );
-			while ( !currents.IsEmpty() ) {
-				var canceler = currents.Dequeue();
-				yield return canceler;
-				canceler._children.ForEach( c => currents.Enqueue( c ) );
+
+		public IEnumerable<SMAsyncCanceler> GetBrothers() {
+			if ( _isDispose )	{ yield break; }
+
+			SMAsyncCanceler first = null;
+			for ( first = this; first._previous != null; first = first._previous )	{}
+
+			for ( var c = first; c != null; c = c._next ) {
+				yield return c;
 			}
 		}
 
-		public bool IsCanceledBy( CancellationToken token ) {
-#if TestAsyncCanceler
-			SMLog.Debug( string.Join( "\n",
-				$"{nameof( token )} : {token.GetHashCode()}",
-				$"{nameof( GetChildren )} last : "
-					+ $"{string.Join( ",", GetChildren().Select( c => c._lastCanceledToken.GetHashCode() ) )}",
-				$"== : {GetChildren().Any( c => c._lastCanceledToken == token )}"
-			) );
-#endif
-			return GetChildren().Any( c => c._lastCanceledToken == token );
-		}
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CancellationToken ToToken() {
-			var token = _canceler?.Token ?? s_defaultCanceledToken;
-#if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( token )} : {token.GetHashCode()}" );
-#endif
-			return token;
+			if ( _isDispose )	{ return s_defaultCanceledToken; }
+			return _canceler.Token;
 		}
 	}
 }

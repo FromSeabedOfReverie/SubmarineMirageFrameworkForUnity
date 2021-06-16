@@ -44,6 +44,9 @@ namespace SubmarineMirage.Task {
 
 
 		public SMTaskManager() {
+		}
+
+		public void Create() {
 			_modifyler = new SMModifyler( this, typeof( SMTaskModifyData ) );
 
 			_taskMarkers = new SMTaskMarkerManager( this.GetAboutName() );

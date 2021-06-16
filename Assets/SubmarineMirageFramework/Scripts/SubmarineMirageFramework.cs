@@ -80,6 +80,7 @@ namespace SubmarineMirage {
 			await initializePluginEvent();
 
 			var taskManager = SMServiceLocator.Register( new SMTaskManager() );
+			taskManager.Create();
 			SMServiceLocator.Register( new SMDecorationManager() );
 			SMServiceLocator.Register( new SMDebugManager() );
 //			SMServiceLocator.Register( new SMTagManager() ) ;
@@ -89,7 +90,7 @@ namespace SubmarineMirage {
 			await registerSettingsEvent();
 
 //			SMServiceLocator.Register( new SMSceneManager() );
-			SMServiceLocator.Register( new SMDisplayLog() );
+//			SMServiceLocator.Register( new SMDisplayLog() );
 			await taskManager.Initialize();
 
 			if ( SMDebugManager.s_isPlayTest ) {
