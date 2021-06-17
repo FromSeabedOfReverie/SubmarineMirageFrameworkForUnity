@@ -31,6 +31,7 @@ namespace SubmarineMirage.Task.Modifyler {
 				if (	_task._isCanActiveEvent() &&
 						_task._activeState != SMTaskActiveState.Enable
 				) {
+					_task._asyncCancelerOnDisable.Recreate();
 					_task._enableEvent.Run();
 					_task._activeState = SMTaskActiveState.Enable;
 				}

@@ -31,7 +31,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			if ( _task._activeState == SMTaskActiveState.Disable )	{ return; }
 
 			_task._activeState = SMTaskActiveState.Disable;
-			_task._asyncCancelerOnDisable.Cancel();
+			_task._asyncCancelerOnDisable.Cancel( false );
 			_task._disableEvent.Run();
 
 			await UTask.DontWait();

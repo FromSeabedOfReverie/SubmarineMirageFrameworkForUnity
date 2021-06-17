@@ -80,9 +80,8 @@ namespace SubmarineMirage {
 			await initializePluginEvent();
 
 			var taskManager = SMServiceLocator.Register( new SMTaskManager() );
-			taskManager.Create();
-			SMServiceLocator.Register( new SMDecorationManager() );
-			SMServiceLocator.Register( new SMDebugManager() );
+//			SMServiceLocator.Register( new SMDecorationManager() );
+//			SMServiceLocator.Register( new SMDebugManager() );
 //			SMServiceLocator.Register( new SMTagManager() ) ;
 //			SMServiceLocator.Register( new SMLayerManager() );
 //			SMServiceLocator.Register( new SMTimeManager() );
@@ -91,7 +90,7 @@ namespace SubmarineMirage {
 
 //			SMServiceLocator.Register( new SMSceneManager() );
 //			SMServiceLocator.Register( new SMDisplayLog() );
-			await taskManager.Initialize();
+//			await taskManager.Initialize();
 
 			if ( SMDebugManager.s_isPlayTest ) {
 				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );

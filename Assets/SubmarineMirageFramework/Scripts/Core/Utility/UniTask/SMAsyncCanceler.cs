@@ -4,29 +4,31 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestAsyncCanceler
+//#define TestAsyncCanceler
 namespace SubmarineMirage.Utility {
+	using System;
 	using System.Threading;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
 	using Base;
 	using Event;
+	using Extension;
 	using Debug;
 
 
 
 	public class SMAsyncCanceler : SMStandardBase {
-		static readonly CancellationToken s_defaultCanceledToken;
+		static readonly CancellationToken DEFAULT_CANCELED_TOKEN;
 
-		SMAsyncCanceler _previous { get; set; }
-		SMAsyncCanceler _next { get; set; }
+		SMAsyncCanceler _previous	{ get; set; }
+		SMAsyncCanceler _next		{ get; set; }
 
 		CancellationTokenSource _canceler	{ get; set; } = new CancellationTokenSource();
 		[SMShow] public readonly SMSubject _cancelEvent = new SMSubject();
 
 		[SMShow] bool _isRawCancel		=> _canceler?.IsCancellationRequested ?? true;
 		[SMShow] public bool _isCancel	=> _isDispose || _isRawCancel;
-		[SMShow] new bool _isDispose;
+		[SMShow] new bool _isDispose	{ get; set; }
 
 
 
@@ -44,7 +46,7 @@ namespace SubmarineMirage.Utility {
 
 		static SMAsyncCanceler() {
 			var c = new CancellationTokenSource();
-			s_defaultCanceledToken = c.Token;
+			DEFAULT_CANCELED_TOKEN = c.Token;
 			c.Cancel();
 			c.Dispose();
 		}
@@ -72,7 +74,10 @@ namespace SubmarineMirage.Utility {
 
 
 		public void Link( SMAsyncCanceler add ) {
-			if ( _isDispose ) { return; }
+			if ( _isDispose ) {
+				throw new ObjectDisposedException(
+					$"{this.GetAboutName()}.{nameof( Link )}", $"既に解放済\n{this}" );
+			}
 
 #if TestAsyncCanceler
 			SMLog.Debug( $"{nameof( Link )} : start\n{this}" );
@@ -90,13 +95,16 @@ namespace SubmarineMirage.Utility {
 		}
 
 		public void Unlink() {
-			if ( _isDispose ) { return; }
+			if ( _isDispose ) {
+				throw new ObjectDisposedException(
+					$"{this.GetAboutName()}.{nameof( Unlink )}", $"既に解放済\n{this}" );
+			}
 
 #if TestAsyncCanceler
 			SMLog.Debug( $"{nameof( Unlink )} : start\n{this}" );
 #endif
-			if ( _previous != null ) { _previous._next = _next; }
-			if ( _next != null ) { _next._previous = _previous; }
+			if ( _previous != null )	{ _previous._next = _next; }
+			if ( _next != null )		{ _next._previous = _previous; }
 			_previous = null;
 			_next = null;
 #if TestAsyncCanceler
@@ -105,7 +113,10 @@ namespace SubmarineMirage.Utility {
 		}
 
 		public SMAsyncCanceler CreateLinkCanceler() {
-			if ( _isDispose ) { return null; }
+			if ( _isDispose ) {
+				throw new ObjectDisposedException(
+					$"{this.GetAboutName()}.{nameof( CreateLinkCanceler )}", $"既に解放済\n{this}" );
+			}
 
 			var add = new SMAsyncCanceler();
 			Link( add );
@@ -123,43 +134,46 @@ namespace SubmarineMirage.Utility {
 
 		public void Cancel( bool isRecreate = true ) {
 			if ( _isDispose )	{ return; }
-			if ( _isRawCancel ) {
-				if ( isRecreate )	{ Recreate(); }
-				return;
-			}
 
 #if TestAsyncCanceler
 			SMLog.Debug( $"{nameof( Cancel )} : start\n{this}" );
 #endif
-			_canceler.Cancel();
-			if ( isRecreate )	{ Recreate( false ); }
-			_cancelEvent.Run();
+			if ( _isRawCancel ) {
+				if ( isRecreate )	{ Recreate(); }
+			} else {
+				_canceler.Cancel();
+				if ( isRecreate )	{ Recreate(); }
+				_cancelEvent.Run();
+			}
+			if ( _next != null ) {
+				_next.Cancel( !_next._isRawCancel );
+			}
 #if TestAsyncCanceler
 			SMLog.Debug( $"{nameof( Cancel )} : end\n{this}" );
 #endif
-// TODO : 前が削除時に、次は再作成しないの？
-			_next?.Cancel( isRecreate );
 		}
 
-		public void Recreate( bool isRecreateNext = true ) {
+		public void Recreate() {
 			if ( _isDispose )		{ return; }
 			if ( !_isRawCancel )	{ return; }
 
 #if TestAsyncCanceler
-				SMLog.Debug( $"{nameof( Recreate )} : start\n{this}" );
+			SMLog.Debug( $"{nameof( Recreate )} : start\n{this}" );
 #endif
 			_canceler.Dispose();
 			_canceler = new CancellationTokenSource();
 #if TestAsyncCanceler
 			SMLog.Debug( $"{nameof( Recreate )} : end\n{this}" );
 #endif
-			if ( isRecreateNext )	{ _next?.Recreate( isRecreateNext ); }
 		}
 
 
 
 		public IEnumerable<SMAsyncCanceler> GetBrothers() {
-			if ( _isDispose )	{ yield break; }
+			if ( _isDispose ) {
+				throw new ObjectDisposedException(
+					$"{this.GetAboutName()}.{nameof( GetBrothers )}", $"既に解放済\n{this}" );
+			}
 
 			SMAsyncCanceler first = null;
 			for ( first = this; first._previous != null; first = first._previous )	{}
@@ -173,7 +187,7 @@ namespace SubmarineMirage.Utility {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public CancellationToken ToToken() {
-			if ( _isDispose )	{ return s_defaultCanceledToken; }
+			if ( _isDispose )	{ return DEFAULT_CANCELED_TOKEN; }
 			return _canceler.Token;
 		}
 	}

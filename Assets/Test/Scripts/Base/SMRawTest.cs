@@ -27,6 +27,7 @@ namespace SubmarineMirage.TestBase {
 
 			_disposables.Add( () => {
 				_asyncCanceler.Dispose();
+				_stopwatch.Dispose();
 				_finalizeEvent.OnNext( Unit.Default );
 				_createEvent = null;
 				_initializeEvent = null;

@@ -29,6 +29,7 @@ namespace SubmarineMirage.TestBase {
 
 			_disposables.AddLast( () => {
 				_asyncCanceler.Dispose();
+				_stopwatch.Dispose();
 				_finalizeEvent.Run();
 				_toStringer.Dispose();
 				_createEvent.Dispose();

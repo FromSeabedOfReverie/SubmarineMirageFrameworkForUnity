@@ -25,6 +25,8 @@ namespace SubmarineMirage.TestBase {
 		[SMShow] protected string _testName => TestContext.CurrentContext.Test.Name;
 		[SMShow] protected bool _isInitialized	{ get; set; }
 		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
+		protected readonly SMStopwatch _stopwatch = new SMStopwatch();
+
 
 
 		// 実行前の呼び出し

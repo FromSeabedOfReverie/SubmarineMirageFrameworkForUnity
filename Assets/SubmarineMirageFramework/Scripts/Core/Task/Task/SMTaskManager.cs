@@ -44,23 +44,23 @@ namespace SubmarineMirage.Task {
 
 
 		public SMTaskManager() {
-		}
-
-		public void Create() {
 			_modifyler = new SMModifyler( this, typeof( SMTaskModifyData ) );
 
 			_taskMarkers = new SMTaskMarkerManager( this.GetAboutName() );
-			_root = GetFirst( SMTaskRunType.Dont, true );
 			var tasks = new SMTask[] {
+				GetFirst( SMTaskRunType.Dont, true ),
 				GetLast( SMTaskRunType.Dont, true ),
 				GetFirst( SMTaskRunType.Sequential, true ),
 				GetLast( SMTaskRunType.Sequential, true ),
 				GetFirst( SMTaskRunType.Parallel, true ),
 				GetLast( SMTaskRunType.Parallel, true ),
 			};
-			var last = _root;
+			_root = tasks.First();
+
+			SMTask last = null;
 			tasks.ForEach( current => {
-				last.Link( current );
+				current.SetManager( this );
+				if ( last != null )	{ last.Link( current ); }
 				last = current;
 			} );
 

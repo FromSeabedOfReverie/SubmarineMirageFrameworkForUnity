@@ -73,7 +73,7 @@ namespace SubmarineMirage.Task {
 
 		public SMTask( bool isAdjustRun = true ) {
 			_taskManager = SMServiceLocator.Resolve<SMTaskManager>();
-			_taskManager.Register( this, isAdjustRun );
+			_taskManager?.Register( this, isAdjustRun );
 
 			_disposables.AddLast( () => {
 				_taskManager.Unregister( this );
@@ -98,6 +98,12 @@ namespace SubmarineMirage.Task {
 		public abstract void Create();
 
 		public override void Dispose() => base.Dispose();
+
+
+
+		public void SetManager( SMTaskManager manager ) {
+			_taskManager = manager;
+		}
 
 
 
