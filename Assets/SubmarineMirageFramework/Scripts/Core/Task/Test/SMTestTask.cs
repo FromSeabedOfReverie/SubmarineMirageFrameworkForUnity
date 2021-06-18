@@ -4,22 +4,24 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Modifyler.Test {
-	using Cysharp.Threading.Tasks;
-	using Base;
-	using Utility;
+namespace SubmarineMirage.Task.Test {
 
 
 
-	public class TestTarget : SMStandardBase, ISMModifyTarget {
-	}
+	public class SMTestTask : SMTask {
+		[SMShowLine] public override SMTaskRunType _type => _internalType;
+		SMTaskRunType _internalType;
+		[SMShowLine] public string _name { get; private set; }
 
 
-	public abstract class BaseTestData : SMModifyData {
-	}
 
-	public class TestData : BaseTestData {
-		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
-		public override UniTask Run() => UTask.DontWait();
+		public SMTestTask( string name, SMTaskRunType type, bool isAdjustRun ) : base( false, isAdjustRun ) {
+			_name = name;
+			_internalType = type;
+			_taskManager.Register( this, isAdjustRun );
+		}
+
+		public override void Create() {
+		}
 	}
 }

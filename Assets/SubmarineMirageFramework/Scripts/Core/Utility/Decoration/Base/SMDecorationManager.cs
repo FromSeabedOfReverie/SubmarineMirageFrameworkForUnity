@@ -30,7 +30,7 @@ namespace SubmarineMirage.Utility {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMDecorationManager() {
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_nGUI.Dispose();
 				_uGUI.Dispose();
 			} );

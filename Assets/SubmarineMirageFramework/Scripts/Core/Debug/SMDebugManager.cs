@@ -49,7 +49,7 @@ namespace SubmarineMirage.Debug {
 		public SMDebugManager() {
 			_log = new SMLog();
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_log.Dispose();
 			} );
 		}

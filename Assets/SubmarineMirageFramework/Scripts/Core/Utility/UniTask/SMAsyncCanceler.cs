@@ -10,20 +10,25 @@ namespace SubmarineMirage.Utility {
 	using System.Threading;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using Base;
 	using Event;
 	using Extension;
 	using Debug;
 
 
 
-	public class SMAsyncCanceler : SMStandardBase {
+	public class SMAsyncCanceler : SMLinkNode {
 		static readonly CancellationToken DEFAULT_CANCELED_TOKEN;
 
-		SMAsyncCanceler _previous	{ get; set; }
-		SMAsyncCanceler _next		{ get; set; }
+		[SMShowLine] new SMAsyncCanceler _previous {
+			get => base._previous as SMAsyncCanceler;
+			set => base._previous = value;
+		}
+		[SMShowLine] new SMAsyncCanceler _next {
+			get => base._next as SMAsyncCanceler;
+			set => base._next = value;
+		}
 
-		CancellationTokenSource _canceler	{ get; set; } = new CancellationTokenSource();
+		[SMShow] CancellationTokenSource _canceler	{ get; set; } = new CancellationTokenSource();
 		[SMShow] public readonly SMSubject _cancelEvent = new SMSubject();
 
 		[SMShow] bool _isRawCancel		=> _canceler?.IsCancellationRequested ?? true;
@@ -36,9 +41,7 @@ namespace SubmarineMirage.Utility {
 		public override void SetToString() {
 			base.SetToString();
 
-			_toStringer.Add( nameof( _previous ), i => $"{ _previous?._id}" );
-			_toStringer.Add( nameof( _next ), i => $"{_next?._id}" );
-			_toStringer.Add( nameof( _canceler ), i => $"{_canceler?.GetHashCode()}" );
+			_toStringer.SetValue( nameof( _canceler ), i => $"{_canceler?.GetHashCode()}" );
 		}
 #endregion
 
@@ -73,59 +76,32 @@ namespace SubmarineMirage.Utility {
 
 
 
-		public void Link( SMAsyncCanceler add ) {
+		public void LinkLast( SMAsyncCanceler add ) {
 			if ( _isDispose ) {
 				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( Link )}", $"既に解放済\n{this}" );
+					$"{this.GetAboutName()}.{nameof( LinkLast )}", $"既に解放済\n{this}" );
 			}
-
-#if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Link )} : start\n{this}" );
-#endif
-			var last = _next;
-			_next = add;
-			add._previous = this;
-			if ( last != null ) {
-				add._next = last;
-				last._previous = add;
-			}
-#if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Link )} : end\n{this}" );
-#endif
+			base.LinkLast( add );
 		}
 
-		public void Unlink() {
+		public new void Unlink() {
 			if ( _isDispose ) {
 				throw new ObjectDisposedException(
 					$"{this.GetAboutName()}.{nameof( Unlink )}", $"既に解放済\n{this}" );
 			}
-
-#if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Unlink )} : start\n{this}" );
-#endif
-			if ( _previous != null )	{ _previous._next = _next; }
-			if ( _next != null )		{ _next._previous = _previous; }
-			_previous = null;
-			_next = null;
-#if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Unlink )} : end\n{this}" );
-#endif
+			base.Unlink();
 		}
 
-		public SMAsyncCanceler CreateLinkCanceler() {
+		public SMAsyncCanceler CreateChild() {
 			if ( _isDispose ) {
 				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( CreateLinkCanceler )}", $"既に解放済\n{this}" );
+					$"{this.GetAboutName()}.{nameof( CreateChild )}", $"既に解放済\n{this}" );
 			}
 
 			var add = new SMAsyncCanceler();
-			Link( add );
+			LinkLast( add );
 #if TestAsyncCanceler
-			SMLog.Debug( string.Join( "\n",
-				$"{nameof( CreateLinkCanceler )}",
-				$"this : {this}",
-				$"{nameof( add )} : {add}"
-			) );
+			SMLog.Debug( $"{nameof( CreateChild )} :\n{string.Join( "\n", GetAlls() )}" );
 #endif
 			return add;
 		}
@@ -136,7 +112,7 @@ namespace SubmarineMirage.Utility {
 			if ( _isDispose )	{ return; }
 
 #if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Cancel )} : start\n{this}" );
+			SMLog.Debug( $"{nameof( Cancel )}( {isRecreate} ) : start\n{this}" );
 #endif
 			if ( _isRawCancel ) {
 				if ( isRecreate )	{ Recreate(); }
@@ -149,7 +125,7 @@ namespace SubmarineMirage.Utility {
 				_next.Cancel( !_next._isRawCancel );
 			}
 #if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Cancel )} : end\n{this}" );
+			SMLog.Debug( $"{nameof( Cancel )}( {isRecreate} ) : end\n{this}" );
 #endif
 		}
 
@@ -169,19 +145,8 @@ namespace SubmarineMirage.Utility {
 
 
 
-		public IEnumerable<SMAsyncCanceler> GetBrothers() {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( GetBrothers )}", $"既に解放済\n{this}" );
-			}
-
-			SMAsyncCanceler first = null;
-			for ( first = this; first._previous != null; first = first._previous )	{}
-
-			for ( var c = first; c != null; c = c._next ) {
-				yield return c;
-			}
-		}
+		public new IEnumerable<SMLinkNode> GetAlls()
+			=> base.GetAlls();
 
 
 

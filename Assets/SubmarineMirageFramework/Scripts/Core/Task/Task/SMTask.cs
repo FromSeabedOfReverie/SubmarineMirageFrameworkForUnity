@@ -4,32 +4,37 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestTask
 namespace SubmarineMirage.Task {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Base;
 	using Event;
 	using Service;
-	using Extension;
 	using Utility;
+	using Debug;
 
 
 
-	public abstract class SMTask : SMStandardBase {
-		public SMTask _previous	{ get; set; }
-		public SMTask _next		{ get; set; }
+	public abstract class SMTask : SMLinkNode {
+		[SMShowLine] public new SMTask _previous {
+			get => base._previous as SMTask;
+			set => base._previous = value;
+		}
+		[SMShowLine] public new SMTask _next {
+			get => base._next as SMTask;
+			set => base._next = value;
+		}
+		public SMTaskManager _taskManager	{ protected get; set; }
 
-		protected SMTaskManager _taskManager	{ get; private set; }
+		[SMShowLine] public virtual SMTaskRunType _type	=> SMTaskRunType.Parallel;
+		[SMShowLine] public SMTaskRunState _ranState	{ get; set; }
+		public SMTaskActiveState _activeState			{ get; set; }
 
-		public virtual SMTaskRunType _type		=> SMTaskRunType.Parallel;
-		public SMTaskRunState _ranState			{ get; set; }
-		public SMTaskActiveState _activeState	{ get; set; }
-
-		public bool _isInitialized			=> _ranState >= SMTaskRunState.InitialEnable;
-		public bool _isFinalizing			=> _ranState >= SMTaskRunState.FinalDisable;
-		public bool _isOperable				=> _isInitialized && !_isFinalizing;
-		public bool _isActive				=> _activeState == SMTaskActiveState.Enable;
-		public bool _isRequestInitialEnable	{ get; set; } = true;
+		[SMShow] public bool _isInitialized				=> _ranState >= SMTaskRunState.InitialEnable;
+		[SMShow] public bool _isFinalizing				=> _ranState >= SMTaskRunState.FinalDisable;
+		[SMShow] public bool _isOperable				=> _isInitialized && !_isFinalizing;
+		[SMShowLine] public bool _isActive				=> _activeState == SMTaskActiveState.Enable;
+		[SMShow] public bool _isRequestInitialEnable	{ get; set; } = true;
 		public Func<bool> _isCanActiveEvent = () => true;
 
 		public SMAsyncEvent _selfInitializeEvent	{ get; private set; } = new SMAsyncEvent();
@@ -50,32 +55,26 @@ namespace SubmarineMirage.Task {
 		public override void SetToString() {
 			base.SetToString();
 
-
 			_toStringer.SetValue( nameof( _id ), i => StringSMUtility.IndentSpace( i ) +
 				$"{_id} ↑{_previous?._id} ↓{_next?._id}" );
-			_toStringer.Add( "this", i => this.GetAboutName() );
-			_toStringer.Add( nameof( _previous ), i => _toStringer.DefaultValue( _previous, i, true ) );
-			_toStringer.Add( nameof( _next ), i => _toStringer.DefaultValue( _next, i, true ) );
-
 			_toStringer.Add( nameof( _selfInitializeEvent ),	i => _selfInitializeEvent._isRunning.ToString() );
 			_toStringer.Add( nameof( _initializeEvent ),		i => _initializeEvent._isRunning.ToString() );
 			_toStringer.Add( nameof( _finalizeEvent ),			i => _finalizeEvent._isRunning.ToString() );
 
-
-			_toStringer.AddLine( nameof( _previous ), () => $"↑{_previous?._id}" );
-			_toStringer.AddLine( nameof( _next ), () => $"↓{_next?._id}" );
-			_toStringer.AddLine( nameof( _ranState ), () => _toStringer.DefaultLineValue( _ranState ) );
-			_toStringer.AddLine( nameof( _isActive ), () => _isActive ? "◯" : "×" );
+			_toStringer.SetLineValue( nameof( _isActive ), () => _isActive ? "◯" : "×" );
 		}
 #endregion
 
 
 
-		public SMTask( bool isAdjustRun = true ) {
+		public SMTask( bool isRegister = true, bool isAdjustRun = true ) {
 			_taskManager = SMServiceLocator.Resolve<SMTaskManager>();
-			_taskManager?.Register( this, isAdjustRun );
+			if ( isRegister )	{ _taskManager?.Register( this, isAdjustRun ); }
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
+#if TestTask
+				SMLog.Debug( $"{nameof( SMTask )}.{nameof( Dispose )} : start\n{this}" );
+#endif
 				_taskManager.Unregister( this );
 
 				_isRequestInitialEnable = false;
@@ -92,6 +91,9 @@ namespace SubmarineMirage.Task {
 				_fixedUpdateEvent.Dispose();
 				_updateEvent.Dispose();
 				_lateUpdateEvent.Dispose();
+#if TestTask
+				SMLog.Debug( $"{nameof( SMTask )}.{nameof( Dispose )} : end\n{this}" );
+#endif
 			} );
 		}
 
@@ -101,28 +103,11 @@ namespace SubmarineMirage.Task {
 
 
 
-		public void SetManager( SMTaskManager manager ) {
-			_taskManager = manager;
-		}
+		public void Link( SMTask add )
+			=> base.Link( add );
 
-
-
-		public void Link( SMTask add ) {
-			var last = _next;
-			_next = add;
-			add._previous = this;
-			if ( last != null ) {
-				add._next = last;
-				last._previous = add;
-			}
-		}
-
-		public void Unlink() {
-			if ( _previous != null )	{ _previous._next = _next; }
-			if ( _next != null )		{ _next._previous = _previous; }
-			_previous = null;
-			_next = null;
-		}
+		public new void Unlink()
+			=> base.Unlink();
 
 
 
@@ -133,6 +118,9 @@ namespace SubmarineMirage.Task {
 
 
 		public virtual void FixedUpdate() {
+#if TestTask
+			SMLog.Debug( $"{nameof( FixedUpdate )} : {this}" );
+#endif
 			if ( !_isOperable )	{ return; }
 			if ( !_isActive )	{ return; }
 			if ( _ranState < SMTaskRunState.InitialEnable )	{ return; }
@@ -145,6 +133,10 @@ namespace SubmarineMirage.Task {
 		}
 
 		public virtual void Update() {
+//#if TestTask
+			SMLog.Debug( $"{nameof( Update )} : {this}" );
+			if ( !_isDispose ) { _updateEvent.Run(); }
+//#endif
 			if ( !_isOperable )	{ return; }
 			if ( !_isActive )	{ return; }
 			if ( _ranState < SMTaskRunState.FixedUpdate )	{ return; }
@@ -157,6 +149,9 @@ namespace SubmarineMirage.Task {
 		}
 
 		public virtual void LateUpdate() {
+#if TestTask
+			SMLog.Debug( $"{nameof( LateUpdate )} : {this}" );
+#endif
 			if ( !_isOperable )	{ return; }
 			if ( !_isActive )	{ return; }
 			if ( _ranState < SMTaskRunState.Update )	{ return; }

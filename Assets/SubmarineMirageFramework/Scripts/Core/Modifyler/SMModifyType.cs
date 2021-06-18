@@ -8,8 +8,6 @@ namespace SubmarineMirage.Modifyler {
 
 
 	public enum SMModifyType {
-		FirstLinker,
-		Linker,
 		FirstRunner,
 		SingleRunner,
 		ParallellRunner,

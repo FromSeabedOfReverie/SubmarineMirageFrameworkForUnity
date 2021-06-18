@@ -26,7 +26,7 @@ namespace SubmarineMirage.Service {
 		static SMServiceLocator() {
 			SMLog.Debug( $"{nameof( SMServiceLocator )}()", SMLogTag.Service );
 
-			s_disposables.AddLast( () => {
+			s_disposables.AddFirst( () => {
 				SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Dispose )}", SMLogTag.Service );
 				s_container.ForEach( pair => pair.Value.Dispose() );
 				s_container.Clear();

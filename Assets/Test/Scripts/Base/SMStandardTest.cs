@@ -27,7 +27,7 @@ namespace SubmarineMirage.TestBase {
 			_toStringer = new SMToStringer( this );
 			SetToString();
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 				_stopwatch.Dispose();
 				_finalizeEvent.Run();

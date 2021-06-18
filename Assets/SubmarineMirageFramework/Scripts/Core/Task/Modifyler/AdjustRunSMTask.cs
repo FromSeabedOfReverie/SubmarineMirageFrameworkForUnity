@@ -12,13 +12,11 @@ namespace SubmarineMirage.Task.Modifyler {
 
 	public class AdjustRunSMTask : SMTaskModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
-		[SMShowLine] SMTask _task;
 		[SMShowLine] SMTask _previous;
 		[SMShowLine] bool _isSetPrevious;
 
 
-		public AdjustRunSMTask( SMTask task, SMTask previous = null ) {
-			_task = task;
+		public AdjustRunSMTask( SMTask task, SMTask previous = null ) : base( task ) {
 			_previous = previous;
 			_isSetPrevious = _previous == null;
 		}

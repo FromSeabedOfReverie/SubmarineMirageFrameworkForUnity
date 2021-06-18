@@ -28,7 +28,7 @@ namespace SubmarineMirage {
 		public SubmarineMirageFramework() {
 			SMLog.s_isEnable = SMDebugManager.IS_DEVELOP;   // 真っ先に指定しないと、ログが出ない
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_isInitialized = false;
 				_asyncCanceler.Dispose();
 			} );
@@ -75,11 +75,32 @@ namespace SubmarineMirage {
 		{
 			await SystemTask.Delay( 1, _asyncCanceler.ToToken() );
 
-			_disposables.AddLast( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown( false ) ) );
+			_disposables.AddFirst( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown( false ) ) );
 
 			await initializePluginEvent();
 
+
+
 			var taskManager = SMServiceLocator.Register( new SMTaskManager() );
+
+			var t = new Task.Test.SMTestTask( "テスト1", SMTaskRunType.Sequential, false );
+			t._updateEvent.AddLast( "1" ).Subscribe( _ => {
+				SMLog.Warning( "削除" );
+				t.Dispose();
+			} );
+			t._updateEvent.AddLast( "2" ).Subscribe( _ => {
+				SMLog.Warning( "hoge" );
+			} );
+			/*
+			t._updateEvent.AddLast( "2" ).Subscribe( _ => {
+				SMLog.Warning( "追加" );
+				new Task.Test.SMTestTask( "テスト2", SMTaskRunType.Sequential, false );
+				t._updateEvent.Remove( "2" );
+			} );
+			*/
+
+
+
 //			SMServiceLocator.Register( new SMDecorationManager() );
 //			SMServiceLocator.Register( new SMDebugManager() );
 //			SMServiceLocator.Register( new SMTagManager() ) ;

@@ -18,7 +18,7 @@ namespace SubmarineMirage.Extension {
 		protected override void Awake() {
 			base.Awake();
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_onGUIEvent.OnCompleted();
 				_onGUIEvent.Dispose();
 				gameObject.Destroy();

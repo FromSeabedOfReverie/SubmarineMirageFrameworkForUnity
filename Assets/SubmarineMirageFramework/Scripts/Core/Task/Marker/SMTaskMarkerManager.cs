@@ -13,6 +13,8 @@ namespace SubmarineMirage.Task.Marker {
 	using Task.Modifyler;
 	using Base;
 	using Service;
+	using Extension;
+	using Debug;
 
 
 
@@ -33,11 +35,10 @@ namespace SubmarineMirage.Task.Marker {
 				} );
 			} );
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				SMTaskManager.DISPOSE_TASK_TYPES.ForEach( type => {
 					GetAlls( type, true )
 						.Reverse()
-						.ToArray()
 						.ForEach( task => task.Dispose() );
 				} );
 				_markers.Clear();
@@ -118,7 +119,9 @@ namespace SubmarineMirage.Task.Marker {
 
 		public IEnumerable<SMTask> GetAlls( SMTaskRunType type, bool isRaw = false ) {
 			var first = GetFirst( type, isRaw );
-			var last = GetLast( type, isRaw );
+			if ( first == null )	{ yield break; }
+			var last = GetLast( type, isRaw )._next;
+
 			for ( var t = first; t != last; t = t._next ) {
 				yield return t;
 			}

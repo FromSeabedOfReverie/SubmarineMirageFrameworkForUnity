@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestTaskManager
 namespace SubmarineMirage.Task {
 	using System.Linq;
 	using System.Collections.Generic;
@@ -28,8 +29,8 @@ namespace SubmarineMirage.Task {
 		public static readonly SMTaskRunType[] RUN_TASK_TYPES = new SMTaskRunType[] {
 			SMTaskRunType.Sequential, SMTaskRunType.Parallel,
 		};
-		public static readonly SMTaskRunType[] DISPOSE_RUN_TASK_TYPES = RUN_TASK_TYPES.Reverse();
-		public static readonly SMTaskRunType[] DISPOSE_TASK_TYPES = CREATE_TASK_TYPES.Reverse();
+		public static readonly SMTaskRunType[] DISPOSE_RUN_TASK_TYPES = RUN_TASK_TYPES.DeepCopy().Reverse();
+		public static readonly SMTaskRunType[] DISPOSE_TASK_TYPES = CREATE_TASK_TYPES.DeepCopy().Reverse();
 
 		SMTask _root { get; set; }
 		SMTaskMarkerManager _taskMarkers { get; set; }
@@ -45,10 +46,14 @@ namespace SubmarineMirage.Task {
 
 		public SMTaskManager() {
 			_modifyler = new SMModifyler( this, typeof( SMTaskModifyData ) );
+//			_modifyler._isDebug = true;
 
 			_taskMarkers = new SMTaskMarkerManager( this.GetAboutName() );
 			var tasks = new SMTask[] {
 				GetFirst( SMTaskRunType.Dont, true ),
+#if TestTaskManager
+				new Test.SMTestTask( "テスト", SMTaskRunType.Dont, false ),
+#endif
 				GetLast( SMTaskRunType.Dont, true ),
 				GetFirst( SMTaskRunType.Sequential, true ),
 				GetLast( SMTaskRunType.Sequential, true ),
@@ -56,10 +61,9 @@ namespace SubmarineMirage.Task {
 				GetLast( SMTaskRunType.Parallel, true ),
 			};
 			_root = tasks.First();
-
 			SMTask last = null;
 			tasks.ForEach( current => {
-				current.SetManager( this );
+				current._taskManager = this;
 				if ( last != null )	{ last.Link( current ); }
 				last = current;
 			} );
@@ -88,18 +92,8 @@ namespace SubmarineMirage.Task {
 				_isUpdating.Value = false;
 			} );
 
-			_disposables.AddLast(
-				Observable.EveryFixedUpdate()	.Subscribe( _ => _fixedUpdateEvent.Run() ),
-				Observable.EveryUpdate()		.Subscribe( _ => _updateEvent.Run() ),
-				Observable.EveryLateUpdate()	.Subscribe( _ => _lateUpdateEvent.Run() )
-			);
-			if ( SMDebugManager.IS_DEVELOP ) {
-				_disposables.AddLast(
-					UniRxSMExtension.EveryOnGUI().Subscribe( _ => _onGUIEvent.Run() )
-				);
-			}
-
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
+				_isUpdating.Value = false;
 				_isUpdating.Dispose();
 				_taskMarkers.Dispose();
 				_root = null;
@@ -110,6 +104,16 @@ namespace SubmarineMirage.Task {
 				_lateUpdateEvent.Dispose();
 				_onGUIEvent.Dispose();
 			} );
+			_disposables.AddFirst(
+				Observable.EveryFixedUpdate()	.Subscribe( _ => _fixedUpdateEvent.Run() ),
+				Observable.EveryUpdate()		.Subscribe( _ => _updateEvent.Run() ),
+				Observable.EveryLateUpdate()	.Subscribe( _ => _lateUpdateEvent.Run() )
+			);
+			if ( SMDebugManager.IS_DEVELOP ) {
+				_disposables.AddFirst(
+					UniRxSMExtension.EveryOnGUI().Subscribe( _ => _onGUIEvent.Run() )
+				);
+			}
 		}
 
 
@@ -124,6 +128,14 @@ namespace SubmarineMirage.Task {
 
 
 
+		public void Register( SMTaskModifyData modifyData )
+			=> _modifyler.Register( modifyData );
+
+		public UniTask RegisterAndWaitRunning( SMTaskModifyData modifyData )
+			=> _modifyler.RegisterAndWaitRunning( modifyData );
+
+
+
 		public void Register( SMTask add, bool isAdjustRun ) {
 			Register( new RegisterSMTask( add ) );
 			if ( isAdjustRun ) {
@@ -133,9 +145,6 @@ namespace SubmarineMirage.Task {
 
 		public void Unregister( SMTask sub )
 			=> Register( new UnregisterSMTask( sub ) );
-
-		public void Register( SMTaskModifyData modifyData )
-			=> _modifyler.Register( modifyData );
 
 
 

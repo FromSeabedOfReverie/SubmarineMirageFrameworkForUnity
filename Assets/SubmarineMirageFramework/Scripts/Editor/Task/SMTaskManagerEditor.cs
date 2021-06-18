@@ -5,11 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.EditorTask {
+	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
 	using Task;
 	using Service;
+	using Modifyler;
 	using Debug;
 	using EditorExtension;
 
@@ -41,6 +43,7 @@ namespace SubmarineMirage.EditorTask {
 
 			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
 			ShowTasks();
+			ShowModifyler();
 			EditorGUILayout.EndScrollView();
 			ShowDetail();
 
@@ -57,8 +60,6 @@ namespace SubmarineMirage.EditorTask {
 
 
 		void ShowTasks() {
-			ShowHeading1( nameof( SMTask ) );
-
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( type => {
 				ShowHeading2( type.ToString() );
 				EditorGUI.indentLevel++;
@@ -73,6 +74,27 @@ namespace SubmarineMirage.EditorTask {
 					EditorGUILayout.SelectableLabel( task.ToLineString(), GUILayout.Height( 16 ) );
 				} );
 
+				EditorGUI.indentLevel--;
+				EditorGUILayout.Space();
+			} );
+		}
+
+
+		void ShowModifyler() {
+			ShowLine();
+			ShowHeading1( "Modifyler" );
+
+			var datas = new Dictionary< string, LinkedList<SMModifyData> > {
+				{ "RunData",    _taskManager._modifyler._runData },
+				{ "Data",		_taskManager._modifyler._data },
+			};
+			datas.ForEach( pair => {
+				ShowHeading2( pair.Key );
+				EditorGUI.indentLevel++;
+				pair.Value.ForEach( d => {
+					GUI.SetNextControlName( d.ToString() );
+					EditorGUILayout.SelectableLabel( d.ToLineString(), GUILayout.Height( 16 ) );
+				} );
 				EditorGUI.indentLevel--;
 				EditorGUILayout.Space();
 			} );

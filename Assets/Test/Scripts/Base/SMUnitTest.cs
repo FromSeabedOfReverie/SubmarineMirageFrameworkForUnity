@@ -25,7 +25,7 @@ namespace SubmarineMirage.TestBase {
 		[OneTimeSetUp]
 		protected void Awake() {
 			SMLog.s_isEnable = true;
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 				_stopwatch.Dispose();
 			} );

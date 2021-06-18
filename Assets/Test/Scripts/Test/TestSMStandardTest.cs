@@ -20,7 +20,7 @@ namespace SubmarineMirage.TestBase.Test {
 		protected override void Awake() {
 			base.Awake();
 			_body = new TestSMTestBody( this );
-			_disposables.AddLast( _body );
+			_disposables.AddFirst( _body );
 		}
 
 		protected override void Create() {
@@ -40,7 +40,7 @@ namespace SubmarineMirage.TestBase.Test {
 
 			_finalizeEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( _finalizeEvent )}" ) );
 
-			_disposables.AddLast( () => SMLog.Debug( $"{nameof( Dispose )}" ) );
+			_disposables.AddFirst( () => SMLog.Debug( $"{nameof( Dispose )}" ) );
 		}
 
 

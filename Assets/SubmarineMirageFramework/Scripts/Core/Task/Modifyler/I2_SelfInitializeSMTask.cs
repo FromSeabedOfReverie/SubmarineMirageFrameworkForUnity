@@ -12,12 +12,9 @@ namespace SubmarineMirage.Task.Modifyler {
 
 	public class SelfInitializeSMTask : SMTaskModifyData {
 		[SMShowLine] public override SMModifyType _type => GetType( _task );
-		[SMShowLine] SMTask _task;
 
 
-		public SelfInitializeSMTask( SMTask task ) {
-			_task = task;
-		}
+		public SelfInitializeSMTask( SMTask task ) : base( task ) {}
 
 
 		public override async UniTask Run() {

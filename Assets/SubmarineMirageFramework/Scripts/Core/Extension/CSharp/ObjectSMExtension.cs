@@ -66,7 +66,7 @@ namespace SubmarineMirage.Extension {
 			);
 		}
 		/// <summary>
-		/// ● 文字列に変換（Hide属性以外のみ表示）
+		/// ● 文字列に変換（Show属性のみ表示）
 		/// </summary>
 		public static string ToShowString( this object self, int indent = 0,
 												bool isUseInternalLineString = false,

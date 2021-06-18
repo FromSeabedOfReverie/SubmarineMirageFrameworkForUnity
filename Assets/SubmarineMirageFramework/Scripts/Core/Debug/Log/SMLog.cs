@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestSMLog
+//#define TestLog
 namespace SubmarineMirage.Debug {
 	using UnityEngine;
 	using Base;
@@ -40,12 +40,12 @@ namespace SubmarineMirage.Debug {
 
 			s_isEnable = SMDebugManager.IS_DEVELOP;
 
-			_disposables.AddLast( () => {
-				base.Dispose();
+			_disposables.AddFirst( () => {
 				_toStringer.Dispose();
+				base.Dispose();
 			} );
 
-#if TestSMLog
+#if TestLog
 			SMLog.Debug( SMLogTag.Task,				SMLogTag.Task );
 			SMLog.Debug( SMLogTag.Service,			SMLogTag.Service );
 			SMLog.Debug( SMLogTag.Singleton,		SMLogTag.Singleton );

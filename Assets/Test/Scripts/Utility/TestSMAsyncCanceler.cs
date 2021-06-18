@@ -20,10 +20,10 @@ namespace SubmarineMirage.TestUtility {
 	public partial class TestSMAsyncCanceler : SMUnitTest {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestCreate() => From( async () => {
-			var canceler = new SMAsyncCanceler();
-			canceler.Dispose();
-			SMLog.Debug( "End" );
+			var c = new SMAsyncCanceler();
+			c.Dispose();
 
+			SMLog.Debug( "End" );
 			await UTask.DontWait();
 		} );
 
@@ -41,7 +41,7 @@ namespace SubmarineMirage.TestUtility {
 				SMLog.Error( e );
 			}
 			try {
-				c1.Link( c2 );
+				c1.LinkLast( c2 );
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
@@ -51,7 +51,7 @@ namespace SubmarineMirage.TestUtility {
 				SMLog.Error( e );
 			}
 			try {
-				var c3 = c1.CreateLinkCanceler();
+				var c3 = c1.CreateChild();
 				SMLog.Debug( c3 );
 			} catch ( Exception e ) {
 				SMLog.Error( e );
@@ -61,11 +61,7 @@ namespace SubmarineMirage.TestUtility {
 			c1.Cancel( false );
 			c1.Recreate();
 
-			try {
-				SMLog.Debug( string.Join( ",\n", c1.GetBrothers() ) );
-			} catch ( Exception e ) {
-				SMLog.Error( e );
-			}
+			SMLog.Debug( string.Join( ",\n", c1.GetAlls() ) );
 
 			try {
 				_stopwatch.Start();
@@ -74,6 +70,7 @@ namespace SubmarineMirage.TestUtility {
 				SMLog.Debug( "待機終了" );
 			} catch ( OperationCanceledException ) {}
 			SMLog.Debug( _stopwatch.Stop() );
+
 			SMLog.Debug( "End" );
 			c2.Dispose();
 		} );
@@ -82,25 +79,23 @@ namespace SubmarineMirage.TestUtility {
 
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestSingle() => From( async () => {
-			var canceler = new SMAsyncCanceler();
-			canceler._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( "停止イベント" ) );
-			SMLog.Debug( $"SetEvent :\n{canceler}" );
+			var c = new SMAsyncCanceler();
+			c._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( "cancel" ) );
 
 			SMLog.Debug( "・停止テスト" );
 			for ( var i = 0; i < 2; i++ ) {
 				UTask.Void( async () => {
 					await UTask.Delay( _asyncCanceler, 500 );
 					SMLog.Debug( "停止" );
-					canceler.Cancel();
+					c.Cancel();
 				} );
 				try {
 					_stopwatch.Start();
 					SMLog.Debug( $"待機開始" );
-					await UTask.Delay( canceler, 1000 );
+					await UTask.Delay( c, 1000 );
 					SMLog.Debug( "待機終了" );
 				} catch ( OperationCanceledException ) {}
 				SMLog.Debug( _stopwatch.Stop() );
-				SMLog.Debug( $"End :\n{canceler}" );
 			}
 
 			SMLog.Debug( "・停止テスト（再作成なし）" );
@@ -108,51 +103,47 @@ namespace SubmarineMirage.TestUtility {
 				UTask.Void( async () => {
 					await UTask.Delay( _asyncCanceler, 500 );
 					SMLog.Debug( "停止" );
-					canceler.Cancel( false );
+					c.Cancel( false );
 				} );
 				try {
 					_stopwatch.Start();
 					SMLog.Debug( $"待機開始" );
-					await UTask.Delay( canceler, 1000 );
+					await UTask.Delay( c, 1000 );
 					SMLog.Debug( "待機終了" );
 				} catch ( OperationCanceledException ) {}
 				SMLog.Debug( _stopwatch.Stop() );
-				SMLog.Debug( $"End :\n{canceler}" );
 			}
 			for ( var i = 0; i < 2; i++ ) {
-				canceler.Cancel( false );
-				SMLog.Debug( $"Cancel( false ) :\n{canceler}" );
+				c.Cancel( false );
 			}
 			await UTask.Delay( _asyncCanceler, 500 );
 
 			SMLog.Debug( "・再作成テスト" );
-			canceler.Recreate();
-			SMLog.Debug( $"Recreate :\n{canceler}" );
+			c.Recreate();
 			UTask.Void( async () => {
 				await UTask.Delay( _asyncCanceler, 500 );
 				SMLog.Debug( "停止" );
-				canceler.Cancel( false );
+				c.Cancel( false );
 			} );
 			try {
 				_stopwatch.Start();
 				SMLog.Debug( $"待機開始" );
-				await UTask.Delay( canceler, 1000 );
+				await UTask.Delay( c, 1000 );
 				SMLog.Debug( "待機終了" );
 			} catch ( OperationCanceledException ) {}
 			SMLog.Debug( _stopwatch.Stop() );
-			SMLog.Debug( $"End :\n{canceler}" );
 			for ( var i = 0; i < 2; i++ ) {
-				canceler.Recreate();
-				SMLog.Debug( $"Recreate :\n{canceler}" );
+				c.Recreate();
 			}
 
 			SMLog.Debug( "・削除テスト" );
-			canceler.Dispose();
-			canceler = new SMAsyncCanceler();
-			canceler._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( "停止イベント" ) );
-			canceler.Cancel( false );
-			canceler.Dispose();
-			SMLog.Debug( $"End :\n{canceler}" );
+			c.Dispose();
+			c = new SMAsyncCanceler();
+			c._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( "cancel" ) );
+			c.Cancel( false );
+			c.Dispose();
+
+			SMLog.Debug( "End" );
 		} );
 
 
@@ -160,36 +151,36 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestCreateLink() => From( async () => {
 			var c1 = new SMAsyncCanceler();
-			var c2 = c1.CreateLinkCanceler();
-			var c3 = c1.CreateLinkCanceler();
+			var c2 = c1.CreateChild();
+			var c3 = c1.CreateChild();
 			c1._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c1 )}停止" ) );
 			c2._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c2 )}停止" ) );
 			c3._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c3 )}停止" ) );
-			SMLog.Debug( string.Join( ",\n", c2.GetBrothers() ) );
-			c3.Dispose();
-			SMLog.Debug( string.Join( ",\n", c1.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c2.GetAlls() ) );
 			c2.Dispose();
-			SMLog.Debug( string.Join( ",\n", c1.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c1.GetAlls() ) );
+			c3.Dispose();
+			SMLog.Debug( string.Join( ",\n", c1.GetAlls() ) );
 			c1.Dispose();
 
 			c1 = new SMAsyncCanceler();
 			c2 = new SMAsyncCanceler();
-			c1.Link( c2 );
-			SMLog.Debug( string.Join( ",\n", c1.GetBrothers() ) );
+			c1.LinkLast( c2 );
+			SMLog.Debug( string.Join( ",\n", c1.GetAlls() ) );
 			c3 = new SMAsyncCanceler();
-			c1.Link( c3 );
-			SMLog.Debug( string.Join( ",\n", c1.GetBrothers() ) );
+			c1.LinkLast( c3 );
+			SMLog.Debug( string.Join( ",\n", c1.GetAlls() ) );
 			c3.Unlink();
-			SMLog.Debug( string.Join( ",\n", c1.GetBrothers() ) );
-			c2.Link( c3 );
-			SMLog.Debug( string.Join( ",\n", c2.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c1.GetAlls() ) );
+			c2.LinkLast( c3 );
+			SMLog.Debug( string.Join( ",\n", c2.GetAlls() ) );
 			c1._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c1 )}停止" ) );
 			c2._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c2 )}停止" ) );
 			c3._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c3 )}停止" ) );
 			c1.Dispose();
-			SMLog.Debug( string.Join( ",\n", c3.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c3.GetAlls() ) );
 			c2.Dispose();
-			SMLog.Debug( string.Join( ",\n", c3.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c3.GetAlls() ) );
 			c3.Dispose();
 
 			SMLog.Debug( "End" );
@@ -201,8 +192,8 @@ namespace SubmarineMirage.TestUtility {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestMulti() => From( async () => {
 			var c1 = new SMAsyncCanceler();
-			var c2 = c1.CreateLinkCanceler();
-			var c3 = c2.CreateLinkCanceler();
+			var c2 = c1.CreateChild();
+			var c3 = c2.CreateChild();
 			c1._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c1 )}停止" ) );
 			c2._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c2 )}停止" ) );
 			c3._cancelEvent.AddLast().Subscribe( _ => SMLog.Debug( $"{nameof( c3 )}停止" ) );
@@ -236,11 +227,11 @@ namespace SubmarineMirage.TestUtility {
 			c2.Cancel( false );
 			c2.Cancel( false );
 
-			SMLog.Debug( string.Join( ",\n", c3.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c3.GetAlls() ) );
 			c1.Dispose();
-			SMLog.Debug( string.Join( ",\n", c3.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c3.GetAlls() ) );
 			c2.Dispose();
-			SMLog.Debug( string.Join( ",\n", c3.GetBrothers() ) );
+			SMLog.Debug( string.Join( ",\n", c3.GetAlls() ) );
 			c3.Dispose();
 
 			SMLog.Debug( "End" );

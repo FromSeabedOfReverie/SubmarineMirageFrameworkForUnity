@@ -8,6 +8,7 @@ namespace SubmarineMirage.Modifyler {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
+	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Base;
@@ -20,12 +21,13 @@ namespace SubmarineMirage.Modifyler {
 	public class SMModifyler : SMStandardBase {
 		ISMModifyTarget _target	{ get; set; }
 		[SMShow] Type _baseDataType { get; set; }
-		[SMShow] readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
-		readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
+		[SMShow] public readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
+		[SMShow] public readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
 
-		[SMShow] public bool _isRunning	{ get; private set; }
+		[SMShow] public bool _isRunning		{ get; private set; }
+		[SMShow] public bool _isHaveData	=> !_data.IsEmpty();
+		[SMShow] public bool _isDebug		{ get; set; }
 		public Func<bool> _isCanRunEvent	{ private get; set; } = () => true;
-		public bool _isHaveData => !_data.IsEmpty();
 
 		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
@@ -45,7 +47,7 @@ namespace SubmarineMirage.Modifyler {
 			_target = target;
 			_baseDataType = baseDataType;
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				Reset();
 				_runData.Clear();
 
@@ -55,17 +57,11 @@ namespace SubmarineMirage.Modifyler {
 			} );
 		}
 
-
 		public void Reset() {
 			_data.ForEach( d => d.Dispose() );
 			_data.Clear();
 		}
 
-		public void Move( SMModifyler remove ) {
-			remove._data.ForEach( d => Register( d ) );
-			remove._data.Clear();
-			remove.Dispose();
-		}
 
 
 		public void Register( SMModifyData data ) {
@@ -82,8 +78,6 @@ namespace SubmarineMirage.Modifyler {
 			}
 
 			switch( data._type ) {
-				case SMModifyType.FirstLinker:
-				case SMModifyType.Linker:
 				case SMModifyType.FirstRunner:
 					_data.AddBefore(
 						data,
@@ -108,22 +102,12 @@ namespace SubmarineMirage.Modifyler {
 			Run().Forget();
 		}
 
-		public void Reregister( SMModifyler newModifyler, Func<SMModifyData, bool> isFindEvent )
-			=> _data.RemoveAll(
-				d => isFindEvent( d ),
-				d => newModifyler.Register( d )
-			);
-
 		public void Unregister( Func<SMModifyData, bool> isFindEvent ) => _data.RemoveAll(
 			d => isFindEvent( d ),
 			d => d.Dispose()
 		);
 
 
-		public async UniTask RegisterAndRun( SMModifyData data ) {
-			Register( data );
-			await WaitRunning();
-		}
 
 		public async UniTask Run() {
 			if ( _isRunning )	{ return; }
@@ -133,11 +117,16 @@ namespace SubmarineMirage.Modifyler {
 				if ( _isDispose )			{ break; }
 				if ( !_isCanRunEvent() )	{ break; }
 
+				if ( _isDebug ) {
+					await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKeyDown( KeyCode.M ) );
+					await UTask.NextFrame( _asyncCanceler );
+				}
+
 				var d = _data.Dequeue();
 				_runData.AddLast( d );
 
 				if ( d._type == SMModifyType.ParallellRunner ) {
-					while ( true ) {
+					while ( !_data.IsEmpty() ) {
 						d = _data.First.Value;
 						if ( d._type != SMModifyType.ParallellRunner )	{ break; }
 						_data.RemoveFirst();
@@ -145,9 +134,15 @@ namespace SubmarineMirage.Modifyler {
 					}
 				}
 
+				if ( _isDebug ) {
+					await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKeyDown( KeyCode.M ) );
+					await UTask.NextFrame( _asyncCanceler );
+				}
+
 				await _runData.Select( async rd => {
 //					try {
 						await rd.Run();
+						rd.Finish();
 //					} catch ( OperationCanceledException ) {
 //					}
 				} );
@@ -158,5 +153,10 @@ namespace SubmarineMirage.Modifyler {
 
 		public UniTask WaitRunning()
 			=> UTask.WaitWhile( _asyncCanceler, () => _isRunning || _isHaveData );
+
+		public async UniTask RegisterAndWaitRunning( SMModifyData data ) {
+			Register( data );
+			await UTask.WaitWhile( _asyncCanceler, () => !data._isFinished );
+		}
 	}
 }

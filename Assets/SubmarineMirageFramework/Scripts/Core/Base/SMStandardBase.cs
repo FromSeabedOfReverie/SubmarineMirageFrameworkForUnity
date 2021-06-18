@@ -19,7 +19,9 @@ namespace SubmarineMirage.Base {
 		public SMStandardBase() {
 			_toStringer = new SMToStringer( this );
 			SetToString();
-			_disposables.AddLast( _toStringer );
+			_disposables.AddFirst( () => {
+				_toStringer.Dispose();
+			} );
 		}
 
 		public override void Dispose() => _disposables.Dispose();
