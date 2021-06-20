@@ -10,6 +10,7 @@ namespace SubmarineMirage.Task {
 	using Cysharp.Threading.Tasks;
 	using Event;
 	using Service;
+	using Modifyler;
 	using Utility;
 	using Debug;
 
@@ -100,6 +101,15 @@ namespace SubmarineMirage.Task {
 		public abstract void Create();
 
 		public override void Dispose() => base.Dispose();
+
+		public async UniTask Destroy() {
+			if ( _type == SMTaskRunType.Dont ) {
+				Dispose();
+				return;
+			}
+			_taskManager.Register( new FinalDisableSMTask( this ) );
+			await _taskManager.RegisterAndWaitRunning( new FinalizeSMTask( this ) );
+		}
 
 
 

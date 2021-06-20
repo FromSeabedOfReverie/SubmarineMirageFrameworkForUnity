@@ -5,23 +5,20 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event.Modifyler {
-	using System.Collections.Generic;
-	using Base;
+	using SubmarineMirage.Modifyler;
 	using Debug;
 
 
-	public abstract class SMEventModifyData<T> : SMLightBase {
-		public BaseSMEvent<T> _owner	{ get; set; }
-		[SMShowLine] public T _function	{ get; set; }
+
+	public abstract class SMEventModifyData : SMModifyData {
+		public new BaseSMEvent _target	{ get; private set; }
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Last;
 
 
-		public override void Dispose() {}
 
-
-		public abstract void Run();
-
-
-		protected void NoEventError( string key )
-			=> throw new KeyNotFoundException( $"イベント関数が未登録 : {key}" );
+		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			base.Set( target, modifyler );
+			_target = base._target as BaseSMEvent;
+		}
 	}
 }

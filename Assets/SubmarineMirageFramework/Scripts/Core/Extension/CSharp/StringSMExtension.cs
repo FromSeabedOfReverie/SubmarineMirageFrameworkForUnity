@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
+	using System;
 	using KoganeUnityLib;
 	///====================================================================================================
 	/// <summary>
@@ -38,20 +39,34 @@ namespace SubmarineMirage.Extension {
 		/// <summary>
 		/// ● 挿入
 		/// </summary>
-		static string Insert( this string self, string findText, string insertText, bool isInsertFirst ) {
-			var i = self.IndexOf( findText );
+		static string Insert( this string self, string findText, string insertText,
+								bool isFindFirst, bool isInsertFirst
+		) {
+			var i = (
+				isFindFirst ? self.IndexOf( findText )
+							: self.LastIndexOf( findText )
+			);
+			if ( i == -1 ) {
+				throw new NotSupportedException( string.Join( "\n",
+					$"{nameof( StringSMExtension )}.{nameof( Insert )} : 検索文字が未発見",
+					$"{findText}",
+					$"{self}"
+				) );
+			}
 			if ( !isInsertFirst )	{ i += findText.Length; }
 			return self.Insert( i, insertText );
 		}
 		/// <summary>
 		/// ● 最初に挿入
 		/// </summary>
-		public static string InsertFirst( this string self, string findText, string insertText )
-			=> Insert( self, findText, insertText, true );
+		public static string InsertFirst( this string self, string findText, string insertText,
+											bool isFindFirst = true
+		) => Insert( self, findText, insertText, isFindFirst, true );
 		/// <summary>
 		/// ● 最後に挿入
 		/// </summary>
-		public static string InsertLast( this string self, string findText, string insertText )
-			=> Insert( self, findText, insertText, false );
+		public static string InsertLast( this string self, string findText, string insertText,
+											bool isFindFirst = true
+		) => Insert( self, findText, insertText, isFindFirst, false );
 	}
 }

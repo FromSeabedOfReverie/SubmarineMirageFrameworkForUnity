@@ -39,8 +39,8 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 		protected SMModifyType GetType( SMTask task ) => (
-			task._type == SMTaskRunType.Parallel	? SMModifyType.ParallellRunner
-													: SMModifyType.Runner
+			task._type == SMTaskRunType.Parallel	? SMModifyType.Parallel
+													: SMModifyType.Last
 		);
 
 

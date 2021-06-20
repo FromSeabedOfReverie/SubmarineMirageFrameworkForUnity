@@ -18,40 +18,41 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	public class SMModifyler : SMStandardBase {
+	public class SMModifyler : SMRawBase {
 		ISMModifyTarget _target	{ get; set; }
 		[SMShow] Type _baseDataType { get; set; }
-		[SMShow] public readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
-		[SMShow] public readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
+		public readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
+		public readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
 
 		[SMShow] public bool _isRunning		{ get; private set; }
 		[SMShow] public bool _isHaveData	=> !_data.IsEmpty();
-		[SMShow] public bool _isDebug		{ get; set; }
+		bool _isInternalDebug				{ get; set; }
+
+		[SMShow] public bool _isDebug {
+			get => _isInternalDebug;
+			set {
+				_isInternalDebug = value;
+				if ( _isInternalDebug && _asyncCanceler == null ) {
+					_asyncCanceler = new SMAsyncCanceler();
+				}
+			}
+		}
 		public Func<bool> _isCanRunEvent	{ private get; set; } = () => true;
 
-		public readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
+		public SMAsyncCanceler _asyncCanceler { get; private set; }
 
 
 
-#region ToString
-		public override void SetToString() {
-			base.SetToString();
-			_toStringer.Add( nameof( _target ), i => _toStringer.DefaultValue( _target, i, true ) );
-			_toStringer.SetValue( nameof( _data ), i => _toStringer.DefaultValue( _data, i, true ) );
-		}
-#endregion
-
-
-
-		public SMModifyler( ISMModifyTarget target, Type baseDataType ) {
+		public SMModifyler( ISMModifyTarget target, Type baseDataType, bool isUseAsync = true ) {
 			_target = target;
 			_baseDataType = baseDataType;
+			if ( isUseAsync )	{ _asyncCanceler = new SMAsyncCanceler(); }
 
-			_disposables.AddFirst( () => {
+			_disposables.Add( () => {
 				Reset();
 				_runData.Clear();
 
-				_asyncCanceler.Dispose();
+				_asyncCanceler?.Dispose();
 				_isRunning = false;
 				_isCanRunEvent = null;
 			} );
@@ -74,11 +75,16 @@ namespace SubmarineMirage.Modifyler {
 			data.Set( _target, this );
 			if ( _isDispose ) {
 				data.Dispose();
-				return;
+				throw new ObjectDisposedException(
+					$"{this.GetAboutName()}.{nameof( Register )}", $"既に解放済 : {this}" );
 			}
 
 			switch( data._type ) {
-				case SMModifyType.FirstRunner:
+				case SMModifyType.Interrupt:
+					_data.AddFirst( data );
+					break;
+
+				case SMModifyType.First:
 					_data.AddBefore(
 						data,
 						d => d._type > data._type,
@@ -86,16 +92,16 @@ namespace SubmarineMirage.Modifyler {
 					);
 					break;
 
-				case SMModifyType.SingleRunner:
+				case SMModifyType.Single:
 					_data.RemoveAll(
-						d => d._type == SMModifyType.SingleRunner,
+						d => d._type == SMModifyType.Single,
 						d => d.Dispose()
 					);
 					_data.Enqueue( data );
 					break;
 
-				case SMModifyType.ParallellRunner:
-				case SMModifyType.Runner:
+				case SMModifyType.Parallel:
+				case SMModifyType.Last:
 					_data.Enqueue( data );
 					break;
 			}
@@ -125,10 +131,10 @@ namespace SubmarineMirage.Modifyler {
 				var d = _data.Dequeue();
 				_runData.AddLast( d );
 
-				if ( d._type == SMModifyType.ParallellRunner ) {
+				if ( d._type == SMModifyType.Parallel ) {
 					while ( !_data.IsEmpty() ) {
 						d = _data.First.Value;
-						if ( d._type != SMModifyType.ParallellRunner )	{ break; }
+						if ( d._type != SMModifyType.Parallel )	{ break; }
 						_data.RemoveFirst();
 						_runData.AddLast( d );
 					}
@@ -158,5 +164,42 @@ namespace SubmarineMirage.Modifyler {
 			Register( data );
 			await UTask.WaitWhile( _asyncCanceler, () => !data._isFinished );
 		}
+
+
+
+		public override string ToString( int indent, bool isUseHeadIndent = true ) {
+			indent++;
+			var mPrefix = StringSMUtility.IndentSpace( indent );
+
+			return base.ToString( indent, isUseHeadIndent ).InsertFirst(
+				")",
+				string.Join( "\n",
+					$"{mPrefix}{nameof( _target )}{_target.ToLineString( indent )}",
+					$"{mPrefix}{nameof( _data )}{_data.ToLineString( indent )}",
+					$"{mPrefix}{nameof( _runData )}{_runData.ToLineString( indent )}",
+					""
+				),
+				false
+			);
+		}
+/*
+		public override string ToString( int indent, bool isUseHeadIndent = true ) {
+			var prefix = StringSMUtility.IndentSpace( indent );
+			var hPrefix = isUseHeadIndent ? prefix : "";
+			indent++;
+			var mPrefix = StringSMUtility.IndentSpace( indent );
+			indent++;
+
+			return string.Join( "\n",
+				$"{hPrefix}{this.GetAboutName()}(",
+				$"{mPrefix}{nameof( _isRunning )} : {_isRunning},",
+				$"{mPrefix}{nameof( _data )} :",
+				string.Join( ",\n", _data.Select( d =>
+					d.ToLineString( indent )
+				) ),
+				$"{prefix})"
+			);
+		}
+*/
 	}
 }

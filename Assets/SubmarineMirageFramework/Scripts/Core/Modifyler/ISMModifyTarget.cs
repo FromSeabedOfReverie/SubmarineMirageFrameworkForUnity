@@ -9,6 +9,6 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-	public interface ISMModifyTarget : ISMStandardBase {
+	public interface ISMModifyTarget : IBaseSM {
 	}
 }

@@ -6,99 +6,128 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event {
 	using System;
-	using System.Linq;
 	using System.Collections.Generic;
-	using UniRx;
+	using UnityEngine;
+	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Base;
+	using SubmarineMirage.Modifyler;
 	using Event.Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
 
 
-	public abstract class BaseSMEvent<T> : SMRawBase {
-		public LinkedList< KeyValuePair<string, T> > _events	{ get; private set; }
-			= new LinkedList< KeyValuePair<string, T> >();
-		protected SMEventModifyler<T> _modifyler	{ get; private set; }
+
+	public abstract class BaseSMEvent : SMRawBase, ISMModifyTarget {
+		// ReverseSMEventで再代入される為、public setter
+		public LinkedList<BaseSMEventData> _events	{ get; set; } = new LinkedList<BaseSMEventData>();
+		public SMModifyler _modifyler	{ get; private set; }
+
+		[SMShow] public bool _isRunning		{ get; private set; }
+		bool _isInternalDebug { get; set; }
+
+		[SMShow] public bool _isDebug {
+			get => _isInternalDebug;
+			set {
+				_isInternalDebug = value;
+				if ( _isInternalDebug && _asyncCancelerForDebug == null ) {
+					_asyncCancelerForDebug = new SMAsyncCanceler();
+				}
+			}
+		}
+
+		public SMAsyncCanceler _asyncCancelerForDebug { get; private set; }
+
 
 
 		public BaseSMEvent() {
-			_modifyler = new SMEventModifyler<T>( this );
+			_modifyler = new SMModifyler( this, typeof( SMEventModifyData ), false );
+
 			_disposables.Add( () => {
 				_modifyler.Dispose();
-				_events.ForEach( pair => OnRemove( pair.Value ) );
+				_events.ForEach( data => data.Dispose() );
 				_events.Clear();
+
+				_asyncCancelerForDebug?.Dispose();
+				_isRunning = false;
 			} );
 		}
 
 
-		public void InsertFirst( string findKey, string key, T function )
-			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.First, key, function ) );
 
-		public void InsertFirst( string findKey, T function )
-			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.First, string.Empty, function ) );
+		protected void Remove( string findKey )
+			=> _modifyler.Register( new RemoveSMEvent( findKey ) );
 
-		public void InsertLast( string findKey, string key, T function )
-			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.Last, key, function ) );
+		protected void Reverse()
+			=> _modifyler.Register( new ReverseSMEvent() );
 
-		public void InsertLast( string findKey, T function )
-			=> _modifyler.Register( new InsertSMEvent<T>( findKey, SMEventAddType.Last, string.Empty, function ) );
+		protected void InsertFirst( string findKey, BaseSMEventData data )
+			=> _modifyler.Register( new InsertFirstSMEvent( findKey, data ) );
 
+		protected void InsertLast( string findKey, BaseSMEventData data )
+			=> _modifyler.Register( new InsertLastSMEvent( findKey, data ) );
 
-		public void AddFirst( string key, T function )
-			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.First, key, function ) );
+		protected void AddFirst( BaseSMEventData data )
+			=> _modifyler.Register( new AddFirstSMEvent( data ) );
 
-		public void AddFirst( T function )
-			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.First, string.Empty, function ) );
-
-		public void AddLast( string key, T function )
-			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.Last, key, function ) );
-
-		public void AddLast( T function )
-			=> _modifyler.Register( new AddSMEvent<T>( SMEventAddType.Last, string.Empty, function ) );
+		protected void AddLast( BaseSMEventData data )
+			=> _modifyler.Register( new AddLastSMEvent( data ) );
 
 
-		public void Reverse() => _modifyler.Register( new ReverseSMEvent<T>() );
 
-		// 利用者は、これを呼ばない
-		// 必ず、Modifyler経由で呼ぶ
-		// その為、Reverseを使う
-		public void ApplyReverse() => _events = _events.Reverse();
-
-
-		public void Remove( string key ) => _modifyler.Register( new RemoveSMEvent<T>( key ) );
-
-		public abstract void OnRemove( T function );
-
-
-		public void CheckDisposeError( SMEventModifyData<T> _data = null ) {
-			if ( !_isDispose )	{ return; }
-			if ( _data != null && _data._function != null ) {
-				OnRemove( _data._function );
+		protected async UniTask Run( SMAsyncCanceler canceler ) {
+			CheckDisposeError();
+			if ( _isRunning ) {
+				SMLog.Warning( $"{this.GetAboutName()}.{nameof( Run )} : 既に実行中の為、未実行\n{this}" );
+				return;
 			}
+
+// TODO : _isRunning中は、リンク変更出来ないようにする
+			_isRunning = true;
+			for ( var n = _events.First; n != null; n = n.Next ) {
+				if ( _isDispose )	{ break; }
+
+				if ( _isDebug ) {
+					await UTask.WaitWhile( _asyncCancelerForDebug, () => !Input.GetKeyDown( KeyCode.E ) );
+					await UTask.NextFrame( _asyncCancelerForDebug );
+				}
+
+//				try {
+					await n.Value.Run( canceler );
+//				} catch ( OperationCanceledException ) {
+//				}
+
+				if ( _isDebug ) {
+					await UTask.WaitWhile( _asyncCancelerForDebug, () => !Input.GetKeyDown( KeyCode.E ) );
+					await UTask.NextFrame( _asyncCancelerForDebug );
+				}
+			}
+			_isRunning = false;
+		}
+
+
+
+		protected void CheckDisposeError( SMEventModifyData data = null ) {
+			if ( !_isDispose )	{ return; }
+			data?.Dispose();
 			throw new ObjectDisposedException( $"{nameof( _disposables )}", "既に解放済" );
 		}
 
 
+
 		public override string ToString( int indent, bool isUseHeadIndent = true ) {
-			var prefix = StringSMUtility.IndentSpace( indent );
-			var hPrefix = isUseHeadIndent ? prefix : "";
 			indent++;
 			var mPrefix = StringSMUtility.IndentSpace( indent );
-			indent++;
-			var aPrefix = StringSMUtility.IndentSpace( indent );
 
-			return string.Join( "\n",
-				$"{hPrefix}{this.GetAboutName()}(",
-				$"{mPrefix}{nameof( _id )} : {_id},",
-				$"{mPrefix}{nameof( _isDispose )} : {_isDispose},",
-				$"{mPrefix}{nameof( _events )} :",
-				string.Join( ",\n", _events.Select( pair =>
-					$"{aPrefix}{pair.Key} : {pair.Value.GetAboutName()}"
-				) ),
-				$"{mPrefix}{nameof( _modifyler )} : {_modifyler.ToString( indent + 1 )},",
-				$"{prefix})"
+			return base.ToString( indent, isUseHeadIndent ).InsertFirst(
+				")",
+				string.Join( "\n",
+					$"{mPrefix}{nameof( _events )} : {_events.ToLineString( indent )}",
+					$"{mPrefix}{nameof( _modifyler )} : {_modifyler.ToString( indent )},",
+					""
+				),
+				false
 			);
 		}
 	}

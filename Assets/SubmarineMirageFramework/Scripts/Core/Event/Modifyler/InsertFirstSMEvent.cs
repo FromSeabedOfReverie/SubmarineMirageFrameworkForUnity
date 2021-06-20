@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event.Modifyler {
+	using System;
 	using Cysharp.Threading.Tasks;
 	using Extension;
 	using Utility;
@@ -12,12 +13,33 @@ namespace SubmarineMirage.Event.Modifyler {
 
 
 
-	public class ReverseSMEvent : SMEventModifyData {
+	public class InsertFirstSMEvent : SMEventModifyData {
+		[SMShowLine] string _findKey		{ get; set; }
+		[SMShowLine] BaseSMEventData _data	{ get; set; }
+
+
+
+		public InsertFirstSMEvent( string findKey, BaseSMEventData data ) {
+			_findKey = findKey;
+			_data = data;
+		}
+
+		protected override void Cancel() {
+			base.Cancel();
+			_data.Dispose();
+		}
 
 
 
 		public override async UniTask Run() {
-			_target._events = _target._events.Reverse();
+			_target._events.AddBefore(
+				_data,
+				d => d._key == _findKey,
+				() => throw new NotSupportedException( string.Join( "\n",
+					$"{this.GetAboutName()}.{nameof( Run )} : 未登録 : {_findKey}",
+					$"{_target._events}"
+				) )
+			);
 
 			await UTask.DontWait();
 		}

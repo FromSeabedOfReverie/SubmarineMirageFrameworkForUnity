@@ -12,7 +12,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class RegisterSMTask : SMTaskModifyData {
-		[SMShowLine] public override SMModifyType _type => SMModifyType.Runner;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Last;
 
 
 		public RegisterSMTask( SMTask task ) : base( task ) {}

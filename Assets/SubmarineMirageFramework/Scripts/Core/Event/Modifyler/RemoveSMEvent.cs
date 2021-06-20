@@ -5,23 +5,30 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event.Modifyler {
+	using Cysharp.Threading.Tasks;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
-	public class RemoveSMEvent<T> : SMEventModifyData<T> {
-		[SMShowLine] string _removeKey	{ get; set; }
+
+	public class RemoveSMEvent : SMEventModifyData {
+		[SMShowLine] string _findKey	{ get; set; }
 
 
-		public RemoveSMEvent( string removeKey )
-			=> _removeKey = removeKey;
+
+		public RemoveSMEvent( string findKey )
+			=> _findKey = findKey;
 
 
-		public override void Run() {
-			_owner._events.RemoveAll(
-				pair => pair.Key == _removeKey,
-				pair => _owner.OnRemove( pair.Value )
+
+		public override async UniTask Run() {
+			_target._events.RemoveAll(
+				data => data._key == _findKey,
+				data => data.Dispose()
 			);
+
+			await UTask.DontWait();
 		}
 	}
 }
