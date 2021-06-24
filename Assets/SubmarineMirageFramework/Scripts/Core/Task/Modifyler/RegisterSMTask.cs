@@ -7,12 +7,14 @@
 namespace SubmarineMirage.Task.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage.Modifyler;
+	using Utility;
 	using Debug;
 
 
 
 	public class RegisterSMTask : SMTaskModifyData {
 		[SMShowLine] public override SMModifyType _type => SMModifyType.Last;
+
 
 
 		public RegisterSMTask( SMTask task ) : base( task ) {}
@@ -22,9 +24,12 @@ namespace SubmarineMirage.Task.Modifyler {
 		}
 
 
-		public override UniTask Run() => RunWhenNotUpdate( () => {
+
+		public override async UniTask Run() {
 			var last = _target.GetLast( _task._type, true )._previous;
 			last.Link( _task );
-		} );
+
+			await UTask.DontWait();
+		}
 	}
 }

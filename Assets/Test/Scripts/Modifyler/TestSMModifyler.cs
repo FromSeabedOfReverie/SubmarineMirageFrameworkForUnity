@@ -4,22 +4,26 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Event {
+namespace SubmarineMirage.TestModifyler {
 	using System;
-	using KoganeUnityLib;
-	using Extension;
+	using System.Collections;
+	using NUnit.Framework;
+	using UnityEngine.TestTools;
+	using UniRx;
+	using Cysharp.Threading.Tasks;
+	using Modifyler;
+	using Utility;
+	using Debug;
+	using TestBase;
 
 
 
-	public class SMEvent<T1, T2> : BaseSMEvent< Action<T1, T2> > {
-		public override void OnRemove( Action<T1, T2> function ) {}
+	public class TestSMModifyler : SMUnitTest {
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestCreate() => From( async () => {
 
 
-		public void Run( T1 t1, T2 t2 ) {
-			CheckDisposeError();
-
-			var temp = _events.Copy();
-			temp.ForEach( pair => pair.Value.Invoke( t1, t2 ) );
-		}
+			await UTask.DontWait();
+		} );
 	}
 }

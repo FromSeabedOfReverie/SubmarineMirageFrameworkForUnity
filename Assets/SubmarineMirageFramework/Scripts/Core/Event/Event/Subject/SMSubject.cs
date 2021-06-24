@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Event {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
+	using Debug;
 
 
 
@@ -16,6 +17,8 @@ namespace SubmarineMirage.Event {
 
 		public new void Reverse()
 			=> base.Reverse();
+
+
 
 		public Subject<Unit> InsertFirst( string findKey, string key = "" ) {
 			var data = new SMSubjectData( key );
@@ -28,6 +31,8 @@ namespace SubmarineMirage.Event {
 			InsertLast( findKey, data );
 			return data._event;
 		}
+
+
 
 		public Subject<Unit> AddFirst( string key = "" ) {
 			var data = new SMSubjectData( key );

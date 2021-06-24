@@ -35,7 +35,6 @@ namespace SubmarineMirage.Task {
 		SMTask _root { get; set; }
 		SMTaskMarkerManager _taskMarkers { get; set; }
 		public SMModifyler _modifyler { get; private set; }
-		public readonly ReactiveProperty<bool> _isUpdating = new ReactiveProperty<bool>();
 
 		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
 		public readonly SMSubject _updateEvent = new SMSubject();
@@ -69,32 +68,28 @@ namespace SubmarineMirage.Task {
 			} );
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				_isUpdating.Value = true;
+				_modifyler._isLock.Value = true;
 				RUN_TASK_TYPES.ForEach( type => {
 					GetAlls( type ).ForEach( task => task.FixedUpdate() );
 				} );
-				_isUpdating.Value = false;
+				_modifyler._isLock.Value = false;
 			} );
-
 			_updateEvent.AddLast().Subscribe( _ => {
-				_isUpdating.Value = true;
+				_modifyler._isLock.Value = true;
 				RUN_TASK_TYPES.ForEach( type => {
 					GetAlls( type ).ForEach( task => task.Update() );
 				} );
-				_isUpdating.Value = false;
+				_modifyler._isLock.Value = false;
 			} );
-
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				_isUpdating.Value = true;
+				_modifyler._isLock.Value = true;
 				RUN_TASK_TYPES.ForEach( type => {
 					GetAlls( type ).ForEach( task => task.LateUpdate() );
 				} );
-				_isUpdating.Value = false;
+				_modifyler._isLock.Value = false;
 			} );
 
 			_disposables.AddFirst( () => {
-				_isUpdating.Value = false;
-				_isUpdating.Dispose();
 				_taskMarkers.Dispose();
 				_root = null;
 				_modifyler.Dispose();

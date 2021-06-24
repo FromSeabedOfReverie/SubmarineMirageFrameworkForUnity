@@ -6,66 +6,52 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event {
 	using System;
-	using System.Linq;
-	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
-	using Extension;
 	using Utility;
 	using Debug;
 
 
 
 	public class SMAsyncEvent : BaseSMEvent {
-		static readonly string EVENT_KEY = $"{nameof( SMAsyncEvent )}.{nameof( Run )}";
-		[SMShow] string _eventKey	{ get; set; }
-		SMAsyncCanceler _canceler	{ get; set; }
-		Func<bool, bool> _isThrowCancelEvent	{ get; set; }
+		public new void Remove( string findKey )
+			=> base.Remove( findKey );
+
+		public new void Reverse()
+			=> base.Reverse();
 
 
 
-		public SMAsyncEvent( Func<bool, bool> isThrowCancelEvent = null ) {
-			_eventKey = $"{EVENT_KEY}{_id}";
-			_isThrowCancelEvent = isThrowCancelEvent;
-		}
+		public void InsertFirst( string findKey, string key, Func<SMAsyncCanceler, UniTask> @event )
+			=> InsertFirst( findKey, new SMAsyncEventData( key, @event ) );
 
-		public override void Dispose() {
-			// _disposables.Add()だと、最初期実行登録ができない
-			if ( _canceler != null ) {
-				_canceler.Cancel();
-				_canceler._cancelEvent.Remove( _eventKey );
-				_canceler = null;
-			}
-			base.Dispose();
-		}
+		public void InsertFirst( string findKey, Func<SMAsyncCanceler, UniTask> @event )
+			=> InsertFirst( findKey, string.Empty, @event );
+
+
+		public void InsertLast( string findKey, string key, Func<SMAsyncCanceler, UniTask> @event )
+			=> InsertLast( findKey, new SMAsyncEventData( key, @event ) );
+
+		public void InsertLast( string findKey, Func<SMAsyncCanceler, UniTask> @event )
+			=> InsertLast( findKey, string.Empty, @event );
 
 
 
-		public async UniTask Run( SMAsyncCanceler canceler ) {
-			var isCancelByCanceler = false;
-			try {
-				_isRunning = true;
-				_canceler = canceler;
-				_canceler._cancelEvent.AddLast( _eventKey ).Subscribe( _ => isCancelByCanceler = true );
-				_events
-					.Select( e => e as SMAsyncEventData )
-					.ForEach( e => e._canceler = _canceler );
+		public void AddFirst( string key, Func<SMAsyncCanceler, UniTask> @event )
+			=> AddFirst( new SMAsyncEventData( key, @event ) );
 
-				foreach ( var data in _events ) {
-					if ( isCancelByCanceler )	{ break; }
-					await data.Run();
-				}
+		public void AddFirst( Func<SMAsyncCanceler, UniTask> @event )
+			=> AddFirst( string.Empty, @event );
 
-			} catch ( OperationCanceledException ) {
-				if ( _isThrowCancelEvent == null || _isThrowCancelEvent.Invoke( isCancelByCanceler ) ) {
-					throw;
-				}
 
-			} finally {
-				_canceler?._cancelEvent?.Remove( _eventKey );
-				_canceler = null;
-				_isRunning = false;
-			}
-		}
+		public void AddLast( string key, Func<SMAsyncCanceler, UniTask> @event )
+			=> AddLast( new SMAsyncEventData( key, @event ) );
+
+		public void AddLast( Func<SMAsyncCanceler, UniTask> @event )
+			=> AddLast( string.Empty, @event );
+
+
+
+		public new UniTask Run( SMAsyncCanceler canceler )
+			=> base.Run( canceler );
 	}
 }

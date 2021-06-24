@@ -13,11 +13,11 @@ namespace SubmarineMirage.Event {
 
 
 	public class SMSubjectData : BaseSMEventData {
-		public Subject<Unit> _event { get; private set; }
+		public Subject<Unit> _event	{ get; private set; }
 
 
 
-		public SMSubjectData( string key = "" ) : base( key ) {
+		public SMSubjectData( string key ) : base( key ) {
 			_event = new Subject<Unit>();
 		}
 

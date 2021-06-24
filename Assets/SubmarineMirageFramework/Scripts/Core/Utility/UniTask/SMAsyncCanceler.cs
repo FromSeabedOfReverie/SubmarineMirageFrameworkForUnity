@@ -108,24 +108,20 @@ namespace SubmarineMirage.Utility {
 
 
 
-		public void Cancel( bool isRecreate = true ) {
+		public void Cancel( bool isRecreateAfterCancel = true ) {
 			if ( _isDispose )	{ return; }
 
 #if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Cancel )}( {isRecreate} ) : start\n{this}" );
+			SMLog.Debug( $"{nameof( Cancel )}( {isRecreateAfterCancel} ) : start\n{this}" );
 #endif
-			if ( _isRawCancel ) {
-				if ( isRecreate )	{ Recreate(); }
-			} else {
+			if ( !_isRawCancel ) {
 				_canceler.Cancel();
-				if ( isRecreate )	{ Recreate(); }
+				if ( isRecreateAfterCancel )	{ Recreate(); }
 				_cancelEvent.Run();
 			}
-			if ( _next != null ) {
-				_next.Cancel( !_next._isRawCancel );
-			}
+			_next?.Cancel();
 #if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( Cancel )}( {isRecreate} ) : end\n{this}" );
+			SMLog.Debug( $"{nameof( Cancel )}( {isRecreateAfterCancel} ) : end\n{this}" );
 #endif
 		}
 

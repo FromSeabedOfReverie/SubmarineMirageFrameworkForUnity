@@ -17,7 +17,7 @@ namespace SubmarineMirage.TestUtility {
 
 
 
-	public partial class TestSMAsyncCanceler : SMUnitTest {
+	public class TestSMAsyncCanceler : SMUnitTest {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestCreate() => From( async () => {
 			var c = new SMAsyncCanceler();

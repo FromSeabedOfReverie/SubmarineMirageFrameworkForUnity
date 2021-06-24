@@ -30,6 +30,11 @@ namespace SubmarineMirage.Modifyler {
 #endif
 		}
 
+		public virtual void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+			_target = target;
+			_modifyler = modifyler;
+		}
+
 		~SMModifyData() => _isCalledDestructor = true;
 
 		public override void Dispose() {
@@ -39,13 +44,9 @@ namespace SubmarineMirage.Modifyler {
 		}
 
 
+
 		protected virtual void Cancel() {}
 
-
-		public virtual void Set( ISMModifyTarget target, SMModifyler modifyler ) {
-			_target = target;
-			_modifyler = modifyler;
-		}
 
 
 		public abstract UniTask Run();

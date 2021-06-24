@@ -6,20 +6,33 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event {
 	using System;
-	using KoganeUnityLib;
-	using Extension;
+	using Cysharp.Threading.Tasks;
+	using Utility;
+	using Debug;
 
 
 
-	public class SMEvent<T> : BaseSMEvent< Action<T> > {
-		public override void OnRemove( Action<T> function ) {}
+	public class SMEventData : BaseSMEventData {
+		Action _event	{ get; set; }
 
 
-		public void Run( T t ) {
-			CheckDisposeError();
 
-			var temp = _events.Copy();
-			temp.ForEach( pair => pair.Value.Invoke( t ) );
+		public SMEventData( string key, Action @event ) : base( key ) {
+			_event = @event;
+		}
+
+		public override void Dispose() {
+			if ( _event == null ) { return; }
+
+			_event = null;
+		}
+
+
+
+		public override async UniTask Run( SMAsyncCanceler canceler ) {
+			_event.Invoke();
+
+			await UTask.DontWait();
 		}
 	}
 }

@@ -4,38 +4,31 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Event {
-	using System;
+namespace SubmarineMirage.TestModifyler {
 	using Cysharp.Threading.Tasks;
+	using Modifyler;
 	using Utility;
 	using Debug;
 
 
 
-	public class SMAsyncEventData : BaseSMEventData {
-		Func<SMAsyncCanceler, UniTask> _event	{ get; set; }
+	public class SMTestModifyData : SMModifyData {
+		[SMShowLine] public override SMModifyType _type => _internalType;
+		SMModifyType _internalType;
+		[SMShowLine] public string _name { get; private set; }
 
 
-
-		public SMAsyncEventData( string key, Func<SMAsyncCanceler, UniTask> @event ) : base( key ) {
-			_event = @event;
+		public SMTestModifyData( string name, SMModifyType type ) {
+			_name = name;
+			_internalType = type;
 		}
 
-		public override void Dispose() {
-			if ( _event == null )	{ return; }
-
-			_event = null;
+		protected override void Cancel() {
+			SMLog.Debug( $"{nameof( Cancel )} : {this}" );
 		}
 
 
-
-		public override async UniTask Run( SMAsyncCanceler canceler ) {
-			try {
-				await _event.Invoke( canceler );
-
-			} catch ( OperationCanceledException ) {
-				throw;
-			}
-		}
+		public override UniTask Run()
+			=> UTask.DontWait();
 	}
 }
