@@ -22,7 +22,7 @@ namespace SubmarineMirage.Task {
 
 
 
-	public class SMTaskManager : SMStandardBase, ISMModifyTarget, ISMService {
+	public class SMTaskManager : SMStandardBase, ISMService {
 		public static readonly SMTaskRunType[] CREATE_TASK_TYPES = new SMTaskRunType[] {
 			SMTaskRunType.Dont, SMTaskRunType.Sequential, SMTaskRunType.Parallel,
 		};
@@ -68,25 +68,25 @@ namespace SubmarineMirage.Task {
 			} );
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				_modifyler._isLock.Value = true;
+				_modifyler._isLock = true;
 				RUN_TASK_TYPES.ForEach( type => {
 					GetAlls( type ).ForEach( task => task.FixedUpdate() );
 				} );
-				_modifyler._isLock.Value = false;
+				_modifyler._isLock = false;
 			} );
 			_updateEvent.AddLast().Subscribe( _ => {
-				_modifyler._isLock.Value = true;
+				_modifyler._isLock = true;
 				RUN_TASK_TYPES.ForEach( type => {
 					GetAlls( type ).ForEach( task => task.Update() );
 				} );
-				_modifyler._isLock.Value = false;
+				_modifyler._isLock = false;
 			} );
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				_modifyler._isLock.Value = true;
+				_modifyler._isLock = true;
 				RUN_TASK_TYPES.ForEach( type => {
 					GetAlls( type ).ForEach( task => task.LateUpdate() );
 				} );
-				_modifyler._isLock.Value = false;
+				_modifyler._isLock = false;
 			} );
 
 			_disposables.AddFirst( () => {

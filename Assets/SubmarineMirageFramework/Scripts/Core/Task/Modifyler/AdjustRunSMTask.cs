@@ -11,7 +11,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 
 	public class AdjustRunSMTask : SMTaskModifyData {
-		[SMShowLine] public override SMModifyType _type => SMModifyType.Last;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Normal;
 		[SMShowLine] SMTask _previous;
 		[SMShowLine] bool _isSetPrevious;
 

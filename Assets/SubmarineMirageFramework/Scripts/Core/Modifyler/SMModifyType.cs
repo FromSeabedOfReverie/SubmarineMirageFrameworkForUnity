@@ -12,6 +12,6 @@ namespace SubmarineMirage.Modifyler {
 		First,
 		Single,
 		Parallel,
-		Last,
+		Normal,
 	}
 }

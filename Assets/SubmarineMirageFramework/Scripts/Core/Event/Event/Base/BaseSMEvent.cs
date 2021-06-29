@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Event {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace SubmarineMirage.Event {
 
 
 
-	public abstract class BaseSMEvent : SMRawBase, ISMModifyTarget {
+	public abstract class BaseSMEvent : SMRawBase {
 		// ReverseSMEventで再代入される為、public setter
 		public LinkedList<BaseSMEventData> _events	{ get; set; } = new LinkedList<BaseSMEventData>();
 		public SMModifyler _modifyler	{ get; private set; }
@@ -100,16 +101,13 @@ namespace SubmarineMirage.Event {
 
 			try {
 				_isRunning = true;
-				_modifyler._isLock.Value = true;
+				_modifyler._isLock = true;
 				_asyncCancelerForRun = canceler;
 
 				for ( var n = _events.First; n != null; n = n.Next ) {
 					if ( _isDispose )	{ break; }
 
-					if ( _isDebug ) {
-						await UTask.WaitWhile( _asyncCancelerForDebug, () => !Input.GetKeyDown( KeyCode.E ) );
-					}
-
+					await WaitDebug();
 					await n.Value.Run( _asyncCancelerForRun );
 				}
 
@@ -118,22 +116,31 @@ namespace SubmarineMirage.Event {
 
 			} finally {
 				_asyncCancelerForRun = null;
-				_modifyler._isLock.Value = false;
+				_modifyler._isLock = false;
 				_isRunning = false;
 			}
 		}
 
 
 
+		async UniTask WaitDebug() {
+			if ( !_isDebug )	{ return; }
+
+			await UTask.WaitWhile( _asyncCancelerForDebug, () => !Input.GetKeyDown( KeyCode.E ) );
+			await UTask.NextFrame( _asyncCancelerForDebug );
+		}
+
+
+
 		public override string ToString( int indent, bool isUseHeadIndent = true ) {
-			indent++;
-			var mPrefix = StringSMUtility.IndentSpace( indent );
+			var mPrefix = StringSMUtility.IndentSpace( indent + 1 );
 
 			return base.ToString( indent, isUseHeadIndent ).InsertFirst(
 				")",
-				string.Join( "\n",
-					$"{mPrefix}{nameof( _events )} : {_events.ToLineString( indent )}",
-					$"{mPrefix}{nameof( _modifyler )} : {_modifyler.ToString( indent )},",
+				string.Join( ",\n",
+					$"{mPrefix}{nameof( _events )} : \n" +
+						string.Join( ",\n", _events.Select( d => d.ToLineString( indent + 2 ) ) ),
+					$"{mPrefix}{nameof( _modifyler )} : {_modifyler.ToString( indent + 1 )},",
 					""
 				),
 				false

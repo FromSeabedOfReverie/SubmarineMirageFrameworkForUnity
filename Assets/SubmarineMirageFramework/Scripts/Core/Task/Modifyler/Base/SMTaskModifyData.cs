@@ -20,7 +20,7 @@ namespace SubmarineMirage.Task.Modifyler {
 			_task = task;
 		}
 
-		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+		public override void Set( object target, SMModifyler modifyler ) {
 			base.Set( target, modifyler );
 			_target = base._target as SMTaskManager;
 		}
@@ -29,7 +29,7 @@ namespace SubmarineMirage.Task.Modifyler {
 
 		protected SMModifyType GetType( SMTask task ) => (
 			task._type == SMTaskRunType.Parallel	? SMModifyType.Parallel
-													: SMModifyType.Last
+													: SMModifyType.Normal
 		);
 	}
 }

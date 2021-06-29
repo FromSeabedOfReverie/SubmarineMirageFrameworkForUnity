@@ -12,11 +12,11 @@ namespace SubmarineMirage.Event.Modifyler {
 
 	public abstract class SMEventModifyData : SMModifyData {
 		public new BaseSMEvent _target	{ get; private set; }
-		[SMShowLine] public override SMModifyType _type => SMModifyType.Last;
+		[SMShowLine] public override SMModifyType _type => SMModifyType.Normal;
 
 
 
-		public override void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+		public override void Set( object target, SMModifyler modifyler ) {
 			base.Set( target, modifyler );
 			_target = base._target as BaseSMEvent;
 		}

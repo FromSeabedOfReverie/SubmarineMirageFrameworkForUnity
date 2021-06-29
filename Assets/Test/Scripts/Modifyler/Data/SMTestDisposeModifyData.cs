@@ -4,30 +4,24 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Modifyler.Test {
+namespace SubmarineMirage.TestModifyler {
 	using Cysharp.Threading.Tasks;
+	using Modifyler;
 	using Utility;
 	using Debug;
 
 
 
-	public class SMTestModifyData : SMModifyData {
-		[SMShowLine] public override SMModifyType _type => _internalType;
-		SMModifyType _internalType;
-		[SMShowLine] public string _name { get; private set; }
-
-
-		public SMTestModifyData( string name, SMModifyType type ) {
-			_name = name;
-			_internalType = type;
-		}
-
-		protected override void Cancel() {
-			SMLog.Debug( $"{nameof( Cancel )} : {this}" );
+	public class SMTestDisposeModifyData : SMTestModifyData {
+		public SMTestDisposeModifyData( string name, SMModifyType type ) : base( name, type ) {
 		}
 
 
-		public override UniTask Run()
-			=> UTask.DontWait();
+
+		public override async UniTask Run() {
+			await UTask.Delay( _modifyler._asyncCanceler, 500 );
+			SMLog.Warning( $"{nameof( Run )} : 解放\n{this}" );
+			_modifyler.Dispose();
+		}
 	}
 }

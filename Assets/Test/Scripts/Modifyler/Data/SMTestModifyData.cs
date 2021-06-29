@@ -7,6 +7,7 @@
 namespace SubmarineMirage.TestModifyler {
 	using Cysharp.Threading.Tasks;
 	using Modifyler;
+	using Extension;
 	using Utility;
 	using Debug;
 
@@ -18,17 +19,19 @@ namespace SubmarineMirage.TestModifyler {
 		[SMShowLine] public string _name { get; private set; }
 
 
+
 		public SMTestModifyData( string name, SMModifyType type ) {
 			_name = name;
 			_internalType = type;
-		}
-
-		protected override void Cancel() {
-			SMLog.Debug( $"{nameof( Cancel )} : {this}" );
+			SMLog.Debug( $"{this.GetAboutName()} : \n{this}" );
 		}
 
 
-		public override UniTask Run()
-			=> UTask.DontWait();
+
+		public override async UniTask Run() {
+			SMLog.Warning( $"{nameof( Run )} : start\n{this}" );
+			await UTask.Delay( _modifyler._asyncCanceler, 1000 );
+			SMLog.Warning( $"{nameof( Run )} : end\n{this}" );
+		}
 	}
 }

@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestModifyData
+//#define TestModifyData
 namespace SubmarineMirage.Modifyler {
 	using Cysharp.Threading.Tasks;
 	using Base;
@@ -14,7 +14,7 @@ namespace SubmarineMirage.Modifyler {
 
 
 	public abstract class SMModifyData : SMLightBase {
-		public ISMModifyTarget _target	{ get; private set; }
+		protected object _target			{ get; private set; }
 		protected SMModifyler _modifyler	{ get; private set; }
 
 		[SMShowLine] public abstract SMModifyType _type	{ get; }
@@ -26,26 +26,40 @@ namespace SubmarineMirage.Modifyler {
 
 		public SMModifyData() {
 #if TestModifyData
-			SMLog.Debug( $"{this.GetAboutName()} : {this}" );
+//			SMLog.Debug( $"{this.GetAboutName()} : \n{this}" );
 #endif
 		}
 
-		public virtual void Set( ISMModifyTarget target, SMModifyler modifyler ) {
+		public virtual void Set( object target, SMModifyler modifyler ) {
 			_target = target;
 			_modifyler = modifyler;
+#if TestModifyData
+			SMLog.Debug( $"{nameof( Set )} : \n{this}" );
+#endif
 		}
 
 		~SMModifyData() => _isCalledDestructor = true;
 
 		public override void Dispose() {
+#if TestModifyData
+			SMLog.Debug( $"{nameof( Dispose )} : start\n{this}" );
+#endif
 			Finish();
-			if ( _isCalledDestructor )	{ return; }
-			Cancel();
+			if ( !_isCalledDestructor ) {
+				Cancel();
+			}
+#if TestModifyData
+			SMLog.Debug( $"{nameof( Dispose )} : end\n{this}" );
+#endif
 		}
 
 
 
-		protected virtual void Cancel() {}
+		protected virtual void Cancel() {
+#if TestModifyData
+			SMLog.Debug( $"{nameof( Cancel )} : \n{this}" );
+#endif
+		}
 
 
 
@@ -56,7 +70,7 @@ namespace SubmarineMirage.Modifyler {
 
 			_isFinished = true;
 #if TestModifyData
-			SMLog.Debug( $"{nameof( Finish )} : {this}" );
+			SMLog.Debug( $"{nameof( Finish )} : \n{this}" );
 #endif
 		}
 	}
