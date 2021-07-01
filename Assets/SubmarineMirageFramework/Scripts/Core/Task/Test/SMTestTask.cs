@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Task.Test {
+	using Cysharp.Threading.Tasks;
 
 
 
@@ -15,10 +16,17 @@ namespace SubmarineMirage.Task.Test {
 
 
 
-		public SMTestTask( string name, SMTaskRunType type, bool isAdjustRun ) : base( false, isAdjustRun ) {
+		public SMTestTask( string name, SMTaskRunType type, bool isAdjustRun )
+			// _internalType未設定のまま、基底コンストラクタで登録すると、Dontタスクになる為、登録しない
+			: base( false, isAdjustRun )
+		{
 			_name = name;
 			_internalType = type;
-			_taskManager.Register( this, isAdjustRun );
+
+			// 基底コンストラクタで未登録分を、派生先コンストラクタの下記で、改めて登録
+			if ( _taskManager != null ) {
+				_taskManager.Register( this, isAdjustRun ).Forget();
+			}
 		}
 
 		public override void Create() {

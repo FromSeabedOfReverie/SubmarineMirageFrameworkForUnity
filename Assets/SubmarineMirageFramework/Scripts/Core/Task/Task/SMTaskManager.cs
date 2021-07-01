@@ -13,11 +13,11 @@ namespace SubmarineMirage.Task {
 	using KoganeUnityLib;
 	using Base;
 	using Event;
-	using SubmarineMirage.Modifyler;
 	using Modifyler;
 	using Marker;
 	using Service;
 	using Extension;
+	using Utility;
 	using Debug;
 
 
@@ -34,7 +34,7 @@ namespace SubmarineMirage.Task {
 
 		SMTask _root { get; set; }
 		SMTaskMarkerManager _taskMarkers { get; set; }
-		public SMModifyler _modifyler { get; private set; }
+		public readonly SMModifyler _modifyler = new SMModifyler();
 
 		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
 		public readonly SMSubject _updateEvent = new SMSubject();
@@ -44,7 +44,6 @@ namespace SubmarineMirage.Task {
 
 
 		public SMTaskManager() {
-			_modifyler = new SMModifyler( this, typeof( SMTaskModifyData ) );
 //			_modifyler._isDebug = true;
 
 			_taskMarkers = new SMTaskMarkerManager( this.GetAboutName() );
@@ -123,26 +122,6 @@ namespace SubmarineMirage.Task {
 
 
 
-		public void Register( SMTaskModifyData modifyData )
-			=> _modifyler.Register( modifyData );
-
-		public UniTask RegisterAndWaitRunning( SMTaskModifyData modifyData )
-			=> _modifyler.RegisterAndWaitRunning( modifyData );
-
-
-
-		public void Register( SMTask add, bool isAdjustRun ) {
-			Register( new RegisterSMTask( add ) );
-			if ( isAdjustRun ) {
-				Register( new AdjustRunSMTask( add ) );
-			}
-		}
-
-		public void Unregister( SMTask sub )
-			=> Register( new UnregisterSMTask( sub ) );
-
-
-
 		public SMTask GetFirst( SMTaskRunType type, bool isRaw = false )
 			=> _taskMarkers.GetFirst( type, isRaw );
 
@@ -157,6 +136,268 @@ namespace SubmarineMirage.Task {
 		public IEnumerable<SMTask> GetAlls() {
 			for ( var t = _root; t != null; t = t._next ) {
 				yield return t;
+			}
+		}
+
+
+
+		SMModifyType GetType( SMTask task ) => (
+			task._type == SMTaskRunType.Parallel	? SMModifyType.Parallel
+													: SMModifyType.Normal
+		);
+
+
+
+		public async UniTask Register( SMTask task, bool isAdjustRun ) {
+			var uniTask = _modifyler.Register(
+				nameof( Register ),
+				SMModifyType.Normal,
+				async () => {
+					var last = GetLast( task._type, true )._previous;
+					last.Link( task );
+					await UTask.DontWait();
+				},
+				() => task.Dispose()
+			);
+
+			if ( !isAdjustRun ) {
+				await uniTask;
+				return;
+			}
+			await AdjustRunTask( task );
+		}
+
+		public UniTask Unregister( SMTask task ) => _modifyler.Register(
+			nameof( Unregister ),
+			SMModifyType.Normal,
+			async () => {
+				task.Unlink();
+				await UTask.DontWait();
+			}
+		);
+
+
+
+		public UniTask CreateTask( SMTask task ) => _modifyler.Register(
+			nameof( CreateTask ),
+			GetType( task ),
+			() => RunCreateTask( task )
+		);
+
+		async UniTask RunCreateTask( SMTask task ) {
+			if ( task._ranState != SMTaskRunState.None )	{ return; }
+
+			task.Create();
+			task._ranState = SMTaskRunState.Create;
+			await UTask.DontWait();
+		}
+
+
+
+		public UniTask SelfInitializeTask( SMTask task ) => _modifyler.Register(
+			nameof( SelfInitializeTask ),
+			GetType( task ),
+			() => RunSelfInitializeTask( task )
+		);
+
+		async UniTask RunSelfInitializeTask( SMTask task ) {
+			if ( task._ranState != SMTaskRunState.Create )	{ return; }
+
+			await task._selfInitializeEvent.Run( task._asyncCancelerOnDispose );
+			task._ranState = SMTaskRunState.SelfInitialize;
+		}
+
+
+
+		public UniTask InitializeTask( SMTask task ) => _modifyler.Register(
+			nameof( InitializeTask ),
+			GetType( task ),
+			() => RunInitializeTask( task )
+		);
+
+		async UniTask RunInitializeTask( SMTask task ) {
+			if ( task._ranState != SMTaskRunState.SelfInitialize )	{ return; }
+
+			await task._initializeEvent.Run( task._asyncCancelerOnDispose );
+			task._ranState = SMTaskRunState.Initialize;
+		}
+
+
+
+		public UniTask InitialEnableTask( SMTask task ) => _modifyler.Register(
+			nameof( InitialEnableTask ),
+			GetType( task ),
+			() => RunInitialEnableTask( task )
+		);
+
+		async UniTask RunInitialEnableTask( SMTask task ) {
+			if ( task._ranState != SMTaskRunState.Initialize )	{ return; }
+
+			if ( task._isRequestInitialEnable ) {
+				task._isRequestInitialEnable = false;
+
+				if (	task._isCanActiveEvent() &&
+						task._activeState != SMTaskActiveState.Enable
+				) {
+					task._asyncCancelerOnDisable.Recreate();
+					task._enableEvent.Run();
+					task._activeState = SMTaskActiveState.Enable;
+				}
+			}
+
+			task._ranState = SMTaskRunState.InitialEnable;
+			await UTask.DontWait();
+		}
+
+
+
+		public UniTask FinalDisableTask( SMTask task ) => _modifyler.Register(
+			nameof( FinalDisableTask ),
+			GetType( task ),
+			() => RunFinalDisableTask( task )
+		);
+
+		async UniTask RunFinalDisableTask( SMTask task ) {
+			if ( task._ranState >= SMTaskRunState.FinalDisable )	{ return; }
+
+			var lastActiveState = task._activeState;
+			task._activeState = SMTaskActiveState.Disable;
+			task._asyncCancelerOnDisable.Cancel( false );
+
+			if (	task._isCanActiveEvent() &&
+					lastActiveState != SMTaskActiveState.Disable
+			) {
+				task._disableEvent.Run();
+			}
+
+			task._ranState = SMTaskRunState.FinalDisable;
+			await UTask.DontWait();
+		}
+
+
+
+		public UniTask FinalizeTask( SMTask task ) => _modifyler.Register(
+			nameof( FinalizeTask ),
+			GetType( task ),
+			() => RunFinalizeTask( task )
+		);
+
+		async UniTask RunFinalizeTask( SMTask task ) {
+			if ( task._ranState != SMTaskRunState.FinalDisable )	{ return; }
+
+			await task._finalizeEvent.Run( task._asyncCancelerOnDispose );
+			task._ranState = SMTaskRunState.Finalize;
+			task.Dispose();
+		}
+
+
+
+		public UniTask EnableTask( SMTask task ) => _modifyler.Register(
+			nameof( EnableTask ),
+			GetType( task ),
+			() => RunEnableTask( task )
+		);
+
+		async UniTask RunEnableTask( SMTask task ) {
+			if ( !task._isCanActiveEvent() )	{ return; }
+			if ( task._isFinalizing )			{ return; }
+			if ( !task._isInitialized ) {
+				task._isRequestInitialEnable = true;
+				return;
+			}
+			if ( task._activeState == SMTaskActiveState.Enable )	{ return; }
+
+			task._asyncCancelerOnDisable.Recreate();
+			task._enableEvent.Run();
+			task._activeState = SMTaskActiveState.Enable;
+			await UTask.DontWait();
+		}
+
+
+
+		public UniTask DisableTask( SMTask task ) => _modifyler.Register(
+			nameof( DisableTask ),
+			GetType( task ),
+			() => RunDisableTask( task )
+		);
+
+		async UniTask RunDisableTask( SMTask task ) {
+			if ( !task._isCanActiveEvent() )	{ return; }
+			if ( task._isFinalizing )			{ return; }
+			if ( !task._isInitialized ) {
+				task._isRequestInitialEnable = false;
+				return;
+			}
+			if ( task._activeState == SMTaskActiveState.Disable )	{ return; }
+
+			task._activeState = SMTaskActiveState.Disable;
+			task._asyncCancelerOnDisable.Cancel( false );
+			task._disableEvent.Run();
+			await UTask.DontWait();
+		}
+
+
+
+		public UniTask AdjustRunTask( SMTask task, SMTask previous = null ) => _modifyler.Register(
+			nameof( AdjustRunTask ),
+			SMModifyType.Normal,
+			() => RunAdjustRunTask( task, previous )
+		);
+
+		async UniTask RunAdjustRunTask( SMTask task, SMTask previous = null ) {
+			if ( previous == null )	{ previous = task._previous; }
+
+
+			if (	previous._ranState >= SMTaskRunState.FinalDisable &&
+					task._ranState < SMTaskRunState.FinalDisable &&
+					task._type != SMTaskRunType.Dont
+			) {
+				await RunFinalDisableTask( task );
+			}
+			if (	previous._ranState >= SMTaskRunState.Finalize &&
+					task._ranState < SMTaskRunState.Finalize
+			) {
+				if ( task._type != SMTaskRunType.Dont ) {
+					await RunFinalizeTask( task );
+				} else {
+					Dispose();
+				}
+			}
+			if ( previous._isFinalizing )	{ return; }
+
+
+			if (	previous._ranState >= SMTaskRunState.Create &&
+					task._ranState < SMTaskRunState.Create
+			) {
+				await RunCreateTask( task );
+			}
+			if ( task._type == SMTaskRunType.Dont )	{ return; }
+
+
+			if (	previous._ranState >= SMTaskRunState.SelfInitialize &&
+					task._ranState < SMTaskRunState.SelfInitialize
+			) {
+				await RunSelfInitializeTask( task );
+			}
+			if (	previous._ranState >= SMTaskRunState.Initialize &&
+					task._ranState < SMTaskRunState.Initialize
+			) {
+				await RunInitializeTask( task );
+			}
+			if (	previous._ranState >= SMTaskRunState.InitialEnable &&
+					task._ranState < SMTaskRunState.InitialEnable
+			) {
+				await RunInitialEnableTask( task );
+			}
+			if ( !previous._isInitialized )	{ return; }
+
+
+			if (	previous._isActive &&
+					task._isCanActiveEvent()
+			) {
+				await RunEnableTask( task );
+			} else {
+				await RunDisableTask( task );
 			}
 		}
 	}

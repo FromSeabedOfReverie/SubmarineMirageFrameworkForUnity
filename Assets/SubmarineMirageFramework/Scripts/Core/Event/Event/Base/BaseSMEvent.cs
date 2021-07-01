@@ -12,8 +12,7 @@ namespace SubmarineMirage.Event {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Base;
-	using SubmarineMirage.Modifyler;
-	using Event.Modifyler;
+	using Modifyler;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -21,12 +20,17 @@ namespace SubmarineMirage.Event {
 
 
 	public abstract class BaseSMEvent : SMRawBase {
-		// ReverseSMEventで再代入される為、public setter
-		public LinkedList<BaseSMEventData> _events	{ get; set; } = new LinkedList<BaseSMEventData>();
-		public SMModifyler _modifyler	{ get; private set; }
+		// Reverse時に再代入される為、readonly未使用
+		LinkedList<BaseSMEventData> _events	{ get; set; } = new LinkedList<BaseSMEventData>();
+		readonly SMModifyler _modifyler = new SMModifyler( false );
 
 		[SMShow] public bool _isRunning	{ get; private set; }
 		bool _isInternalDebug			{ get; set; }
+
+		SMAsyncCanceler _asyncCancelerForRun	{ get; set; }
+		SMAsyncCanceler _asyncCancelerForDebug	{ get; set; }
+
+
 
 		[SMShow] public bool _isDebug {
 			get => _isInternalDebug;
@@ -38,14 +42,9 @@ namespace SubmarineMirage.Event {
 			}
 		}
 
-		SMAsyncCanceler _asyncCancelerForRun	{ get; set; }
-		SMAsyncCanceler _asyncCancelerForDebug	{ get; set; }
-
 
 
 		public BaseSMEvent() {
-			_modifyler = new SMModifyler( this, typeof( SMEventModifyData ), false );
-
 			_disposables.Add( () => {
 				_modifyler.Dispose();
 				_events.ForEach( data => data.Dispose() );
@@ -57,34 +56,6 @@ namespace SubmarineMirage.Event {
 
 				_isRunning = false;
 			} );
-		}
-
-
-
-		protected void Remove( string findKey )
-			=> _modifyler.Register( new RemoveSMEvent( findKey ) );
-
-		protected void Reverse()
-			=> _modifyler.Register( new ReverseSMEvent() );
-
-		protected void InsertFirst( string findKey, BaseSMEventData data ) {
-			data.Set( this );
-			_modifyler.Register( new InsertFirstSMEvent( findKey, data ) );
-		}
-
-		protected void InsertLast( string findKey, BaseSMEventData data ) {
-			data.Set( this );
-			_modifyler.Register( new InsertLastSMEvent( findKey, data ) );
-		}
-
-		protected void AddFirst( BaseSMEventData data ) {
-			data.Set( this );
-			_modifyler.Register( new AddFirstSMEvent( data ) );
-		}
-
-		protected void AddLast( BaseSMEventData data ) {
-			data.Set( this );
-			_modifyler.Register( new AddLastSMEvent( data ) );
 		}
 
 
@@ -128,6 +99,103 @@ namespace SubmarineMirage.Event {
 
 			await UTask.WaitWhile( _asyncCancelerForDebug, () => !Input.GetKeyDown( KeyCode.E ) );
 			await UTask.NextFrame( _asyncCancelerForDebug );
+		}
+
+
+
+		protected void Remove( string findKey ) => _modifyler.Register(
+			nameof( Remove ),
+			SMModifyType.Normal,
+			async () => {
+				_events.RemoveAll(
+					d => d._key == findKey,
+					d => d.Dispose()
+				);
+				await UTask.DontWait();
+			}
+		).Forget();
+
+		protected void Reverse() => _modifyler.Register(
+			nameof( Reverse ),
+			SMModifyType.Normal,
+			async () => {
+				_events = _events.Reverse();
+				await UTask.DontWait();
+			}
+		).Forget();
+
+
+
+		protected void InsertFirst( string findKey, BaseSMEventData data ) {
+			data.Set( this );
+
+			_modifyler.Register(
+				nameof( InsertFirst ),
+				SMModifyType.Normal,
+				async () => {
+					_events.AddBefore(
+						data,
+						d => d._key == findKey,
+						() => throw new NotSupportedException( string.Join( "\n",
+							$"{nameof( BaseSMEvent )}.{nameof( InsertFirst )} : 未登録 : {findKey}",
+							$"{_events}"
+						) )
+					);
+					await UTask.DontWait();
+				},
+				() => data.Dispose()
+			).Forget();
+		}
+
+		protected void InsertLast( string findKey, BaseSMEventData data ) {
+			data.Set( this );
+
+			_modifyler.Register(
+				nameof( InsertLast ),
+				SMModifyType.Normal,
+				async () => {
+					_events.AddAfter(
+						data,
+						d => d._key == findKey,
+						() => throw new NotSupportedException( string.Join( "\n",
+							$"{nameof( BaseSMEvent )}.{nameof( InsertLast )} : 未登録 : {findKey}",
+							$"{_events}"
+						) )
+					);
+					await UTask.DontWait();
+				},
+				() => data.Dispose()
+			).Forget();
+		}
+
+
+
+		protected void AddFirst( BaseSMEventData data ) {
+			data.Set( this );
+
+			_modifyler.Register(
+				nameof( AddFirst ),
+				SMModifyType.Normal,
+				async () => {
+					_events.AddFirst( data );
+					await UTask.DontWait();
+				},
+				() => data.Dispose()
+			).Forget();
+		}
+
+		protected void AddLast( BaseSMEventData data ) {
+			data.Set( this );
+
+			_modifyler.Register(
+				nameof( AddLast ),
+				SMModifyType.Normal,
+				async () => {
+					_events.AddLast( data );
+					await UTask.DontWait();
+				},
+				() => data.Dispose()
+			).Forget();
 		}
 
 

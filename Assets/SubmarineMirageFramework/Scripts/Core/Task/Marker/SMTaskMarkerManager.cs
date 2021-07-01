@@ -10,7 +10,6 @@ namespace SubmarineMirage.Task.Marker {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Task;
-	using Task.Modifyler;
 	using Base;
 	using Service;
 	using Extension;
@@ -52,22 +51,22 @@ namespace SubmarineMirage.Task.Marker {
 
 			SMTaskManager.CREATE_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.Register( new CreateSMTask( task ) ) );
+				.ForEach( task => manager.CreateTask( task ).Forget() );
 			await manager._modifyler.WaitRunning();
 
 			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.Register( new SelfInitializeSMTask( task ) ) );
+				.ForEach( task => manager.SelfInitializeTask( task ).Forget() );
 			await manager._modifyler.WaitRunning();
 
 			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.Register( new InitializeSMTask( task ) ) );
+				.ForEach( task => manager.InitializeTask( task ).Forget() );
 			await manager._modifyler.WaitRunning();
 
 			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.Register( new InitialEnableSMTask( task ) ) );
+				.ForEach( task => manager.InitialEnableTask( task ).Forget() );
 			await manager._modifyler.WaitRunning();
 		}
 
@@ -77,13 +76,13 @@ namespace SubmarineMirage.Task.Marker {
 			SMTaskManager.DISPOSE_RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
 				.Reverse()
-				.ForEach( task => manager.Register( new FinalDisableSMTask( task ) ) );
+				.ForEach( task => manager.FinalDisableTask( task ).Forget() );
 			await manager._modifyler.WaitRunning();
 
 			SMTaskManager.DISPOSE_RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
 				.Reverse()
-				.ForEach( task => manager.Register( new FinalizeSMTask( task ) ) );
+				.ForEach( task => manager.FinalizeTask( task ).Forget() );
 			await manager._modifyler.WaitRunning();
 
 			Dispose();

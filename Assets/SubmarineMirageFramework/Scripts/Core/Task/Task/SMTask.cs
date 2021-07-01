@@ -10,7 +10,6 @@ namespace SubmarineMirage.Task {
 	using Cysharp.Threading.Tasks;
 	using Event;
 	using Service;
-	using Modifyler;
 	using Utility;
 	using Debug;
 
@@ -70,13 +69,15 @@ namespace SubmarineMirage.Task {
 
 		public SMTask( bool isRegister = true, bool isAdjustRun = true ) {
 			_taskManager = SMServiceLocator.Resolve<SMTaskManager>();
-			if ( isRegister )	{ _taskManager?.Register( this, isAdjustRun ); }
+			if ( isRegister && _taskManager != null ) {
+				_taskManager.Register( this, isAdjustRun ).Forget();
+			}
 
 			_disposables.AddFirst( () => {
 #if TestTask
 				SMLog.Debug( $"{nameof( SMTask )}.{nameof( Dispose )} : start\n{this}" );
 #endif
-				_taskManager.Unregister( this );
+				_taskManager.Unregister( this ).Forget();
 
 				_isRequestInitialEnable = false;
 				_isCanActiveEvent = null;
@@ -107,8 +108,8 @@ namespace SubmarineMirage.Task {
 				Dispose();
 				return;
 			}
-			_taskManager.Register( new FinalDisableSMTask( this ) );
-			await _taskManager.RegisterAndWaitRunning( new FinalizeSMTask( this ) );
+			_taskManager.FinalDisableTask( this ).Forget();
+			await _taskManager.FinalizeTask( this );
 		}
 
 

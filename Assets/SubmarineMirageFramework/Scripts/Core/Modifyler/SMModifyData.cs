@@ -4,37 +4,35 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestModifyData
+#define TestModifyData
 namespace SubmarineMirage.Modifyler {
+	using System;
 	using Cysharp.Threading.Tasks;
 	using Base;
-	using Extension;
 	using Debug;
 
 
 
-	public abstract class SMModifyData : SMLightBase {
-		protected object _target			{ get; private set; }
-		protected SMModifyler _modifyler	{ get; private set; }
+	public class SMModifyData : SMLightBase {
+		[SMShow] bool _isCalledDestructor	{ get; set; }
+		[SMShow] public bool _isFinished	{ get; private set; }
 
-		[SMShowLine] public abstract SMModifyType _type	{ get; }
+		[SMShowLine] public string _name		{ get; private set; }
+		[SMShowLine] public SMModifyType _type	{ get; private set; }
 
-		[SMShowLine] public bool _isFinished	{ get; private set; }
-		[SMShow] bool _isCalledDestructor		{ get; set; }
+		Func<UniTask> _runEvent	{ get; set; }
+		Action _cancelEvent		{ get; set; }
 
 
 
-		public SMModifyData() {
+		public SMModifyData( string name, SMModifyType type, Func<UniTask> runEvent, Action cancelEvent ) {
+			_name = name;
+			_type = type;
+			_runEvent = runEvent;
+			_cancelEvent = cancelEvent;
+
 #if TestModifyData
-//			SMLog.Debug( $"{this.GetAboutName()} : \n{this}" );
-#endif
-		}
-
-		public virtual void Set( object target, SMModifyler modifyler ) {
-			_target = target;
-			_modifyler = modifyler;
-#if TestModifyData
-			SMLog.Debug( $"{nameof( Set )} : \n{this}" );
+			SMLog.Debug( $"{nameof( SMModifyData )}() : \n{this}" );
 #endif
 		}
 
@@ -44,10 +42,12 @@ namespace SubmarineMirage.Modifyler {
 #if TestModifyData
 			SMLog.Debug( $"{nameof( Dispose )} : start\n{this}" );
 #endif
+			Cancel();
 			Finish();
-			if ( !_isCalledDestructor ) {
-				Cancel();
-			}
+
+			_runEvent = null;
+			_cancelEvent = null;
+
 #if TestModifyData
 			SMLog.Debug( $"{nameof( Dispose )} : end\n{this}" );
 #endif
@@ -55,20 +55,28 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-		protected virtual void Cancel() {
+		public UniTask Run()
+			=> _runEvent.Invoke();
+
+
+
+		void Cancel() {
+			if ( _isCalledDestructor )	{ return; }
+
 #if TestModifyData
-			SMLog.Debug( $"{nameof( Cancel )} : \n{this}" );
+				SMLog.Debug( $"{nameof( Cancel )} : \n{this}" );
 #endif
+			_cancelEvent?.Invoke();
+			_cancelEvent = null;
 		}
 
 
-
-		public abstract UniTask Run();
 
 		public void Finish() {
 			if ( _isFinished )	{ return; }
 
 			_isFinished = true;
+
 #if TestModifyData
 			SMLog.Debug( $"{nameof( Finish )} : \n{this}" );
 #endif

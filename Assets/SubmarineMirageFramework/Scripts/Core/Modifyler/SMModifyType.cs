@@ -9,7 +9,7 @@ namespace SubmarineMirage.Modifyler {
 
 	public enum SMModifyType {
 		Interrupt,
-		First,
+		Priority,
 		Single,
 		Parallel,
 		Normal,

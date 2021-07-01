@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestModifyler
+#define TestModifyler
 namespace SubmarineMirage.Modifyler {
 	using System;
 	using System.Linq;
@@ -21,8 +21,6 @@ namespace SubmarineMirage.Modifyler {
 
 
 	public class SMModifyler : SMRawBase {
-		object _target	{ get; set; }
-		[SMShow] Type _baseDataType { get; set; }
 		public readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
 		public readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
 
@@ -34,13 +32,13 @@ namespace SubmarineMirage.Modifyler {
 
 		public SMAsyncCanceler _asyncCanceler { get; private set; }
 
+
+
 		[SMShow] public bool _isDebug {
 			get => _isInternalDebug;
 			set {
-				if ( _isDispose ) {
-					throw new ObjectDisposedException(
-						$"{this.GetAboutName()}.{nameof( _isDebug )}", $"既に解放済 : {this}" );
-				}
+				CheckDisposeError( nameof( _isDebug ) );
+
 #if TestModifyler
 				SMLog.Debug( $"{nameof( _isDebug )} : start\n{this}" );
 #endif
@@ -57,10 +55,8 @@ namespace SubmarineMirage.Modifyler {
 		[SMShow] public bool _isLock {
 			get => _isInternalLock.Value;
 			set {
-				if ( _isDispose ) {
-					throw new ObjectDisposedException(
-						$"{this.GetAboutName()}.{nameof( _isLock )}", $"既に解放済 : {this}" );
-				}
+				CheckDisposeError( nameof( _isLock ) );
+
 #if TestModifyler
 				SMLog.Debug( $"{nameof( _isLock )} : start\n{this}" );
 #endif
@@ -73,9 +69,7 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-		public SMModifyler( object target, Type baseDataType, bool isUseAsync = true ) {
-			_target = target;
-			_baseDataType = baseDataType;
+		public SMModifyler( bool isUseAsync = true ) {
 			if ( isUseAsync )	{ _asyncCanceler = new SMAsyncCanceler(); }
 
 			_isInternalLock
@@ -89,9 +83,8 @@ namespace SubmarineMirage.Modifyler {
 #endif
 				_data.ForEach( d => d.Dispose() );
 				_data.Clear();
-
 				// UniTask並列実行中の配列変更は、エラーとなる為、自然終了に任せる
-				// 多分、キャンセラー解放により、即停止される筈
+				// 多分、_asyncCanceler解放により、即停止される筈
 //				_runData.Clear();
 
 				_asyncCanceler?.Dispose();
@@ -112,31 +105,21 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-		public void Register( SMModifyData data ) {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( Register )}", $"既に解放済 : {this}" );
-			}
-			var type = data.GetType();
-			if ( !type.IsInheritance( _baseDataType ) ) {
-				throw new InvalidOperationException( string.Join( "\n",
-					$"{this.GetAboutName()}.{nameof( Register )} : 違う基底クラスのデータを指定",
-					$"{nameof( type )} : {type}",
-					$"{nameof( _baseDataType )} : {_baseDataType}"
-				) );
-			}
+		public async UniTask Register( string name, SMModifyType type,
+										Func<UniTask> runEvent, Action cancelEvent = null
+		) {
+			CheckDisposeError( nameof( Register ) );
+
 #if TestModifyler
 			SMLog.Debug( $"{nameof( Register )} : start\n{this}" );
 #endif
-
-			data.Set( _target, this );
-
+			var data = new SMModifyData( name, type, runEvent, cancelEvent );
 			switch ( data._type ) {
 				case SMModifyType.Interrupt:
 					_data.AddFirst( data );
 					break;
 
-				case SMModifyType.First:
+				case SMModifyType.Priority:
 					_data.AddBefore(
 						data,
 						d => d._type > data._type,
@@ -162,23 +145,10 @@ namespace SubmarineMirage.Modifyler {
 #endif
 
 			Run().Forget();
-		}
 
-		public void Unregister( Func<SMModifyData, bool> isFindEvent ) {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( Unregister )}", $"既に解放済 : {this}" );
+			if ( _asyncCanceler != null ) {
+				await UTask.WaitWhile( _asyncCanceler, () => !data._isFinished );
 			}
-#if TestModifyler
-			SMLog.Debug( $"{nameof( Unregister )} : start\n{this}" );
-#endif
-			_data.RemoveAll(
-				d => isFindEvent( d ),
-				d => d.Dispose()
-			);
-#if TestModifyler
-			SMLog.Debug( $"{nameof( Unregister )} : end\n{this}" );
-#endif
 		}
 
 
@@ -211,23 +181,27 @@ namespace SubmarineMirage.Modifyler {
 
 					await WaitDebug();
 
-					await _runData.Select( async rd => {
-						try {
-							await rd.Run();
-							rd.Finish();
-						} catch ( OperationCanceledException ) {
-							rd.Dispose();
-							throw;
-						} catch ( Exception e ) {
-							SMLog.Error( e );
-							rd.Dispose();
-						}
-					} );
-					_runData.Clear();
-				}
+					try {
+						await _runData.Select( async rd => {
+							try {
+								await rd.Run();
+								rd.Finish();
 
-			} catch ( OperationCanceledException ) {
-				throw;
+							} catch ( OperationCanceledException ) {
+								rd.Dispose();
+								throw;
+
+							} catch ( Exception ) {
+								rd.Dispose();
+								throw;
+							}
+						} );
+
+					} finally {
+// TODO : エラーになりそう
+						_runData.Clear();
+					}
+				}
 
 			} finally {
 				_isRunning = false;
@@ -237,23 +211,12 @@ namespace SubmarineMirage.Modifyler {
 #endif
 		}
 
+
+
 		public async UniTask WaitRunning() {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( WaitRunning )}", $"既に解放済 : {this}" );
-			}
+			CheckDisposeError( nameof( WaitRunning ) );
 
 			await UTask.WaitWhile( _asyncCanceler, () => _isRunning || _isHaveData );
-		}
-
-		public async UniTask RegisterAndWaitRunning( SMModifyData data ) {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( RegisterAndWaitRunning )}", $"既に解放済 : {this}" );
-			}
-
-			Register( data );
-			await UTask.WaitWhile( _asyncCanceler, () => !data._isFinished );
 		}
 
 
@@ -266,6 +229,13 @@ namespace SubmarineMirage.Modifyler {
 			await UTask.NextFrame( _asyncCanceler );
 		}
 
+		void CheckDisposeError( string name ) {
+			if ( !_isDispose ) { return; }
+
+			throw new ObjectDisposedException(
+				$"{this.GetAboutName()}.{name}", $"既に解放済 : \n{this}" );
+		}
+
 
 
 		public override string ToString( int indent, bool isUseHeadIndent = true ) {
@@ -274,7 +244,6 @@ namespace SubmarineMirage.Modifyler {
 			return base.ToString( indent, isUseHeadIndent ).InsertFirst(
 				")",
 				string.Join( ",\n",
-					$"{mPrefix}{nameof( _target )} : {_target.ToLineString()}",
 					$"{mPrefix}{nameof( _data )} : \n" +
 						string.Join( ",\n", _data.Select( d => d.ToLineString( indent + 2 ) ) ),
 					$"{mPrefix}{nameof( _runData )} : \n" +
