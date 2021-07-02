@@ -17,7 +17,6 @@ namespace SubmarineMirage.TestBase {
 
 
 	public abstract class SMUnitTest : SMStandardBase {
-		protected readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 		protected readonly SMStopwatch _stopwatch = new SMStopwatch();
 
 
@@ -26,10 +25,12 @@ namespace SubmarineMirage.TestBase {
 		protected void Awake() {
 			SMLog.s_isEnable = true;
 			_disposables.AddFirst( () => {
-				_asyncCanceler.Dispose();
 				_stopwatch.Dispose();
 			} );
+			Create();
 		}
+
+		protected abstract void Create();
 
 		[OneTimeTearDown]
 		protected void OnDestroy()
@@ -46,7 +47,6 @@ namespace SubmarineMirage.TestBase {
 
 		public IEnumerator From( IEnumerator coroutine ) {
 			var isRunning = true;
-			_asyncCanceler._cancelEvent.AddLast().Subscribe( _ => isRunning = false );
 
 			var disposable = Observable.FromCoroutine( () => coroutine )
 				.DoOnError( e => {

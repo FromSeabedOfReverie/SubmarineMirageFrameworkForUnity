@@ -18,6 +18,18 @@ namespace SubmarineMirage.TestUtility {
 
 
 	public class TestSMAsyncCanceler : SMUnitTest {
+		readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
+
+
+
+		protected override void Create() {
+			_disposables.AddFirst( () => {
+				_asyncCanceler.Dispose();
+			} );
+		}
+
+
+
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestCreate() => From( async () => {
 			var c = new SMAsyncCanceler();

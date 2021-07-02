@@ -18,6 +18,11 @@ namespace SubmarineMirage.TestModifyler {
 
 
 	public class TestSMModifyler : SMUnitTest {
+		protected override void Create() {
+		}
+
+
+
 		UniTask RegisterTestData( SMModifyler modifyler, string name, SMModifyType type )
 			=> modifyler.Register(
 				$"{nameof( RegisterTestData )} : {name}",
@@ -56,9 +61,9 @@ namespace SubmarineMirage.TestModifyler {
 		public IEnumerator TestCreate() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var m = new SMModifyler( false );
+			var m = new SMModifyler( "1", false );
 			m.Dispose();
-			m = new SMModifyler( true );
+			m = new SMModifyler( "2", true );
 			m.Dispose();
 
 			SMLog.Warning( "End" );
@@ -68,10 +73,10 @@ namespace SubmarineMirage.TestModifyler {
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestDisposed() => From( async () => {
+		public IEnumerator TestDispose() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var m = new SMModifyler();
+			var m = new SMModifyler( "1" );
 			m.Dispose();
 
 			try {
@@ -82,7 +87,7 @@ namespace SubmarineMirage.TestModifyler {
 			} catch ( Exception e ) { SMLog.Error( e ); }
 
 			try {
-				await RegisterTestData( m, "", SMModifyType.Normal );
+				RegisterTestData( m, "", SMModifyType.Normal ).Forget();
 			} catch ( Exception e ) { SMLog.Error( e ); }
 			try {
 				await m.WaitRunning();
@@ -92,11 +97,11 @@ namespace SubmarineMirage.TestModifyler {
 		} );
 
 
-
+// TODO : デバッグ、ここから
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestIs() => From( async () => {
 			SMLog.Warning( "Start" );
-			var m = new SMModifyler( false );
+			var m = new SMModifyler( string.Empty, false );
 
 			m._isLock = false;
 			m._isLock = false;
@@ -136,7 +141,7 @@ namespace SubmarineMirage.TestModifyler {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRegister() => From( async () => {
 			SMLog.Warning( "Start" );
-			var m = new SMModifyler();
+			var m = new SMModifyler( string.Empty );
 			m._isLock = true;
 			m._isDebug = true;
 
@@ -166,7 +171,7 @@ namespace SubmarineMirage.TestModifyler {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestRun() => From( async () => {
 			SMLog.Warning( "Start" );
-			var m = new SMModifyler();
+			var m = new SMModifyler( string.Empty );
 
 			m._isLock = true;
 			RegisterTestData( m, "1", SMModifyType.Parallel ).Forget();
@@ -199,7 +204,7 @@ namespace SubmarineMirage.TestModifyler {
 			} catch ( OperationCanceledException ) {}
 			SMLog.Debug( $"{nameof( m.WaitRunning )} : end" );
 
-			m = new SMModifyler();
+			m = new SMModifyler( string.Empty );
 			RegisterTestData( m, "4.5", SMModifyType.Parallel ).Forget();
 			UTask.Void( async () => {
 				await RegisterDisposeData( m, "5", SMModifyType.Parallel );
@@ -222,7 +227,7 @@ namespace SubmarineMirage.TestModifyler {
 		public IEnumerator TestErrorRun1() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var m = new SMModifyler();
+			var m = new SMModifyler( string.Empty );
 			RegisterTestData(		m, "1", SMModifyType.Normal ).Forget();
 			RegisterErrorData(	m, "2", SMModifyType.Normal ).Forget();
 			RegisterTestData(		m, "3", SMModifyType.Normal ).Forget();
@@ -238,7 +243,7 @@ namespace SubmarineMirage.TestModifyler {
 		public IEnumerator TestErrorRun2() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var m = new SMModifyler();
+			var m = new SMModifyler( string.Empty );
 			RegisterTestData(		m, "1", SMModifyType.Parallel ).Forget();
 			RegisterErrorData(	m, "2", SMModifyType.Parallel ).Forget();
 			RegisterTestData(		m, "3", SMModifyType.Parallel ).Forget();
@@ -254,7 +259,7 @@ namespace SubmarineMirage.TestModifyler {
 		public IEnumerator TestErrorRun3() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var m = new SMModifyler();
+			var m = new SMModifyler( string.Empty );
 			RegisterTestData(		m, "4", SMModifyType.Normal ).Forget();
 			RegisterDisposeData(	m, "5", SMModifyType.Normal ).Forget();
 			RegisterTestData(		m, "6", SMModifyType.Normal ).Forget();
@@ -269,7 +274,7 @@ namespace SubmarineMirage.TestModifyler {
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestErrorRun4() => From( async () => {
 			SMLog.Warning( "Start" );
-			var m  = new SMModifyler();
+			var m  = new SMModifyler( string.Empty );
 			RegisterTestData(		m, "4", SMModifyType.Parallel ).Forget();
 			RegisterDisposeData(	m, "5", SMModifyType.Parallel ).Forget();
 			RegisterTestData(		m, "6", SMModifyType.Parallel ).Forget();

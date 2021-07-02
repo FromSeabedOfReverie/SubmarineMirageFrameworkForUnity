@@ -22,7 +22,8 @@ namespace SubmarineMirage.Event {
 	public abstract class BaseSMEvent : SMRawBase {
 		// Reverse時に再代入される為、readonly未使用
 		LinkedList<BaseSMEventData> _events	{ get; set; } = new LinkedList<BaseSMEventData>();
-		readonly SMModifyler _modifyler = new SMModifyler( false );
+		// this.GetAboutName()使用には、コンストラクタでthis参照が必要の為、下記で設定しない
+		readonly SMModifyler _modifyler;
 
 		[SMShow] public bool _isRunning	{ get; private set; }
 		bool _isInternalDebug			{ get; set; }
@@ -45,6 +46,8 @@ namespace SubmarineMirage.Event {
 
 
 		public BaseSMEvent() {
+			_modifyler = new SMModifyler( this.GetAboutName(), false );
+
 			_disposables.Add( () => {
 				_modifyler.Dispose();
 				_events.ForEach( data => data.Dispose() );

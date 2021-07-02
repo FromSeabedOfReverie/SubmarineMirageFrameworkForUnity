@@ -21,6 +21,8 @@ namespace SubmarineMirage.Modifyler {
 
 
 	public class SMModifyler : SMRawBase {
+		[SMShowLine] public string _name	{ get; private set; }
+
 		public readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
 		public readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
 
@@ -69,7 +71,8 @@ namespace SubmarineMirage.Modifyler {
 
 
 
-		public SMModifyler( bool isUseAsync = true ) {
+		public SMModifyler( string name, bool isUseAsync = true ) {
+			_name = name;
 			if ( isUseAsync )	{ _asyncCanceler = new SMAsyncCanceler(); }
 
 			_isInternalLock
@@ -224,7 +227,9 @@ namespace SubmarineMirage.Modifyler {
 		async UniTask WaitDebug() {
 			if ( !_isDebug )	{ return; }
 
+#if TestModifyler
 			SMLog.Debug( $"{nameof( WaitDebug )} : \n{this}" );
+#endif
 			await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKeyDown( KeyCode.M ) );
 			await UTask.NextFrame( _asyncCanceler );
 		}

@@ -34,7 +34,7 @@ namespace SubmarineMirage.Task {
 
 		SMTask _root { get; set; }
 		SMTaskMarkerManager _taskMarkers { get; set; }
-		public readonly SMModifyler _modifyler = new SMModifyler();
+		public readonly SMModifyler _modifyler = new SMModifyler( nameof( SMTaskManager ) );
 
 		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
 		public readonly SMSubject _updateEvent = new SMSubject();

@@ -17,7 +17,7 @@ namespace SubmarineMirage.Modifyler {
 		[SMShow] bool _isCalledDestructor	{ get; set; }
 		[SMShow] public bool _isFinished	{ get; private set; }
 
-		[SMShowLine] public string _name		{ get; private set; }
+		[SMShowLine] string _name				{ get; set; }
 		[SMShowLine] public SMModifyType _type	{ get; private set; }
 
 		Func<UniTask> _runEvent	{ get; set; }
