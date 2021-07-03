@@ -4,14 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestModifyler
+//#define TestModifyler
 namespace SubmarineMirage.Modifyler {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using UniRx;
 	using KoganeUnityLib;
 	using Base;
 	using Extension;
@@ -29,12 +28,31 @@ namespace SubmarineMirage.Modifyler {
 		[SMShow] public bool _isRunning		{ get; private set; }
 		[SMShow] public bool _isHaveData	=> !_data.IsEmpty();
 		bool _isInternalDebug				{ get; set; }
-		readonly ReactiveProperty<bool> _isInternalLock = new ReactiveProperty<bool>();
+		bool _isInternalLock				{ get; set; }
 		public Func<bool> _isCanRunEvent	{ private get; set; } = () => true;
 
 		public SMAsyncCanceler _asyncCanceler { get; private set; }
 
 
+
+		[SMShow] public bool _isLock {
+			get => _isInternalLock;
+			set {
+				CheckDisposeError( nameof( _isLock ) );
+
+#if TestModifyler
+				SMLog.Debug( $"{nameof( _isLock )} : start\n{this}" );
+#endif
+				var isLastInternalLock = _isInternalLock;
+				_isInternalLock = value;
+				if ( !_isInternalLock && isLastInternalLock ) {
+					Run().Forget();
+				}
+#if TestModifyler
+				SMLog.Debug( $"{nameof( _isLock )} : end\n{this}" );
+#endif
+			}
+		}
 
 		[SMShow] public bool _isDebug {
 			get => _isInternalDebug;
@@ -54,31 +72,11 @@ namespace SubmarineMirage.Modifyler {
 			}
 		}
 
-		[SMShow] public bool _isLock {
-			get => _isInternalLock.Value;
-			set {
-				CheckDisposeError( nameof( _isLock ) );
-
-#if TestModifyler
-				SMLog.Debug( $"{nameof( _isLock )} : start\n{this}" );
-#endif
-				_isInternalLock.Value = value;
-#if TestModifyler
-				SMLog.Debug( $"{nameof( _isLock )} : end\n{this}" );
-#endif
-			}
-		}
-
 
 
 		public SMModifyler( string name, bool isUseAsync = true ) {
 			_name = name;
 			if ( isUseAsync )	{ _asyncCanceler = new SMAsyncCanceler(); }
-
-			_isInternalLock
-				.SkipLatestValueOnSubscribe()
-				.Where( @is => !@is )
-				.Subscribe( _ => Run().Forget() );
 
 			_disposables.Add( () => {
 #if TestModifyler
@@ -86,15 +84,13 @@ namespace SubmarineMirage.Modifyler {
 #endif
 				_data.ForEach( d => d.Dispose() );
 				_data.Clear();
-				// UniTask並列実行中の配列変更は、エラーとなる為、自然終了に任せる
+				// _runData.Clear()は、UniTask並列実行中の変更エラーとなる為、自然終了に任せる
 				// 多分、_asyncCanceler解放により、即停止される筈
-//				_runData.Clear();
 
 				_asyncCanceler?.Dispose();
 
 				_isRunning = false;
-				_isInternalLock.Dispose();
-				_isInternalLock.Value = false;
+				_isInternalLock = false;
 				_isInternalDebug = false;
 				_isCanRunEvent = null;
 #if TestModifyler
@@ -164,6 +160,7 @@ namespace SubmarineMirage.Modifyler {
 
 			try {
 				_isRunning = true;
+
 				while ( _isHaveData ) {
 					if ( _isDispose )			{ break; }
 					if ( _isLock )				{ break; }
@@ -184,26 +181,22 @@ namespace SubmarineMirage.Modifyler {
 
 					await WaitDebug();
 
-					try {
-						await _runData.Select( async rd => {
-							try {
-								await rd.Run();
-								rd.Finish();
+					await _runData.Select( async rd => {
+						try {
+							await rd.Run();
+							rd.Finish();
 
-							} catch ( OperationCanceledException ) {
-								rd.Dispose();
-								throw;
+						} catch ( OperationCanceledException ) {
+							rd.Dispose();
+							// Cancelは、Modifyler外に伝搬されない（Run待機が残る為、throwしない）
 
-							} catch ( Exception ) {
-								rd.Dispose();
-								throw;
-							}
-						} );
-
-					} finally {
-// TODO : エラーになりそう
-						_runData.Clear();
-					}
+						} catch ( Exception e ) {
+							SMLog.Error( $"{e} : \n{this}" );
+							rd.Dispose();
+							// Errorは、Modifyler外に伝搬されない（Run待機が残る為、throwしない）
+						}
+					} );
+					_runData.Clear();
 				}
 
 			} finally {
@@ -249,10 +242,10 @@ namespace SubmarineMirage.Modifyler {
 			return base.ToString( indent, isUseHeadIndent ).InsertFirst(
 				")",
 				string.Join( ",\n",
-					$"{mPrefix}{nameof( _data )} : \n" +
-						string.Join( ",\n", _data.Select( d => d.ToLineString( indent + 2 ) ) ),
 					$"{mPrefix}{nameof( _runData )} : \n" +
 						string.Join( ",\n", _runData.Select( d => d.ToLineString( indent + 2 ) ) ),
+					$"{mPrefix}{nameof( _data )} : \n" +
+						string.Join( ",\n", _data.Select( d => d.ToLineString( indent + 2 ) ) ),
 					$"{mPrefix}{nameof( _asyncCanceler )} : {( _asyncCanceler?.ToLineString() )}",
 					""
 				),

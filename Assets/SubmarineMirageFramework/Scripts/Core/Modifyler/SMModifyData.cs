@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestModifyData
+//#define TestModifyData
 namespace SubmarineMirage.Modifyler {
 	using System;
 	using Cysharp.Threading.Tasks;
@@ -14,11 +14,11 @@ namespace SubmarineMirage.Modifyler {
 
 
 	public class SMModifyData : SMLightBase {
-		[SMShow] bool _isCalledDestructor	{ get; set; }
-		[SMShow] public bool _isFinished	{ get; private set; }
-
 		[SMShowLine] string _name				{ get; set; }
 		[SMShowLine] public SMModifyType _type	{ get; private set; }
+
+		[SMShow] bool _isCalledDestructor	{ get; set; }
+		[SMShow] public bool _isFinished	{ get; private set; }
 
 		Func<UniTask> _runEvent	{ get; set; }
 		Action _cancelEvent		{ get; set; }

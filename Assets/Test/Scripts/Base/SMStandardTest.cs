@@ -5,7 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestBase {
+	using UnityEngine.TestTools;
 	using Cysharp.Threading.Tasks;
+	using UniRx;
 	using Base;
 	using Event;
 	using Debug;
@@ -27,6 +29,11 @@ namespace SubmarineMirage.TestBase {
 			_toStringer = new SMToStringer( this );
 			SetToString();
 
+			_disposables.AddFirst(
+				Observable.EveryUpdate()
+					.Where( _ => !LogAssert.ignoreFailingMessages )
+					.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
+			);
 			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 				_stopwatch.Dispose();

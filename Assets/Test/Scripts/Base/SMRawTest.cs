@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.TestBase {
 	using System;
+	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Base;
@@ -25,6 +26,11 @@ namespace SubmarineMirage.TestBase {
 		protected override void Awake() {
 			base.Awake();
 
+			_disposables.Add(
+				Observable.EveryUpdate()
+					.Where( _ => !LogAssert.ignoreFailingMessages )
+					.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
+			);
 			_disposables.Add( () => {
 				_asyncCanceler.Dispose();
 				_stopwatch.Dispose();

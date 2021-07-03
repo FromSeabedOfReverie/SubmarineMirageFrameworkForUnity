@@ -8,6 +8,7 @@ namespace SubmarineMirage.TestBase {
 	using System;
 	using System.Collections;
 	using NUnit.Framework;
+	using UnityEngine.TestTools;
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using Base;
@@ -24,9 +25,16 @@ namespace SubmarineMirage.TestBase {
 		[OneTimeSetUp]
 		protected void Awake() {
 			SMLog.s_isEnable = true;
+
+			_disposables.AddFirst(
+				Observable.EveryUpdate()
+					.Where( _ => !LogAssert.ignoreFailingMessages )
+					.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
+			);
 			_disposables.AddFirst( () => {
 				_stopwatch.Dispose();
 			} );
+
 			Create();
 		}
 
