@@ -9,8 +9,10 @@ namespace SubmarineMirage.Base {
 	using Debug;
 
 
+
 	public abstract class BaseSM : IBaseSM {
 		[SMShowLine] public uint _id	{ get; private set; }
+
 
 
 		public BaseSM() {
@@ -20,6 +22,7 @@ namespace SubmarineMirage.Base {
 		public abstract void Dispose();
 
 		~BaseSM() => Dispose();
+
 
 
 		public override string ToString() => ToString( 0 );

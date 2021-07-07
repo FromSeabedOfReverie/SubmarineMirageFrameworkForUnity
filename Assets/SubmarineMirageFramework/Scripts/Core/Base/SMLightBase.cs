@@ -8,5 +8,7 @@ namespace SubmarineMirage.Base {
 
 
 	public abstract class SMLightBase : BaseSM, ISMLightBase {
+		public virtual string AddToString( int indent )
+			=> string.Empty;
 	}
 }

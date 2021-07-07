@@ -45,7 +45,7 @@ namespace SubmarineMirage.TestModifyler {
 					using ( var c = new SMAsyncCanceler() ) {
 						UTask.Void( async () => {
 							await UTask.Delay( c, 500 );
-							SMLog.Warning( $"Run : 停止\n{name}" );
+							SMLog.Warning( $"停止 : \n{name}" );
 							c.Cancel();
 						} );
 						await UTask.Delay( c, 1000 );
@@ -61,7 +61,7 @@ namespace SubmarineMirage.TestModifyler {
 				type,
 				async () => {
 					await UTask.Delay( modifyler._asyncCanceler, 500 );
-					throw new Exception( $"試験失敗 : \n{name}" );
+					throw new Exception( $"失敗 : \n{name}" );
 				}
 			);
 		}
@@ -73,7 +73,7 @@ namespace SubmarineMirage.TestModifyler {
 				type,
 				async () => {
 					await UTask.Delay( modifyler._asyncCanceler, 500 );
-					SMLog.Warning( $"Run : 解放\n{name}" );
+					SMLog.Warning( $"解放 : \n{name}" );
 					modifyler.Dispose();
 				}
 			);

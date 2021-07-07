@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestEventData
 namespace SubmarineMirage.Event {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
@@ -19,6 +20,9 @@ namespace SubmarineMirage.Event {
 
 		public SMSubjectData( string key ) : base( key ) {
 			_event = new Subject<Unit>();
+#if TestEventData
+			SMLog.Debug( $"{nameof( SMSubjectData )}() : \n{this}" );
+#endif
 		}
 
 		public override void Dispose() {
@@ -27,6 +31,9 @@ namespace SubmarineMirage.Event {
 			_event.OnCompleted();
 			_event.Dispose();
 			_event = null;
+#if TestEventData
+			SMLog.Debug( $"{nameof( SMSubjectData )}.{nameof( Dispose )} : \n{this}" );
+#endif
 		}
 
 

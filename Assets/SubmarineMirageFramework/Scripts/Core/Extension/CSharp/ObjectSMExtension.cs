@@ -90,7 +90,7 @@ namespace SubmarineMirage.Extension {
 
 				case Enum e:
 				case string s:
-					return $"{hPrefix}{self.ToString()}";
+					return $"{hPrefix}{self}";
 
 				case IEnumerable enumerable:
 					indent++;
@@ -110,7 +110,7 @@ namespace SubmarineMirage.Extension {
 					var t = self.GetType();
 
 					if ( t.IsPrimitive ) {
-						return $"{hPrefix}{self.ToString()}";
+						return $"{hPrefix}{self}";
 					}
 
 					if ( t.IsGenericType ) {
@@ -131,13 +131,18 @@ namespace SubmarineMirage.Extension {
 					var mPrefix = StringSMUtility.IndentSpace( indent );
 					var members = self.GetType().GetAllAttributeMembers<SMShowAttribute>();
 
-					return string.Join( "\n",
-						$"{hPrefix}{self.GetAboutName()}(",
-						string.Join( ",\n", members.Select( i =>
-							$"{mPrefix}{i.Name} : " +
+					var ms = string.Join( ",\n", members.Select( i =>
+						$"{mPrefix}{i.Name} : " +
 							ToShowString(
 								i.GetValue( self ), indent, isUseInternalLineString, isNextUseLineString, false )
-						) ),
+					) );
+					switch ( self ) {
+						case ISMLightBase lb:	ms += lb.AddToString( indent );	break;
+						case ISMRawBase rb:		ms += rb.AddToString( indent );	break;
+					}
+					return string.Join( "\n",
+						$"{hPrefix}{self.GetAboutName()}(",
+						ms,
 						$"{prefix})"
 					);
 			}
@@ -160,7 +165,7 @@ namespace SubmarineMirage.Extension {
 
 				case Enum e:
 				case string s:
-					return $"{prefix}{self.ToString()}";
+					return $"{prefix}{self}";
 
 				case IEnumerable enumerable:
 					return prefix + string.Join( ",", enumerable.SelectRaw( o =>
@@ -171,7 +176,7 @@ namespace SubmarineMirage.Extension {
 					var t = self.GetType();
 
 					if ( t.IsPrimitive ) {
-						return $"{prefix}{self.ToString()}";
+						return $"{prefix}{self}";
 					}
 
 					if ( t.IsGenericType ) {

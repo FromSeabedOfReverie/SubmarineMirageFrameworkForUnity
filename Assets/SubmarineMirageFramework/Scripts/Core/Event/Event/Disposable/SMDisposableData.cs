@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestEventData
 namespace SubmarineMirage.Event {
 	using System;
 	using Cysharp.Threading.Tasks;
@@ -19,13 +20,17 @@ namespace SubmarineMirage.Event {
 
 
 		public SMDisposableData( string key, object @event ) : base( key ) {
+#if TestEventData
+			SMLog.Debug( $"{nameof( SMDisposableData )}() : \n{this}" );
+#endif
 			switch ( @event ) {
 				case IDisposable d:	_event = d;							return;
 				case Action a:		_event = Disposable.Create( a );	return;
 			}
 
 			throw new InvalidOperationException( string.Join( "\n",
-				$"{nameof( SMDisposableData )}() : 未対応イベントを指定",
+				"未対応イベントを指定",
+				$"{nameof( SMDisposableData )}()",
 				$"{nameof( @event )} : {@event.GetType()}",
 				$"対応型 : {nameof( IDisposable )}, {nameof( Action )}"
 			) );
@@ -36,11 +41,17 @@ namespace SubmarineMirage.Event {
 
 			_event.Dispose();
 			_event = null;
+#if TestEventData
+			SMLog.Debug( $"{nameof( SMDisposableData )}.{nameof( Dispose )} : \n{this}" );
+#endif
 		}
 
 
 
 		public override UniTask Run( SMAsyncCanceler canceler )
-			=> throw new InvalidOperationException( $"{nameof( SMDisposableData )}.{nameof( Run )} : 未対応" );
+			=> throw new InvalidOperationException( string.Join( "\n",
+				"未対応",
+				$"{nameof( SMDisposableData )}.{nameof( Run )}"
+			) );
 	}
 }

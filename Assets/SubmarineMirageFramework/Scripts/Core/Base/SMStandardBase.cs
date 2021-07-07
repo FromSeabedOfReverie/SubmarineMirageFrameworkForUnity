@@ -5,7 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Base {
+	using System;
 	using Event;
+	using Extension;
 	using Debug;
 	using Debug.ToString;
 
@@ -25,6 +27,16 @@ namespace SubmarineMirage.Base {
 		}
 
 		public override void Dispose() => _disposables.Dispose();
+
+
+
+		protected void CheckDisposeError( string name ) {
+			if ( !_isDispose )	{ return; }
+
+			throw new ObjectDisposedException(
+				ToString(), $"既に解放済\n{this.GetAboutName()}.{name}" );
+		}
+
 
 
 		public virtual void SetToString() {}

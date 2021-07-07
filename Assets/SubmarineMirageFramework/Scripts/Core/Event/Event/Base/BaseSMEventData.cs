@@ -13,17 +13,12 @@ namespace SubmarineMirage.Event {
 
 
 	public abstract class BaseSMEventData : SMLightBase {
-		protected BaseSMEvent _owner { get; private set; }
 		[SMShowLine] public string _key	{ get; private set; }
 
 
 
 		public BaseSMEventData( string key ) {
 			_key = key;
-		}
-
-		public virtual void Set( BaseSMEvent owner ) {
-			_owner = owner;
 		}
 
 

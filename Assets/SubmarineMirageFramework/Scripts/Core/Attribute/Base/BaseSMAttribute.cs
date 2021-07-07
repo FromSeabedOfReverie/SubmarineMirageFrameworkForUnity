@@ -15,6 +15,13 @@ namespace SubmarineMirage {
 	public abstract class BaseSMAttribute : Attribute, ISMLightBase {
 		public uint _id	{ get; private set; }
 
+
+
+		public virtual string AddToString( int indent )
+			=> string.Empty;
+
+
+
 		public BaseSMAttribute() {
 			_id = SMIDCounter.GetNewID( this );
 		}
@@ -22,6 +29,7 @@ namespace SubmarineMirage {
 		public virtual void Dispose() {}
 
 		~BaseSMAttribute() => Dispose();
+
 
 
 		public override string ToString() => ToString( 0 );

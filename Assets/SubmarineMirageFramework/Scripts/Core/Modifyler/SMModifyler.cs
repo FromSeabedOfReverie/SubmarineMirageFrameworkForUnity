@@ -38,7 +38,7 @@ namespace SubmarineMirage.Modifyler {
 		[SMShow] public bool _isLock {
 			get => _isInternalLock;
 			set {
-				CheckDisposeError( nameof( _isLock ) );
+				CheckDisposeError( $"{nameof( _isLock )} = {value}" );
 
 #if TestModifyler
 				SMLog.Debug( $"{nameof( _isLock )} : start\n{this}" );
@@ -57,7 +57,7 @@ namespace SubmarineMirage.Modifyler {
 		[SMShow] public bool _isDebug {
 			get => _isInternalDebug;
 			set {
-				CheckDisposeError( nameof( _isDebug ) );
+				CheckDisposeError( $"{nameof( _isDebug )} = {value}" );
 
 #if TestModifyler
 				SMLog.Debug( $"{nameof( _isDebug )} : start\n{this}" );
@@ -71,6 +71,23 @@ namespace SubmarineMirage.Modifyler {
 #endif
 			}
 		}
+
+
+
+#region ToString
+		public override string AddToString( int indent ) {
+			var prefix = StringSMUtility.IndentSpace( indent );
+
+			return string.Join( ",\n",
+				"",
+				$"{prefix}{nameof( _runData )} : \n" +
+					string.Join( ",\n", _runData.Select( d => d.ToLineString( indent + 1 ) ) ),
+				$"{prefix}{nameof( _data )} : \n" +
+					string.Join( ",\n", _data.Select( d => d.ToLineString( indent + 1 ) ) ),
+				$"{prefix}{nameof( _asyncCanceler )} : {( _asyncCanceler?.ToLineString() )}"
+			);
+		}
+#endregion
 
 
 
@@ -98,7 +115,7 @@ namespace SubmarineMirage.Modifyler {
 #endif
 			} );
 #if TestModifyler
-			SMLog.Debug( $"Create : \n{this}" );
+			SMLog.Debug( $"{nameof( SMModifyler )}() : \n{this}" );
 #endif
 		}
 
@@ -107,7 +124,7 @@ namespace SubmarineMirage.Modifyler {
 		public async UniTask Register( string name, SMModifyType type,
 										Func<UniTask> runEvent, Action cancelEvent = null
 		) {
-			CheckDisposeError( nameof( Register ) );
+			CheckDisposeError( $"{nameof( Register )}( {name}, {type} )" );
 
 #if TestModifyler
 			SMLog.Debug( $"{nameof( Register )} : start\n{this}" );
@@ -225,32 +242,6 @@ namespace SubmarineMirage.Modifyler {
 #endif
 			await UTask.WaitWhile( _asyncCanceler, () => !Input.GetKeyDown( KeyCode.M ) );
 			await UTask.NextFrame( _asyncCanceler );
-		}
-
-		void CheckDisposeError( string name ) {
-			if ( !_isDispose ) { return; }
-
-			throw new ObjectDisposedException(
-				$"{this.GetAboutName()}.{name}", $"既に解放済 : \n{this}" );
-		}
-
-
-
-		public override string ToString( int indent, bool isUseHeadIndent = true ) {
-			var mPrefix = StringSMUtility.IndentSpace( indent + 1 );
-
-			return base.ToString( indent, isUseHeadIndent ).InsertFirst(
-				")",
-				string.Join( ",\n",
-					$"{mPrefix}{nameof( _runData )} : \n" +
-						string.Join( ",\n", _runData.Select( d => d.ToLineString( indent + 2 ) ) ),
-					$"{mPrefix}{nameof( _data )} : \n" +
-						string.Join( ",\n", _data.Select( d => d.ToLineString( indent + 2 ) ) ),
-					$"{mPrefix}{nameof( _asyncCanceler )} : {( _asyncCanceler?.ToLineString() )}",
-					""
-				),
-				false
-			);
 		}
 	}
 }

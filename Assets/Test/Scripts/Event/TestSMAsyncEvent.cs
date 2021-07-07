@@ -4,16 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#if false
 namespace SubmarineMirage.TestEvent {
 	using System;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
-	using UniRx;
 	using Cysharp.Threading.Tasks;
-	using KoganeUnityLib;
 	using Event;
 	using Utility;
 	using Debug;
@@ -22,141 +19,320 @@ namespace SubmarineMirage.TestEvent {
 
 
 	public class TestSMAsyncEvent : SMUnitTest {
-		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestDispose() => From( async () => {
-			SMLog.Debug( $"{nameof( TestDispose )}" );
-			var canceler = new SMAsyncCanceler();
-			
+		readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 
 
-			SMLog.Debug( "・即削除テスト" );
-			var asyncEvent = new SMAsyncEvent();
-			SMLog.Debug( asyncEvent );
-			asyncEvent.Dispose();
-			SMLog.Debug( asyncEvent );
+
+		protected override void Create() {
+			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
+
+			_disposables.AddLast( () => {
+				_asyncCanceler.Dispose();
+			} );
+		}
 
 
-			SMLog.Debug( "・停止テスト" );
-			asyncEvent = new SMAsyncEvent();
-			2.Times( i => asyncEvent.AddLast( async c => {
-				SMLog.Debug( $"{nameof( SMAsyncEvent )} : 待機開始 {i}" );
-				await UTask.Delay( c, 1000 );
-				SMLog.Debug( $"{nameof( SMAsyncEvent )} : 待機終了 {i}" );
-			} ) );
+
+		async UniTask TestWait( SMAsyncCanceler canceler, string name ) {
+			SMLog.Warning( $"実行 : start\n{name}" );
+			await UTask.Delay( canceler, 1000 );
+			SMLog.Warning( $"実行 : end\n{name}" );
+		}
+
+		async UniTask TestCancel( SMAsyncCanceler canceler, string name ) {
 			UTask.Void( async () => {
 				await UTask.Delay( canceler, 500 );
-				SMLog.Debug( "停止" );
+				SMLog.Warning( $"停止 : \n{name}" );
 				canceler.Cancel();
 			} );
-			try {
-				await asyncEvent.Run( canceler );
-			} catch ( OperationCanceledException ) {}
+			await UTask.Delay( canceler, 1000 );
+		}
+
+		async UniTask TestError( SMAsyncCanceler canceler, string name ) {
+			await UTask.Delay( canceler, 500 );
+			throw new Exception( $"失敗 : \n{name}" );
+		}
+
+		async UniTask TestDispose( SMAsyncEvent asyncEvent, SMAsyncCanceler canceler, string name ) {
+			await UTask.Delay( canceler, 500 );
+			SMLog.Warning( $"解放 : \n{name}" );
 			asyncEvent.Dispose();
+		}
 
 
-			SMLog.Debug( "・実行中削除テスト" );
-			asyncEvent = new SMAsyncEvent();
-			2.Times( i => asyncEvent.AddLast( async c => {
-				SMLog.Debug( $"{nameof( SMAsyncEvent )} : 待機開始 {i}" );
-				await UTask.Delay( c, 1000 );
-				SMLog.Debug( $"{nameof( SMAsyncEvent )} : 待機終了 {i}" );
-			} ) );
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDispose() => From( async () => {
+			await UTask.DelayFrame( _asyncCanceler, 2 );
+			SMLog.Warning( "Start" );
+
+			var ae = new SMAsyncEvent();
+			ae.Dispose();
+
+			try {
+				ae._isDebug = true;
+			} catch ( Exception e ) { SMLog.Error( e ); }
+
+			ae.Remove( "hoge" );
+			ae.Reverse();
+			ae.InsertFirst( "hoge", c => UTask.DontWait() );
+			ae.InsertLast( "hoge", c => UTask.DontWait() );
+			ae.AddFirst( c => UTask.DontWait() );
+			ae.AddLast( c => UTask.DontWait() );
+
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( Exception e ) { SMLog.Error( e ); }
+
+			ae = new SMAsyncEvent();
+			ae.AddLast( c => TestWait( c, "1" ) );
+			ae.AddLast( c => TestWait( c, "2" ) );
 			UTask.Void( async () => {
-				SMLog.Debug( "待機開始" );
-				await UTask.Delay( canceler, 2000 );
-				SMLog.Debug( "待機終了" );
-			} );
-			UTask.Void( async () => {
-				await UTask.Delay( canceler, 500 );
+				await UTask.Delay( _asyncCanceler, 500 );
 				SMLog.Debug( "削除" );
-				asyncEvent.Dispose();
+				ae.Dispose();
 			} );
 			try {
-				await asyncEvent.Run( canceler );
-			} catch ( OperationCanceledException ) {}
-			await UTask.Delay( canceler, 2000 );
+				await ae.Run( _asyncCanceler );
+			} catch ( Exception e ) { SMLog.Error( e ); }
 
-
-			canceler.Dispose();
+			SMLog.Warning( "End" );
 		} );
 
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestModifyler() => From( async () => {
-			TestSMEventSMUtility.SetModifyler(
-				_events,
-				a => new Func<SMAsyncCanceler, UniTask>( async canceler => {
-					a();
-					SMLog.Debug( "start" );
-					await UTask.Delay( canceler, 500 );
-					SMLog.Debug( "end" );
-				} )
-			);
+		public IEnumerator TestCancel() => From( async () => {
+			SMLog.Warning( "Start" );
 
-			SMLog.Debug( "・実行" );
-			await _events.Run( _asyncCanceler );
-			SMLog.Debug( _events );
+			var ae = new SMAsyncEvent();
+			ae.AddLast( c => TestWait( c, "1" ) );
+			ae.AddLast( c => TestWait( c, "2" ) );
+			UTask.Void( async () => {
+				await UTask.Delay( _asyncCanceler, 500 );
+				SMLog.Debug( "停止" );
+				_asyncCanceler.Cancel();
+			} );
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( OperationCanceledException ) { SMLog.Debug( "Cancel Error" ); }
+			SMLog.Debug( "Run End" );
+
+			_asyncCanceler.Cancel( false );
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( OperationCanceledException ) { SMLog.Debug( "Cancel Error" ); }
+			SMLog.Debug( "Run End" );
+
+			ae.Dispose();
+
+			SMLog.Warning( "End" );
 		} );
 
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestChangeWhileRunning() => From( async () => {
-			TestSMEventSMUtility.SetChangeWhileRunning(
-				_events,
-				a => new Func<SMAsyncCanceler, UniTask>( async canceler => {
-					a();
-					SMLog.Debug( "start" );
-					await UTask.Delay( canceler, 500 );
-					SMLog.Debug( "end" );
-				} )
-			);
+		public IEnumerator TestIs() => From( async () => {
+			SMLog.Warning( "Start" );
 
-			SMLog.Debug( "・実行 1" );
-			await _events.Run( _asyncCanceler );
-			SMLog.Debug( _events );
+			var ae = new SMAsyncEvent();
+			ae._isDebug = false;
+			ae._isDebug = false;
+			ae._isDebug = true;
+			ae._isDebug = true;
+			ae._isDebug = false;
+			ae._isDebug = false;
 
-			SMLog.Debug( "・実行 2" );
-			await _events.Run( _asyncCanceler );
-			SMLog.Debug( _events );
+			ae._isDebug = true;
+			ae.AddLast( c => TestWait( c, "1" ) );
+			ae.AddLast( c => TestWait( c, "2" ) );
+			await ae.Run( _asyncCanceler );
+
+			ae.Dispose();
+			SMLog.Warning( "End" );
 		} );
 
 
 
 		[UnityTest] [Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( async () => {
-			var canceler = new SMAsyncCanceler();
-			_disposables.AddLast( canceler );
+		public IEnumerator TestRegister() => From( async () => {
+			SMLog.Warning( "Start" );
 
-			_disposables.AddLast(
-				TestSMEventSMUtility.SetKey(
-					_events,
-					a => new Func<SMAsyncCanceler, UniTask>( async c => {
-						a();
-						SMLog.Debug( "start" );
-						await UTask.Delay( c, 1000 );
-						SMLog.Debug( "end" );
-					} )
-				),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {nameof( _events.Run )}" );
-					UTask.Void( async () => {
-						SMLog.Debug( _events );
-						await _events.Run( canceler );
-						SMLog.Debug( _events );
-					} );
-				} ),
-				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
-					SMLog.Warning( $"key down {nameof( canceler.Cancel )}" );
-					SMLog.Debug( _events );
-					canceler.Cancel();
-					SMLog.Debug( _events );
-				} )
-			);
+			var ae = new SMAsyncEvent();
 
-			await UTask.Never( _asyncCanceler );
+			ae.AddLast( "1", c => TestWait( c, "1" ) );
+			SMLog.Debug( ae );
+
+			ae.InsertFirst( "1", "2", c => TestWait( c, "2" ) );
+			SMLog.Debug( ae );
+			ae.InsertFirst( "1", c => TestWait( c, "3" ) );
+			SMLog.Debug( ae );
+
+			ae.InsertLast( "1", "4", c => TestWait( c, "4" ) );
+			SMLog.Debug( ae );
+			ae.InsertLast( "1", c => TestWait( c, "5" ) );
+			SMLog.Debug( ae );
+
+			ae.AddFirst( "6", c => TestWait( c, "6" ) );
+			SMLog.Debug( ae );
+			ae.AddFirst( c => TestWait( c, "7" ) );
+			SMLog.Debug( ae );
+
+			ae.AddLast( "8", c => TestWait( c, "8" ) );
+			SMLog.Debug( ae );
+			ae.AddLast( c => TestWait( c, "9" ) );
+			SMLog.Debug( ae );
+
+			ae.AddLast( "1", c => TestWait( c, "1" ) );
+			SMLog.Debug( ae );
+
+			ae.Reverse();
+			SMLog.Debug( ae );
+			ae.Remove( "1" );
+			SMLog.Debug( ae );
+
+			ae._isDebug = true;
+			await ae.Run( _asyncCanceler );
+
+			ae.Dispose();
+
+			ae = new SMAsyncEvent();
+			ae.InsertFirst( "hoge", "10", c => TestWait( c, "10" ) );
+			ae.InsertLast( "hoge", "11", c => TestWait( c, "11" ) );
+			ae.Dispose();
+
+			SMLog.Warning( "End" );
+		} );
+
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestRun() => From( async () => {
+			SMLog.Warning( "Start" );
+
+
+			var ae = new SMAsyncEvent();
+			ae.AddLast( c => TestWait( c, "1" ) );
+			ae.AddLast( c => TestWait( c, "2" ) );
+			await ae.Run( _asyncCanceler );
+			await ae.Run( _asyncCanceler );
+			SMLog.Debug( $"{nameof( ae.Run )} : end" );
+			ae.Dispose();
+
+
+			ae = new SMAsyncEvent();
+			ae.AddLast( "1", async c => {
+				ae.AddLast( "2", cc => TestWait( cc, "2" ) );
+				SMLog.Debug( ae );
+				ae.AddLast( "3", cc => TestWait( cc, "3" ) );
+				SMLog.Debug( ae );
+
+				ae.Remove( "2" );
+				SMLog.Debug( ae );
+				ae.Remove( "1" );
+				SMLog.Debug( ae );
+
+				await UTask.DontWait();
+			} );
+			await ae.Run( _asyncCanceler );
+			await ae.Run( _asyncCanceler );
+			SMLog.Debug( $"{nameof( ae.Run )} : end" );
+			ae.Dispose();
+
+
+			ae = new SMAsyncEvent();
+			ae.AddLast( c => TestWait(		c, "1" ) );
+			ae.AddLast( c => TestCancel(	c, "2" ) );
+			ae.AddLast( c => TestWait(		c, "3" ) );
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( OperationCanceledException ) { SMLog.Debug( "Cancel Error" ); }
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( OperationCanceledException ) { SMLog.Debug( "Cancel Error" ); }
+			SMLog.Debug( $"{nameof( ae.Run )} : end" );
+			ae.Dispose();
+
+
+			SMLog.Warning( "End" );
+		} );
+
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDisposeRun() => From( async () => {
+			SMLog.Warning( "Start" );
+
+
+			var ae = new SMAsyncEvent();
+			ae.AddLast( c => TestWait(		c, "1" ) );
+			ae.AddLast( c => TestDispose(	ae, c, "2" ) );
+			ae.AddLast( c => TestWait(		c, "3" ) );
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( OperationCanceledException )	{ SMLog.Debug( "Cancel Error" ); }
+			ae.Dispose();
+			SMLog.Debug( $"{nameof( ae.Run )} : end" );
+
+
+			ae = new SMAsyncEvent();
+			ae.AddLast( "1", async c => {
+				ae.AddLast( "2", cc => TestDispose( ae, c, "2" ) );
+				await UTask.DontWait();
+			} );
+			ae.AddLast( "3", c => TestDispose( ae, c, "3" ) );
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( OperationCanceledException )	{ SMLog.Debug( "Cancel Error" ); }
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( Exception e )	{ SMLog.Error( e ); }
+			ae.Dispose();
+			SMLog.Debug( $"{nameof( ae.Run )} : end" );
+
+
+			SMLog.Warning( "End" );
+		} );
+
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestErrorRun() => From( async () => {
+			SMLog.Warning( "Start" );
+
+
+			var ae = new SMAsyncEvent();
+			ae.AddLast( "1", c => TestWait(		c, "1" ) );
+			ae.AddLast( "2", c => TestError(	c, "2" ) );
+			ae.AddLast( "3", c => TestWait(		c, "3" ) );
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( Exception e ) { SMLog.Error( $"{e}\n{ae}" ); }
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( Exception e ) { SMLog.Error( $"{e}\n{ae}" ); }
+			ae.Dispose();
+			SMLog.Debug( $"{nameof( ae.Run )} : end" );
+
+
+			ae = new SMAsyncEvent();
+			ae.AddLast( "1", async c => {
+				ae.AddLast( "2", cc => TestError( c, "2" ) );
+				ae.Remove( "1" );
+				await UTask.DontWait();
+			} );
+			ae.AddLast( "3", c => TestError( c, "3" ) );
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( Exception e )	{ SMLog.Error( e ); }
+			try {
+				await ae.Run( _asyncCanceler );
+			} catch ( Exception e )	{ SMLog.Error( e ); }
+			ae.Dispose();
+			SMLog.Debug( $"{nameof( ae.Run )} : end" );
+
+
+			SMLog.Warning( "End" );
 		} );
 	}
 }
-#endif

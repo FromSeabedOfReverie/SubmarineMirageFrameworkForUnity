@@ -9,7 +9,12 @@ namespace SubmarineMirage.Base {
 	using Extension;
 
 
+
 	public interface ISMRawBase : IBaseSM, IDisposableSMExtension {
 		CompositeDisposable _disposables	{ get; }
+
+
+
+		string AddToString( int indent );
 	}
 }

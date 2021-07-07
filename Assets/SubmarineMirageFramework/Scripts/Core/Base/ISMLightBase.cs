@@ -7,6 +7,8 @@
 namespace SubmarineMirage.Base {
 
 
+
 	public interface ISMLightBase : IBaseSM {
+		string AddToString( int indent );
 	}
 }

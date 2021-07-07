@@ -6,12 +6,10 @@
 //---------------------------------------------------------------------------------------------------------
 //#define TestAsyncCanceler
 namespace SubmarineMirage.Utility {
-	using System;
 	using System.Threading;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
 	using Event;
-	using Extension;
 	using Debug;
 
 
@@ -77,26 +75,19 @@ namespace SubmarineMirage.Utility {
 
 
 		public void LinkLast( SMAsyncCanceler add ) {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( LinkLast )}", $"既に解放済\n{this}" );
-			}
+			if ( _isDispose )	{ CheckDisposeError( $"{nameof( LinkLast )}( {add._id} )" ); }
+
 			base.LinkLast( add );
 		}
 
 		public new void Unlink() {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( Unlink )}", $"既に解放済\n{this}" );
-			}
+			if ( _isDispose )	{ CheckDisposeError( nameof( Unlink ) ); }
+
 			base.Unlink();
 		}
 
 		public SMAsyncCanceler CreateChild() {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( CreateChild )}", $"既に解放済\n{this}" );
-			}
+			if ( _isDispose )	{ CheckDisposeError( nameof( CreateChild ) ); }
 
 			var add = new SMAsyncCanceler();
 			LinkLast( add );

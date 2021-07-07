@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestEvent
 namespace SubmarineMirage.Event {
 	using System;
 	using System.Linq;
@@ -23,7 +24,7 @@ namespace SubmarineMirage.Event {
 		// Reverse時に再代入される為、readonly未使用
 		LinkedList<BaseSMEventData> _events	{ get; set; } = new LinkedList<BaseSMEventData>();
 		// this.GetAboutName()使用には、コンストラクタでthis参照が必要の為、下記で設定しない
-		readonly SMModifyler _modifyler;
+		[SMShow] readonly SMModifyler _modifyler;
 
 		[SMShow] public bool _isRunning	{ get; private set; }
 		bool _isInternalDebug			{ get; set; }
@@ -36,12 +37,36 @@ namespace SubmarineMirage.Event {
 		[SMShow] public bool _isDebug {
 			get => _isInternalDebug;
 			set {
+				CheckDisposeError( $"{nameof( _isDebug )} = {value}" );
+
+#if TestEvent
+				SMLog.Debug( $"{nameof( _isDebug )} : start\n{this}" );
+#endif
 				_isInternalDebug = value;
 				if ( _isInternalDebug && _asyncCancelerForDebug == null ) {
 					_asyncCancelerForDebug = new SMAsyncCanceler();
 				}
+#if TestEvent
+				SMLog.Debug( $"{nameof( _isDebug )} : end\n{this}" );
+#endif
 			}
 		}
+
+
+
+#region ToString
+		public override string AddToString( int indent ) {
+			var prefix = StringSMUtility.IndentSpace( indent );
+
+			return string.Join( ",\n",
+				"",
+				$"{prefix}{nameof( _events )} : \n" +
+					string.Join( ",\n", _events.Select( d => d.ToLineString( indent + 1 ) ) ),
+				$"{prefix}{nameof( _asyncCancelerForRun )} : {( _asyncCancelerForRun?.ToLineString() )}",
+				$"{prefix}{nameof( _asyncCancelerForDebug )} : {( _asyncCancelerForDebug?.ToLineString() )}"
+			);
+		}
+#endregion
 
 
 
@@ -49,8 +74,11 @@ namespace SubmarineMirage.Event {
 			_modifyler = new SMModifyler( this.GetAboutName(), false );
 
 			_disposables.Add( () => {
+#if TestEvent
+				SMLog.Debug( $"{nameof( Dispose )} : start\n{this}" );
+#endif
 				_modifyler.Dispose();
-				_events.ForEach( data => data.Dispose() );
+				_events.ForEach( d => d.Dispose() );
 				_events.Clear();
 
 				_asyncCancelerForDebug?.Dispose();
@@ -58,20 +86,27 @@ namespace SubmarineMirage.Event {
 				_asyncCancelerForRun = null;
 
 				_isRunning = false;
+				_isInternalDebug = false;
+#if TestEvent
+				SMLog.Debug( $"{nameof( Dispose )} : end\n{this}" );
+#endif
 			} );
+#if TestEvent
+			SMLog.Debug( $"{this.GetAboutName()}() : \n{this}" );
+#endif
 		}
 
 
 
 		protected async UniTask Run( SMAsyncCanceler canceler ) {
-			if ( _isDispose ) {
-				throw new ObjectDisposedException(
-					$"{this.GetAboutName()}.{nameof( Run )}", $"既に解放済 : {this}" );
-			}
+			CheckDisposeError( nameof( Run ) );
 			if ( _isRunning ) {
 				SMLog.Warning( $"{this.GetAboutName()}.{nameof( Run )} : 既に実行中の為、未実行\n{this}" );
 				return;
 			}
+#if TestEvent
+			SMLog.Debug( $"{nameof( Run )} : start\n{this}" );
+#endif
 
 			try {
 				_isRunning = true;
@@ -86,22 +121,19 @@ namespace SubmarineMirage.Event {
 				}
 
 			} catch ( OperationCanceledException ) {
+				// Run呼び出し先も停止したい為、外に伝搬する
 				throw;
 
 			} finally {
-				_asyncCancelerForRun = null;
-				_modifyler._isLock = false;
-				_isRunning = false;
+				if ( !_isDispose ) {
+					_asyncCancelerForRun = null;
+					_modifyler._isLock = false;
+					_isRunning = false;
+				}
 			}
-		}
-
-
-
-		async UniTask WaitDebug() {
-			if ( !_isDebug )	{ return; }
-
-			await UTask.WaitWhile( _asyncCancelerForDebug, () => !Input.GetKeyDown( KeyCode.E ) );
-			await UTask.NextFrame( _asyncCancelerForDebug );
+#if TestEvent
+			SMLog.Debug( $"{nameof( Run )} : end\n{this}" );
+#endif
 		}
 
 
@@ -129,93 +161,73 @@ namespace SubmarineMirage.Event {
 
 
 
-		protected void InsertFirst( string findKey, BaseSMEventData data ) {
-			data.Set( this );
+		protected void InsertFirst( string findKey, BaseSMEventData data ) => _modifyler.Register(
+			nameof( InsertFirst ),
+			SMModifyType.Normal,
+			async () => {
+				_events.AddBefore(
+					data,
+					d => d._key == findKey,
+					() => NoSupportError( nameof( InsertFirst ), findKey )
+				);
+				await UTask.DontWait();
+			},
+			() => data.Dispose()
+		).Forget();
 
-			_modifyler.Register(
-				nameof( InsertFirst ),
-				SMModifyType.Normal,
-				async () => {
-					_events.AddBefore(
-						data,
-						d => d._key == findKey,
-						() => throw new NotSupportedException( string.Join( "\n",
-							$"{nameof( BaseSMEvent )}.{nameof( InsertFirst )} : 未登録 : {findKey}",
-							$"{_events}"
-						) )
-					);
-					await UTask.DontWait();
-				},
-				() => data.Dispose()
-			).Forget();
+		protected void InsertLast( string findKey, BaseSMEventData data ) => _modifyler.Register(
+			nameof( InsertLast ),
+			SMModifyType.Normal,
+			async () => {
+				_events.AddAfter(
+					data,
+					d => d._key == findKey,
+					() => NoSupportError( nameof( InsertLast ), findKey )
+				);
+				await UTask.DontWait();
+			},
+			() => data.Dispose()
+		).Forget();
+
+
+
+		protected void AddFirst( BaseSMEventData data ) => _modifyler.Register(
+			nameof( AddFirst ),
+			SMModifyType.Normal,
+			async () => {
+				_events.AddFirst( data );
+				await UTask.DontWait();
+			},
+			() => data.Dispose()
+		).Forget();
+
+		protected void AddLast( BaseSMEventData data ) => _modifyler.Register(
+			nameof( AddLast ),
+			SMModifyType.Normal,
+			async () => {
+				_events.AddLast( data );
+				await UTask.DontWait();
+			},
+			() => data.Dispose()
+		).Forget();
+
+
+
+		async UniTask WaitDebug() {
+			if ( !_isDebug )	{ return; }
+
+#if TestEvent
+			SMLog.Debug( $"{nameof( WaitDebug )} : \n{this}" );
+#endif
+			await UTask.WaitWhile( _asyncCancelerForDebug, () => !Input.GetKeyDown( KeyCode.E ) );
+			await UTask.NextFrame( _asyncCancelerForDebug );
 		}
 
-		protected void InsertLast( string findKey, BaseSMEventData data ) {
-			data.Set( this );
-
-			_modifyler.Register(
-				nameof( InsertLast ),
-				SMModifyType.Normal,
-				async () => {
-					_events.AddAfter(
-						data,
-						d => d._key == findKey,
-						() => throw new NotSupportedException( string.Join( "\n",
-							$"{nameof( BaseSMEvent )}.{nameof( InsertLast )} : 未登録 : {findKey}",
-							$"{_events}"
-						) )
-					);
-					await UTask.DontWait();
-				},
-				() => data.Dispose()
-			).Forget();
-		}
-
-
-
-		protected void AddFirst( BaseSMEventData data ) {
-			data.Set( this );
-
-			_modifyler.Register(
-				nameof( AddFirst ),
-				SMModifyType.Normal,
-				async () => {
-					_events.AddFirst( data );
-					await UTask.DontWait();
-				},
-				() => data.Dispose()
-			).Forget();
-		}
-
-		protected void AddLast( BaseSMEventData data ) {
-			data.Set( this );
-
-			_modifyler.Register(
-				nameof( AddLast ),
-				SMModifyType.Normal,
-				async () => {
-					_events.AddLast( data );
-					await UTask.DontWait();
-				},
-				() => data.Dispose()
-			).Forget();
-		}
-
-
-
-		public override string ToString( int indent, bool isUseHeadIndent = true ) {
-			var mPrefix = StringSMUtility.IndentSpace( indent + 1 );
-
-			return base.ToString( indent, isUseHeadIndent ).InsertFirst(
-				")",
-				string.Join( ",\n",
-					$"{mPrefix}{nameof( _events )} : \n" +
-						string.Join( ",\n", _events.Select( d => d.ToLineString( indent + 2 ) ) ),
-					$"{mPrefix}{nameof( _modifyler )} : {_modifyler.ToString( indent + 1 )},",
-					""
-				),
-				false
-			);
-		}
+		void NoSupportError( string name, string findKey )
+			=> throw new NotSupportedException( string.Join( "\n",
+				$"未登録 : {findKey}",
+				$"{nameof( BaseSMEvent )}.{name}",
+				$"{_events}"
+			) );
 	}
 }

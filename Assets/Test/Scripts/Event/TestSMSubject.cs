@@ -4,7 +4,6 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#if false
 namespace SubmarineMirage.TestEvent {
 	using System;
 	using System.Collections;
@@ -12,6 +11,7 @@ namespace SubmarineMirage.TestEvent {
 	using NUnit.Framework;
 	using UnityEngine;
 	using UnityEngine.TestTools;
+	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
 	using Event;
@@ -21,155 +21,277 @@ namespace SubmarineMirage.TestEvent {
 
 
 	public class TestSMSubject : SMUnitTest {
-		readonly SMMultiSubject _events = new SMMultiSubject();
+		readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
+
 
 
 		protected override void Create() {
-			Application.targetFrameRate = 10;
-			_disposables.AddLast( _events );
+			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
+
+			_disposables.AddLast( () => {
+				_asyncCanceler.Dispose();
+			} );
 		}
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestSubject() => From( async () => {
-			var ss = new List< Subject<Unit> >();
-			2.Times( i => {
-				var s = new Subject<Unit>();
-				s.Subscribe( _ => SMLog.Debug( $"{i} a" ) );
-				s.Subscribe( _ => SMLog.Debug( $"{i} b" ) );
-				ss.Add( s );
-			} );
 
+		Action<Unit> TestWait( string name )
+			=> _ => SMLog.Warning( $"実行 : \n{name}" );
+
+		Action<Unit> TestError( string name )
+			=> _ => throw new Exception( $"失敗 : \n{name}" );
+
+		Action<Unit> TestDispose( SMSubject @event, string name )
+			=> _ => {
+				SMLog.Warning( $"解放 : \n{name}" );
+				@event.Dispose();
+			};
+
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestSubject() => From( async () => {
+			List< Subject<Unit> > CreateSubjects() {
+				var result = new List<Subject<Unit>>();
+				2.Times( i => {
+					var s = new Subject<Unit>();
+					2.Times( ii => s.Subscribe(
+						_ => SMLog.Debug( $"{i}.{ii}" ),
+						e => SMLog.Error( e ),
+						() => SMLog.Debug( $"{i}.{ii} : Complete" )
+					) );
+					result.Add( s );
+				} );
+				return result;
+			}
+
+
+			await UTask.DelayFrame( _asyncCanceler, 2 );
+			SMLog.Warning( "Start" );
+
+
+			var ss = CreateSubjects();
+			SMLog.Debug( "Create" );
 			var d = Observable.EveryUpdate().Subscribe( _ => {
 				SMLog.Debug( "・EveryUpdate" );
 				ss.ForEach( s => s.OnNext( Unit.Default ) );
 			} );
-			await UTask.Delay( _asyncCanceler, 500 );
+			await UTask.DelayFrame( _asyncCanceler, 3 );
 
 			SMLog.Debug( "・OnCompleted" );
 			ss.ForEach( s => s.OnCompleted() );
-			await UTask.Delay( _asyncCanceler, 500 );
+			await UTask.DelayFrame( _asyncCanceler, 3 );
 
 			SMLog.Debug( "・解放" );
-			d.Dispose();
 			ss.ForEach( s => s.Dispose() );
-			await UTask.Delay( _asyncCanceler, 500 );
-		} );
+			ss.Clear();
+			await UTask.DelayFrame( _asyncCanceler, 3 );
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestModifyler() => From( async () => {
-			TestSMEventSMUtility.SetModifyler(
-				_events,
-				a => {
-					var s = new Subject<Unit>();
-					s.Subscribe( _ => a() );
-					return s;
-				},
-				startName => {
-					var ifName = $"{nameof( _events.InsertFirst )}";
-					SMLog.Debug( $"・{ifName}" );
-					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => SMLog.Debug( $"{ifName} 10" ) );
-					SMLog.Debug( _events );
-					_events.InsertFirst( startName ).Subscribe( _ => SMLog.Debug( $"{ifName} 20" ) );
-					SMLog.Debug( _events );
-
-					var ilName = $"{nameof( _events.InsertLast )}";
-					SMLog.Debug( $"・{ilName}" );
-					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => SMLog.Debug( $"{ilName} 10" ) );
-					SMLog.Debug( _events );
-					_events.InsertLast( startName ).Subscribe( _ => SMLog.Debug( $"{ilName} 20" ) );
-					SMLog.Debug( _events );
-
-					var afName = $"{nameof( _events.AddFirst )}";
-					SMLog.Debug( $"・{afName}" );
-					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => SMLog.Debug( $"{afName} 10" ) );
-					SMLog.Debug( _events );
-					_events.AddFirst().Subscribe( _ => SMLog.Debug( $"{afName} 20" ) );
-					SMLog.Debug( _events );
-
-					var alName = $"{nameof( _events.AddLast )}";
-					SMLog.Debug( $"・{alName}" );
-					_events.AddLast( $"{alName} 10" ).Subscribe( _ => SMLog.Debug( $"{alName} 10" ) );
-					SMLog.Debug( _events );
-					_events.AddLast().Subscribe( _ => SMLog.Debug( $"{alName} 20" ) );
-					SMLog.Debug( _events );
-				}
-			);
-
-			SMLog.Debug( "・実行" );
-			_events.Run();
-			SMLog.Debug( _events );
+			ss = CreateSubjects();
+			SMLog.Debug( "Create" );
+			await UTask.DelayFrame( _asyncCanceler, 3 );
 
 			SMLog.Debug( "・解放" );
-			_events.Dispose();
-			SMLog.Debug( _events );
+			ss.ForEach( s => s.Dispose() );
+			SMLog.Debug( "・OnCompleted" );
+			try {
+				ss.ForEach( s => s.OnCompleted() );
+			} catch ( Exception e )	{ SMLog.Error( e ); }
+			ss.Clear();
+			await UTask.DelayFrame( _asyncCanceler, 3 );
 
+
+			d.Dispose();
+			SMLog.Warning( "End" );
+		} );
+
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDispose() => From( async () => {
+			await UTask.DelayFrame( _asyncCanceler, 2 );
+			SMLog.Warning( "Start" );
+
+			var se = new SMSubject();
+			se.Dispose();
+
+			se.Remove( "hoge" );
+			se.Reverse();
+			se.InsertFirst( "hoge" ).Subscribe( _ => {} );
+			se.InsertLast( "hoge" ).Subscribe( _ => {} );
+			se.AddFirst().Subscribe( _ => {} );
+			se.AddLast().Subscribe( _ => {} );
+			se.Run();
+
+			se = new SMSubject();
+			se.AddLast().Subscribe( TestWait( "1" ) );
+			se.AddLast().Subscribe( TestDispose( se, "2" ) );
+			se.AddLast().Subscribe( TestWait( "3" ) );
+			se.Run();
+
+			SMLog.Warning( "End" );
+		} );
+
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestRegister() => From( async () => {
+			SMLog.Warning( "Start" );
+
+			var se = new SMSubject();
+
+			se.AddLast( "1" ).Subscribe( TestWait( "1" ) );
+			SMLog.Debug( se );
+
+			se.InsertFirst( "1", "2" ).Subscribe( TestWait( "2" ) );
+			SMLog.Debug( se );
+			se.InsertFirst( "1" ).Subscribe( TestWait( "3" ) );
+			SMLog.Debug( se );
+
+			se.InsertLast( "1", "4" ).Subscribe( TestWait( "4" ) );
+			SMLog.Debug( se );
+			se.InsertLast( "1" ).Subscribe( TestWait( "5" ) );
+			SMLog.Debug( se );
+
+			se.AddFirst( "6" ).Subscribe( TestWait( "6" ) );
+			SMLog.Debug( se );
+			se.AddFirst().Subscribe( TestWait( "7" ) );
+			SMLog.Debug( se );
+
+			se.AddLast( "8" ).Subscribe( TestWait( "8" ) );
+			SMLog.Debug( se );
+			se.AddLast().Subscribe( TestWait( "9" ) );
+			SMLog.Debug( se );
+
+			se.AddLast( "1" ).Subscribe( TestWait( "1" ) );
+			SMLog.Debug( se );
+
+			se.Reverse();
+			SMLog.Debug( se );
+			se.Remove( "1" );
+			SMLog.Debug( se );
+
+			se._isDebug = true;
+			se.Run();
+			await UTask.WaitWhile( _asyncCanceler, () => se._isRunning );
+
+			se.Dispose();
+
+			se = new SMSubject();
+			try {
+				se.InsertFirst( "hoge", "10" ).Subscribe( TestWait( "10" ) );
+			} catch ( Exception e ) { SMLog.Error( e ); }
+			try {
+				se.InsertLast( "hoge", "11" ).Subscribe( TestWait( "11" ) );
+			} catch ( Exception e ) { SMLog.Error( e ); }
+			se.Dispose();
+
+			SMLog.Warning( "End" );
+		} );
+
+
+
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestRun() => From( async () => {
+			SMLog.Warning( "Start" );
+
+
+			var se = new SMSubject();
+			se.AddLast().Subscribe( TestWait( "1" ) );
+			se.AddLast().Subscribe( TestWait( "2" ) );
+			se.Run();
+			se.Run();
+			SMLog.Debug( $"{nameof( se.Run )} : end" );
+			se.Dispose();
+
+
+			se = new SMSubject();
+			se.AddLast( "1" ).Subscribe( _ => {
+				se.AddLast( "2" ).Subscribe( TestWait( "2" ) );
+				SMLog.Debug( se );
+				se.AddLast( "3" ).Subscribe( TestWait( "3" ) );
+				SMLog.Debug( se );
+
+				se.Remove( "2" );
+				SMLog.Debug( se );
+				se.Remove( "1" );
+				SMLog.Debug( se );
+			} );
+			se.AddLast( "1.5" ).Subscribe( TestWait( "1.5" ) );
+			se.Run();
+			se.Run();
+			SMLog.Debug( $"{nameof( se.Run )} : end" );
+			se.Dispose();
+
+
+			SMLog.Warning( "End" );
 			await UTask.DontWait();
 		} );
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestChangeWhileRunning() => From( async () => {
-			TestSMEventSMUtility.SetChangeWhileRunning(
-				_events,
-				a => {
-					var s = new Subject<Unit>();
-					s.Subscribe( _ => a() );
-					return s;
-				},
-				startName => {
-					SMLog.Debug( _events );
 
-					var ifName = $"{nameof( _events.InsertFirst )}";
-					_events.InsertFirst( startName, $"{ifName} 10" ).Subscribe( _ => SMLog.Debug( $"{ifName} 10" ) );
-					_events.InsertFirst( startName ).Subscribe( _ => SMLog.Debug( $"{ifName} 20" ) );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestDisposeRun() => From( async () => {
+			await UTask.DelayFrame( _asyncCanceler, 2 );
+			SMLog.Warning( "Start" );
 
-					var ilName = $"{nameof( _events.InsertLast )}";
-					_events.InsertLast( startName, $"{ilName} 10" ).Subscribe( _ => SMLog.Debug( $"{ilName} 10" ) );
-					_events.InsertLast( startName ).Subscribe( _ => SMLog.Debug( $"{ilName} 20" ) );
 
-					var afName = $"{nameof( _events.AddFirst )}";
-					_events.AddFirst( $"{afName} 10" ).Subscribe( _ => SMLog.Debug( $"{afName} 10" ) );
-					_events.AddFirst().Subscribe( _ => SMLog.Debug( $"{afName} 20" ) );
+			var se = new SMSubject();
+			se.AddLast().Subscribe( TestWait(		"1" ) );
+			se.AddLast().Subscribe( TestDispose(	se, "2" ) );
+			se.AddLast().Subscribe( TestWait(		"3" ) );
+			se.Run();
+			se.Dispose();
+			SMLog.Debug( $"{nameof( se.Run )} : end" );
 
-					var alName = $"{nameof( _events.AddLast )}";
-					_events.AddLast( $"{alName} 10" ).Subscribe( _ => SMLog.Debug( $"{alName} 10" ) );
-					_events.AddLast().Subscribe( _ => SMLog.Debug( $"{alName} 20" ) );
 
-					SMLog.Debug( _events );
-				}
+			se = new SMSubject();
+			se.AddLast( "1" ).Subscribe( _ =>
+				se.AddLast( "2" ).Subscribe( TestDispose( se, "2" ) )
 			);
+			se.AddLast( "3" ).Subscribe( TestDispose( se, "3" ) );
+			se.Run();
+			se.Run();
+			se.Dispose();
+			SMLog.Debug( $"{nameof( se.Run )} : end" );
 
-			SMLog.Debug( "・実行 1" );
-			_events.Run();
-			SMLog.Debug( _events );
 
-			SMLog.Debug( "・実行 2" );
-			_events.Run();
-			SMLog.Debug( _events );
-
-			await UTask.DontWait();
+			SMLog.Warning( "End" );
 		} );
 
 
-		[UnityTest]
-		[Timeout( int.MaxValue )]
-		public IEnumerator TestManual() => From( async () => {
-			_disposables.AddLast(
-				TestSMEventSMUtility.SetKey( _events, a => {
-					var s = new Subject<Unit>();
-					s.Subscribe( _ => a() );
-					return s;
-				} ),
-				Observable.EveryUpdate().Subscribe( _ => _events.Run() )
-			);
 
-			await UTask.Never( _asyncCanceler );
+		[UnityTest] [Timeout( int.MaxValue )]
+		public IEnumerator TestErrorRun() => From( async () => {
+			await UTask.DelayFrame( _asyncCanceler, 2 );
+			SMLog.Warning( "Start" );
+
+
+			var se = new SMSubject();
+			se.AddLast( "1" ).Subscribe( TestWait(	"1" ) );
+			se.AddLast( "2" ).Subscribe( TestError(	"2" ) );
+			se.AddLast( "3" ).Subscribe( TestWait(	"3" ) );
+			se.Run();
+			se.Run();
+			se.Dispose();
+			SMLog.Debug( $"{nameof( se.Run )} : end" );
+
+
+			se = new SMSubject();
+			se.AddLast( "1" ).Subscribe( _ => {
+				se.AddLast( "2" ).Subscribe( TestError( "2" ) );
+				se.Remove( "1" );
+			} );
+			se.AddLast( "3" ).Subscribe( TestError( "3" ) );
+			se.Run();
+			se.Run();
+			se.Dispose();
+			SMLog.Debug( $"{nameof( se.Run )} : end" );
+
+
+			SMLog.Warning( "End" );
+			await UTask.DontWait();
 		} );
 	}
 }
-#endif

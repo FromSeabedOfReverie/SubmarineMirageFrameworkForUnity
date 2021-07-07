@@ -16,6 +16,12 @@ namespace SubmarineMirage.EditorExtension {
 		[SMShowLine] public uint _id	{ get; private set; }
 
 
+
+		public virtual string AddToString( int indent )
+			=> string.Empty;
+
+
+
 		protected virtual void Awake() {
 			_id = SMIDCounter.GetNewID( this );
 		}
@@ -23,6 +29,7 @@ namespace SubmarineMirage.EditorExtension {
 		protected virtual void OnDestroy() => Dispose();
 
 		public abstract void Dispose();
+
 
 
 		public override string ToString() => ToString( 0 );

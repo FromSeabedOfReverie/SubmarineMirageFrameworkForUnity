@@ -50,6 +50,9 @@ namespace SubmarineMirage.TestBase {
 			try {
 				await task.Invoke();
 			} catch ( OperationCanceledException ) {
+			} catch ( Exception e ) {
+				SMLog.Error( e );
+				throw;
 			}
 		} );
 
