@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestEvent
+//#define TestEvent
 namespace SubmarineMirage.Event {
 	using System;
 	using System.Linq;

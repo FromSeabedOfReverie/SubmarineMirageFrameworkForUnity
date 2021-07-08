@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestEventData
+//#define TestEventData
 namespace SubmarineMirage.Event {
 	using System;
 	using Cysharp.Threading.Tasks;
@@ -39,11 +39,19 @@ namespace SubmarineMirage.Event {
 		public override void Dispose() {
 			if ( _event == null )	{ return; }
 
-			_event.Dispose();
-			_event = null;
+			try {
+				_event.Dispose();
+
+			} catch ( Exception e ) {
+				// Dispose中のエラーは、無限循環防止の為、外部伝搬させない
+				SMLog.Error( e );
+
+			} finally {
+				_event = null;
 #if TestEventData
-			SMLog.Debug( $"{nameof( SMDisposableData )}.{nameof( Dispose )} : \n{this}" );
+				SMLog.Debug( $"{nameof( SMDisposableData )}.{nameof( Dispose )} : \n{this}" );
 #endif
+			}
 		}
 
 
