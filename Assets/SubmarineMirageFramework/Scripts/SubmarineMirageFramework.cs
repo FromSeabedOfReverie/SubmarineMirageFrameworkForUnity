@@ -38,14 +38,11 @@ namespace SubmarineMirage {
 			try {
 				SMServiceLocator.Dispose();
 
-				if ( !isApplicationQuit )	{ return; }
-
-				if ( SMDebugManager.s_isPlayTest ) { return; }
+				if ( !isApplicationQuit )			{ return; }
+				if ( SMDebugManager.s_isPlayTest )	{ return; }
 
 				if ( SMDebugManager.IS_UNITY_EDITOR ) {
-#if UNITY_EDITOR
 					UnityEditor.EditorApplication.isPlaying = false;
-#endif
 				} else {
 					Application.Quit();
 				}
@@ -79,28 +76,7 @@ namespace SubmarineMirage {
 
 			await initializePluginEvent();
 
-
-
 			var taskManager = SMServiceLocator.Register( new SMTaskManager() );
-
-			var t = new Task.Test.SMTestTask( "テスト1", SMTaskRunType.Sequential, false );
-			t._updateEvent.AddLast( "1" ).Subscribe( _ => {
-				SMLog.Warning( "削除" );
-				t.Dispose();
-			} );
-			t._updateEvent.AddLast( "2" ).Subscribe( _ => {
-				SMLog.Warning( "hoge" );
-			} );
-			/*
-			t._updateEvent.AddLast( "2" ).Subscribe( _ => {
-				SMLog.Warning( "追加" );
-				new Task.Test.SMTestTask( "テスト2", SMTaskRunType.Sequential, false );
-				t._updateEvent.Remove( "2" );
-			} );
-			*/
-
-
-
 //			SMServiceLocator.Register( new SMDecorationManager() );
 //			SMServiceLocator.Register( new SMDebugManager() );
 //			SMServiceLocator.Register( new SMTagManager() ) ;

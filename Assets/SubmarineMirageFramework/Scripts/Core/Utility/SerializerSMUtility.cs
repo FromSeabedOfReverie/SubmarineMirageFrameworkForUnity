@@ -66,9 +66,9 @@ namespace SubmarineMirage.Utility {
 			// 失敗した場合、Unityのシリアライズで複製
 			// 基底クラスや辞書等、複製されない物、多数
 			} catch ( Exception e ) {
-#if DEVELOP
-				SMLog.Warning( e );
-#endif
+				if ( SMDebugManager.IS_DEVELOP ) {
+					SMLog.Warning( e );
+				}
 				var json = JsonUtility.ToJson( data );
 				return JsonUtility.FromJson<T>( json );
 			}
@@ -89,9 +89,9 @@ namespace SubmarineMirage.Utility {
 
 			// 失敗した場合
 			} catch ( Exception e ) {
-#if DEVELOP
-				SMLog.Warning( e );
-#endif
+				if ( SMDebugManager.IS_DEVELOP ) {
+					SMLog.Warning( e );
+				}
 				return string.Empty;
 
 				// UnityでJSONに変換

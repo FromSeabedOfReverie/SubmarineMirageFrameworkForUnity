@@ -68,7 +68,7 @@ namespace SubmarineMirage.Utility {
 #endif
 			} );
 #if TestAsyncCanceler
-			SMLog.Debug( $"Create :\n{this}" );
+			SMLog.Debug( $"{nameof( SMAsyncCanceler )}() : \n{this}" );
 #endif
 		}
 
@@ -92,7 +92,7 @@ namespace SubmarineMirage.Utility {
 			var add = new SMAsyncCanceler();
 			LinkLast( add );
 #if TestAsyncCanceler
-			SMLog.Debug( $"{nameof( CreateChild )} :\n{string.Join( "\n", GetAlls() )}" );
+			SMLog.Debug( $"{nameof( CreateChild )} : \n{string.Join( "\n", GetAlls() )}" );
 #endif
 			return add;
 		}

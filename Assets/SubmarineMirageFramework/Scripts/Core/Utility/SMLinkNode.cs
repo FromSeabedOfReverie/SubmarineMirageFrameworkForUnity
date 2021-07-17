@@ -33,6 +33,8 @@ namespace SubmarineMirage.Utility {
 
 
 		protected void Link( SMLinkNode add ) {
+			// 派生先で、Disposeタイミングが異なるので、CheckDisposeErrorは呼べない
+			// 各派生先で、適宜呼び出す
 #if TestLinkNode
 			SMLog.Debug( $"{nameof( Link )} : start\n{string.Join( "\n", GetAlls() )}" );
 #endif
@@ -49,6 +51,8 @@ namespace SubmarineMirage.Utility {
 		}
 
 		protected void LinkLast( SMLinkNode add ) {
+			// 派生先で、Disposeタイミングが異なるので、CheckDisposeErrorは呼べない
+			// 各派生先で、適宜呼び出す
 #if TestLinkNode
 			SMLog.Debug( $"{nameof( LinkLast )} : start\n{string.Join( "\n", GetAlls() )}" );
 #endif
@@ -61,6 +65,8 @@ namespace SubmarineMirage.Utility {
 		}
 
 		protected void Unlink() {
+			// 派生先で、Disposeタイミングが異なるので、CheckDisposeErrorは呼べない
+			// 各派生先で、適宜呼び出す
 #if TestLinkNode
 			SMLog.Debug( $"{nameof( Unlink )} : start\n{this}" );
 #endif
@@ -77,7 +83,7 @@ namespace SubmarineMirage.Utility {
 
 		protected SMLinkNode GetFirst() {
 			SMLinkNode first = null;
-			for ( first = this; first._previous != null; first = first._previous ) { }
+			for ( first = this; first._previous != null; first = first._previous ) {}
 #if TestLinkNode
 			SMLog.Debug( $"{nameof( GetFirst )} :\n{first}" );
 #endif
@@ -86,7 +92,7 @@ namespace SubmarineMirage.Utility {
 
 		protected SMLinkNode GetLast() {
 			SMLinkNode last = null;
-			for ( last = this; last._next != null; last = last._next ) { }
+			for ( last = this; last._next != null; last = last._next ) {}
 #if TestLinkNode
 			SMLog.Debug( $"{nameof( GetLast )} :\n{last}" );
 #endif

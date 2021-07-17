@@ -4,8 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestTask
 namespace SubmarineMirage.Task.Marker {
 	using Cysharp.Threading.Tasks;
+	using Debug;
 
 
 
@@ -29,6 +31,9 @@ namespace SubmarineMirage.Task.Marker {
 			if ( _taskManager != null ) {
 				_taskManager.Register( this, false ).Forget();
 			}
+#if TestTask
+			SMLog.Debug( $"{nameof( SMTaskMarker )}() : \n{this}" );
+#endif
 		}
 
 		public override void Create() {

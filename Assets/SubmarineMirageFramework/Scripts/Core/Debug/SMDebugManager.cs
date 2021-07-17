@@ -69,8 +69,10 @@ namespace SubmarineMirage.Debug {
 				count++;
 			} );
 
+
 			return;
-#if DEVELOP
+			if ( !IS_DEVELOP )	{ return; }
+
 			// デバッグ表示
 			var displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
 			_updateEvent.AddLast().Subscribe( _ => {
@@ -81,7 +83,6 @@ namespace SubmarineMirage.Debug {
 				displayLog.Add( $"Memory Graphics : {SystemInfo.graphicsMemorySize} MB" );
 				displayLog.Add( Color.white );
 			} );
-#endif
 		}
 	}
 }

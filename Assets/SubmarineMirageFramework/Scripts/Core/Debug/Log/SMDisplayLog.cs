@@ -39,7 +39,9 @@ namespace SubmarineMirage.Debug {
 		/// ● 作成
 		/// </summary>
 		public override void Create() {
-#if DEVELOP
+			if ( !SMDebugManager.IS_DEVELOP )	{ return; }
+
+
 			// 描画スタイルを設定
 			_guiStyle.normal.background = Texture2D.whiteTexture;
 			_guiStyle.normal.textColor = Color.white;
@@ -68,7 +70,7 @@ namespace SubmarineMirage.Debug {
 
 			// ● GUI描画
 			_taskManager._onGUIEvent.AddLast().Subscribe( _ => {
-				if ( !_isDraw ) { return; }
+				if ( !_isDraw )	{ return; }
 
 				// 背景描画開始
 				GUI.backgroundColor = new Color( 0, 0, 0, ( _isDrawBackground ? 0.3f : 0 ) );
@@ -83,21 +85,23 @@ namespace SubmarineMirage.Debug {
 
 				// 描画文章配列を走査し、画面に描画
 				foreach ( var text in _drawTexts ) {
-					// 色の場合
-					if ( text is Color ) {
-						_guiStyle.normal.textColor = ( Color )text;
+					switch ( text ) {
+						// 色の場合
+						case Color c:
+							_guiStyle.normal.textColor = c;
+							break;
 
 						// 文章の場合
-					} else if ( text is string ) {
-						GUI.Label( rect, ( string )text, _guiStyle );
-						rect.y += height;
+						case string s:
+							GUI.Label( rect, s, _guiStyle );
+							rect.y += height;
+							break;
 					}
 				}
 
 				// 背景描画終了
 				GUI.backgroundColor = new Color( 0, 0, 0, 0 );
 			} );
-#endif
 		}
 
 		/// <summary>
@@ -113,25 +117,25 @@ namespace SubmarineMirage.Debug {
 		/// ● 追加（文章）
 		/// </summary>
 		public void Add( string text ) {
-#if DEVELOP
+			if ( !SMDebugManager.IS_DEVELOP )	{ return; }
+
 			_texts.Add( text );
-#endif
 		}
 		/// <summary>
 		/// ● 追加（色）
 		/// </summary>
 		public void Add( Color color ) {
-#if DEVELOP
+			if ( !SMDebugManager.IS_DEVELOP )	{ return; }
+
 			_texts.Add( color );
-#endif
 		}
 		/// <summary>
 		/// ● 追加（改行）
 		/// </summary>
 		public void AddLine() {
-#if DEVELOP
+			if ( !SMDebugManager.IS_DEVELOP )	{ return; }
+
 			_texts.Add( "\n" );
-#endif
 		}
 	}
 }

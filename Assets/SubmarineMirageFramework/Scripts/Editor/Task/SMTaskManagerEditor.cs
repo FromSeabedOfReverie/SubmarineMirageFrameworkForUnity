@@ -20,6 +20,7 @@ namespace SubmarineMirage.EditorTask {
 	public class SMTaskManagerEditor : EditorWindowSMExtension {
 		Vector2 _scrollPosition	{ get; set; }
 		string _focusedText	{ get; set; } = string.Empty;
+		int _focusedID { get; set; } = int.MinValue;
 		SMTaskManager _taskManager;
 
 
@@ -49,7 +50,9 @@ namespace SubmarineMirage.EditorTask {
 
 			Repaint();
 			if ( Event.current.type == EventType.Repaint ) {
-				_focusedText = GUI.GetNameOfFocusedControl();
+				var last = _focusedID;
+				_focusedID = GUI.GetNameOfFocusedControl().ToIntOrDefault( int.MinValue );
+				if ( _focusedID != last )	{ _focusedText = string.Empty; }
 			}
 		}
 
@@ -65,12 +68,16 @@ namespace SubmarineMirage.EditorTask {
 				EditorGUI.indentLevel++;
 
 				_taskManager.GetAlls( type ).ForEach( task => {
-					GUI.SetNextControlName( string.Join( "\n",
-						$"{task._id}",
-						$"↑ {task._previous?.ToLineString()}",
-						$"↓ {task._next?.ToLineString()}",
-						$"{( task._isDispose ? "Dispose" : "" )}"
-					) );
+					var id = task.GetHashCode();
+					if ( id == _focusedID ) {
+						_focusedText = string.Join( "\n",
+							$"{task._id}",
+							$"↑ {task._previous?.ToLineString()}",
+							$"↓ {task._next?.ToLineString()}",
+							$"{( task._isDispose ? "Dispose" : "" )}"
+						);
+					}
+					GUI.SetNextControlName( id.ToString() );
 					EditorGUILayout.SelectableLabel( task.ToLineString(), GUILayout.Height( 16 ) );
 				} );
 
@@ -92,7 +99,11 @@ namespace SubmarineMirage.EditorTask {
 				ShowHeading2( pair.Key );
 				EditorGUI.indentLevel++;
 				pair.Value.ForEach( d => {
-					GUI.SetNextControlName( d.ToString() );
+					var id = d.GetHashCode();
+					if ( id == _focusedID ) {
+						_focusedText = d.ToString();
+					}
+					GUI.SetNextControlName( id.ToString() );
 					EditorGUILayout.SelectableLabel( d.ToLineString(), GUILayout.Height( 16 ) );
 				} );
 				EditorGUI.indentLevel--;
