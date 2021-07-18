@@ -11,7 +11,7 @@ namespace SubmarineMirage.FSM {
 	public enum SMStateRunState {
 		Exit,
 		Enter,
-		UpdateEnter,
+		AsyncUpdate,
 		FixedUpdate,
 		Update,
 		LateUpdate,

@@ -15,7 +15,6 @@ namespace SubmarineMirage.TestFSM {
 
 
 	public class Human : SMTask, ISMFSMOwner {
-		public bool _isInitialEnteredFSMs	{ get; set; }
 		public SMFSM _fsm	{ get; private set; }
 		public override void Create() {
 			_fsm = new SMFSM();
@@ -64,12 +63,11 @@ namespace SubmarineMirage.TestFSM {
 
 
 	public class Dragon : SMTask, ISMFSMOwner {
-		public bool _isInitialEnteredFSMs	{ get; set; }
-		public SMFSM _fsm		{ get; private set; }
 		public SMFSM _headFSM	{ get; private set; }
 		public SMFSM _bodyFSM	{ get; private set; }
+		public SMFSM _dummyFSM	{ get; private set; }
 		public override void Create() {
-			_fsm = SMFSM.Generate(
+			var fsm = SMFSM.Generate(
 				this,
 				new SMFSMGenerateList {
 					{
@@ -94,11 +92,12 @@ namespace SubmarineMirage.TestFSM {
 					}
 				}
 			);
-			_headFSM = _fsm.GetFSM<DragonHeadState>();
-			_bodyFSM = _fsm.GetFSM<DragonBodyState>();
+			_headFSM = fsm.GetFSM<DragonHeadState>();
+			_bodyFSM = fsm.GetFSM<DragonBodyState>();
+			_dummyFSM = fsm.GetFSM<DummyState>();   // コンパイルエラーにならない
 		}
 		public void _Owner() {
-			_fsm.GetStates()
+			_headFSM.GetStates()
 				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_headFSM.ChangeState<BiteDragonHeadState>().Forget();
@@ -178,7 +177,6 @@ namespace SubmarineMirage.TestFSM {
 
 
 	public class Dummy : SMTask, ISMFSMOwner {
-		public bool _isInitialEnteredFSMs	{ get; set; }
 		public SMFSM _fsm	{ get; private set; }
 		public override void Create() {
 			_fsm = SMFSM.Generate(

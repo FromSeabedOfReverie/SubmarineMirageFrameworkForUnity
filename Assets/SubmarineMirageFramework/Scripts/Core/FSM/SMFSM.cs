@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestFSM
 namespace SubmarineMirage.FSM {
 	using System;
 	using System.Linq;
@@ -12,7 +13,7 @@ namespace SubmarineMirage.FSM {
 	using UniRx;
 	using KoganeUnityLib;
 	using Modifyler;
-	using Event;
+	using Task;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -20,43 +21,37 @@ namespace SubmarineMirage.FSM {
 
 
 	public class SMFSM : SMLinkNode {
-		[SMShowLine] public new SMFSM _previous {
-			get => base._previous as SMFSM;
-			set => base._previous = value;
-		}
-		[SMShowLine] public new SMFSM _next {
-			get => base._next as SMFSM;
-			set => base._next = value;
-		}
-
-		public ISMFSMOwner _owner	{ get; private set; }
+		[SMShowLine] ISMFSMOwner _owner	{ get; set; }
 		[SMShow] readonly Dictionary<Type, SMState> _states = new Dictionary<Type, SMState>();
-		[SMShowLine] public SMState _state	{ get; set; }
+		[SMShowLine] public SMState _state	{ get; private set; }
 
-		[SMShowLine] public Type _baseStateType			{ get; private set; }
-		[SMShow] public Type _startStateType			{ get; set; }
-		[SMShow] public string _registerEventName		{ get; private set; }
-		[SMShow] public bool _isInitialEntered			{ get; set; }
-		[SMShow] public bool _isLockBeforeInitialize	{ get; private set; }
+		[SMShowLine] public string _name	{ get; private set; }
+		[SMShow] Type _baseStateType		{ get; set; }
 
-		public bool _isInitialized	=> _owner?._isInitialized ?? false;
-		public bool _isFinalize		=> _owner?._isFinalize ?? false;
-		public bool _isOperable		=> _owner?._isOperable ?? false;
-		public bool _isActive		=> _owner?._isActive ?? false;
+		[SMShow] public bool _isInitialized	{ get; private set; }
+		bool _isInternalActive				{ get; set; }
 
-		public readonly SMModifyler _modifyler = new SMModifyler( nameof( SMFSM ) );
+		[SMShow] readonly SMModifyler _modifyler = new SMModifyler( nameof( SMFSM ) );
 
-		public SMAsyncEvent _selfInitializeEvent	=> _owner?._selfInitializeEvent;
-		public SMAsyncEvent _initializeEvent		=> _owner?._initializeEvent;
-		public SMSubject _enableEvent				=> _owner?._enableEvent;
-		public SMSubject _fixedUpdateEvent			=> _owner?._fixedUpdateEvent;
-		public SMSubject _updateEvent				=> _owner?._updateEvent;
-		public SMSubject _lateUpdateEvent			=> _owner?._lateUpdateEvent;
-		public SMSubject _disableEvent				=> _owner?._disableEvent;
-		public SMAsyncEvent _finalizeEvent			=> _owner?._finalizeEvent;
+		public readonly SMAsyncCanceler _asyncCancelerOnExit = new SMAsyncCanceler();
 
-		public readonly SMAsyncCanceler _asyncCancelerOnDisableAndExit	= new SMAsyncCanceler();
-		public SMAsyncCanceler _asyncCancelerOnDispose					=> _owner?._asyncCancelerOnDispose;
+
+
+		[SMShow] public bool _isActive {
+			get => _isInternalActive;
+			set {
+				CheckDisposeError( $"{nameof( _isActive )} = {value}" );
+
+				_isInternalActive = value;
+				_modifyler._isLock = !_isInternalActive;
+			}
+		}
+		public bool _isAllActive {
+			get => GetFSMs().All( fsm => fsm._isActive );
+			set => GetFSMs().ForEach( fsm => fsm._isActive = value );
+		}
+		public bool _isAllInitialized
+			=> GetFSMs().All( fsm => fsm._isInitialized );
 
 
 
@@ -64,33 +59,31 @@ namespace SubmarineMirage.FSM {
 		public override void SetToString() {
 			base.SetToString();
 
-			_toStringer.SetValue( nameof( _states ), i =>
-				_toStringer.DefaultValue( _states, i, true ) );
-			_toStringer.Add( nameof( _previous ), i => _toStringer.DefaultLineValue( _previous ) );
-			_toStringer.Add( nameof( _next ), i => _toStringer.DefaultLineValue( _next ) );
+			_toStringer.SetValue( nameof( _owner ), i => _toStringer.DefaultLineValue( _owner ) );
+			_toStringer.SetValue( nameof( _states ), i => _toStringer.DefaultValue( _states, i, true ) );
+			_toStringer.SetValue( nameof( _state ), i => _toStringer.DefaultLineValue( _state ) );
+
+			_toStringer.SetLineValue( nameof( _owner ), () => _owner.GetAboutName() );
+			_toStringer.SetLineValue( nameof( _state ), () => _state.GetAboutName() );
 		}
 #endregion
 
 
 
 		public SMFSM() {
-// TODO : フラグ、ごちゃごちゃしてるので、修正
-			_modifyler._isCanRunEvent = () => {
-				if ( _isFinalize )		{ return true; }
-				if ( !_isInitialized )	{ return false; }
-				if ( !_isActive )		{ return false; }
-				return true;
-			};
-
+			_isActive = true;
 
 			_disposables.AddLast( () => {
 				_modifyler.Dispose();
 
-				_asyncCancelerOnDisableAndExit.Dispose();
+				_asyncCancelerOnExit.Dispose();
 
 				GetStates().ForEach( s => s.Dispose() );
 				_states.Clear();
 				_state = null;
+				_owner = null;
+
+				_isInternalActive = false;
 
 				_next?.Dispose();
 				_previous = null;
@@ -100,82 +93,39 @@ namespace SubmarineMirage.FSM {
 
 		public override void Dispose() => base.Dispose();
 
-
-		public void Setup( ISMFSMOwner owner, IEnumerable<SMState> states,
-							Type baseStateType = null, Type startStateType = null,
-							bool isInitialEnter = true, bool isLockBeforeInitialize = false
-		) {
+		public void Setup( ISMFSMOwner owner, IEnumerable<SMState> states, Type baseStateType = null ) {
 			_owner = owner;
-			SetupStates( states, baseStateType, startStateType );
-
-
-			_selfInitializeEvent.AddLast( _registerEventName, async canceler => {
-				await GetStates().Select( s => s.SelfInitialize() );
-			} );
-			_initializeEvent.AddLast( _registerEventName, async canceler => {
-				await GetStates().Select( s => s.Initialize() );
-			} );
-			_finalizeEvent.AddFirst( _registerEventName, async canceler => {
-				_state = null;
-				await GetStates().Select( s => s.Finalize() );
-			} );
-
-			_enableEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_state?.Enable();
-			} );
-			_disableEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_modifyler.Reset();
-				_asyncCancelerOnDisableAndExit.Cancel();
-				_state?.Disable();
-			} );
-
-			_fixedUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_state?.FixedUpdate();
-			} );
-			_updateEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_modifyler.Run().Forget();
-				_state?.Update();
-			} );
-			_lateUpdateEvent.AddLast( _registerEventName ).Subscribe( _ => {
-				_state?.LateUpdate();
-			} );
-
-
-			_isLockBeforeInitialize = isLockBeforeInitialize;
-			if ( isInitialEnter )	{ InitialEnter( true ).Forget(); }
-		}
-
-		void SetupStates( IEnumerable<SMState> states, Type baseStateType, Type startStateType ) {
 			_baseStateType = baseStateType ?? typeof( SMState );
-			_registerEventName = $"{typeof( SMFSM )}<{_baseStateType.GetAboutName()}>";
+			_name = $"{typeof( SMFSM )}<{_baseStateType.GetAboutName()}>";
+			_modifyler._name = _name;
 
 			states.ForEach( state => {
 				var type = state.GetType();
 				if ( !type.IsInheritance( _baseStateType ) ) {
-					throw new InvalidOperationException(
-						$"基盤状態が違う、状態を指定 : {type}, {_baseStateType}" );
+					throw new InvalidOperationException( string.Join( "\n",
+						$"異なる種類の状態は、設定不可 : ",
+						$"{nameof( type )} : {type}",
+						$"{nameof( _baseStateType )} : {_baseStateType}"
+					) );
 				}
+				state.Setup( _owner, this );
 				_states[type] = state;
 			} );
 
-			_startStateType = startStateType ?? GetStates().First().GetType();
-
-			GetStates()
-				.ForEach( s => s.Setup( _owner, this ) );
+			_owner._fixedUpdateEvent	.AddLast( _name ).Subscribe( _ => FixedUpdateState() );
+			_owner._updateEvent			.AddLast( _name ).Subscribe( _ => UpdateState() );
+			_owner._lateUpdateEvent		.AddLast( _name ).Subscribe( _ => LateUpdateState() );
 		}
 
 
 
-		public static SMFSM Generate( ISMFSMOwner owner, SMFSMGenerateList generateList ) {
+		public static SMFSM Generate( ISMFSMOwner owner, SMFSMGenerateList generateDatas ) {
 			SMFSM first = null;
 			SMFSM last = null;
-			generateList.ForEach( data => {
-				var current = typeof( SMFSM ).Create<SMFSM>();
+			generateDatas.ForEach( data => {
 				data.CreateStates();
-				current.Setup(
-					owner, data._states, data._baseStateType, data._startStateType,
-					data._isInitialEnter, data._isLockBeforeInitialize
-				);
+				var current = new SMFSM();
+				current.Setup( owner, data._states, data._baseStateType );
 
 				if ( first == null )	{ first = current; }
 				last?.LinkLast( current );
@@ -187,22 +137,16 @@ namespace SubmarineMirage.FSM {
 
 
 
-		public void LinkLast( SMFSM add ) {
-			base.LinkLast( add );
-			add._owner = _owner;
-		}
-
-
-
 		public IEnumerable<SMFSM> GetFSMs()
-			=> GetAlls();
+			=> GetAlls() as IEnumerable<SMFSM>;
 
 		public SMFSM GetFSM( Type baseStateType )
-			=> GetAlls()
+			=> GetFSMs()
 				.FirstOrDefault( fsm => fsm._baseStateType == baseStateType );
 
 		public SMFSM GetFSM<T>() where T : SMState
 			=> GetFSM( typeof( T ) );
+
 
 
 		public IEnumerable<SMState> GetStates()
@@ -218,135 +162,113 @@ namespace SubmarineMirage.FSM {
 
 
 
-		public new SMFSM GetFirst()
-			=> base.GetFirst() as SMFSM;
+		void FixedUpdateState() {
+			if ( _state == null )									{ return; }
+			if ( _state._ranState < SMStateRunState.AsyncUpdate )	{ return; }
 
-		public new SMFSM GetLast()
-			=> base.GetLast() as SMFSM;
+			_state._fixedUpdateEvent.Run();
 
-		public new IEnumerable<SMFSM> GetAlls()
-			=> base.GetAlls() as IEnumerable<SMFSM>;
-
-
-
-		public async UniTask InitialEnter( bool isRunSelfOnly = false ) {
-			if ( !isRunSelfOnly ) {
-				await GetAlls().Select( fsm => fsm.InitialEnter( true ) );
-				return;
+			if ( _state._ranState == SMStateRunState.AsyncUpdate ) {
+				_state._ranState = SMStateRunState.FixedUpdate;
+#if TestFSM
+				SMLog.Debug( $"{nameof( SMFSM )}.{nameof( FixedUpdateState )} : First Run\n{_state}" );
+#endif
 			}
-
-			await _modifyler.Register(
-				nameof( InitialEnter ),
-				SMModifyType.Normal,
-				async () => {
-					if ( _isFinalize )			{ return; }
-					if ( _isInitialEntered )	{ return; }
-
-					if ( _state != null ) {
-						throw new InvalidOperationException(
-							$"初期状態遷移前に、既に状態設定済み : {nameof( _state )}" );
-					}
-					SMState state = null;
-					if ( _startStateType != null ) {
-						state = GetState( _startStateType );
-						if ( state == null ) {
-							throw new InvalidOperationException(
-								$"初期状態遷移に、未所持状態を指定 : {nameof( _startStateType )}" );
-						}
-					}
-
-					_state = state;
-					if ( _state == null )	{ return; }
-
-					await _state.Enter();
-					_state.Enable();
-					_isInitialEntered = true;
-
-					if ( !_owner._isInitialEnteredFSMs ) {
-						_owner._isInitialEnteredFSMs =
-							GetAlls().All( fsm => fsm._isInitialEntered );
-					}
-
-					if ( _modifyler._isHaveData )	{ return; }
-
-					_state.UpdateAsync();
-				}
-			);
 		}
 
-		public async UniTask FinalExit( bool isRunSelfOnly = false ) {
-			if ( !isRunSelfOnly ) {
-				await GetAlls().Select( fsm => fsm.FinalExit( true ) );
-				return;
+		void UpdateState() {
+			if ( _state == null )									{ return; }
+			if ( _state._ranState < SMStateRunState.FixedUpdate )	{ return; }
+
+			_state._updateEvent.Run();
+
+			if ( _state._ranState == SMStateRunState.FixedUpdate ) {
+				_state._ranState = SMStateRunState.Update;
+#if TestFSM
+				SMLog.Debug( $"{nameof( SMFSM )}.{nameof( UpdateState )} : First Run\n{_state}" );
+#endif
 			}
-
-			await _modifyler.Register(
-				nameof( FinalExit ),
-				SMModifyType.Priority,
-				async () => {
-					_asyncCancelerOnDisableAndExit.Cancel();
-
-					if ( _state != null ) {
-						_state.Disable();
-						await _state.Exit();
-						_state = null;
-					}
-
-					_modifyler.Reset();
-				}
-			);
 		}
+
+		void LateUpdateState() {
+			if ( _state == null )								{ return; }
+			if ( _state._ranState < SMStateRunState.Update )	{ return; }
+
+			_state._lateUpdateEvent.Run();
+
+			if ( _state._ranState == SMStateRunState.Update ) {
+				_state._ranState = SMStateRunState.LateUpdate;
+#if TestFSM
+				SMLog.Debug( $"{nameof( SMFSM )}.{nameof( LateUpdateState )} : First Run\n{_state}" );
+#endif
+			}
+		}
+
+
 
 		public async UniTask ChangeState( Type stateType ) {
 			await _modifyler.Register(
 				nameof( ChangeState ),
 				SMModifyType.Single,
 				async () => {
-					if ( _isFinalize )	{ return; }
-
-					if ( !_isInitialEntered ) {
-						if ( _isLockBeforeInitialize ) {
-							throw new InvalidOperationException( string.Join( "\n",
-								$"初期遷移前の状態遷移は、ロック中 : {stateType}",
-								nameof( _isLockBeforeInitialize )
-							) );
-						}
-						_startStateType = stateType;
-						return;
-					}
-
 					SMState state = null;
 					if ( stateType != null ) {
 						state = GetState( stateType );
 						if ( state == null ) {
-							throw new InvalidOperationException( $"状態遷移に、未所持状態を指定 : {stateType}" );
+							throw new InvalidOperationException( string.Join( "\n",
+								$"状態遷移に、未所持状態を指定 : \n",
+								$"{nameof( stateType )} : {stateType}",
+								$"{nameof( _states )} : {_states.ToShowString( 0, true, false, false )}"
+							) );
 						}
 					}
 
-					_asyncCancelerOnDisableAndExit.Cancel();
+					_asyncCancelerOnExit.Cancel();
 
-					if ( _state != null ) {
-						_state.Disable();
-						await _state.Exit();
+
+					if ( _state != null && _state._ranState != SMStateRunState.Exit ) {
+						await _state._exitEvent.Run( _asyncCancelerOnExit );
+						_state._ranState = SMStateRunState.Exit;
 					}
-					if ( _modifyler._isHaveData ) {
-						_state = null;
-						return;
-					}
+					if ( _modifyler._isHaveData )	{ return; }
+
 
 					_state = state;
 					if ( _state == null )	{ return; }
 
-					await _state.Enter();
-					_state.Enable();
+					if ( _state._ranState == SMStateRunState.Exit ) {
+						await _state._enterEvent.Run( _asyncCancelerOnExit );
+						_state._ranState = SMStateRunState.Enter;
+					}
+					_isInitialized = true;
 					if ( _modifyler._isHaveData )	{ return; }
 
-					_state.UpdateAsync();
+
+					if ( _state._ranState == SMStateRunState.Enter ) {
+						UTask.Void( async () => {
+							_state._ranState = SMStateRunState.AsyncUpdate;
+							await _state._asyncUpdateEvent.Run( _asyncCancelerOnExit );
+						} );
+					}
 				}
 			);
 		}
 
 		public UniTask ChangeState<T>() where T : SMState
 			=> ChangeState( typeof( T ) );
+
+		public async UniTask AllChangeNullState( SMTaskRunType type ) {
+			switch ( type ) {
+				case SMTaskRunType.Sequential:
+					foreach ( var fsm in GetFSMs() ) {
+						await fsm.ChangeState( null );
+					}
+					break;
+
+				case SMTaskRunType.Parallel:
+					await GetFSMs().Select( fsm => fsm.ChangeState( null ) );
+					break;
+			}
+		}
 	}
 }

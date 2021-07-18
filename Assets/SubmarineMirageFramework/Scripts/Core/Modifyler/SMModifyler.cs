@@ -20,7 +20,7 @@ namespace SubmarineMirage.Modifyler {
 
 
 	public class SMModifyler : SMRawBase {
-		[SMShowLine] public string _name	{ get; private set; }
+		[SMShowLine] public string _name	{ get; set; }
 
 		public readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
 		public readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();

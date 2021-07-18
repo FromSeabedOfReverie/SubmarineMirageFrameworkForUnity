@@ -14,8 +14,8 @@ namespace SubmarineMirage.TestTask {
 
 	public class SMTestTask : SMTask {
 		[SMShowLine] public override SMTaskRunType _type => _internalType;
-		SMTaskRunType _internalType;
-		[SMShowLine] public string _name { get; private set; }
+		SMTaskRunType _internalType			{ get; set; }
+		[SMShowLine] public string _name	{ get; private set; }
 
 
 
