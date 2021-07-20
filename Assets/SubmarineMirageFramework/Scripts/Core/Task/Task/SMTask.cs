@@ -6,9 +6,11 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestTask
 namespace SubmarineMirage.Task {
+	using System;
 	using Cysharp.Threading.Tasks;
 	using Event;
 	using Service;
+	using Extension;
 	using Utility;
 	using Debug;
 
@@ -97,9 +99,7 @@ namespace SubmarineMirage.Task {
 #endif
 			} );
 
-			if ( isRegister && _taskManager != null ) {
-				_taskManager.Register( this, isAdjustRun ).Forget();
-			}
+			Register( isRegister, isAdjustRun );
 		}
 
 		public abstract void Create();
@@ -108,8 +108,26 @@ namespace SubmarineMirage.Task {
 
 
 
+		protected void Register( bool isRegister, bool isAdjustRun ) {
+			if ( !isRegister )			{ return; }
+			if ( _taskManager == null )	{ return; }
+
+			_taskManager.Register( this, isAdjustRun ).Forget();
+		}
+
+
+
 		public void Link( SMTask add ) {
 			CheckDisposeError( $"{nameof( Link )}( {add._id} )" );
+			if ( add == null || add._isDispose ) {
+				throw new ObjectDisposedException(
+					$"{add}",
+					string.Join( "\n",
+						$"既に解放済",
+						$"{this.GetAboutName()}.{nameof( Link )}( {add._id} )"
+					)
+				);
+			}
 
 			base.Link( add );
 		}
@@ -121,11 +139,13 @@ namespace SubmarineMirage.Task {
 
 		public async UniTask Destroy() {
 			CheckDisposeError( nameof( Destroy ) );
+
 			await _taskManager.DestroyTask( this );
 		}
 
 		public virtual async UniTask ChangeActive( bool isActive ) {
 			CheckDisposeError( $"{nameof( ChangeActive )}( {isActive} )" );
+
 			await _taskManager.ChangeActiveTask( this, isActive );
 		}
 	}

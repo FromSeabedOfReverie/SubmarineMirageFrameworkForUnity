@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 #define TestTask
 namespace SubmarineMirage.Task.Marker {
-	using Cysharp.Threading.Tasks;
 	using Debug;
 
 
@@ -28,9 +27,7 @@ namespace SubmarineMirage.Task.Marker {
 			_markerType = markerType;
 
 			// 基底コンストラクタで未登録分を、派生先コンストラクタの下記で、改めて登録
-			if ( _taskManager != null ) {
-				_taskManager.Register( this, false ).Forget();
-			}
+			Register( true, false );
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarker )}() : \n{this}" );
 #endif

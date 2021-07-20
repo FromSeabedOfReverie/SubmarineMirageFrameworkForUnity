@@ -70,7 +70,7 @@ namespace SubmarineMirage.FSM {
 		public override void Dispose() => base.Dispose();
 
 		public virtual void Setup( ISMFSMOwner owner, SMFSM fsm ) {
-			CheckDisposeError( $"{nameof( Setup )}" );
+			CheckDisposeError( nameof( Setup ) );
 
 			_owner = owner;
 			_fsm = fsm;

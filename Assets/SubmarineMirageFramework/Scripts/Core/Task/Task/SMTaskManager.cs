@@ -59,12 +59,12 @@ namespace SubmarineMirage.Task {
 			_modifyler._isDebug = true;
 
 			var tasks = new SMTask[] {
-				GetFirst( SMTaskRunType.Dont, true ),
-				GetLast( SMTaskRunType.Dont, true ),
-				GetFirst( SMTaskRunType.Sequential, true ),
-				GetLast( SMTaskRunType.Sequential, true ),
-				GetFirst( SMTaskRunType.Parallel, true ),
-				GetLast( SMTaskRunType.Parallel, true ),
+				_markers.GetFirst( SMTaskRunType.Dont, true ),
+				_markers.GetLast( SMTaskRunType.Dont, true ),
+				_markers.GetFirst( SMTaskRunType.Sequential, true ),
+				_markers.GetLast( SMTaskRunType.Sequential, true ),
+				_markers.GetFirst( SMTaskRunType.Parallel, true ),
+				_markers.GetLast( SMTaskRunType.Parallel, true ),
 			};
 			_root = tasks.First();
 			SMTask last = null;
@@ -77,21 +77,21 @@ namespace SubmarineMirage.Task {
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
 				_modifyler._isLock = true;
 				RUN_TASK_TYPES.ForEach( type => {
-					GetAlls( type ).ForEach( task => FixedUpdateTask( task ) );
+					_markers.GetAlls( type, true ).ForEach( task => FixedUpdateTask( task ) );
 				} );
 				_modifyler._isLock = false;
 			} );
 			_updateEvent.AddLast().Subscribe( _ => {
 				_modifyler._isLock = true;
 				RUN_TASK_TYPES.ForEach( type => {
-					GetAlls( type ).ForEach( task => UpdateTask( task ) );
+					_markers.GetAlls( type, true ).ForEach( task => UpdateTask( task ) );
 				} );
 				_modifyler._isLock = false;
 			} );
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
 				_modifyler._isLock = true;
 				RUN_TASK_TYPES.ForEach( type => {
-					GetAlls( type ).ForEach( task => LateUpdateTask( task ) );
+					_markers.GetAlls( type, true ).ForEach( task => LateUpdateTask( task ) );
 				} );
 				_modifyler._isLock = false;
 			} );
@@ -139,17 +139,6 @@ namespace SubmarineMirage.Task {
 
 
 
-		public SMTask GetFirst( SMTaskRunType type, bool isRaw = false )
-			=> _markers.GetFirst( type, isRaw );
-
-		public SMTask GetLast( SMTaskRunType type, bool isRaw = false )
-			=> _markers.GetLast( type, isRaw );
-
-
-
-		public IEnumerable<SMTask> GetAlls( SMTaskRunType type )
-			=> _markers.GetAlls( type, true );
-
 		public IEnumerable<SMTask> GetAlls() {
 			for ( var t = _root; t != null; t = t._next ) {
 				yield return t;
@@ -185,8 +174,7 @@ namespace SubmarineMirage.Task {
 #if TestTask
 					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Register )} : start\n{task}" );
 #endif
-					var last = GetLast( task._type, true )._previous;
-					last.Link( task );
+					_markers.LinkLast( task );
 					await UTask.DontWait();
 #if TestTask
 					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Register )} : end\n{task}" );

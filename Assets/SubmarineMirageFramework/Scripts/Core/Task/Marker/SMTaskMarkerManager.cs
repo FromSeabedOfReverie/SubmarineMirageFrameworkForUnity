@@ -29,7 +29,8 @@ namespace SubmarineMirage.Task.Marker {
 			base.SetToString();
 
 			_toStringer.Add( nameof( _markers ), i =>
-				ObjectSMExtension.ToShowString( _markers, i, true, false, false ) );
+				_toStringer.DefaultValue( _markers, i, true ) );
+//				_markers.ToShowString( i, true, false, false ) );
 		}
 #endregion
 
@@ -59,6 +60,67 @@ namespace SubmarineMirage.Task.Marker {
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}() : \n{this}" );
 #endif
+		}
+
+
+
+		public void LinkLast( SMTask task ) {
+			CheckDisposeError( $"{nameof( LinkLast )}( {task.GetAboutName()} )" );
+
+#if TestTask
+			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( LinkLast )} : start\n{this}" );
+#endif
+			var last = GetLast( task._type, true )._previous;
+			last.Link( task );
+#if TestTask
+			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( LinkLast )} : end\n{this}" );
+#endif
+		}
+
+
+
+		public SMTask GetFirst( SMTaskRunType type, bool isRaw = false ) {
+			if ( isRaw ) {
+				return _markers[type][( int )SMTaskMarkerType.First];
+			}
+
+			var first = GetFirst( type, true )._next;
+			var last = GetLast( type, true );
+
+			if ( first == last )	{ return null; }
+			return first;
+		}
+
+		public SMTask GetLast( SMTaskRunType type, bool isRaw = false ) {
+			if ( isRaw ) {
+				return _markers[type][( int )SMTaskMarkerType.Last];
+			}
+
+			var first = GetFirst( type, true );
+			var last = GetLast( type, true )._previous;
+
+			if ( first == last )	{ return null; }
+			return last;
+		}
+
+
+
+		public IEnumerable<SMTask> GetAlls( SMTaskRunType type, bool isRaw = false ) {
+			var first = GetFirst( type, isRaw );
+			if ( first == null )	{ yield break; }
+			var last = GetLast( type, isRaw )._next;
+
+			for ( var t = first; t != last; t = t._next ) {
+				yield return t;
+			}
+		}
+
+		public IEnumerable<SMTask> GetAlls( bool isRaw = false ) {
+			foreach ( var type in SMTaskManager.CREATE_TASK_TYPES ) {
+				foreach ( var task in GetAlls( type, isRaw ) ) {
+					yield return task;
+				}
+			}
 		}
 
 
@@ -151,52 +213,6 @@ namespace SubmarineMirage.Task.Marker {
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( FinalizeAll )} : end\n{this}" );
 #endif
-		}
-
-
-
-		public SMTask GetFirst( SMTaskRunType type, bool isRaw = false ) {
-			if ( isRaw ) {
-				return _markers[type][( int )SMTaskMarkerType.First];
-			}
-
-			var first = GetFirst( type, true )._next;
-			var last = GetLast( type, true );
-
-			if ( first == last )	{ return null; }
-			return first;
-		}
-
-		public SMTask GetLast( SMTaskRunType type, bool isRaw = false ) {
-			if ( isRaw ) {
-				return _markers[type][( int )SMTaskMarkerType.Last];
-			}
-
-			var first = GetFirst( type, true );
-			var last = GetLast( type, true )._previous;
-
-			if ( first == last )	{ return null; }
-			return last;
-		}
-
-
-
-		public IEnumerable<SMTask> GetAlls( SMTaskRunType type, bool isRaw = false ) {
-			var first = GetFirst( type, isRaw );
-			if ( first == null )	{ yield break; }
-			var last = GetLast( type, isRaw )._next;
-
-			for ( var t = first; t != last; t = t._next ) {
-				yield return t;
-			}
-		}
-
-		public IEnumerable<SMTask> GetAlls( bool isRaw = false ) {
-			foreach ( var type in SMTaskManager.CREATE_TASK_TYPES ) {
-				foreach ( var task in GetAlls( type, isRaw ) ) {
-					yield return task;
-				}
-			}
 		}
 	}
 }

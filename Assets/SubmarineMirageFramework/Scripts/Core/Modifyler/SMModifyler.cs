@@ -29,7 +29,6 @@ namespace SubmarineMirage.Modifyler {
 		[SMShow] public bool _isHaveData	=> !_data.IsEmpty();
 		bool _isInternalDebug				{ get; set; }
 		bool _isInternalLock				{ get; set; }
-		public Func<bool> _isCanRunEvent	{ private get; set; } = () => true;
 
 		public SMAsyncCanceler _asyncCanceler { get; private set; }
 
@@ -109,7 +108,6 @@ namespace SubmarineMirage.Modifyler {
 				_isRunning = false;
 				_isInternalLock = false;
 				_isInternalDebug = false;
-				_isCanRunEvent = null;
 #if TestModifyler
 				SMLog.Debug( $"{nameof( Dispose )} : end\n{this}" );
 #endif
@@ -181,7 +179,6 @@ namespace SubmarineMirage.Modifyler {
 				while ( _isHaveData ) {
 					if ( _isDispose )			{ break; }
 					if ( _isLock )				{ break; }
-					if ( !_isCanRunEvent() )	{ break; }
 
 					await WaitDebug();
 

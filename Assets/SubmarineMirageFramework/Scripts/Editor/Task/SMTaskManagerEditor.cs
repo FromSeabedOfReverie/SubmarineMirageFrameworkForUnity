@@ -63,26 +63,28 @@ namespace SubmarineMirage.EditorTask {
 
 
 		void ShowTasks() {
-			SMTaskManager.CREATE_TASK_TYPES.ForEach( type => {
-				ShowHeading2( type.ToString() );
-				EditorGUI.indentLevel++;
+			_taskManager.GetAlls().ForEach( task => {
+				if ( task._type != task._previous?._type ) {
+					ShowHeading2( task._type.ToString() );
+					EditorGUI.indentLevel++;
+				}
 
-				_taskManager.GetAlls( type ).ForEach( task => {
-					var id = task.GetHashCode();
-					if ( id == _focusedID ) {
-						_focusedText = string.Join( "\n",
-							$"{task._id}",
-							$"↑ {task._previous?.ToLineString()}",
-							$"↓ {task._next?.ToLineString()}",
-							$"{( task._isDispose ? "Dispose" : "" )}"
-						);
-					}
-					GUI.SetNextControlName( id.ToString() );
-					EditorGUILayout.SelectableLabel( task.ToLineString(), GUILayout.Height( 16 ) );
-				} );
+				var id = task.GetHashCode();
+				if ( id == _focusedID ) {
+					_focusedText = string.Join( "\n",
+						$"{task._id}",
+						$"↑ {task._previous?.ToLineString()}",
+						$"↓ {task._next?.ToLineString()}",
+						$"{( task._isDispose ? "Dispose" : "" )}"
+					);
+				}
+				GUI.SetNextControlName( id.ToString() );
+				EditorGUILayout.SelectableLabel( task.ToLineString(), GUILayout.Height( 16 ) );
 
-				EditorGUI.indentLevel--;
-				EditorGUILayout.Space();
+				if ( task._type != task._next?._type ) {
+					EditorGUI.indentLevel--;
+					EditorGUILayout.Space();
+				}
 			} );
 		}
 
