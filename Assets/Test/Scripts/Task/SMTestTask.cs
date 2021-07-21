@@ -8,26 +8,32 @@
 namespace SubmarineMirage.TestTask {
 	using UniRx;
 	using Task;
+	using Extension;
 	using Utility;
 	using Debug;
 
 
 
 	public class SMTestTask : SMTask {
-		[SMShowLine] public override SMTaskRunType _type => _internalType;
-		SMTaskRunType _internalType			{ get; set; }
+		[SMShowLine] public override SMTaskRunType _type	=> _internalType;
+		SMTaskRunType _internalType							{ get; set; }
+
 		[SMShowLine] public string _name	{ get; private set; }
-		[SMShow] bool _isSetEvents			{ get; set; }
+
+		bool _isSetEvents		{ get; set; }
+		bool _isSetUpdateEvents	{ get; set; }
 
 
 
-		public SMTestTask( string name, SMTaskRunType type, bool isRegister, bool isAdjustRun, bool isSetEvents )
-			// _internalType未設定のまま、基底コンストラクタで登録すると、Dontタスクになる為、登録しない
-			: base( false, false )
+		public SMTestTask( string name, SMTaskRunType type, bool isRegister, bool isAdjustRun,
+							bool isSetEvents, bool isSetUpdateEvents
+		// _internalType未設定のまま、基底コンストラクタで登録すると、Dontタスクになる為、登録しない
+		) : base( false, false )
 		{
 			_name = name;
 			_internalType = type;
 			_isSetEvents = isSetEvents;
+			_isSetUpdateEvents = isSetUpdateEvents;
 
 			// 基底コンストラクタで未登録分を、派生先コンストラクタの下記で、改めて登録
 			Register( isRegister, isAdjustRun );
@@ -39,37 +45,41 @@ namespace SubmarineMirage.TestTask {
 		public override void Create() {
 			if ( !_isSetEvents )	{ return; }
 
+			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Create )} : \n{this}" );
+
 			_selfInitializeEvent.AddLast( async c => {
-				SMLog.Debug( $"{nameof( _selfInitializeEvent )} : start\n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _selfInitializeEvent )} : start\n{this}" );
 				await UTask.Delay( c, 1000 );
-				SMLog.Debug( $"{nameof( _selfInitializeEvent )} : end\n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _selfInitializeEvent )} : end\n{this}" );
 			} );
 			_initializeEvent.AddLast( async c => {
-				SMLog.Debug( $"{nameof( _initializeEvent )} : start\n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _initializeEvent )} : start\n{this}" );
 				await UTask.Delay( c, 1000 );
-				SMLog.Debug( $"{nameof( _initializeEvent )} : end\n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _initializeEvent )} : end\n{this}" );
 			} );
 			_finalizeEvent.AddLast( async c => {
-				SMLog.Debug( $"{nameof( _finalizeEvent )} : start\n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _finalizeEvent )} : start\n{this}" );
 				await UTask.Delay( c, 1000 );
-				SMLog.Debug( $"{nameof( _finalizeEvent )} : end\n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _finalizeEvent )} : end\n{this}" );
 			} );
 
 			_enableEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{nameof( _enableEvent )} : \n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _enableEvent )} : \n{this}" );
 			} );
 			_disableEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{nameof( _disableEvent )} : \n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _disableEvent )} : \n{this}" );
 			} );
 
+			if ( !_isSetUpdateEvents )	{ return; }
+
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{nameof( _fixedUpdateEvent )} : \n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _fixedUpdateEvent )} : \n{this}" );
 			} );
 			_updateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{nameof( _updateEvent )} : \n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _updateEvent )} : \n{this}" );
 			} );
 			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{nameof( _lateUpdateEvent )} : \n{ToLineString()}" );
+				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _lateUpdateEvent )} : \n{this}" );
 			} );
 		}
 	}

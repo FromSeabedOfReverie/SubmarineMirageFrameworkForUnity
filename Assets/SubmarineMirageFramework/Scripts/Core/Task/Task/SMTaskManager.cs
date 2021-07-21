@@ -34,8 +34,8 @@ namespace SubmarineMirage.Task {
 		public static readonly SMTaskRunType[] DISPOSE_TASK_TYPES = CREATE_TASK_TYPES.DeepCopy().Reverse();
 
 		SMTask _root { get; set; }
-		[SMShow] readonly SMTaskMarkerManager _markers = new SMTaskMarkerManager( nameof( SMTaskManager ) );
-		[SMShow] public readonly SMModifyler _modifyler = new SMModifyler( nameof( SMTaskManager ) );
+		readonly SMTaskMarkerManager _markers = new SMTaskMarkerManager( nameof( SMTaskManager ) );
+		public readonly SMModifyler _modifyler = new SMModifyler( nameof( SMTaskManager ) );
 
 		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
 		public readonly SMSubject _updateEvent = new SMSubject();
@@ -50,13 +50,15 @@ namespace SubmarineMirage.Task {
 
 			_toStringer.Add( nameof( _root ), i => _root?.ToLineString() );
 			_toStringer.Add( nameof( GetAlls ), i => GetAlls().ToShowString( i, true, false, false ) );
+			_toStringer.Add( nameof( _modifyler ), i => _toStringer.DefaultValue( _modifyler, i, true ) );
+			_toStringer.Add( nameof( _markers ), i => _toStringer.DefaultValue( _markers, i, true ) );
 		}
 #endregion
 
 
 
 		public SMTaskManager() {
-			_modifyler._isDebug = true;
+//			_modifyler._isDebug = true;
 
 			var tasks = new SMTask[] {
 				_markers.GetFirst( SMTaskRunType.Dont, true ),
@@ -174,8 +176,12 @@ namespace SubmarineMirage.Task {
 #if TestTask
 					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Register )} : start\n{task}" );
 #endif
+					// 基底コンストラクタ → CreateやDispose → 派生コンストラクタ、の順に実行される可能性あり
+					// 基底コンストラクタ → 派生コンストラクタ → CreateやDispose、の順に必ず実行させる為、
+					// Register前に、1フレーム待機する
+					await UTask.NextFrame( task._asyncCancelerOnDispose );
+
 					_markers.LinkLast( task );
-					await UTask.DontWait();
 #if TestTask
 					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Register )} : end\n{task}" );
 #endif
@@ -198,12 +204,14 @@ namespace SubmarineMirage.Task {
 				SMModifyType.Normal,
 				async () => {
 #if TestTask
-					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Unregister )} : start\n{task}" );
+					var ids = $"{task._id} ↑{task._previous?._id} ↓{task._next?._id}";
+					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Unregister )} : start\n{ids}\n{task}" );
 #endif
 					task.Unlink();
 					await UTask.DontWait();
 #if TestTask
-					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Unregister )} : end\n{task}" );
+					ids = $"{task._id} ↑{task._previous?._id} ↓{task._next?._id}";
+					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Unregister )} : end\n{ids}\n{task}" );
 #endif
 				}
 			);
@@ -229,7 +237,12 @@ namespace SubmarineMirage.Task {
 #endif
 			task.Create();
 			task._ranState = SMTaskRunState.Create;
-			if ( task._type == SMTaskRunType.Dont )	{ task._isInitialized = true; }
+			if ( task._type == SMTaskRunType.Dont ) {
+				task._isInitialized = true;
+				task._activeState =
+					task._isRequestInitialEnable ? SMTaskActiveState.Enable : SMTaskActiveState.Disable;
+				task._isRequestInitialEnable = false;
+			}
 			await UTask.DontWait();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunCreateTask )} : end\n{task}" );

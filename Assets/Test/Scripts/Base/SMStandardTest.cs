@@ -10,6 +10,7 @@ namespace SubmarineMirage.TestBase {
 	using UniRx;
 	using Base;
 	using Event;
+	using Utility;
 	using Debug;
 	using Debug.ToString;
 
@@ -46,6 +47,9 @@ namespace SubmarineMirage.TestBase {
 		}
 
 		public override async UniTask Initialize() {
+			// LogAssert.ignoreFailingMessagesを有効にする為、1フレーム待機
+			await UTask.NextFrame( _asyncCanceler );
+
 			Create();
 			await _createEvent.Run( _asyncCanceler );
 			await _initializeEvent.Run( _asyncCanceler );

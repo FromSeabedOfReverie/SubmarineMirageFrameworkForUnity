@@ -50,6 +50,9 @@ namespace SubmarineMirage.TestBase {
 		}
 
 		public override async UniTask Initialize() {
+			// LogAssert.ignoreFailingMessagesを有効にする為、1フレーム待機
+			await UTask.NextFrame( _asyncCanceler );
+
 			Create();
 			if ( _createEvent != null ) {
 				await _createEvent.Invoke( _asyncCanceler );

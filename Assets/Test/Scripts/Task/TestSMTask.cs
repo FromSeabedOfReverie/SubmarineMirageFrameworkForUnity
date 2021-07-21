@@ -9,7 +9,6 @@ namespace SubmarineMirage.TestTask {
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
-	using KoganeUnityLib;
 	using Service;
 	using Task;
 	using Utility;
@@ -36,7 +35,7 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestCreate() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			using ( var t = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true ) ) {
+			using ( var t = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true, false ) ) {
 				SMLog.Debug( _taskManager );
 			}
 
@@ -53,21 +52,27 @@ namespace SubmarineMirage.TestTask {
 			await _taskManager.Initialize();
 			SMLog.Debug( _taskManager );
 
-			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				new SMTestTask( $"1_{i}", t, true, true, true );
+			for ( var i = 0; i < SMTaskManager.CREATE_TASK_TYPES.Length; i++ ) {
+				var t = SMTaskManager.CREATE_TASK_TYPES[i];
+				new SMTestTask( $"1_{i}", t, true, true, true, false );
+				await _taskManager._modifyler.WaitRunning();
 				SMLog.Debug( _taskManager );
-			} );
+			}
 
-			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				new SMTestTask( $"2_{i}", t, true, false, true );
+			for ( var i = 0; i < SMTaskManager.CREATE_TASK_TYPES.Length; i++ ) {
+				var t = SMTaskManager.CREATE_TASK_TYPES[i];
+				new SMTestTask( $"2_{i}", t, true, false, true, false );
+				await _taskManager._modifyler.WaitRunning();
 				SMLog.Debug( _taskManager );
-			} );
+			}
 
-			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				using ( var task = new SMTestTask( $"3_{i}", t, false, false, true ) ) {
+			for ( var i = 0; i < SMTaskManager.CREATE_TASK_TYPES.Length; i++ ) {
+				var t = SMTaskManager.CREATE_TASK_TYPES[i];
+				using ( var task = new SMTestTask( $"3_{i}", t, false, false, true, false ) ) {
+					await _taskManager._modifyler.WaitRunning();
 					SMLog.Debug( _taskManager );
 				}
-			} );
+			}
 
 			SMLog.Warning( "End" );
 			await UTask.DontWait();
@@ -79,24 +84,32 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestLink() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true );
-			var t2 = new SMTestTask( "2", SMTaskRunType.Dont, false, false, true );
+			var t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true, false );
+			var t2 = new SMTestTask( "2", SMTaskRunType.Dont, false, false, true, false );
 			t1.Link( t2 );
+			SMLog.Debug( t1 );
+			SMLog.Debug( t2 );
 			t1.Unlink();
 
 			t1.Dispose();
 			try {
 				t1.Link( t2 );
+				SMLog.Debug( t1 );
+				SMLog.Debug( t2 );
 			} catch ( Exception e )	{ SMLog.Error( e ); }
 
 			t2.Dispose();
 			try {
 				t1.Link( t2 );
+				SMLog.Debug( t1 );
+				SMLog.Debug( t2 );
 			} catch ( Exception e ) { SMLog.Error( e ); }
 
-			t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true );
+			t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true, false );
 			try {
 				t1.Link( t2 );
+				SMLog.Debug( t1 );
+				SMLog.Debug( t2 );
 			} catch ( Exception e ) { SMLog.Error( e ); }
 			t1.Dispose();
 
@@ -110,7 +123,8 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestDestroy() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, true );
+			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, true, false );
+			await _taskManager.CreateTask( t );
 			await t.Destroy();
 
 			try {
@@ -127,7 +141,7 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestChangeActive() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, true );
+			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, true, false );
 			await t.ChangeActive( true );
 
 			await t.Destroy();

@@ -4,17 +4,29 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
+//#define TestTask
 namespace SubmarineMirage.Task.Marker {
 	using Debug;
 
 
 
 	public class SMTaskMarker : SMTask {
-		[SMShowLine] public override SMTaskRunType _type => _internalType;
-		SMTaskRunType _internalType	{ get; set; }
-		[SMShowLine] public SMTaskMarkerType _markerType { get; private set; }
-		[SMShowLine] public string _name { get; private set; }
+		[SMShowLine] public SMTaskMarkerType _markerType	{ get; private set; }
+		[SMShowLine] public override SMTaskRunType _type	=> _internalType;
+		SMTaskRunType _internalType							{ get; set; }
+
+		[SMShowLine] public string _name	{ get; private set; }
+
+
+
+#region ToString
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetLineValue( nameof( _markerType ), () =>
+				_markerType == SMTaskMarkerType.First ? "▼" : "▲" );
+		}
+#endregion
 
 
 
