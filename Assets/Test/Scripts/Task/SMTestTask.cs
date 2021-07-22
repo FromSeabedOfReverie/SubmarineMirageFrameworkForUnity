@@ -16,24 +16,21 @@ namespace SubmarineMirage.TestTask {
 
 	public class SMTestTask : SMTask {
 		[SMShowLine] public override SMTaskRunType _type	=> _internalType;
-		SMTaskRunType _internalType							{ get; set; }
+		readonly SMTaskRunType _internalType;
+		[SMShow] readonly SMTestTaskLogType _logType;
 
-		[SMShowLine] public string _name	{ get; private set; }
-
-		bool _isSetEvents		{ get; set; }
-		bool _isSetUpdateEvents	{ get; set; }
+		[SMShowLine] public readonly string _name;
 
 
 
 		public SMTestTask( string name, SMTaskRunType type, bool isRegister, bool isAdjustRun,
-							bool isSetEvents, bool isSetUpdateEvents
+							SMTestTaskLogType logType
 		// _internalType未設定のまま、基底コンストラクタで登録すると、Dontタスクになる為、登録しない
 		) : base( false, false )
 		{
 			_name = name;
 			_internalType = type;
-			_isSetEvents = isSetEvents;
-			_isSetUpdateEvents = isSetUpdateEvents;
+			_logType = logType;
 
 			// 基底コンストラクタで未登録分を、派生先コンストラクタの下記で、改めて登録
 			Register( isRegister, isAdjustRun );
@@ -43,7 +40,8 @@ namespace SubmarineMirage.TestTask {
 		}
 
 		public override void Create() {
-			if ( !_isSetEvents )	{ return; }
+			if ( _logType == SMTestTaskLogType.None )	{ return; }
+
 
 			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Create )} : \n{this}" );
 
@@ -70,7 +68,8 @@ namespace SubmarineMirage.TestTask {
 				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _disableEvent )} : \n{this}" );
 			} );
 
-			if ( !_isSetUpdateEvents )	{ return; }
+			if ( _logType == SMTestTaskLogType.Setup )	{ return; }
+
 
 			_fixedUpdateEvent.AddLast().Subscribe( _ => {
 				SMLog.Debug( $"{this.GetAboutName()}.{nameof( _fixedUpdateEvent )} : \n{this}" );

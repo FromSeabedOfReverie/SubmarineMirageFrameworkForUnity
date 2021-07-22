@@ -4,12 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Marker {
+namespace SubmarineMirage.TestTask {
 
 
 
-	public enum SMTaskMarkerType {
-		First,
-		Last,
+	public enum SMTestTaskLogType {
+		None,
+		Setup,
+		All,
 	}
 }

@@ -35,7 +35,7 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestCreate() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			using ( var t = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true, false ) ) {
+			using ( var t = new SMTestTask( "1", SMTaskRunType.Dont, false, false, SMTestTaskLogType.Setup ) ) {
 				SMLog.Debug( _taskManager );
 			}
 
@@ -54,21 +54,21 @@ namespace SubmarineMirage.TestTask {
 
 			for ( var i = 0; i < SMTaskManager.CREATE_TASK_TYPES.Length; i++ ) {
 				var t = SMTaskManager.CREATE_TASK_TYPES[i];
-				new SMTestTask( $"1_{i}", t, true, true, true, false );
+				new SMTestTask( $"1_{i}", t, true, true, SMTestTaskLogType.Setup );
 				await _taskManager._modifyler.WaitRunning();
 				SMLog.Debug( _taskManager );
 			}
 
 			for ( var i = 0; i < SMTaskManager.CREATE_TASK_TYPES.Length; i++ ) {
 				var t = SMTaskManager.CREATE_TASK_TYPES[i];
-				new SMTestTask( $"2_{i}", t, true, false, true, false );
+				new SMTestTask( $"2_{i}", t, true, false, SMTestTaskLogType.Setup );
 				await _taskManager._modifyler.WaitRunning();
 				SMLog.Debug( _taskManager );
 			}
 
 			for ( var i = 0; i < SMTaskManager.CREATE_TASK_TYPES.Length; i++ ) {
 				var t = SMTaskManager.CREATE_TASK_TYPES[i];
-				using ( var task = new SMTestTask( $"3_{i}", t, false, false, true, false ) ) {
+				using ( var task = new SMTestTask( $"3_{i}", t, false, false, SMTestTaskLogType.Setup ) ) {
 					await _taskManager._modifyler.WaitRunning();
 					SMLog.Debug( _taskManager );
 				}
@@ -84,8 +84,8 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestLink() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true, false );
-			var t2 = new SMTestTask( "2", SMTaskRunType.Dont, false, false, true, false );
+			var t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, SMTestTaskLogType.Setup );
+			var t2 = new SMTestTask( "2", SMTaskRunType.Dont, false, false, SMTestTaskLogType.Setup );
 			t1.Link( t2 );
 			SMLog.Debug( t1 );
 			SMLog.Debug( t2 );
@@ -105,7 +105,7 @@ namespace SubmarineMirage.TestTask {
 				SMLog.Debug( t2 );
 			} catch ( Exception e ) { SMLog.Error( e ); }
 
-			t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, true, false );
+			t1 = new SMTestTask( "1", SMTaskRunType.Dont, false, false, SMTestTaskLogType.Setup );
 			try {
 				t1.Link( t2 );
 				SMLog.Debug( t1 );
@@ -123,7 +123,7 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestDestroy() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, true, false );
+			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
 			await _taskManager.CreateTask( t );
 			await t.Destroy();
 
@@ -141,7 +141,7 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestChangeActive() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, true, false );
+			var t = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
 			await t.ChangeActive( true );
 
 			await t.Destroy();

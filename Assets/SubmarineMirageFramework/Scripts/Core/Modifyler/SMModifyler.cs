@@ -22,11 +22,11 @@ namespace SubmarineMirage.Modifyler {
 	public class SMModifyler : SMRawBase {
 		[SMShowLine] public string _name	{ get; set; }
 
-		public readonly LinkedList<SMModifyData> _data = new LinkedList<SMModifyData>();
-		public readonly LinkedList<SMModifyData> _runData = new LinkedList<SMModifyData>();
+		public readonly LinkedList<SMModifyData> _datas = new LinkedList<SMModifyData>();
+		public readonly LinkedList<SMModifyData> _runDatas = new LinkedList<SMModifyData>();
 
 		[SMShow] public bool _isRunning		{ get; private set; }
-		[SMShow] public bool _isHaveData	=> !_data.IsEmpty();
+		[SMShow] public bool _isHaveData	=> !_datas.IsEmpty();
 		bool _isInternalDebug				{ get; set; }
 		bool _isInternalLock				{ get; set; }
 
@@ -79,10 +79,10 @@ namespace SubmarineMirage.Modifyler {
 
 			return string.Join( ",\n",
 				"",
-				$"{prefix}{nameof( _runData )} : \n" +
-					string.Join( ",\n", _runData.Select( d => d.ToLineString( indent + 1 ) ) ),
-				$"{prefix}{nameof( _data )} : \n" +
-					string.Join( ",\n", _data.Select( d => d.ToLineString( indent + 1 ) ) ),
+				$"{prefix}{nameof( _runDatas )} : \n" +
+					string.Join( ",\n", _runDatas.Select( d => d.ToLineString( indent + 1 ) ) ),
+				$"{prefix}{nameof( _datas )} : \n" +
+					string.Join( ",\n", _datas.Select( d => d.ToLineString( indent + 1 ) ) ),
 				$"{prefix}{nameof( _asyncCanceler )} : {( _asyncCanceler?.ToLineString() )}"
 			);
 		}
@@ -98,8 +98,8 @@ namespace SubmarineMirage.Modifyler {
 #if TestModifyler
 				SMLog.Debug( $"{nameof( Dispose )} : start\n{this}" );
 #endif
-				_data.ForEach( d => d.Dispose() );
-				_data.Clear();
+				_datas.ForEach( d => d.Dispose() );
+				_datas.Clear();
 				// _runData.Clear()は、UniTask並列実行中の変更エラーとなる為、自然終了に任せる
 				// 多分、_asyncCanceler解放により、即停止される筈
 
@@ -130,28 +130,28 @@ namespace SubmarineMirage.Modifyler {
 			var data = new SMModifyData( name, type, runEvent, cancelEvent );
 			switch ( data._type ) {
 				case SMModifyType.Interrupt:
-					_data.AddFirst( data );
+					_datas.AddFirst( data );
 					break;
 
 				case SMModifyType.Priority:
-					_data.AddBefore(
+					_datas.AddBefore(
 						data,
 						d => d._type > data._type,
-						() => _data.Enqueue( data )
+						() => _datas.Enqueue( data )
 					);
 					break;
 
 				case SMModifyType.Single:
-					_data.RemoveAll(
+					_datas.RemoveAll(
 						d => d._type == SMModifyType.Single,
 						d => d.Dispose()
 					);
-					_data.Enqueue( data );
+					_datas.Enqueue( data );
 					break;
 
 				case SMModifyType.Parallel:
 				case SMModifyType.Normal:
-					_data.Enqueue( data );
+					_datas.Enqueue( data );
 					break;
 			}
 #if TestModifyler
@@ -182,20 +182,20 @@ namespace SubmarineMirage.Modifyler {
 
 					await WaitDebug();
 
-					var d = _data.Dequeue();
-					_runData.AddLast( d );
+					var d = _datas.Dequeue();
+					_runDatas.AddLast( d );
 					if ( d._type == SMModifyType.Parallel ) {
-						while ( !_data.IsEmpty() ) {
-							d = _data.First.Value;
+						while ( !_datas.IsEmpty() ) {
+							d = _datas.First.Value;
 							if ( d._type != SMModifyType.Parallel )	{ break; }
-							_data.RemoveFirst();
-							_runData.AddLast( d );
+							_datas.RemoveFirst();
+							_runDatas.AddLast( d );
 						}
 					}
 
 					await WaitDebug();
 
-					await _runData.Select( async rd => {
+					await _runDatas.Select( async rd => {
 						try {
 							await rd.Run();
 							rd.Finish();
@@ -210,7 +210,7 @@ namespace SubmarineMirage.Modifyler {
 							// Errorは、Modifyler外に伝搬されない（Run待機が残る為、throwしない）
 						}
 					} );
-					_runData.Clear();
+					_runDatas.Clear();
 				}
 
 			} finally {

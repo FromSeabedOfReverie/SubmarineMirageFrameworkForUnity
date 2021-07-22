@@ -13,14 +13,14 @@ namespace SubmarineMirage.Task.Marker {
 	using KoganeUnityLib;
 	using Task;
 	using Base;
-	using Service;
 	using Extension;
 	using Debug;
 
 
 
 	public class SMTaskMarkerManager : SMStandardBase {
-		[SMShowLine] public string _name	{ get; private set; }
+		[SMShowLine] public readonly string _name;
+		readonly SMTaskManager _taskManager;
 
 		[SMShow] readonly Dictionary< SMTaskRunType, List<SMTask> > _markers =
 			new Dictionary< SMTaskRunType, List<SMTask> >();
@@ -31,7 +31,7 @@ namespace SubmarineMirage.Task.Marker {
 
 
 
-		#region ToString
+#region ToString
 		public override void SetToString() {
 			base.SetToString();
 
@@ -41,8 +41,9 @@ namespace SubmarineMirage.Task.Marker {
 
 
 
-		public SMTaskMarkerManager( string name ) {
+		public SMTaskMarkerManager( string name, SMTaskManager taskManager ) {
 			_name = name;
+			_taskManager = taskManager;
 
 			var markerTypes = EnumUtils.GetValues<SMTaskMarkerType>();
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( type => {
@@ -174,42 +175,41 @@ namespace SubmarineMirage.Task.Marker {
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( InitializeAll )} : start\n{this}" );
 #endif
 			_isRunning = true;
-			var manager = SMServiceLocator.Resolve<SMTaskManager>();
 
 			SMTaskManager.CREATE_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.CreateTask( task ).Forget() );
-			await manager._modifyler.WaitRunning();
+				.ForEach( task => _taskManager.CreateTask( task ).Forget() );
+			await _taskManager._modifyler.WaitRunning();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( InitializeAll )} : " +
-				$"{nameof( manager.CreateTask )} end\n{this}" );
+				$"{nameof( _taskManager.CreateTask )} end\n{this}" );
 #endif
 
 			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.SelfInitializeTask( task ).Forget() );
-			await manager._modifyler.WaitRunning();
+				.ForEach( task => _taskManager.SelfInitializeTask( task ).Forget() );
+			await _taskManager._modifyler.WaitRunning();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( InitializeAll )} : " +
-				$"{nameof( manager.SelfInitializeTask )} end\n{this}" );
+				$"{nameof( _taskManager.SelfInitializeTask )} end\n{this}" );
 #endif
 
 			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.InitializeTask( task ).Forget() );
-			await manager._modifyler.WaitRunning();
+				.ForEach( task => _taskManager.InitializeTask( task ).Forget() );
+			await _taskManager._modifyler.WaitRunning();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( InitializeAll )} : " +
-				$"{nameof( manager.InitializeTask )} end\n{this}" );
+				$"{nameof( _taskManager.InitializeTask )} end\n{this}" );
 #endif
 
 			SMTaskManager.RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ) )
-				.ForEach( task => manager.InitialEnableTask( task ).Forget() );
-			await manager._modifyler.WaitRunning();
+				.ForEach( task => _taskManager.InitialEnableTask( task ).Forget() );
+			await _taskManager._modifyler.WaitRunning();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( InitializeAll )} : " +
-				$"{nameof( manager.InitialEnableTask )} end\n{this}" );
+				$"{nameof( _taskManager.InitialEnableTask )} end\n{this}" );
 #endif
 
 			_isInitialized = true;
@@ -227,33 +227,32 @@ namespace SubmarineMirage.Task.Marker {
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( FinalizeAll )} : start\n{this}" );
 #endif
 			_isRunning = true;
-			var manager = SMServiceLocator.Resolve<SMTaskManager>();
 
 			SMTaskManager.DISPOSE_RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ).Reverse() )
-				.ForEach( task => manager.FinalDisableTask( task ).Forget() );
-			await manager._modifyler.WaitRunning();
+				.ForEach( task => _taskManager.FinalDisableTask( task ).Forget() );
+			await _taskManager._modifyler.WaitRunning();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( FinalizeAll )} : " +
-				$"{nameof( manager.FinalDisableTask )} end\n{this}" );
+				$"{nameof( _taskManager.FinalDisableTask )} end\n{this}" );
 #endif
 
 			SMTaskManager.DISPOSE_RUN_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ).Reverse() )
-				.ForEach( task => manager.FinalizeTask( task ).Forget() );
-			await manager._modifyler.WaitRunning();
+				.ForEach( task => _taskManager.FinalizeTask( task ).Forget() );
+			await _taskManager._modifyler.WaitRunning();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( FinalizeAll )} : " +
-				$"{nameof( manager.FinalizeTask )} end\n{this}" );
+				$"{nameof( _taskManager.FinalizeTask )} end\n{this}" );
 #endif
 
 			SMTaskManager.DISPOSE_TASK_TYPES
 				.SelectMany( type => GetAlls( type, true ).Reverse() )
-				.ForEach( task => manager.DisposeTask( task ).Forget() );
-			await manager._modifyler.WaitRunning();
+				.ForEach( task => _taskManager.DisposeTask( task ).Forget() );
+			await _taskManager._modifyler.WaitRunning();
 #if TestTask
 			SMLog.Debug( $"{nameof( SMTaskMarkerManager )}.{nameof( FinalizeAll )} : " +
-				$"{nameof( manager.DisposeTask )} end\n{this}" );
+				$"{nameof( _taskManager.DisposeTask )} end\n{this}" );
 #endif
 
 			Dispose();

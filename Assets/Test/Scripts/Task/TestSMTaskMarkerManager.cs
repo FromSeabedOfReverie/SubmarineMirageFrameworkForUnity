@@ -38,7 +38,7 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestCreate() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var markers1 = new SMTaskMarkerManager( "1" );
+			var markers1 = new SMTaskMarkerManager( "1", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMLog.Debug( _taskManager );
 
@@ -47,11 +47,11 @@ namespace SubmarineMirage.TestTask {
 			SMLog.Debug( _taskManager );
 
 
-			var markers2 = new SMTaskMarkerManager( "2" );
+			var markers2 = new SMTaskMarkerManager( "2", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMLog.Debug( _taskManager );
 
-			var markers3 = new SMTaskMarkerManager( "3" );
+			var markers3 = new SMTaskMarkerManager( "3", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMLog.Debug( _taskManager );
 
@@ -73,19 +73,19 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestLinkLast() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var markers1 = new SMTaskMarkerManager( "1" );
+			var markers1 = new SMTaskMarkerManager( "1", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMLog.Debug( _taskManager );
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				markers1.LinkLast( new SMTestTask( $"1_{i}", t, false, false, true, false ) );
+				markers1.LinkLast( new SMTestTask( $"1_{i}", t, false, false, SMTestTaskLogType.Setup ) );
 				SMLog.Debug( _taskManager );
 			} );
 
-			var markers2 = new SMTaskMarkerManager( "2" );
+			var markers2 = new SMTaskMarkerManager( "2", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMLog.Debug( _taskManager );
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				markers2.LinkLast( new SMTestTask( $"2_{i}", t, false, false, true, false ) );
+				markers2.LinkLast( new SMTestTask( $"2_{i}", t, false, false, SMTestTaskLogType.Setup ) );
 				SMLog.Debug( _taskManager );
 			} );
 
@@ -101,7 +101,7 @@ namespace SubmarineMirage.TestTask {
 			await _taskManager._modifyler.WaitRunning();
 			SMLog.Debug( _taskManager );
 
-			using ( var t = new SMTestTask( $"3_0", SMTaskRunType.Dont, false, false, true, false ) ) {
+			using ( var t = new SMTestTask( $"3_0", SMTaskRunType.Dont, false, false, SMTestTaskLogType.Setup ) ) {
 				try {
 					markers2.LinkLast( t );
 				} catch ( Exception e )	{ SMLog.Error( e ); }
@@ -117,7 +117,7 @@ namespace SubmarineMirage.TestTask {
 		public IEnumerator TestGets() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var markers = new SMTaskMarkerManager( "1" );
+			var markers = new SMTaskMarkerManager( "1", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMLog.Debug( _taskManager );
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( t => {
@@ -132,7 +132,7 @@ namespace SubmarineMirage.TestTask {
 			SMLog.Debug( markers.GetAlls( true ).ToShowString( 0, true ) );
 
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				markers.LinkLast( new SMTestTask( $"1_{i}", t, false, false, true, false ) );
+				markers.LinkLast( new SMTestTask( $"1_{i}", t, false, false, SMTestTaskLogType.Setup ) );
 				SMLog.Debug( _taskManager );
 				SMLog.Debug( markers.GetFirst( t, false ) );
 				SMLog.Debug( markers.GetFirst( t, true ) );
@@ -145,7 +145,7 @@ namespace SubmarineMirage.TestTask {
 			SMLog.Debug( markers.GetAlls( true ).ToShowString( 0, true ) );
 
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				markers.LinkLast( new SMTestTask( $"2_{i}", t, false, false, true, false ) );
+				markers.LinkLast( new SMTestTask( $"2_{i}", t, false, false, SMTestTaskLogType.Setup ) );
 				SMLog.Debug( _taskManager );
 				SMLog.Debug( markers.GetFirst( t, false ) );
 				SMLog.Debug( markers.GetFirst( t, true ) );
@@ -184,15 +184,15 @@ namespace SubmarineMirage.TestTask {
 			SMLog.Warning( "Start" );
 
 
-			var markers1 = new SMTaskMarkerManager( "1" );
+			var markers1 = new SMTaskMarkerManager( "1", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				markers1.LinkLast( new SMTestTask( $"1_{i}", t, false, false, true, false ) );
+				markers1.LinkLast( new SMTestTask( $"1_{i}", t, false, false, SMTestTaskLogType.Setup ) );
 			} );
-			var markers2 = new SMTaskMarkerManager( "2" );
+			var markers2 = new SMTaskMarkerManager( "2", _taskManager );
 			await _taskManager._modifyler.WaitRunning();
 			SMTaskManager.CREATE_TASK_TYPES.ForEach( ( t, i ) => {
-				markers2.LinkLast( new SMTestTask( $"2_{i}", t, false, false, true, false ) );
+				markers2.LinkLast( new SMTestTask( $"2_{i}", t, false, false, SMTestTaskLogType.Setup ) );
 			} );
 			SMLog.Debug( _taskManager );
 

@@ -33,8 +33,8 @@ namespace SubmarineMirage.Task {
 		public static readonly SMTaskRunType[] DISPOSE_RUN_TASK_TYPES = RUN_TASK_TYPES.DeepCopy().Reverse();
 		public static readonly SMTaskRunType[] DISPOSE_TASK_TYPES = CREATE_TASK_TYPES.DeepCopy().Reverse();
 
-		SMTask _root { get; set; }
-		readonly SMTaskMarkerManager _markers = new SMTaskMarkerManager( nameof( SMTaskManager ) );
+		SMTask _root	{ get; set; }
+		readonly SMTaskMarkerManager _markers;
 		public readonly SMModifyler _modifyler = new SMModifyler( nameof( SMTaskManager ) );
 
 		public readonly SMSubject _fixedUpdateEvent = new SMSubject();
@@ -58,8 +58,7 @@ namespace SubmarineMirage.Task {
 
 
 		public SMTaskManager() {
-//			_modifyler._isDebug = true;
-
+			_markers = new SMTaskMarkerManager( nameof( SMTaskManager ), this );
 			var tasks = new SMTask[] {
 				_markers.GetFirst( SMTaskRunType.Dont, true ),
 				_markers.GetLast( SMTaskRunType.Dont, true ),
@@ -109,9 +108,9 @@ namespace SubmarineMirage.Task {
 				_onGUIEvent.Dispose();
 			} );
 			_disposables.AddFirst(
-				Observable.EveryFixedUpdate().Subscribe( _ => _fixedUpdateEvent.Run() ),
-				Observable.EveryUpdate().Subscribe( _ => _updateEvent.Run() ),
-				Observable.EveryLateUpdate().Subscribe( _ => _lateUpdateEvent.Run() )
+				Observable.EveryFixedUpdate()	.Subscribe( _ => _fixedUpdateEvent.Run() ),
+				Observable.EveryUpdate()		.Subscribe( _ => _updateEvent.Run() ),
+				Observable.EveryLateUpdate()	.Subscribe( _ => _lateUpdateEvent.Run() )
 			);
 			if ( SMDebugManager.IS_DEVELOP ) {
 				_disposables.AddFirst(
@@ -142,6 +141,8 @@ namespace SubmarineMirage.Task {
 
 
 		public IEnumerable<SMTask> GetAlls() {
+			CheckDisposeError( nameof( GetAlls ) );
+
 			for ( var t = _root; t != null; t = t._next ) {
 				yield return t;
 			}
@@ -149,18 +150,10 @@ namespace SubmarineMirage.Task {
 
 
 
-		SMModifyType GetType( SMTask task ) {
-			switch ( task._type ) {
-				case SMTaskRunType.Dont:
-				case SMTaskRunType.Sequential:
-					return SMModifyType.Normal;
-
-				case SMTaskRunType.Parallel:
-					return SMModifyType.Parallel;
-			}
-			// 下記は絶対に実行されないが、戻り値が無いとコンパイルエラーになる為、記述
-			return default;
-		}
+		SMModifyType GetType( SMTask task ) => (
+			task._type == SMTaskRunType.Parallel	? SMModifyType.Parallel
+													: SMModifyType.Normal
+		);
 
 
 
@@ -263,7 +256,6 @@ namespace SubmarineMirage.Task {
 		}
 
 		async UniTask RunSelfInitializeTask( SMTask task ) {
-			CheckDontTaskError( nameof( RunSelfInitializeTask ), task );
 			if ( task._ranState != SMTaskRunState.Create )	{ return; }
 
 #if TestTask
@@ -290,7 +282,6 @@ namespace SubmarineMirage.Task {
 		}
 
 		async UniTask RunInitializeTask( SMTask task ) {
-			CheckDontTaskError( nameof( RunInitializeTask ), task );
 			if ( task._ranState != SMTaskRunState.SelfInitialize )	{ return; }
 
 #if TestTask
@@ -317,7 +308,6 @@ namespace SubmarineMirage.Task {
 		}
 
 		async UniTask RunInitialEnableTask( SMTask task ) {
-			CheckDontTaskError( nameof( RunInitialEnableTask ), task );
 			if ( task._ranState != SMTaskRunState.Initialize )	{ return; }
 
 #if TestTask
@@ -357,7 +347,6 @@ namespace SubmarineMirage.Task {
 		}
 
 		async UniTask RunFinalDisableTask( SMTask task ) {
-			CheckDontTaskError( nameof( RunFinalDisableTask ), task );
 			if ( task._ranState >= SMTaskRunState.FinalDisable )	{ return; }
 
 #if TestTask
@@ -393,7 +382,6 @@ namespace SubmarineMirage.Task {
 		}
 
 		async UniTask RunFinalizeTask( SMTask task ) {
-			CheckDontTaskError( nameof( RunFinalizeTask ), task );
 			if ( task._ranState != SMTaskRunState.FinalDisable )	{ return; }
 
 #if TestTask
@@ -443,7 +431,6 @@ namespace SubmarineMirage.Task {
 		}
 
 		async UniTask RunEnableTask( SMTask task ) {
-			CheckDontTaskError( nameof( RunEnableTask ), task );
 			if ( !task._isCanActive )	{ return; }
 			if ( task._isFinalize )		{ return; }
 			if ( !task._isInitialized ) {
@@ -478,7 +465,6 @@ namespace SubmarineMirage.Task {
 		}
 
 		async UniTask RunDisableTask( SMTask task ) {
-			CheckDontTaskError( nameof( RunDisableTask ), task );
 			if ( !task._isCanActive )	{ return; }
 			if ( task._isFinalize )		{ return; }
 			if ( !task._isInitialized ) {
@@ -578,7 +564,6 @@ namespace SubmarineMirage.Task {
 
 		void FixedUpdateTask( SMTask task ) {
 			CheckTaskNullError( nameof( FixedUpdateTask ), task );
-			CheckDontTaskError( nameof( FixedUpdateTask ), task );
 			if ( !task._isOperable )	{ return; }
 			if ( !task._isActive )		{ return; }
 			if ( task._ranState < SMTaskRunState.InitialEnable )	{ return; }
@@ -601,7 +586,6 @@ namespace SubmarineMirage.Task {
 
 		void UpdateTask( SMTask task ) {
 			CheckTaskNullError( nameof( UpdateTask ), task );
-			CheckDontTaskError( nameof( UpdateTask ), task );
 			if ( !task._isOperable )	{ return; }
 			if ( !task._isActive )		{ return; }
 			if ( task._ranState < SMTaskRunState.FixedUpdate )	{ return; }
@@ -624,7 +608,6 @@ namespace SubmarineMirage.Task {
 
 		void LateUpdateTask( SMTask task ) {
 			CheckTaskNullError( nameof( LateUpdateTask ), task );
-			CheckDontTaskError( nameof( LateUpdateTask ), task );
 			if ( !task._isOperable )	{ return; }
 			if ( !task._isActive )		{ return; }
 			if ( task._ranState < SMTaskRunState.Update )	{ return; }

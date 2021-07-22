@@ -11,11 +11,11 @@ namespace SubmarineMirage.Task.Marker {
 
 
 	public class SMTaskMarker : SMTask {
-		[SMShowLine] public SMTaskMarkerType _markerType	{ get; private set; }
+		[SMShowLine] public readonly SMTaskMarkerType _markerType;
 		[SMShowLine] public override SMTaskRunType _type	=> _internalType;
-		SMTaskRunType _internalType							{ get; set; }
+		readonly SMTaskRunType _internalType;
 
-		[SMShowLine] public string _name	{ get; private set; }
+		[SMShowLine] public readonly string _name;
 
 
 
