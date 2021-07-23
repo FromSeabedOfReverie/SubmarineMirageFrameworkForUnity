@@ -13,8 +13,8 @@ namespace SubmarineMirage.Task {
 	using UniRx;
 	using KoganeUnityLib;
 	using Base;
-	using Event;
 	using Modifyler;
+	using Event;
 	using Marker;
 	using Service;
 	using Extension;
@@ -188,6 +188,8 @@ namespace SubmarineMirage.Task {
 			}
 			await AdjustRunTask( task );
 		}
+
+
 
 		public async UniTask Unregister( SMTask task ) {
 			CheckTaskNullError( nameof( Unregister ), task );
@@ -419,149 +421,6 @@ namespace SubmarineMirage.Task {
 
 
 
-		public async UniTask EnableTask( SMTask task ) {
-			CheckTaskNullOrDisposeError( nameof( EnableTask ), task );
-			CheckDontTaskError( nameof( EnableTask ), task );
-
-			await _modifyler.Register(
-				nameof( EnableTask ),
-				GetType( task ),
-				() => RunEnableTask( task )
-			);
-		}
-
-		async UniTask RunEnableTask( SMTask task ) {
-			if ( !task._isCanActive )	{ return; }
-			if ( task._isFinalize )		{ return; }
-			if ( !task._isInitialized ) {
-				task._isRequestInitialEnable = true;
-				return;
-			}
-			if ( task._activeState == SMTaskActiveState.Enable )	{ return; }
-
-#if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunEnableTask )} : start\n{task}" );
-#endif
-			task._asyncCancelerOnDisable.Recreate();
-			task._enableEvent.Run();
-			task._activeState = SMTaskActiveState.Enable;
-			await UTask.DontWait();
-#if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunEnableTask )} : end\n{task}" );
-#endif
-		}
-
-
-
-		public async UniTask DisableTask( SMTask task ) {
-			CheckTaskNullOrDisposeError( nameof( DisableTask ), task );
-			CheckDontTaskError( nameof( DisableTask ), task );
-
-			await _modifyler.Register(
-				nameof( DisableTask ),
-				GetType( task ),
-				() => RunDisableTask( task )
-			);
-		}
-
-		async UniTask RunDisableTask( SMTask task ) {
-			if ( !task._isCanActive )	{ return; }
-			if ( task._isFinalize )		{ return; }
-			if ( !task._isInitialized ) {
-				task._isRequestInitialEnable = false;
-				return;
-			}
-			if ( task._activeState == SMTaskActiveState.Disable )	{ return; }
-
-#if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunDisableTask )} : start\n{task}" );
-#endif
-			task._activeState = SMTaskActiveState.Disable;
-			task._asyncCancelerOnDisable.Cancel( false );
-			task._disableEvent.Run();
-			await UTask.DontWait();
-#if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunDisableTask )} : end\n{task}" );
-#endif
-		}
-
-
-
-		async UniTask AdjustRunTask( SMTask task, SMTask previous = null ) {
-			CheckTaskNullOrDisposeError( nameof( AdjustRunTask ), task );
-
-			await _modifyler.Register(
-				nameof( AdjustRunTask ),
-				SMModifyType.Normal,
-				() => RunAdjustRunTask( task, previous )
-			);
-		}
-
-		async UniTask RunAdjustRunTask( SMTask task, SMTask previous = null ) {
-			if ( task._isDispose )	{ return; }
-
-			if ( previous == null )	{ previous = task._previous; }
-#if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunAdjustRunTask )} : start\n{task}" );
-#endif
-			if ( previous._isFinalize ) {
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.FinalDisable &&
-						task._ranState < SMTaskRunState.FinalDisable
-				) {
-					await RunFinalDisableTask( task );
-				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.Finalize &&
-						task._ranState < SMTaskRunState.Finalize
-				) {
-					await RunFinalizeTask( task );
-				}
-				if (	previous._ranState >= SMTaskRunState.Dispose &&
-						task._ranState < SMTaskRunState.Dispose
-				) {
-					await RunDisposeTask( task );
-				}
-
-			} else {
-				if (	previous._ranState >= SMTaskRunState.Create &&
-						task._ranState < SMTaskRunState.Create
-				) {
-					await RunCreateTask( task );
-				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.SelfInitialize &&
-						task._ranState < SMTaskRunState.SelfInitialize
-				) {
-					await RunSelfInitializeTask( task );
-				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.Initialize &&
-						task._ranState < SMTaskRunState.Initialize
-				) {
-					await RunInitializeTask( task );
-				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.InitialEnable &&
-						task._ranState < SMTaskRunState.InitialEnable
-				) {
-					await RunInitialEnableTask( task );
-				}
-
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._isInitialized
-				) {
-					if ( previous._isActive )	{ await RunEnableTask( task ); }
-					else						{ await RunDisableTask( task ); }
-				}
-			}
-#if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunAdjustRunTask )} : end\n{task}" );
-#endif
-		}
-
-
-
 		void FixedUpdateTask( SMTask task ) {
 			CheckTaskNullError( nameof( FixedUpdateTask ), task );
 			if ( !task._isOperable )	{ return; }
@@ -630,34 +489,190 @@ namespace SubmarineMirage.Task {
 
 
 
-		public async UniTask DestroyTask( SMTask task ) {
-			CheckTaskNullOrDisposeError( nameof( DestroyTask ), task );
+		public async UniTask EnableTask( SMTask task ) {
+			CheckTaskNullOrDisposeError( nameof( EnableTask ), task );
+			CheckDontTaskError( nameof( EnableTask ), task );
+
+			await _modifyler.Register(
+				nameof( EnableTask ),
+				GetType( task ),
+				() => RunEnableTask( task )
+			);
+		}
+
+		async UniTask RunEnableTask( SMTask task ) {
+			if ( !task._isCanActive )	{ return; }
+			if ( task._isFinalize )		{ return; }
+			if ( !task._isInitialized ) {
+				task._isRequestInitialEnable = true;
+				return;
+			}
+			if ( task._activeState == SMTaskActiveState.Enable )	{ return; }
 
 #if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( DestroyTask )} : start\n{task}" );
+			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunEnableTask )} : start\n{task}" );
 #endif
-			if ( task._type != SMTaskRunType.Dont ) {
-				FinalDisableTask( task ).Forget();
-				FinalizeTask( task ).Forget();
-			}
-			await DisposeTask( task );
+			task._asyncCancelerOnDisable.Recreate();
+			task._enableEvent.Run();
+			task._activeState = SMTaskActiveState.Enable;
+			await UTask.DontWait();
 #if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( DestroyTask )} : end\n{task}" );
+			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunEnableTask )} : end\n{task}" );
 #endif
 		}
 
-		public async UniTask ChangeActiveTask( SMTask task, bool isActive ) {
-			CheckTaskNullOrDisposeError( nameof( ChangeActiveTask ), task );
-			CheckDontTaskError( nameof( ChangeActiveTask ), task );
+
+
+		public async UniTask DisableTask( SMTask task ) {
+			CheckTaskNullOrDisposeError( nameof( DisableTask ), task );
+			CheckDontTaskError( nameof( DisableTask ), task );
+
+			await _modifyler.Register(
+				nameof( DisableTask ),
+				GetType( task ),
+				() => RunDisableTask( task )
+			);
+		}
+
+		async UniTask RunDisableTask( SMTask task ) {
+			if ( !task._isCanActive )	{ return; }
+			if ( task._isFinalize )		{ return; }
+			if ( !task._isInitialized ) {
+				task._isRequestInitialEnable = false;
+				return;
+			}
+			if ( task._activeState == SMTaskActiveState.Disable )	{ return; }
 
 #if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( ChangeActiveTask )} : start\n{task}" );
+			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunDisableTask )} : start\n{task}" );
 #endif
-			if ( isActive )	{ await EnableTask( task ); }
-			else			{ await DisableTask( task ); }
+			task._activeState = SMTaskActiveState.Disable;
+			task._asyncCancelerOnDisable.Cancel( false );
+			task._disableEvent.Run();
+			await UTask.DontWait();
 #if TestTask
-			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( ChangeActiveTask )} : end\n{task}" );
+			SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( RunDisableTask )} : end\n{task}" );
 #endif
+		}
+
+
+
+		public UniTask ChangeActiveTask( SMTask task, bool isActive )
+			=> isActive ? EnableTask( task ) : DisableTask( task );
+
+
+
+		public async UniTask AdjustRunTask( SMTask task, SMTask previous = null ) {
+			CheckTaskNullOrDisposeError( nameof( AdjustRunTask ), task );
+
+			await _modifyler.Register(
+				nameof( AdjustRunTask ),
+				SMModifyType.Normal,
+				() => RunAdjustRunTask( task, previous )
+			);
+		}
+
+		async UniTask RunAdjustRunTask( SMTask task, SMTask previous = null ) {
+			if ( task._isDispose )	{ return; }
+			if ( previous == null )	{ previous = task._previous; }
+			if ( previous == null ) {
+				throw new InvalidOperationException( string.Join( "\n",
+					$"実行状態の合わせ元のタスクが無 : ",
+					$"{nameof( SMTaskManager )}.{nameof( RunAdjustRunTask )}",
+					$"{nameof( previous )} : \n{previous}"
+				) );
+			}
+
+#if TestTask
+			SMLog.Debug( string.Join( "\n",
+				$"{nameof( SMTaskManager )}.{nameof( RunAdjustRunTask )} : start",
+				$"{nameof( previous )} : {previous}",
+				$"{nameof( task )} : {task}"
+			) );
+#endif
+			if ( previous._isFinalize ) {
+				if (	task._type != SMTaskRunType.Dont &&
+						previous._ranState >= SMTaskRunState.FinalDisable &&
+						task._ranState < SMTaskRunState.FinalDisable
+				) {
+					await RunFinalDisableTask( task );
+				}
+				if (	task._type != SMTaskRunType.Dont &&
+						previous._ranState >= SMTaskRunState.Finalize &&
+						task._ranState < SMTaskRunState.Finalize
+				) {
+					await RunFinalizeTask( task );
+				}
+				if (	previous._ranState >= SMTaskRunState.Dispose &&
+						task._ranState < SMTaskRunState.Dispose
+				) {
+					await RunDisposeTask( task );
+				}
+
+			} else {
+				if (	previous._ranState >= SMTaskRunState.Create &&
+						task._ranState < SMTaskRunState.Create
+				) {
+					await RunCreateTask( task );
+				}
+				if (	task._type != SMTaskRunType.Dont &&
+						previous._ranState >= SMTaskRunState.SelfInitialize &&
+						task._ranState < SMTaskRunState.SelfInitialize
+				) {
+					await RunSelfInitializeTask( task );
+				}
+				if (	task._type != SMTaskRunType.Dont &&
+						previous._ranState >= SMTaskRunState.Initialize &&
+						task._ranState < SMTaskRunState.Initialize
+				) {
+					await RunInitializeTask( task );
+				}
+				if (	task._type != SMTaskRunType.Dont &&
+						previous._ranState >= SMTaskRunState.InitialEnable &&
+						task._ranState < SMTaskRunState.InitialEnable
+				) {
+					await RunInitialEnableTask( task );
+				}
+
+				if (	task._type != SMTaskRunType.Dont &&
+						previous._isInitialized
+				) {
+					if ( previous._isActive )	{ await RunEnableTask( task ); }
+					else						{ await RunDisableTask( task ); }
+				}
+			}
+#if TestTask
+			SMLog.Debug( string.Join( "\n",
+				$"{nameof( SMTaskManager )}.{nameof( RunAdjustRunTask )} : end",
+				$"{nameof( previous )} : {previous}",
+				$"{nameof( task )} : {task}"
+			) );
+#endif
+		}
+
+
+
+		public async UniTask DestroyTask( SMTask task ) {
+			CheckTaskNullOrDisposeError( nameof( DestroyTask ), task );
+
+			await _modifyler.Register(
+				nameof( DestroyTask ),
+				SMModifyType.Normal,
+				async () => {
+#if TestTask
+					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( DestroyTask )} : start\n{task}" );
+#endif
+					// Parallelだと実行順序が乖離しそうな為、Normalの逐次処理で、Run系を直接実行
+					if ( task._type != SMTaskRunType.Dont ) {
+						await RunFinalDisableTask( task );
+						await RunFinalizeTask( task );
+					}
+					await RunDisposeTask( task );
+#if TestTask
+					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( DestroyTask )} : end\n{task}" );
+#endif
+				}
+			);
 		}
 
 
