@@ -100,8 +100,9 @@ namespace SubmarineMirage.Modifyler {
 #endif
 				_datas.ForEach( d => d.Dispose() );
 				_datas.Clear();
-				// _runData.Clear()は、UniTask並列実行中の変更エラーとなる為、自然終了に任せる
-				// 多分、_asyncCanceler解放により、即停止される筈
+				_runDatas.ForEach( d => d.Dispose() );
+				// UniTask並列実行中に配列変更はエラーとなる為、自然終了に任せるので、Clearしない
+				//_runDatas.Clear()
 
 				_asyncCanceler?.Dispose();
 

@@ -75,27 +75,9 @@ namespace SubmarineMirage.Task {
 				last = current;
 			} );
 
-			_fixedUpdateEvent.AddLast().Subscribe( _ => {
-				_modifyler._isLock = true;
-				RUN_TASK_TYPES.ForEach( type => {
-					_markers.GetAlls( type, true ).ForEach( task => FixedUpdateTask( task ) );
-				} );
-				_modifyler._isLock = false;
-			} );
-			_updateEvent.AddLast().Subscribe( _ => {
-				_modifyler._isLock = true;
-				RUN_TASK_TYPES.ForEach( type => {
-					_markers.GetAlls( type, true ).ForEach( task => UpdateTask( task ) );
-				} );
-				_modifyler._isLock = false;
-			} );
-			_lateUpdateEvent.AddLast().Subscribe( _ => {
-				_modifyler._isLock = true;
-				RUN_TASK_TYPES.ForEach( type => {
-					_markers.GetAlls( type, true ).ForEach( task => LateUpdateTask( task ) );
-				} );
-				_modifyler._isLock = false;
-			} );
+			_fixedUpdateEvent.AddLast().Subscribe(	_ => UpdateTasks( FixedUpdateTask ) );
+			_updateEvent.AddLast().Subscribe(		_ => UpdateTasks( UpdateTask ) );
+			_lateUpdateEvent.AddLast().Subscribe(	_ => UpdateTasks( LateUpdateTask ) );
 
 			_disposables.AddFirst( () => {
 				_markers.Dispose();
@@ -141,7 +123,8 @@ namespace SubmarineMirage.Task {
 
 
 		public IEnumerable<SMTask> GetAlls() {
-			CheckDisposeError( nameof( GetAlls ) );
+			// GetAllsは、CheckDisposeError内部で使用（ToString）され、循環参照エラーとなる為、エラー判定しない
+			//CheckDisposeError( nameof( GetAlls ) );
 
 			for ( var t = _root; t != null; t = t._next ) {
 				yield return t;
@@ -157,9 +140,42 @@ namespace SubmarineMirage.Task {
 
 
 
+		public async UniTask WaitFrame( string name, int delayFrame ) {
+			name = $"{nameof( WaitFrame )}:{name}";
+
+			await _modifyler.Register(
+				name,
+				SMModifyType.Normal,
+				async () => {
+#if TestTask
+					SMLog.Debug( string.Join( "\n",
+						$"{nameof( SMTaskManager )}.{name} : start",
+						$"{nameof( delayFrame )} : {delayFrame}"
+					) );
+#endif
+					await UTask.DelayFrame( _modifyler._asyncCanceler, delayFrame );
+#if TestTask
+					SMLog.Debug( string.Join( "\n",
+						$"{nameof( SMTaskManager )}.{name} : end",
+						$"{nameof( delayFrame )} : {delayFrame}"
+					) );
+#endif
+				}
+			);
+		}
+
+
+
 		public async UniTask Register( SMTask task, bool isAdjustRun ) {
 			CheckTaskNullOrDisposeError( nameof( Register ), task );
 
+			// 基底コンストラクタ → CreateやDispose → 派生コンストラクタ、の順に実行される可能性あり
+			// 基底コンストラクタ → 派生コンストラクタ → CreateやDispose、の順に必ず実行させる為、
+			// Register前に、1フレーム待機する
+			WaitFrame( nameof( Register ), 1 ).Forget();
+
+			// Registerは、リンク変更系の為、各種UpdateEvent中に実行されると、破綻する
+			// よって、_modifyler._isLockを活用する為、内部で待機しないよう、上記WaitFrameで別個待機させる
 			var registerTask = _modifyler.Register(
 				nameof( Register ),
 				SMModifyType.Normal,
@@ -169,12 +185,8 @@ namespace SubmarineMirage.Task {
 #if TestTask
 					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Register )} : start\n{task}" );
 #endif
-					// 基底コンストラクタ → CreateやDispose → 派生コンストラクタ、の順に実行される可能性あり
-					// 基底コンストラクタ → 派生コンストラクタ → CreateやDispose、の順に必ず実行させる為、
-					// Register前に、1フレーム待機する
-					await UTask.NextFrame( task._asyncCancelerOnDispose );
-
 					_markers.LinkLast( task );
+					await UTask.DontWait();
 #if TestTask
 					SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Register )} : end\n{task}" );
 #endif
@@ -186,12 +198,15 @@ namespace SubmarineMirage.Task {
 				await registerTask;
 				return;
 			}
+
 			await AdjustRunTask( task );
 		}
 
 
 
 		public async UniTask Unregister( SMTask task ) {
+			// Dispose時に各種タスク内部から呼ばれ、_modifyler解放済エラーとなる為、解放済の場合は無視
+			if ( _isDispose )	{ return; }
 			CheckTaskNullError( nameof( Unregister ), task );
 
 			await _modifyler.Register(
@@ -420,6 +435,20 @@ namespace SubmarineMirage.Task {
 		}
 
 
+
+		void UpdateTasks( Action<SMTask> updateTaskEvent ) {
+			CheckDisposeError( nameof( UpdateTasks ) );
+
+			_modifyler._isLock = true;
+			// Dispose時に、解放済エラー防止の為、即終了する必要があり、ラムダを未使用
+			foreach ( var type in RUN_TASK_TYPES ) {
+				foreach ( var task in _markers.GetAlls( type, true ) ) {
+					updateTaskEvent( task );
+					if ( _isDispose )	{ return; }
+				}
+			}
+			_modifyler._isLock = false;
+		}
 
 		void FixedUpdateTask( SMTask task ) {
 			CheckTaskNullError( nameof( FixedUpdateTask ), task );
@@ -683,27 +712,27 @@ namespace SubmarineMirage.Task {
 			throw new NotSupportedException( string.Join( "\n",
 				$"未対応 : {SMTaskRunType.Dont}",
 				$"{nameof( SMTaskManager )}.{name}",
-				$"{nameof( task )} : \n{task}"
+				$"{nameof( task )} : {task}"
 			) );
 		}
 
 		void CheckTaskNullError( string name, SMTask task ) {
 			if ( task != null )	{ return; }
 
-			throw new ArgumentNullException( string.Join( "\n",
+			throw new ArgumentNullException( "", string.Join( "\n",
 				$"引数に無を指定 : {nameof( task )}",
 				$"{nameof( SMTaskManager )}.{name}",
-				$"{nameof( task )} : \n{task}"
+				$"{nameof( task )} : {task}"
 			) );
 		}
 
 		void CheckTaskNullOrDisposeError( string name, SMTask task ) {
 			if ( task != null && !task._isDispose )	{ return; }
 
-			throw new ObjectDisposedException( string.Join( "\n",
+			throw new ObjectDisposedException( "", string.Join( "\n",
 				$"既に解放済 : {nameof( task )}",
 				$"{nameof( SMTaskManager )}.{name}",
-				$"{nameof( task )} : \n{task}"
+				$"{nameof( task )} : {task}"
 			) );
 		}
 	}

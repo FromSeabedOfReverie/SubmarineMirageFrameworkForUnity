@@ -62,11 +62,12 @@ namespace SubmarineMirage.Modifyler {
 
 		void Cancel() {
 			if ( _isCalledDestructor )	{ return; }
+			if ( _cancelEvent == null )	{ return; }
 
 #if TestModifyData
-				SMLog.Debug( $"{nameof( Cancel )} : \n{this}" );
+			SMLog.Debug( $"{nameof( Cancel )} : \n{this}" );
 #endif
-			_cancelEvent?.Invoke();
+			_cancelEvent.Invoke();
 			_cancelEvent = null;
 		}
 

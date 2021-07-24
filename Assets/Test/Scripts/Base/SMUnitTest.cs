@@ -48,7 +48,9 @@ namespace SubmarineMirage.TestBase {
 
 		protected IEnumerator From( Func<UniTask> task ) => UTask.ToCoroutine( async () => {
 			try {
+				SMLog.Warning( "Start" );
 				await task.Invoke();
+				SMLog.Warning( "End" );
 			} catch ( OperationCanceledException ) {
 			} catch ( Exception e ) {
 				SMLog.Error( e );
@@ -59,6 +61,7 @@ namespace SubmarineMirage.TestBase {
 		public IEnumerator From( IEnumerator coroutine ) {
 			var isRunning = true;
 
+			SMLog.Warning( "Start" );
 			var disposable = Observable.FromCoroutine( () => coroutine )
 				.DoOnError( e => {
 					if ( !( e is OperationCanceledException ) ) {
@@ -71,6 +74,7 @@ namespace SubmarineMirage.TestBase {
 
 			while ( isRunning ) { yield return null; }
 			disposable.Dispose();
+			SMLog.Warning( "End" );
 		}
 
 

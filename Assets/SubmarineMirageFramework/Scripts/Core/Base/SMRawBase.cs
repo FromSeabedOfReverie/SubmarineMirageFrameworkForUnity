@@ -31,7 +31,7 @@ namespace SubmarineMirage.Base {
 			if ( !_isDispose )	{ return; }
 
 			throw new ObjectDisposedException(
-				ToString(), $"既に解放済\n{this.GetAboutName()}.{name}" );
+				$"{this}", $"既に解放済\n{this.GetAboutName()}.{name}" );
 		}
 	}
 }

@@ -94,7 +94,7 @@ namespace SubmarineMirage.Task {
 				_updateEvent.Dispose();
 				_lateUpdateEvent.Dispose();
 
-				_taskManager.Unregister( this ).Forget();
+				_taskManager?.Unregister( this ).Forget();
 				_taskManager = null;
 #if TestTask
 				SMLog.Debug( $"{nameof( SMTask )}.{nameof( Dispose )} : end\n{this}" );
