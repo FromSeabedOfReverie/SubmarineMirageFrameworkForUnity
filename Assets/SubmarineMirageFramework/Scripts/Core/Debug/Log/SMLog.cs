@@ -11,6 +11,7 @@ namespace SubmarineMirage.Debug {
 	using Service;
 	using Event;
 	using Utility;
+	using Setting;
 	using Debug.ToString;
 	///====================================================================================================
 	/// <summary>

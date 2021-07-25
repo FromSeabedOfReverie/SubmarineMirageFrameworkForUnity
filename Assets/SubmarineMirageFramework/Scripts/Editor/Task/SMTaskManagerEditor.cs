@@ -94,7 +94,7 @@ namespace SubmarineMirage.EditorTask {
 			ShowHeading1( "Modifyler" );
 
 			var datas = new Dictionary< string, LinkedList<SMModifyData> > {
-				{ "RunData",    _taskManager._modifyler._runDatas },
+				{ "RunData",	_taskManager._modifyler._runDatas },
 				{ "Data",		_taskManager._modifyler._datas },
 			};
 			datas.ForEach( pair => {

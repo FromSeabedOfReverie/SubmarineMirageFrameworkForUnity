@@ -8,7 +8,7 @@ namespace SubmarineMirage.Extension {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using KoganeUnityLib;
-	using Utility;
+	using Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 部品の拡張クラス
@@ -31,7 +31,7 @@ namespace SubmarineMirage.Extension {
 		/// ● 指定層の子達のゲーム物を全取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static IEnumerable<GameObject> GetChildrenInLayer( this Component self, SMLayerManager.Name layer )
+		public static IEnumerable<GameObject> GetChildrenInLayer( this Component self, SMUnityLayer layer )
 			=> self.gameObject.GetChildrenInLayer( layer );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

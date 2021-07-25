@@ -9,6 +9,7 @@ namespace SubmarineMirage.Utility {
 	using KoganeUnityLib;
 	using Service;
 	using Extension;
+	using Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲーム物の便利クラス
@@ -52,8 +53,8 @@ namespace SubmarineMirage.Utility {
 		/// ● 指定付箋ゲーム物から、部品を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public static T FindComponentWithTag<T>( SMTagManager.Name tag ) where T : Component {
-			var tagManager = SMServiceLocator.Resolve<SMTagManager>();
+		public static T FindComponentWithTag<T>( SMUnityTag tag ) where T : Component {
+			var tagManager = SMServiceLocator.Resolve<SMUnityTagManager>();
 			var s = tagManager.Get( tag );
 			var go = GameObject.FindWithTag( s );
 			return go != null ? go.GetComponent<T>() : null;

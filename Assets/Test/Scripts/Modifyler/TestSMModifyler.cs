@@ -329,7 +329,7 @@ namespace SubmarineMirage.TestModifyler {
 		public IEnumerator TestErrorRun4() => From( async () => {
 			SMLog.Warning( "Start" );
 
-			var m  = new SMModifyler( "1" );
+			var m = new SMModifyler( "1" );
 			RegisterTestData(		m, "1", SMModifyType.Parallel ).Forget();
 			RegisterDisposeData(	m, "2", SMModifyType.Parallel ).Forget();
 			RegisterTestData(		m, "3", SMModifyType.Parallel ).Forget();

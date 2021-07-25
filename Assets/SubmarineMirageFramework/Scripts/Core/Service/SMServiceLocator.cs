@@ -12,6 +12,7 @@ namespace SubmarineMirage.Service {
 	using Event;
 	using Extension;
 	using Utility;
+	using Setting;
 	using Debug;
 
 

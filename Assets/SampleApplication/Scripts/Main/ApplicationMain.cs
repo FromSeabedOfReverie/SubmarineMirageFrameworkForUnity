@@ -47,7 +47,6 @@ public static class ApplicationMain {
 
 	[RuntimeInitializeOnLoadMethod( RuntimeInitializeLoadType.BeforeSceneLoad )]
 	static async void Main() {
-		Application.targetFrameRate = 5;
 //		return;
 
 		var framework = SMServiceLocator.Register( new SubmarineMirageFramework() );

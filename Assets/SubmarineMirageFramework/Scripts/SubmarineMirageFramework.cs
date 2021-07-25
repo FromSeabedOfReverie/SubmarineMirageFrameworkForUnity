@@ -14,6 +14,7 @@ namespace SubmarineMirage {
 	using Task;
 	using Extension;
 	using Utility;
+	using Setting;
 	using Debug;
 	using SystemTask = System.Threading.Tasks.Task;
 
@@ -26,7 +27,7 @@ namespace SubmarineMirage {
 
 
 		public SubmarineMirageFramework() {
-			SMLog.s_isEnable = SMDebugManager.IS_DEVELOP;   // 真っ先に指定しないと、ログが出ない
+			SMLog.s_isEnable = SMDebugManager.IS_DEVELOP;	// 真っ先に指定しないと、ログが出ない
 
 			_disposables.AddFirst( () => {
 				_isInitialized = false;
@@ -77,17 +78,19 @@ namespace SubmarineMirage {
 			await initializePluginEvent();
 
 			var taskManager = SMServiceLocator.Register( new SMTaskManager() );
-//			SMServiceLocator.Register( new SMDecorationManager() );
-//			SMServiceLocator.Register( new SMDebugManager() );
-//			SMServiceLocator.Register( new SMTagManager() ) ;
-//			SMServiceLocator.Register( new SMLayerManager() );
-//			SMServiceLocator.Register( new SMTimeManager() );
+			SMServiceLocator.Register( new SMDecorationManager() );
+			SMServiceLocator.Register( new SMDebugManager() );
+			SMServiceLocator.Register( new SMDisplayLog() );
+			SMServiceLocator.Register( new SMInputManager() );
+			SMServiceLocator.Register( new SMUnityTagManager() ) ;
+			SMServiceLocator.Register( new SMUnityLayerManager() );
+			SMServiceLocator.Register( new SMTimeManager() );
 
 			await registerSettingsEvent();
 
+			new SMSplashScreenWaiter();
 //			SMServiceLocator.Register( new SMSceneManager() );
-//			SMServiceLocator.Register( new SMDisplayLog() );
-//			await taskManager.Initialize();
+			await taskManager.Initialize();
 
 			if ( SMDebugManager.s_isPlayTest ) {
 				var test = await SMServiceLocator.WaitResolve<IBaseSMTest>( _asyncCanceler );

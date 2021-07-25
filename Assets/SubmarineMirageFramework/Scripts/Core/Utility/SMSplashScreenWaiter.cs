@@ -5,40 +5,32 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Utility {
-	using Service;
+	using UnityEngine.Rendering;
 	using Task;
 	///====================================================================================================
 	/// <summary>
-	/// ■ 装飾管理クラス
-	///		NGUI、UGUIの文字描画の装飾を行う。
+	/// ■ スプラッシュ画面の待機クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMDecorationManager : SMTask, ISMService {
+	public class SMSplashScreenWaiter : SMTask {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>実行型</summary>
-		public override SMTaskRunType _type => SMTaskRunType.Dont;
-		/// <summary>NGUI装飾</summary>
-		public readonly SMNGUIDecoration _nGUI = new SMNGUIDecoration();
-		/// <summary>UGUI装飾</summary>
-		public readonly SMUGUIDecoration _uGUI = new SMUGUIDecoration();
+		public override SMTaskRunType _type => SMTaskRunType.Sequential;
 		///------------------------------------------------------------------------------------------------
 		/// ● 生成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● コンストラクタ
-		/// </summary>
-		public SMDecorationManager() {
-			_disposables.AddFirst( () => {
-				_nGUI.Dispose();
-				_uGUI.Dispose();
-			} );
-		}
-		/// <summary>
 		/// ● 作成
 		/// </summary>
 		public override void Create() {
+			// そのまま使うと、スプラッシュ画面が残ったまま、前回入力の値が反映される為、
+			// スクリプト実行順序の最後に代入して、タイミングをずらす
+			_selfInitializeEvent.AddLast( "", async canceler => {
+				await UTask.WaitWhile( canceler, () => !SplashScreen.isFinished );
+				await UTask.NextFrame( canceler );
+			} );
 		}
 	}
 }

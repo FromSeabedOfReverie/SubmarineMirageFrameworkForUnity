@@ -4,47 +4,44 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+#if false
+namespace SubmarineMirage.Extension {
+	using UnityEngine;
+	using Data;
 	///====================================================================================================
 	/// <summary>
-	/// ■ 付箋の管理クラス
+	/// ■ テクスチャの拡張クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMTagManager : SMUnityName<SMTagManager.Name> {
+	public static class TextureExtension {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>付箋名</summary>
-		public enum Name {
-			/// <summary>未設定</summary>
-			Untagged,
-
-// TODO : リファクタリング次第で、以下タグは不要になるかもしれない
-
-			/// <summary>中心カメラ</summary>
-			MainCamera,
-			/// <summary>プレイヤー</summary>
-			Player,
-			/// <summary>中心光</summary>
-			MainLight,
-			/// <summary>時間</summary>
-			Time,
-			/// <summary>雨</summary>
-			Rain,
-			/// <summary>風</summary>
-			Wind,
-			/// <summary>雲</summary>
-			Cloud,
-			/// <summary>水</summary>
-			Water,
-			/// <summary>地面</summary>
-			Ground,
+		/// <summary>基本のスプライト中心</summary>
+		static readonly Vector2 DEFAULT_SPRITE_PIVOT = new Vector2( 0.5f, 0.5f );
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● スプライトに変換
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public static Sprite ToSprite( this Texture2D texture, Vector2? pivot = null ) {
+			return Sprite.Create(
+				texture,
+				new Rect( 0, 0, texture.width, texture.height ),
+				pivot.HasValue ? pivot.Value : DEFAULT_SPRITE_PIVOT
+			);
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 作成
+		/// ● 生情報に変換
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public override void Create() {}
+		public static TextureRawData ToRawData( this Texture2D texture,
+												TextureRawData.Type type = TextureRawData.Type.PNG,
+												int? encodeOption = null )
+		{
+			return new TextureRawData( texture, type, encodeOption );
+		}
 	}
 }
+#endif

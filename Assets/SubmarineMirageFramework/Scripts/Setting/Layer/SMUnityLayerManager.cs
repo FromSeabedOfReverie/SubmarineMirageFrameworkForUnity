@@ -4,45 +4,29 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage.Setting {
 	using UnityEngine;
+	using Utility;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 層の管理クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMLayerManager : SMUnityName<SMLayerManager.Name> {
+	public class SMUnityLayerManager : SMUnityName<SMUnityLayer> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>層名</summary>
-		public enum Name {
-			/// <summary>通常</summary>
-			Default,
-			/// <summary>未設定</summary>
-			None,
-			/// <summary>地面</summary>
-			Ground,
-			/// <summary>水</summary>
-			Water,
-			/// <summary>AI</summary>
-			AI,
-			/// <summary>プレイヤー</summary>
-			Player,
-			/// <summary>物理衝突</summary>
-			Collider,
-			/// <summary>遠景</summary>
-			DistantView,
-		}
+		
 
 		/// <summary>AIの視界遮断マスク</summary>
-		public int _aiSightObstructMask	=> LayerMask.GetMask( Get( Name.Ground ) );
+		public int _aiSightObstructMask	=> LayerMask.GetMask( Get( SMUnityLayer.Ground ) );
 		/// <summary>カメラ遮断マスク</summary>
-		public int _cameraObstructMask	=> LayerMask.GetMask( Get( Name.Ground ), Get( Name.Water ) );
+		public int _cameraObstructMask	=> LayerMask.GetMask(
+											Get( SMUnityLayer.Ground ), Get( SMUnityLayer.Water ) );
 		/// <summary>地面マスク</summary>
-		public int _groundedMask		=> LayerMask.GetMask( Get( Name.Ground ) );
+		public int _groundedMask		=> LayerMask.GetMask( Get( SMUnityLayer.Ground ) );
 		/// <summary>水マスク</summary>
-		public int _waterMask			=> LayerMask.GetMask( Get( Name.Water ) );
+		public int _waterMask			=> LayerMask.GetMask( Get( SMUnityLayer.Water ) );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 作成
@@ -54,12 +38,12 @@ namespace SubmarineMirage.Utility {
 		/// ● レイヤー番号を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public int ToInt( Name name ) => LayerMask.NameToLayer( Get( name ) );
+		public int ToInt( SMUnityLayer name ) => LayerMask.NameToLayer( Get( name ) );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● レイヤーが等しいか？
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public bool IsEqual( int layer, Name name ) => layer == ToInt( name );
+		public bool IsEqual( int layer, SMUnityLayer name ) => layer == ToInt( name );
 	}
 }

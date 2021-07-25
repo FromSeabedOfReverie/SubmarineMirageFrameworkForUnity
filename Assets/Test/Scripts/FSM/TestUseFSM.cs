@@ -94,7 +94,7 @@ namespace SubmarineMirage.TestFSM {
 			);
 			_headFSM = fsm.GetFSM<DragonHeadState>();
 			_bodyFSM = fsm.GetFSM<DragonBodyState>();
-			_dummyFSM = fsm.GetFSM<DummyState>();   // コンパイルエラーにならない
+			_dummyFSM = fsm.GetFSM<DummyState>();	// コンパイルエラーにならない
 		}
 		public void _Owner() {
 			_headFSM.GetStates()
@@ -115,8 +115,8 @@ namespace SubmarineMirage.TestFSM {
 			_fsm.GetStates()
 				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
-			_fsm.ChangeState<BiteDragonHeadState>().Forget();   // コンパイルエラーにならない
-			_fsm.ChangeState<DeathDragonBodyState>().Forget();  // コンパイルエラーにならない
+			_fsm.ChangeState<BiteDragonHeadState>().Forget();	// コンパイルエラーにならない
+			_fsm.ChangeState<DeathDragonBodyState>().Forget();	// コンパイルエラーにならない
 		}
 	}
 	public abstract class DragonHeadState : DragonState {

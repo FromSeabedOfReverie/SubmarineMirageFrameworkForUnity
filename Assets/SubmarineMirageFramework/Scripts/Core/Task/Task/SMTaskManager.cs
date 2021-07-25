@@ -58,6 +58,8 @@ namespace SubmarineMirage.Task {
 
 
 		public SMTaskManager() {
+//			_modifyler._isDebug = true;
+
 			_markers = new SMTaskMarkerManager( nameof( SMTaskManager ), this );
 			var tasks = new SMTask[] {
 				_markers.GetFirst( SMTaskRunType.Dont, true ),
@@ -112,8 +114,11 @@ namespace SubmarineMirage.Task {
 
 
 
-		public UniTask Initialize()
-			=> _markers.InitializeAll();
+		public async UniTask Initialize() {
+			// 全タスクの、Register前待機を、待つ必要がある
+			await _modifyler.WaitRunning();
+			await _markers.InitializeAll();
+		}
 
 		public async UniTask Finalize() {
 			await _markers.FinalizeAll();

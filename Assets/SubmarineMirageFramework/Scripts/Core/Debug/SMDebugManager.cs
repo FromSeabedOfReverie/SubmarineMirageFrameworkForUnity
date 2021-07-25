@@ -37,7 +37,7 @@ namespace SubmarineMirage.Debug {
 		/// <summary>実行型</summary>
 		public override SMTaskRunType _type => SMTaskRunType.Sequential;
 		/// <summary>デバッグ記録</summary>
-		SMLog _log;
+		readonly SMLog _log = new SMLog();
 		/// <summary>現在の、1秒間の画面描画回数（FPS）</summary>
 		public int _fps { get; private set; }
 		///------------------------------------------------------------------------------------------------
@@ -47,8 +47,6 @@ namespace SubmarineMirage.Debug {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMDebugManager() {
-			_log = new SMLog();
-
 			_disposables.AddFirst( () => {
 				_log.Dispose();
 			} );
@@ -65,12 +63,12 @@ namespace SubmarineMirage.Debug {
 				if ( checkSeconds < Time.time ) {
 					checkSeconds = Time.time + 1;
 					_fps = count;
+					count = 0;
 				}
 				count++;
 			} );
 
 
-			return;
 			if ( !IS_DEVELOP )	{ return; }
 
 			// デバッグ表示

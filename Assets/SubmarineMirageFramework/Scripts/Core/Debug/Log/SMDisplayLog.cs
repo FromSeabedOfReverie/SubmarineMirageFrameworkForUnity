@@ -23,15 +23,15 @@ namespace SubmarineMirage.Debug {
 		/// <summary>実行型</summary>
 		public override SMTaskRunType _type => SMTaskRunType.Dont;
 		/// <summary>描画するか？</summary>
-		public bool _isDraw = true;
+		public bool _isDraw { get; set; } = true;
 		/// <summary>背景描画するか？</summary>
-		public bool _isDrawBackground = true;
+		public bool _isDrawBackground { get; set; } = true;
 		/// <summary>描画スタイル</summary>
-		GUIStyle _guiStyle = new GUIStyle();
+		readonly GUIStyle _guiStyle = new GUIStyle();
 		/// <summary>登録用、文章配列</summary>
 		readonly ArrayList _texts = new ArrayList();
 		/// <summary>描画用、文章配列</summary>
-		ArrayList _drawTexts = new ArrayList();
+		ArrayList _drawTexts { get; set; } = new ArrayList();
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
@@ -46,22 +46,10 @@ namespace SubmarineMirage.Debug {
 			_guiStyle.normal.background = Texture2D.whiteTexture;
 			_guiStyle.normal.textColor = Color.white;
 
-/*
-			// デバッグ表示キー押下の場合
-			InputManager.s_instance.GetPressedEvent( InputManager.Event.DebugView )
-				.Subscribe( _ => {
-					// 設定を保存
-					var setting = AllDataManager.s_instance._save._setting;
-					setting._data._isViewDebug = !setting._data._isViewDebug;
-					setting.Save().Forget();
 
-					// 描画切り替え
-					_isDraw = setting._data._isViewDebug;
-				} );
-*/
 			// ● 更新（遅延）
 			//	※毎回、文章登録を初期化する為、全プログラムの一番最後に呼ぶべき。
-			_taskManager._lateUpdateEvent.AddLast().Subscribe( _ => {
+			_taskManager._lateUpdateEvent.AddLast( nameof( SMDisplayLog ) ).Subscribe( _ => {
 				// 毎フレーム登録を更新する
 				_drawTexts = new ArrayList( _texts );
 				_texts.Clear();
@@ -69,7 +57,7 @@ namespace SubmarineMirage.Debug {
 
 
 			// ● GUI描画
-			_taskManager._onGUIEvent.AddLast().Subscribe( _ => {
+			_taskManager._onGUIEvent.AddLast( nameof( SMDisplayLog ) ).Subscribe( _ => {
 				if ( !_isDraw )	{ return; }
 
 				// 背景描画開始
@@ -102,13 +90,17 @@ namespace SubmarineMirage.Debug {
 				// 背景描画終了
 				GUI.backgroundColor = new Color( 0, 0, 0, 0 );
 			} );
-		}
 
-		/// <summary>
-		/// ● 廃棄
-		/// </summary>
-		public override void Dispose()
-			=> _disposables.Dispose();
+
+			// 解放処理
+			_disposables.AddFirst( () => {
+				_taskManager._lateUpdateEvent.Remove( nameof( SMDisplayLog ) );
+				_taskManager._onGUIEvent.Remove( nameof( SMDisplayLog ) );
+
+				_texts.Clear();
+				_drawTexts.Clear();
+			} );
+		}
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 追加
