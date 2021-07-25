@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestTask
+//#define TestTask
 namespace SubmarineMirage.Task {
 	using System;
 	using System.Linq;
@@ -418,7 +418,7 @@ namespace SubmarineMirage.Task {
 
 			await _modifyler.Register(
 				nameof( DisposeTask ),
-				GetType( task ),
+				SMModifyType.Normal,
 				() => RunDisposeTask( task )
 			);
 		}
@@ -611,6 +611,9 @@ namespace SubmarineMirage.Task {
 					$"{nameof( previous )} : \n{previous}"
 				) );
 			}
+			if (	previous._ranState == task._ranState &&
+					previous._isActive == task._isActive
+			) { return; }
 
 #if TestTask
 			SMLog.Debug( string.Join( "\n",
@@ -620,22 +623,30 @@ namespace SubmarineMirage.Task {
 			) );
 #endif
 			if ( previous._isFinalize ) {
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.FinalDisable &&
-						task._ranState < SMTaskRunState.FinalDisable
-				) {
-					await RunFinalDisableTask( task );
-				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.Finalize &&
-						task._ranState < SMTaskRunState.Finalize
-				) {
-					await RunFinalizeTask( task );
+				if ( task._type != SMTaskRunType.Dont ) {
+					if (	previous._ranState >= SMTaskRunState.FinalDisable &&
+							task._ranState < SMTaskRunState.FinalDisable
+					) {
+						await RunFinalDisableTask( task );
+					}
+					if (	previous._ranState >= SMTaskRunState.Finalize &&
+							task._ranState < SMTaskRunState.Finalize
+					) {
+						await RunFinalizeTask( task );
+					}
 				}
 				if (	previous._ranState >= SMTaskRunState.Dispose &&
 						task._ranState < SMTaskRunState.Dispose
 				) {
 					await RunDisposeTask( task );
+				}
+
+			} else if ( previous._isInitialized && task._isInitialized ) {
+				if (	task._type != SMTaskRunType.Dont &&
+						previous._isActive != task._isActive
+				) {
+					if ( previous._isActive )	{ await RunEnableTask( task ); }
+					else						{ await RunDisableTask( task ); }
 				}
 
 			} else {
@@ -644,30 +655,23 @@ namespace SubmarineMirage.Task {
 				) {
 					await RunCreateTask( task );
 				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.SelfInitialize &&
-						task._ranState < SMTaskRunState.SelfInitialize
-				) {
-					await RunSelfInitializeTask( task );
-				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.Initialize &&
-						task._ranState < SMTaskRunState.Initialize
-				) {
-					await RunInitializeTask( task );
-				}
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._ranState >= SMTaskRunState.InitialEnable &&
-						task._ranState < SMTaskRunState.InitialEnable
-				) {
-					await RunInitialEnableTask( task );
-				}
-
-				if (	task._type != SMTaskRunType.Dont &&
-						previous._isInitialized
-				) {
-					if ( previous._isActive )	{ await RunEnableTask( task ); }
-					else						{ await RunDisableTask( task ); }
+				if ( task._type != SMTaskRunType.Dont ) {
+					if (	previous._ranState >= SMTaskRunState.SelfInitialize &&
+							task._ranState < SMTaskRunState.SelfInitialize
+					) {
+						await RunSelfInitializeTask( task );
+					}
+					if (	previous._ranState >= SMTaskRunState.Initialize &&
+							task._ranState < SMTaskRunState.Initialize
+					) {
+						await RunInitializeTask( task );
+					}
+					if (	previous._ranState >= SMTaskRunState.InitialEnable &&
+							task._ranState < SMTaskRunState.InitialEnable
+					) {
+						task._isRequestInitialEnable = previous._isActive;
+						await RunInitialEnableTask( task );
+					}
 				}
 			}
 #if TestTask

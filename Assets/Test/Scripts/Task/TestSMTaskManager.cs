@@ -631,7 +631,7 @@ namespace SubmarineMirage.TestTask {
 		} );
 
 
-// TODO : テストここから再開
+
 		[UnityTest] [Timeout( int.MaxValue )]
 		public IEnumerator TestEnableTask() => From( async () => {
 			var t1 = new SMTestTask( "1", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
@@ -789,6 +789,7 @@ namespace SubmarineMirage.TestTask {
 				await _taskManager.EnableTask( null );
 			} catch ( Exception e ) { SMLog.Error( e ); }
 			var t2 = new SMTestTask( "2_1", SMTaskRunType.Dont, true, false, SMTestTaskLogType.Setup );
+			await _taskManager._modifyler.WaitRunning();
 			try {
 				await _taskManager.EnableTask( t2 );
 			} catch ( Exception e ) { SMLog.Error( e ); }
@@ -962,6 +963,7 @@ namespace SubmarineMirage.TestTask {
 				await _taskManager.DisableTask( null );
 			} catch ( Exception e ) { SMLog.Error( e ); }
 			var t2 = new SMTestTask( "2_1", SMTaskRunType.Dont, true, false, SMTestTaskLogType.Setup );
+			await _taskManager._modifyler.WaitRunning();
 			try {
 				await _taskManager.DisableTask( t2 );
 			} catch ( Exception e ) { SMLog.Error( e ); }
@@ -1042,23 +1044,23 @@ namespace SubmarineMirage.TestTask {
 
 			t2 = new SMTestTask( "2_11", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
 			await _taskManager.FinalDisableTask( t1 );
+			await _taskManager.CreateTask( t2 );
 			await _taskManager.AdjustRunTask( t2 );
 			await _taskManager.AdjustRunTask( t2 );
 			await _taskManager.DisposeTask( t2 );
 
 			t2 = new SMTestTask( "2_12", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
 			await _taskManager.FinalizeTask( t1 );
+			await _taskManager.CreateTask( t2 );
 			await _taskManager.AdjustRunTask( t2 );
 			await _taskManager.AdjustRunTask( t2 );
 			await _taskManager.DisposeTask( t2 );
 
 			t2 = new SMTestTask( "2_13", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
-			await _taskManager.DisposeTask( t1 );
+			_taskManager.DisposeTask( t1 ).Forget();
 			await _taskManager.AdjustRunTask( t2 );
-			await _taskManager.AdjustRunTask( t2 );
-			await _taskManager.DisposeTask( t2 );
 
-			t2 = new SMTestTask( "2_14", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
+			t2 = new SMTestTask( "2_14", SMTaskRunType.Parallel, true, false, SMTestTaskLogType.Setup );
 			var t3 = new SMTestTask( "3_1", SMTaskRunType.Sequential, true, false, SMTestTaskLogType.Setup );
 			await _taskManager.CreateTask( t3 );
 			await _taskManager.SelfInitializeTask( t3 );
@@ -1066,6 +1068,15 @@ namespace SubmarineMirage.TestTask {
 			await _taskManager.InitialEnableTask( t3 );
 			await _taskManager.AdjustRunTask( t2, t3 );
 			await _taskManager.DisposeTask( t2 );
+
+			t2 = new SMTestTask( "2_15", SMTaskRunType.Dont, true, false, SMTestTaskLogType.Setup );
+			await _taskManager.AdjustRunTask( t2, t3 );
+			await _taskManager.AdjustRunTask( t2, t3 );
+			await _taskManager.DisposeTask( t2 );
+
+			t2 = new SMTestTask( "2_16", SMTaskRunType.Dont, true, false, SMTestTaskLogType.Setup );
+			_taskManager.DisposeTask( t3 ).Forget();
+			await _taskManager.AdjustRunTask( t2, t3 );
 
 			try {
 				await _taskManager.AdjustRunTask( t1 );
@@ -1168,11 +1179,11 @@ namespace SubmarineMirage.TestTask {
 			await _taskManager.DestroyTask( t1 );
 
 			var t2 = new SMTestTask( "2_1", SMTaskRunType.Dont, true, false, SMTestTaskLogType.Setup );
-			await _taskManager.DestroyTask( t1 );
+			await _taskManager.DestroyTask( t2 );
 
 			t2 = new SMTestTask( "2_2", SMTaskRunType.Dont, true, false, SMTestTaskLogType.Setup );
-			await _taskManager.CreateTask( t1 );
-			await _taskManager.DestroyTask( t1 );
+			await _taskManager.CreateTask( t2 );
+			await _taskManager.DestroyTask( t2 );
 
 			try {
 				await _taskManager.DestroyTask( t1 );
