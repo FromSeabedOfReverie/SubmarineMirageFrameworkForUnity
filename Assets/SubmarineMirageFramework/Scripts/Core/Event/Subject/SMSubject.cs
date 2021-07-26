@@ -50,5 +50,7 @@ namespace SubmarineMirage.Event {
 
 		public void Run()
 			=> Run( null ).Forget();
+
+// TODO : 引数伝達型のSMSubject<T>を作る
 	}
 }

@@ -8,21 +8,25 @@ namespace SubmarineMirage.Setting {
 
 
 
-	/// <summary>入力のイベント関数定数</summary>
-	public enum SMInputEvent {
+	/// <summary>入力のキー定数</summary>
+	public enum SMInputKey {
 		/// <summary>決定キー</summary>
 		Decide,
 		/// <summary>終了キー</summary>
 		Quit,
 		/// <summary>再設定キー</summary>
 		Reset,
-		/// <summary>デバッグ表示</summary>
-		DebugView,
+		/// <summary>指1</summary>
+		Finger1,
+		/// <summary>指2</summary>
+		Finger2,
 		/// <summary>無に触れた</summary>
 		Nothing,
 		/// <summary>無に長時間触れた</summary>
 		LongNothing,
 		/// <summary>何らかの操作</summary>
 		AnyOperation,
+		/// <summary>デバッグ</summary>
+		Debug,
 	}
 }

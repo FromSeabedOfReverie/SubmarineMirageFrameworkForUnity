@@ -37,7 +37,7 @@ namespace SubmarineMirage.Setting {
 		Quit,
 		/// <summary>リセット</summary>
 		Reset,
-		/// <summary>デバッグ表示</summary>
-		DebugView,
+		/// <summary>デバッグ</summary>
+		Debug,
 	}
 }

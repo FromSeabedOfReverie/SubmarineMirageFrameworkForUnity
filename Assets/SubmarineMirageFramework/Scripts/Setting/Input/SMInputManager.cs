@@ -5,18 +5,14 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Setting {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.EventSystems;
-	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
 	using Service;
-	using Event;
 	using Task;
-	using Extension;
 	using Utility;
 	using Debug;
 	///====================================================================================================
@@ -34,27 +30,41 @@ namespace SubmarineMirage.Setting {
 		SMTimeManager _timeManager	{ get; set; }
 
 		/// <summary>不動範囲の2乗</summary>
-		float _noMoveSqrRange { get; set; }
+		[SMShow] public float _noMoveSqrRange	{ get; private set; }
 		/// <summary>スワイプ範囲の2乗</summary>
-		float _swipeSqrRange { get; set; }
+		[SMShow] public float _swipeSqrRange	{ get; private set; }
 
-		/// <summary>マウス位置</summary>
-		public Vector2 _mousePosition	{ get; private set; }
 		/// <summary>軸の一覧</summary>
-		readonly Dictionary<SMInputAxis, Vector2> _axes = EnumUtils.GetValues<SMInputAxis>()
-			.ToDictionary( e => e, e => Vector2.zero );
-
-		/// <summary>入力中か？の一覧</summary>
-		readonly Dictionary<SMInputEvent, bool> _isPressKeys = EnumUtils.GetValues<SMInputEvent>()
-			.ToDictionary( e => e, e => false );
-		/// <summary>押下中イベントの一覧</summary>
-		readonly Dictionary<SMInputEvent, SMSubject> _pressEvents = EnumUtils.GetValues<SMInputEvent>()
-			.ToDictionary( e => e, e => new SMSubject() );
-
+		[SMShow] readonly Dictionary<SMInputAxis, SMAxisInputData> _axisDatas
+			= new Dictionary<SMInputAxis, SMAxisInputData>();
+		/// <summary>キー押下秒数の一覧</summary>
+		[SMShow] readonly Dictionary<SMInputKey, SMKeyInputData> _keyDatas
+			= new Dictionary<SMInputKey, SMKeyInputData>();
 		/// <summary>スワイプ状態</summary>
-		SMInputSwipe _swipe { get; set; } = SMInputSwipe.None;
-		/// <summary>スワイプイベント</summary>
-		public readonly ReactiveProperty<SMInputSwipe> _swipeEvent = new ReactiveProperty<SMInputSwipe>();
+		[SMShow] public SMInputSwipe _swipe	{ get; private set; } = SMInputSwipe.None;
+		/// <summary>スワイプ時イベントの一覧</summary>
+		[SMShow] readonly Dictionary<SMInputSwipe, SMSwipeInputData> _swipeDatas
+			= new Dictionary<SMInputSwipe, SMSwipeInputData>();
+		///------------------------------------------------------------------------------------------------
+		/// ● 取得
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 軸を取得
+		/// </summary>
+		public Vector2 GetAxis( SMInputAxis axis )
+			=> _axisDatas[axis]._axis;
+
+		/// <summary>
+		/// ● キーを取得
+		/// </summary>
+		public SMKeyInputData GetKey( SMInputKey key )
+			=> _keyDatas[key];
+
+		/// <summary>
+		/// ● スワイプを取得
+		/// </summary>
+		public SMSwipeInputData GetSwipe( SMInputSwipe swipe )
+			=> _swipeDatas[swipe];
 		///------------------------------------------------------------------------------------------------
 		/// ● 生成、削除
 		///------------------------------------------------------------------------------------------------
@@ -62,16 +72,14 @@ namespace SubmarineMirage.Setting {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMInputManager() {
-			_disposables.AddLast( () => {
-				_mousePosition = Vector2.zero;
-				_axes.Clear();
-
-				_isPressKeys.Clear();
-				_pressEvents.ForEach( pair => pair.Value.Dispose() );
-				_pressEvents.Clear();
-
+			_disposables.AddFirst( () => {
+				_axisDatas.ForEach( pair => pair.Value.Dispose() );
+				_axisDatas.Clear();
+				_keyDatas.ForEach( pair => pair.Value.Dispose() );
+				_keyDatas.Clear();
 				_swipe = SMInputSwipe.None;
-				_swipeEvent.Dispose();
+				_swipeDatas.ForEach( pair => pair.Value.Dispose() );
+				_swipeDatas.Clear();
 
 				_timeManager = null;
 			} );
@@ -86,70 +94,81 @@ namespace SubmarineMirage.Setting {
 			SetUnityInput();
 			SetMoveRange();
 			SetPressNothing();
-			SetLongPressNothing();
 			SetSwipeInput();
-			RegisterEventForAnyOperation();
-			RegisterEventForDebug();
-
-			_isPressKeys
-				.Where( pair => pair.Value )
-				.ForEach
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● イベント関数登録（Unity入力）
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		void SetUnityInput() {
-			// 軸名一覧を作成
-			var axisNames = new Dictionary<SMInputAxis, string[]> {
-				{
-					SMInputAxis.Move,
-					new string[] { Get( SMInputName.MoveAxisX ), Get( SMInputName.MoveAxisY ) }
-				}, {
-					SMInputAxis.Rotate,
-					new string[] { Get( SMInputName.RotateAxisX ), Get( SMInputName.RotateAxisY ) }
-#if DEVELOP
-				}, {
-					SMInputAxis.Debug,
-					new string[] { Get( SMInputName.DebugAxisX ), Get( SMInputName.DebugAxisY ) }
-#endif
-				},
-			};
-			// イベント名一覧を作成
-			var keyNames = new Dictionary<SMInputEvent, string> {
-				{ SMInputEvent.Decide,		Get( SMInputName.Decide ) },
-				{ SMInputEvent.Quit,		Get( SMInputName.Quit ) },
-				{ SMInputEvent.Reset,		Get( SMInputName.Reset ) },
-#if DEVELOP
-				{ SMInputEvent.DebugView,	Get( SMInputName.DebugView ) },
-#endif
-			};
+			SetAnyOperation();
+			SetDebug();
 
 			// ● 更新
 			_updateEvent.AddLast().Subscribe( _ => {
-				// マウス位置を設定
-				_mousePosition = Input.mousePosition;
-
-				// 各種軸を設定
-				axisNames.ForEach( pair => {
-					var axis = new Vector2(
-						Input.GetAxis( pair.Value[0] ),
-						Input.GetAxis( pair.Value[1] )
-					);
-					if ( axis.magnitude > 1 )	{ axis.Normalize(); }
-					_axes[pair.Key] = axis;
-				} );
-
-				// 各種キーを設定
-				keyNames.ForEach( pair => {
-					_isPressKeys[pair.Key] = Input.GetButton( pair.Value );
-				} );
+				_axisDatas.ForEach( pair => pair.Value.Update() );
+				_keyDatas.ForEach( pair => pair.Value.Update() );
+				_swipeDatas.ForEach( pair => pair.Value.Update() );
 			} );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● イベント関数登録（移動範囲）
+		/// ● Unity入力を設定
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		void SetUnityInput() {
+			// 軸を設定
+			Vector2 GetAxis( SMInputName xType, SMInputName yType ) {
+				var axis = new Vector2(
+					Input.GetAxis( Get( xType ) ),
+					Input.GetAxis( Get( yType ) )
+				);
+				if ( axis.magnitude > 1 )	{ axis.Normalize(); }
+				return axis;
+			}
+
+			_axisDatas[SMInputAxis.Move] = new SMAxisInputData(
+				SMInputAxis.Move,
+				() => GetAxis( SMInputName.MoveAxisX, SMInputName.MoveAxisY )
+			);
+			_axisDatas[SMInputAxis.Rotate] = new SMAxisInputData(
+				SMInputAxis.Rotate,
+				() => GetAxis( SMInputName.RotateAxisX, SMInputName.RotateAxisY )
+			);
+			_axisDatas[SMInputAxis.Mouse] = new SMAxisInputData(
+				SMInputAxis.Mouse,
+				() => Input.mousePosition
+			);
+			if ( SMDebugManager.IS_DEVELOP ) {
+				_axisDatas[SMInputAxis.Debug] = new SMAxisInputData(
+					SMInputAxis.Debug,
+					() => GetAxis( SMInputName.DebugAxisX, SMInputName.DebugAxisY )
+				);
+			}
+
+
+			// キーを設定
+			bool IsCheckEnable( SMInputName type )
+				=> Input.GetButton( Get( type ) );
+
+			_keyDatas[SMInputKey.Decide] = new SMKeyInputData(
+				SMInputKey.Decide,
+				() => IsCheckEnable( SMInputName.Decide )
+			);
+			_keyDatas[SMInputKey.Quit] = new SMKeyInputData(
+				SMInputKey.Quit,
+				() => IsCheckEnable( SMInputName.Quit )
+			);
+			_keyDatas[SMInputKey.Reset] = new SMKeyInputData(
+				SMInputKey.Reset,
+				() => IsCheckEnable( SMInputName.Reset )
+			);
+			_keyDatas[SMInputKey.Finger1] = new SMKeyInputData(
+				SMInputKey.Finger1,
+				() => Input.GetMouseButton( 0 )
+			);
+			_keyDatas[SMInputKey.Finger2] = new SMKeyInputData(
+				SMInputKey.Finger2,
+				() => Input.GetMouseButton( 1 )
+			);
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 移動範囲を設定
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		void SetMoveRange() {
@@ -169,263 +188,196 @@ namespace SubmarineMirage.Setting {
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● イベント関数登録（無押下継続）
+		/// ● 無の押下を設定
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		void SetPressNothing() {
-			// ● 更新
-			_updateEvent.AddLast().Subscribe( _ => {
-				// 決定キーが押されてない場合
-				if ( !IsPressEvent( SMInputEvent.Decide ).Value ) {
-					_pressEvents[SMInputEvent.Nothing].Value = false;
-					return;
+			// 無の押下を設定
+			_keyDatas[SMInputKey.Nothing] = new SMKeyInputData(
+				SMInputKey.Nothing,
+				() => {
+					// 決定キーが未押下の場合
+					if ( !GetKey( SMInputKey.Decide )._isEnabling )	{ return false; }
+					// イベントシステムが存在しない場合
+					if ( EventSystem.current == null )				{ return true; }
+
+					// イベントシステムから光線を飛ばす
+					var pointer = new PointerEventData( EventSystem.current ) {
+						position = GetAxis( SMInputAxis.Mouse )
+					};
+					var result = new List<RaycastResult>();
+					EventSystem.current.RaycastAll( pointer, result );
+					// UIに触れていないかで判定
+					return result.IsEmpty();
 				}
-
-				// イベントシステムから光線を飛ばす
-				var pointer = new PointerEventData( EventSystem.current ) {
-					position = _mousePosition
-				};
-				var result = new List<RaycastResult>();
-				EventSystem.current.RaycastAll( pointer, result );
-				// UIに触れていないかで判定
-				_pressEvents[SMInputEvent.Nothing].Value = result.IsEmpty();
-			} );
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● イベント関数登録（無押下長継続）
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		void SetLongPressNothing() {
-			// 押下位置を設定
-			var clickPosition = Vector2.zero;
-			GetPressedEvent( SMInputEvent.Nothing )
-				// 押下時にマウス位置を設定
-				.Subscribe( _ => clickPosition = _mousePosition );
+			);
 
 
-			// 無を長押ししてるか判定
+			// 無の長押下を設定
 			const float LONG_NOTHING_SECOND = 1;
+			var clickPosition = Vector2.zero;
 			var seconds = 0f;
 
-			// ● 更新
-			_updateEvent.AddLast().Subscribe( _ => {
-				// 無を押下中で、押下中で、指不動の場合
-				if (	IsPressEvent( SMInputEvent.Nothing ).Value &&
-						clickPosition != Vector2.zero &&
-						( _mousePosition - clickPosition ).sqrMagnitude < _noMoveSqrRange
-				) {
-					seconds = Mathf.Min( seconds + _timeManager._unscaledDeltaTime, LONG_NOTHING_SECOND );
-				} else {
-					clickPosition = Vector2.zero;
-					seconds = 0;
-				}
+			_keyDatas[SMInputKey.LongNothing] = new SMKeyInputData(
+				SMInputKey.LongNothing,
+				() => {
+					var key = GetKey( SMInputKey.Nothing );
 
-				// 蓄積秒から、長押し判定
-				_pressEvents[SMInputEvent.LongNothing].Value = seconds >= LONG_NOTHING_SECOND;
-			} );
+					// 押下時にマウス位置を設定
+					if ( key._isEnabled ) {
+						clickPosition = GetAxis( SMInputAxis.Mouse );
+					}
+
+					// 無を押下中で、指不動の場合
+					if (	key._isEnabling &&
+							clickPosition != Vector2.zero &&
+							( GetAxis( SMInputAxis.Mouse ) - clickPosition ).sqrMagnitude < _noMoveSqrRange
+					) {
+						seconds = Mathf.Min( seconds + _timeManager._unscaledDeltaTime, LONG_NOTHING_SECOND );
+					} else {
+						seconds = 0;
+						clickPosition = Vector2.zero;
+					}
+
+					// 蓄積秒から、長押し判定
+					return seconds >= LONG_NOTHING_SECOND;
+				}
+			);
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● イベント関数登録（スワイプ）
+		/// ● スワイプ入力を設定
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		void SetSwipeInput() {
 			// スワイプ開始時の位置を設定
-			var clickPosition = Vector2.zero;
 			const float CHECK_CLICK_SECOND = 1;
+			var clickPosition = Vector2.zero;
+			var seconds = 0f;
+			var lastSwipe = _swipe;
 
 			// ● 更新
-			_updateEvent.AddLast()
-				// 押下中かに変換
-				.Select( _ => Input.GetMouseButton( 0 ) )
+			_updateEvent.AddLast().Subscribe( _ => {
+				lastSwipe = _swipe;
+				var key = GetKey( SMInputKey.Finger1 );
+
 				// 押下時に、押下位置を設定
-				.Scan( ( last, current ) => {
-					if ( !last && current )	{ clickPosition = _mousePosition; }
-					return current;
-				} )
-				// 現在秒に変換
-				.Select( is_ => is_ ? TimeManager.s_instance._unscaledDeltaTime : -1 )
-				// 現在秒と合計秒から、蓄積秒を設定
-				.Scan( ( total, current ) =>
-					current != -1	? Mathf.Min( total + current, CHECK_CLICK_SECOND )
+				if ( key._isEnabled ) {
+					clickPosition = GetAxis( SMInputAxis.Mouse );
+				}
+				seconds = (
+					key._isEnabling ? Mathf.Min( seconds + _timeManager._unscaledDeltaTime, CHECK_CLICK_SECOND )
 									: 0
-				)
-				// 1秒以上経過した場合
-				.Where( time => time >= CHECK_CLICK_SECOND )
-				// 押下位置をリセット
-				.Subscribe( _ => clickPosition = Vector2.zero );
+				);
+				if ( seconds >= CHECK_CLICK_SECOND ) {
+					clickPosition = Vector2.zero;
+				}
 
+				// マウス押下中で一定以上移動した場合、移動差を返す
+				if ( key._isEnabling && clickPosition != Vector2.zero ) {
+					var delta = GetAxis( SMInputAxis.Mouse ) - clickPosition;
+					if ( delta.sqrMagnitude > _swipeSqrRange ) {
+						clickPosition = Vector2.zero;
 
-			// スワイプ状態を設定
-			// ● 更新
-			_updateEvent
-				// マウス押下中で、押下位置が設定中の場合
-				.Select( _ => Input.GetMouseButton( 0 ) && clickPosition != Vector2.zero )
-				// 押下状態を指移動位置に変換
-				.Select( is_ => {
-					// マウス押下中で一定以上移動した場合、移動差を返す
-					if ( is_ ) {
-						var delta = _mousePosition - clickPosition;
-						if ( delta.sqrMagnitude > _swipeSqrRange ) {
-							clickPosition = Vector2.zero;
-							return delta;
-						}
+						// 移動差から角度を求め、0～360度に補正する
+						var angle = Mathf.Atan2( delta.x, delta.y ) * Mathf.Rad2Deg;
+						if ( angle < 0 )	{ angle += 360; }
+
+						// スワイプ方向を求める
+						if		(	( 337.5	< angle && angle <= 360 ) ||
+									( 0		<= angle && angle < 22.5 ) )	{ _swipe = SMInputSwipe.Up; }
+						else if		( 22.5	< angle && angle < 67.5 )		{ _swipe = SMInputSwipe.UpperRight; }
+						else if		( 67.5	< angle && angle < 112.5 )		{ _swipe = SMInputSwipe.Right; }
+						else if		( 112.5	< angle && angle < 157.5 )		{ _swipe = SMInputSwipe.DownerRight; }
+						else if		( 157.5	< angle && angle < 202.5 )		{ _swipe = SMInputSwipe.Down; }
+						else if		( 202.5	< angle && angle < 247.5 )		{ _swipe = SMInputSwipe.DownerLeft; }
+						else if		( 247.5	< angle && angle < 292.5 )		{ _swipe = SMInputSwipe.Left; }
+						else if		( 292.5	< angle && angle < 337.5 )		{ _swipe = SMInputSwipe.UpperLeft; }
+						return;
 					}
-					return Vector2.zero;
-				} )
-				// 移動差から、角度に変換
-				.Select( delta => {
-					// 無移動の場合、有り得ない角度を返す
-					if ( delta == Vector2.zero )	{ return -1; }
-					// 移動差から角度を求め、0～360度に補正する
-					var angle = Mathf.Atan2( delta.x, delta.y ) * Mathf.Rad2Deg;
-					if ( angle < 0 )	{ angle += 360; }
-					return angle;
-				} )
-				// 角度から、スワイプ状態に変換
-				.Select( angle => {
-					// NONEの率が高いので、先に判定して処理負荷軽減
-					if			( angle == -1 )							{ return SMInputSwipe.None; }
-					else if (	( 337.5	< angle && angle <= 360 ) ||
-								( 0		<= angle && angle < 22.5 ) )	{ return SMInputSwipe.Up; }
-					else if		( 22.5	< angle && angle < 67.5 )		{ return SMInputSwipe.UpperRight; }
-					else if		( 67.5	< angle && angle < 112.5 )		{ return SMInputSwipe.Right; }
-					else if		( 112.5	< angle && angle < 157.5 )		{ return SMInputSwipe.DownerRight; }
-					else if		( 157.5	< angle && angle < 202.5 )		{ return SMInputSwipe.Down; }
-					else if		( 202.5	< angle && angle < 247.5 )		{ return SMInputSwipe.DownerLeft; }
-					else if		( 247.5	< angle && angle < 292.5 )		{ return SMInputSwipe.Left; }
-					else if		( 292.5	< angle && angle < 337.5 )		{ return SMInputSwipe.UpperLeft; }
-					// 何か返さないとエラーになるので、とりあえず適当に返す
-					return SMInputSwipe.None;
-				} )
-				// スワイプ状態を適用
-				.Subscribe( state => _swipe.Value = state );
+				}
+
+				// 無移動の場合
+				_swipe = SMInputSwipe.None;
+			} );
 
 
-			// デバッグ表示キーを設定
-			// 上スワイプした場合
-			GetPressedSwipe( SMInputSwipe.Up )
-				// デバッグ表示キーが未押下の場合のみ、判定
-				.Where( _ => !IsPressEvent( SMInputEvent.DebugView ).Value )
-				// 2本指タッチ中かに変換
-				.Select( _ =>
-					// マウスの場合、左右キー押下中の場合
-					( Input.GetMouseButton( 0 ) && Input.GetMouseButton( 1 ) ) ||
-					Input.touchCount >= 2
-				)
-				// デバッグ表示キーに適用
-				.Subscribe( is_ => _pressEvents[SMInputEvent.DebugView].Value = is_ );
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● イベント関数登録（何か操作）
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		void RegisterEventForAnyOperation() {
-			// 軸一覧を作成
-			var axes = EnumUtils.GetValues<SMInputAxis>();
-			// イベント一覧を作成
-			var events = EnumUtils.GetValues<SMInputEvent>()
-				.Where( event_ => event_ != SMInputEvent.AnyOperation )
-				.ToArray();
-
-			// ● 更新
-			_updateEvent.Subscribe( _ => {
-				// 何か操作したか判定
-				_pressEvents[SMInputEvent.AnyOperation].Value =
-					// 軸入力があるか
-					axes.Any( axis => GetAxis( axis ) != Vector2.zero ) ||
-					// キー入力があるか
-					events.Any( event_ => IsPressEvent( event_ ).Value ) ||
-					// スワイプしたか？
-					_swipe.Value != SMInputSwipe.None;
+			// 各種スワイプ情報を設定
+			EnumUtils.GetValues<SMInputSwipe>().ForEach( e => {
+				_swipeDatas[e] = new SMSwipeInputData(
+					e,
+					() => e == _swipe && ( _swipe != SMInputSwipe.None || _swipe != lastSwipe )
+				);
 			} );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● イベント関数登録（デバッグ）
+		/// ● 何らかの操作を設定
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		void RegisterEventForDebug() {
-#if false
-			if ( !SMDebugManager.IS_DEVELOP ) { return; }
+		void SetAnyOperation() {
+			// 何らかの操作をしたか判定
+			_keyDatas[SMInputKey.AnyOperation] = new SMKeyInputData(
+				SMInputKey.AnyOperation,
+				() => (
+					// マウス以外で、軸入力があるか？
+					_axisDatas
+						.Select( pair => pair.Value )
+						.Where( data => data._type != SMInputAxis.Mouse )
+						.Any( data => data._axis != Vector2.zero ) ||
+					// 何らかの操作以外で、キー入力があるか？
+					_keyDatas
+						.Select( pair => pair.Value )
+						.Where( data => data._type != SMInputKey.AnyOperation )
+						.Any( data => data._isEnabling ) ||
+					// スワイプしたか？
+					_swipe != SMInputSwipe.None
+				)
+			);
+		}
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● デバッグを設定
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		void SetDebug() {
+			if ( !SMDebugManager.IS_DEVELOP )	{ return; }
+
+			// デバッグキーを設定
+			_keyDatas[SMInputKey.Debug] = new SMKeyInputData(
+				SMInputKey.Debug,
+				() => {
+					// デバッグキーが押されている場合
+					if ( Input.GetButton( Get( SMInputName.Debug ) ) ) {
+						return true;
+					}
+
+					// マウス左右キー押下中か、2本指でタッチ中で、上スワイプした場合
+					var isMouse = (
+						GetKey( SMInputKey.Finger1 )._isEnabling &&
+						GetKey( SMInputKey.Finger2 )._isEnabling
+					);
+					var isTouch = Input.touchCount >= 2;
+					return ( isMouse || isTouch ) && GetSwipe( SMInputSwipe.Up )._isEnabled;
+				}
+			);
 
 			var displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
+#if false
 			var dataManager = SMServiceLocator.Resolve<AllDataManager>();
-
-			// デバッグ表示キー押下の場合
-			GetPressedEvent( Event.DebugView ).Subscribe( _ => {
+#endif
+			// デバッグキー押下の場合
+			GetKey( SMInputKey.Debug )._enabledEvent.AddLast().Subscribe( _ => {
+#if false
 				// 設定を保存
 				var setting = AllDataManager.s_instance._save._setting;
 				setting._data._isViewDebug = !setting._data._isViewDebug;
 				setting.Save().Forget();
-
 				// 描画切り替え
 				displayLog._isDraw = setting._data._isViewDebug;
-			} );
 #endif
-		}
-		///------------------------------------------------------------------------------------------------
-		/// ● 取得
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 取得（軸）
-		/// </summary>
-		public Vector2 GetAxis( SMInputAxis axis )
-			=> _axes[axis];
-
-		/// <summary>
-		/// ● 取得（押状態変更イベント関数）
-		///		UniRxのReactivePropertyの仕様により、同値では通知されず、別値じゃないと通知されない。
-		/// </summary>
-		public ReactiveProperty<bool> IsPressEvent( SMInputEvent @event )
-			=> _pressEvents[@event];
-
-		/// <summary>
-		/// ● 取得（押下中イベント関数）
-		/// </summary>
-		public IObservable<Unit> GetPressEvent( SMInputEvent @event )
-			=> _updateEvent.AddLast()
-				.Select( _ => _pressEvents[@event].Value )
-				.Where( @is => @is )
-				.Select( _ => Unit.Default );
-
-		/// <summary>
-		/// ● 取得（押下時イベント関数）
-		/// </summary>
-		public IObservable<Unit> GetPressedEvent( SMInputEvent @event )
-			=> _pressEvents[@event]
-				.Where( @is => @is )
-				.Select( _ => Unit.Default );
-
-		/// <summary>
-		/// ● 取得（押上時イベント関数）
-		/// </summary>
-		public IObservable<Unit> GetPressUpEvent( SMInputEvent @event )
-			=> _pressEvents[@event]
-				.Where( @is => !@is )
-				.Select( _ => Unit.Default );
-
-		/// <summary>
-		/// ● 取得（押下時スワイプ）
-		/// </summary>
-		public IObservable<Unit> GetPressedSwipe( SMInputSwipe target )
-			=> _swipe
-				.Where( state => state == target )
-				.Select( _ => Unit.Default );
-
-		/// <summary>
-		/// ● 取得（押下中のキー一覧）
-		/// </summary>
-		IEnumerable<KeyCode> GetDownKeys() {
-			if ( !Input.anyKeyDown ) { yield break; }
-
-			foreach ( var key in EnumUtils.GetValues<KeyCode>() ) {
-				if ( Input.GetKeyDown( key ) ) {
-					yield return key;
-				}
-			}
+				displayLog._isDraw = !displayLog._isDraw;
+			} );
 		}
 	}
 }

@@ -8,7 +8,7 @@ namespace SubmarineMirage.Setting {
 
 
 
-	/// <summary>入力のスワイプ状態</summary>
+	/// <summary>入力のスワイプ定数</summary>
 	// キーパッド数字と方向を対応定義
 	public enum SMInputSwipe {
 		/// <summary>左下にスワイプ</summary>
