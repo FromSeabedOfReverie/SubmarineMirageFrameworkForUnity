@@ -17,11 +17,6 @@ namespace SubmarineMirage.EditorExtension {
 
 
 
-		public virtual string AddToString( int indent )
-			=> string.Empty;
-
-
-
 		protected virtual void Awake() {
 			_id = SMIDCounter.GetNewID( this );
 		}
@@ -38,5 +33,8 @@ namespace SubmarineMirage.EditorExtension {
 			=> this.ToShowString( indent, false, false, isUseHeadIndent );
 
 		public virtual string ToLineString( int indent = 0 ) => ObjectSMExtension.ToLineString( this, indent );
+
+		public virtual string AddToString( int indent )
+			=> string.Empty;
 	}
 }
