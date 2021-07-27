@@ -4,13 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Debug {
-	using Cysharp.Threading.Tasks;
-	using Service;
-
-
-
-	public interface IBaseSMTest : ISMService {
-		UniTask Initialize();
+namespace SubmarineMirage.Data {
+	using Base;
+	///====================================================================================================
+	/// <summary>
+	/// ■ Unity物の生情報クラス
+	/// </summary>
+	///====================================================================================================
+	public abstract class BaseSMUnityRawData : SMLightBase, ISMSerializeData {
 	}
 }

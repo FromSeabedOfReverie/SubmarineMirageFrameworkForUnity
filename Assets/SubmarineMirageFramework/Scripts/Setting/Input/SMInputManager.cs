@@ -20,7 +20,7 @@ namespace SubmarineMirage.Setting {
 	/// ■ 入力の管理クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMInputManager : SMUnityName<SMInputName>, ISMService {
+	public class SMInputManager : SMUnityName<SMInputName> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
@@ -45,6 +45,20 @@ namespace SubmarineMirage.Setting {
 		/// <summary>スワイプ時イベントの一覧</summary>
 		[SMShow] readonly Dictionary<SMInputSwipe, SMSwipeInputData> _swipeDatas
 			= new Dictionary<SMInputSwipe, SMSwipeInputData>();
+#region ToString
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 文章変換を設定
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetValue( nameof( _axisDatas ), i => _toStringer.DefaultValue( _axisDatas, i, true ) );
+			_toStringer.SetValue( nameof( _keyDatas ), i => _toStringer.DefaultValue( _keyDatas, i, true ) );
+			_toStringer.SetValue( nameof( _swipeDatas ), i => _toStringer.DefaultValue( _swipeDatas, i, true ) );
+		}
+#endregion
 		///------------------------------------------------------------------------------------------------
 		/// ● 取得
 		///------------------------------------------------------------------------------------------------
@@ -91,6 +105,7 @@ namespace SubmarineMirage.Setting {
 		public override void Create() {
 			_timeManager = SMServiceLocator.Resolve<SMTimeManager>();
 
+// TODO : Set関連をSettingDataに分離し、InputManagerやInputData系はUtility内に置く
 			SetUnityInput();
 			SetMoveRange();
 			SetPressNothing();

@@ -9,6 +9,7 @@ namespace SubmarineMirage.Extension {
 	using System.Linq;
 	using System.Collections;
 	using System.Collections.Generic;
+	using UnityEngine;
 	using KoganeUnityLib;
 	using Base;
 	using Utility;
@@ -92,6 +93,11 @@ namespace SubmarineMirage.Extension {
 				case string s:
 					return $"{hPrefix}{self}";
 
+				case Vector2 v2:		return $"{hPrefix}{nameof( Vector2 )}( {v2.x:F3}, {v2.y:F3} )";
+				case Vector2Int v2i:	return $"{hPrefix}{nameof( Vector2Int )}( {v2i.x}, {v2i.y} )";
+				case Vector3 v3:		return $"{hPrefix}{nameof( Vector3 )}( {v3.x:F3}, {v3.y:F3}, {v3.z:F3} )";
+				case Vector3Int v3i:	return $"{hPrefix}{nameof( Vector3Int )}( {v3i.x}, {v3i.y}, {v3i.z} )";
+
 				case IEnumerable enumerable:
 					indent++;
 					var ss = string.Join( ",\n", enumerable.SelectRaw( o =>
@@ -166,6 +172,11 @@ namespace SubmarineMirage.Extension {
 				case Enum e:
 				case string s:
 					return $"{prefix}{self}";
+
+				case Vector2 v2:		return $"{prefix}{v2.x:F3},{v2.y:F3}";
+				case Vector2Int v2i:	return $"{prefix}{v2i.x},{v2i.y}";
+				case Vector3 v3:		return $"{prefix}{v3.x:F3},{v3.y:F3},{v3.z:F3}";
+				case Vector3Int v3i:	return $"{prefix}{v3i.x},{v3i.y},{v3i.z}";
 
 				case IEnumerable enumerable:
 					return prefix + string.Join( ",", enumerable.SelectRaw( o =>

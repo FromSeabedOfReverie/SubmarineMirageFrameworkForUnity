@@ -4,53 +4,39 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
-	using System;
-	using Base;
-	using Event;
-	using Debug;
+namespace SubmarineMirage.Extension {
+	using UnityEngine;
+	using Data;
 	///====================================================================================================
 	/// <summary>
-	/// ■ スワイプ入力の情報クラス
+	/// ■ 2次元テクスチャの拡張クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMSwipeInputData : SMStandardBase {
+	public static class Texture2DSMExtension {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>入力の型</summary>
-		[SMShowLine] public readonly SMInputSwipe _type;
-
-		/// <summary>有効時か？</summary>
-		[SMShowLine] public bool _isEnabled	{ get; private set; }
-		/// <summary>有効時か？判定イベント</summary>
-		Func<bool> _isCheckEnabledEvent	{ get; set; }
-		/// <summary>有効時イベント</summary>
-		public readonly SMSubject _enabledEvent = new SMSubject();
-		///------------------------------------------------------------------------------------------------
-		/// ● 生成、削除
+		/// <summary>基本のスプライト中心</summary>
+		static readonly Vector2 DEFAULT_SPRITE_PIVOT = new Vector2( 0.5f, 0.5f );
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● コンストラクタ
+		/// ● スプライトに変換
 		/// </summary>
-		public SMSwipeInputData( SMInputSwipe type, Func<bool> isCheckEnabledEvent ) {
-			_type = type;
-			_isCheckEnabledEvent = isCheckEnabledEvent;
-
-			_disposables.AddFirst( () => {
-				_isEnabled = false;
-				_isCheckEnabledEvent = null;
-				_enabledEvent.Dispose();
-			} );
-		}
+		///------------------------------------------------------------------------------------------------
+		public static Sprite ToSprite( this Texture2D texture, Vector2? pivot = null )
+			=> Sprite.Create(
+				texture,
+				new Rect( 0, 0, texture.width, texture.height ),
+				pivot.HasValue ? pivot.Value : DEFAULT_SPRITE_PIVOT
+			);
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 更新
+		/// ● 生情報に変換
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public void Update() {
-			_isEnabled = _isCheckEnabledEvent();
-			if ( _isEnabled )	{ _enabledEvent.Run(); }
-		}
+		public static SMTextureRawData ToRawData( this Texture2D texture,
+													SMTextureRawData.Type type = SMTextureRawData.Type.PNG,
+													int? encodeOption = null
+		) => new SMTextureRawData( texture, type, encodeOption );
 	}
 }

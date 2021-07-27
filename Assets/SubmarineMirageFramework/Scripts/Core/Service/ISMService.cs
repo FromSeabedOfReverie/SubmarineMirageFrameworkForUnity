@@ -5,10 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Service {
-	using System;
+	using Base;
 
 
 
-	public interface ISMService : IDisposable {
+	public interface ISMService : IBaseSM {
 	}
 }

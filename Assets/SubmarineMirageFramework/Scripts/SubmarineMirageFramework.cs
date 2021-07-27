@@ -12,6 +12,7 @@ namespace SubmarineMirage {
 	using Base;
 	using Service;
 	using Task;
+	using File;
 	using Extension;
 	using Utility;
 	using Setting;
@@ -81,11 +82,13 @@ namespace SubmarineMirage {
 			SMServiceLocator.Register( new SMDecorationManager() );
 			SMServiceLocator.Register( new SMDebugManager() );
 			SMServiceLocator.Register( new SMDisplayLog() );
+			SMServiceLocator.Register( new SMFileManager() );
 			SMServiceLocator.Register( new SMCoroutineManager() );
 			SMServiceLocator.Register( new SMInputManager() );
 			SMServiceLocator.Register( new SMUnityTagManager() ) ;
 			SMServiceLocator.Register( new SMUnityLayerManager() );
 			SMServiceLocator.Register( new SMTimeManager() );
+			SMServiceLocator.Register( new SMNetworkManager() );
 
 			await registerSettingsEvent();
 

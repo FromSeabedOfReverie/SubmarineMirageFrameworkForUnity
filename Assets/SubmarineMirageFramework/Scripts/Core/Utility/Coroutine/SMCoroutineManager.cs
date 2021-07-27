@@ -13,6 +13,11 @@ namespace SubmarineMirage.Utility {
 	using Task;
 	using Debug;
 	using Extension;
+
+
+// TODO : コルーチンをデバッグする
+
+
 	///====================================================================================================
 	/// <summary>
 	/// ■ コルーチンの管理クラス
@@ -28,6 +33,18 @@ namespace SubmarineMirage.Utility {
 
 		/// <summary>全コルーチン処理一覧</summary>
 		[SMShow] readonly LinkedList<SMCoroutine> _coroutines = new LinkedList<SMCoroutine>();
+#region ToString
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 文章変換を設定
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetValue( nameof( _coroutines ), i => _toStringer.DefaultValue( _coroutines, i, true ) );
+		}
+#endregion
 		///------------------------------------------------------------------------------------------------
 		/// 生成
 		///------------------------------------------------------------------------------------------------

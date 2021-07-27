@@ -4,53 +4,61 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
-	using System;
+namespace SubmarineMirage.Data {
+	using Cysharp.Threading.Tasks;
 	using Base;
-	using Event;
-	using Debug;
+	using Utility;
 	///====================================================================================================
 	/// <summary>
-	/// ■ スワイプ入力の情報クラス
+	/// ■ 情報の基盤クラス
+	///		各種情報クラスは、このクラスを継承する。
 	/// </summary>
 	///====================================================================================================
-	public class SMSwipeInputData : SMStandardBase {
+	public abstract class BaseSMData : SMLightBase, ISMSerializeData {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>入力の型</summary>
-		[SMShowLine] public readonly SMInputSwipe _type;
+		public bool _isDispose	{ get; private set; }
 
-		/// <summary>有効時か？</summary>
-		[SMShowLine] public bool _isEnabled	{ get; private set; }
-		/// <summary>有効時か？判定イベント</summary>
-		Func<bool> _isCheckEnabledEvent	{ get; set; }
-		/// <summary>有効時イベント</summary>
-		public readonly SMSubject _enabledEvent = new SMSubject();
 		///------------------------------------------------------------------------------------------------
-		/// ● 生成、削除
+		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public SMSwipeInputData( SMInputSwipe type, Func<bool> isCheckEnabledEvent ) {
-			_type = type;
-			_isCheckEnabledEvent = isCheckEnabledEvent;
-
-			_disposables.AddFirst( () => {
-				_isEnabled = false;
-				_isCheckEnabledEvent = null;
-				_enabledEvent.Dispose();
-			} );
+		public BaseSMData() {
 		}
+
+		/// <summary>
+		/// ● 解放
+		/// </summary>
+		public override void Dispose() {
+			if ( _isDispose )	{ return; }
+			_isDispose = true;
+
+			DisposeSub();
+		}
+
+		/// <summary>
+		/// ● 解放（補助）
+		/// </summary>
+		protected virtual void DisposeSub() {
+
+		}
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 読み書き
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 更新
+		/// ● 読込
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public void Update() {
-			_isEnabled = _isCheckEnabledEvent();
-			if ( _isEnabled )	{ _enabledEvent.Run(); }
-		}
+		public virtual UniTask Load()
+			=> UTask.DontWait();
+
+		/// <summary>
+		/// ● 保存
+		/// </summary>
+		public virtual UniTask Save()
+			=> UTask.DontWait();
 	}
 }

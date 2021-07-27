@@ -4,53 +4,33 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
-	using System;
-	using Base;
-	using Event;
-	using Debug;
+namespace SubmarineMirage.Data {
+	using System.Collections.Generic;
 	///====================================================================================================
 	/// <summary>
-	/// ■ スワイプ入力の情報クラス
+	/// ■ CSV情報のクラス
+	///		CSVを利用する各種情報クラスは、このクラスを継承する。
 	/// </summary>
 	///====================================================================================================
-	public class SMSwipeInputData : SMStandardBase {
+	public abstract class SMCSVData<T> : BaseSMData {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>入力の型</summary>
-		[SMShowLine] public readonly SMInputSwipe _type;
+		/// <summary>辞書への登録鍵</summary>
+		public abstract T _registerKey	{ get; }
 
-		/// <summary>有効時か？</summary>
-		[SMShowLine] public bool _isEnabled	{ get; private set; }
-		/// <summary>有効時か？判定イベント</summary>
-		Func<bool> _isCheckEnabledEvent	{ get; set; }
-		/// <summary>有効時イベント</summary>
-		public readonly SMSubject _enabledEvent = new SMSubject();
 		///------------------------------------------------------------------------------------------------
-		/// ● 生成、削除
+		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public SMSwipeInputData( SMInputSwipe type, Func<bool> isCheckEnabledEvent ) {
-			_type = type;
-			_isCheckEnabledEvent = isCheckEnabledEvent;
+		public SMCSVData() {
+		}
 
-			_disposables.AddFirst( () => {
-				_isEnabled = false;
-				_isCheckEnabledEvent = null;
-				_enabledEvent.Dispose();
-			} );
-		}
-		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 更新
+		/// ● 設定
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public void Update() {
-			_isEnabled = _isCheckEnabledEvent();
-			if ( _isEnabled )	{ _enabledEvent.Run(); }
-		}
+		public abstract void Setup( string fileName, int index, List<string> texts );
 	}
 }
