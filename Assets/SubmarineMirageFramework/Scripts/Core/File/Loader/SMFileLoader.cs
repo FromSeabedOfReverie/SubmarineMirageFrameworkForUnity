@@ -13,6 +13,7 @@ namespace SubmarineMirage.File {
 	using Cysharp.Threading.Tasks;
 	using Service;
 	using Data;
+	using Data.Raw;
 	using Extension;
 	using Utility;
 	using Setting;
@@ -28,44 +29,27 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>書類の種類</summary>
-		public enum Type {
-			/// <summary>サーバー読み書き</summary>
-			Server,
-			/// <summary>アプリ外読み書き</summary>
-			External,
-			/// <summary>リソース読み書き</summary>
-			Resource,
-		}
-		/// <summary>情報の種類</summary>
-		public enum DataType {
-			/// <summary>テクスチャ画像</summary>
-			Texture,
-			/// <summary>スプライト画像</summary>
-			Sprite,
-			/// <summary>音</summary>
-			Audio,
-			/// <summary>シリアル化情報</summary>
-			Serialize,
-			/// <summary>文章</summary>
-			Text,
-			/// <summary>生情報（どれにも当て嵌まらない時用）</summary>
-			Raw,
-		}
-		/// <summary>無指定の場合、キャッシュを使うか？</summary>
-		const bool IS_DEFAULT_USE_CACHE = false;
+		SMAllDataManager _allDataManager	{ get; set; }
 
-		AllDataManager _allDataManager	{ get; set; }
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● コンストラクタ
+		/// </summary>
+		public SMFileLoader() {
+			_disposables.AddFirst( () => {
+				_allDataManager = null;
+			} );
+		}
+
 		/// <summary>
 		/// ● 設定
 		/// </summary>
 		public override void Setup( SMFileManager fileManager ) {
 			base.Setup( fileManager );
 
-			_allDataManager = SMServiceLocator.Resolve<AllDataManager>();
+			_allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
 		}
 		///------------------------------------------------------------------------------------------------
 		/// ● 読込
@@ -79,9 +63,9 @@ namespace SubmarineMirage.File {
 		/// </summary>
 		public async UniTask<T> LoadServer<T>( string url, AudioType audioType = AudioType.UNKNOWN ) {
 			// 階層を取得
-			var path = GetLoadPath( Type.Server, url );
+			var path = GetLoadPath( SMFileLocation.Server, url );
 			// 可能なら、キャッシュ読込
-			var data = await Load<T>( Type.Server, path, false,
+			var data = await Load<T>( SMFileLocation.Server, path, false,
 				// キャッシュ読込不可能の場合、ダウンロード要求
 				() => LoadRequest<T>( path, audioType )
 			);
@@ -89,7 +73,7 @@ namespace SubmarineMirage.File {
 			if ( data == null ) {
 				_errorCount--;	// 二重エラーを防止
 				// 強制キャッシュ読込
-				data = await Load<T>( Type.Server, path, true, async () => {
+				data = await Load<T>( SMFileLocation.Server, path, true, async () => {
 					// 強制キャッシュ読込失敗の場合、無取得
 					await UTask.DontWait();
 					return null;
@@ -103,13 +87,13 @@ namespace SubmarineMirage.File {
 		///		※拡張子を含む。
 		///		audioType : 音書類で拡張子が不明の場合、指定する。（MP3非対応）
 		/// </summary>
-		public async UniTask<T> LoadExternal<T>( string path, bool isUseCache = IS_DEFAULT_USE_CACHE,
+		public async UniTask<T> LoadExternal<T>( string path, bool isUseCache = SMMainSetting.IS_DEFAULT_USE_CACHE,
 													AudioType audioType = AudioType.UNKNOWN
 		) {
 			// 階層を取得
-			path = GetLoadPath( Type.External, path );
+			path = GetLoadPath( SMFileLocation.External, path );
 			// 共通読込
-			return await Load<T>( Type.External, path, isUseCache,
+			return await Load<T>( SMFileLocation.External, path, isUseCache,
 				// キャッシュに無い場合、読込要求
 				() => LoadRequest<T>( path, audioType )
 			);
@@ -119,13 +103,13 @@ namespace SubmarineMirage.File {
 		/// ● 読込（リソース）
 		///		※拡張子は含まない。
 		/// </summary>
-		public async UniTask<T> LoadResource<T>( string path, bool isUseCache = IS_DEFAULT_USE_CACHE )
+		public async UniTask<T> LoadResource<T>( string path, bool isUseCache = SMMainSetting.IS_DEFAULT_USE_CACHE )
 			where T : UnityEngine.Object
 		{
 			// 階層を取得
-			path = GetLoadPath( Type.Resource, path );
+			path = GetLoadPath( SMFileLocation.Resource, path );
 			// 共通読込
-			return await Load<T>( Type.Resource, path, isUseCache,
+			return await Load<T>( SMFileLocation.Resource, path, isUseCache,
 				// キャッシュに無い場合、リソース読込
 				async () => await Resources.LoadAsync<T>( path ).ToUniTask( _asyncCanceler )
 			);
@@ -136,15 +120,15 @@ namespace SubmarineMirage.File {
 		/// </summary>
 		async UniTask<object> LoadRequest<T>( string path, AudioType audioType = AudioType.UNKNOWN ) {
 			var request = UnityWebRequest.Get( path );
-			var dataType = GetDataType<T>();
+			var dataType = SMAllDataManager.GetDataType( typeof( T ) );
 			_downloadingCount++;
 			// 各型の配信取扱を作成
 			switch ( dataType ) {
-				case DataType.Texture:
-				case DataType.Sprite:
+				case SMDataType.Texture:
+				case SMDataType.Sprite:
 					request.downloadHandler = new DownloadHandlerTexture( true );
 					break;
-				case DataType.Audio:
+				case SMDataType.Audio:
 					request.downloadHandler = new DownloadHandlerAudioClip( path, audioType );
 					break;
 				default:
@@ -160,20 +144,20 @@ namespace SubmarineMirage.File {
 				object o = null;
 				// 各型に合わせた結果を取得
 				switch ( dataType ) {
-					case DataType.Texture:
+					case SMDataType.Texture:
 						o = ( request.downloadHandler as DownloadHandlerTexture ).texture;
 						break;
-					case DataType.Sprite:
+					case SMDataType.Sprite:
 						var texture = ( request.downloadHandler as DownloadHandlerTexture ).texture;
 						o = texture.ToSprite();
 						break;
-					case DataType.Audio:
+					case SMDataType.Audio:
 						o = ( request.downloadHandler as DownloadHandlerAudioClip ).audioClip;
 						break;
-					case DataType.Serialize:
+					case SMDataType.Serialize:
 						o = SerializerSMUtility.Deserialize<T>( request.downloadHandler.data );
 						break;
-					case DataType.Text:
+					case SMDataType.Text:
 						o = request.downloadHandler.text;
 						break;
 					default:
@@ -196,20 +180,22 @@ namespace SubmarineMirage.File {
 		/// <summary>
 		/// ● 読込
 		/// </summary>
-		async UniTask<T> Load<T>( Type type, string path, bool isUseCache, Func< UniTask<object> > loadEvent ) {
+		async UniTask<T> Load<T>( SMFileLocation location, string path, bool isUseCache,
+									Func< UniTask<object> > loadEvent
+		) {
 			try {
 				// キャッシュ使用の場合
-				isUseCache = IsCanUseCache( type, isUseCache );
+				isUseCache = IsCanUseCache( location, isUseCache );
 				if ( isUseCache ) {
 					// キャッシュ読込
-					var temp = _fileManager._cacheData.Get( path );
-					if ( temp != null ) {
+					var cache = _fileManager._tempCaches.Get( path );
+					if ( cache != null ) {
 						// 既に読込要求済の場合、読込まで待機（無登録中は、読込中フラグ）
-						await UTask.WaitUntil( _asyncCanceler, () => temp.Get() != null );
-						SMLog.Debug( $"キャッシュ読込成功 : {temp.Get()}\n{path}", SMLogTag.File );
-						return ( T )temp.Get();
+						await UTask.WaitWhile( _asyncCanceler, () => cache._data == null );
+						SMLog.Debug( $"キャッシュ読込成功 : {cache._data}\n{path}", SMLogTag.File );
+						return ( T )cache._data;
 					}
-					_fileManager._cacheData.Register( path, null );	// 読込中フラグとして、無を登録
+					_fileManager._tempCaches.Register( path, null );	// 読込中フラグとして、無を登録
 				}
 
 				_loadingCount++;
@@ -218,8 +204,8 @@ namespace SubmarineMirage.File {
 				// 情報存在の場合
 				if ( result != null ) {
 					// キャッシュ使用中か、サーバーダウンロードデータの場合
-					if ( isUseCache || type == Type.Server ) {
-						_fileManager._cacheData.Register( path, result );	// 情報を登録
+					if ( isUseCache || location == SMFileLocation.Server ) {
+						_fileManager._tempCaches.Register( path, result );	// 情報を登録
 					}
 					_loadingCount--;
 					SMLog.Debug( $"読込成功 : {path}\n{result}", SMLogTag.File );
@@ -236,7 +222,7 @@ namespace SubmarineMirage.File {
 			_errorCount++;
 			SMLog.Error( $"読込失敗 : {path}", SMLogTag.File );
 			// キャッシュ使用中の場合、読込フラグの無を登録解除
-			if ( isUseCache )	{ _fileManager._cacheData.Unregister( path ); }
+			if ( isUseCache )	{ _fileManager._tempCaches.Unregister( path ); }
 			return default;
 		}
 		///------------------------------------------------------------------------------------------------
@@ -244,42 +230,26 @@ namespace SubmarineMirage.File {
 		/// ● 取得（読込階層）
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		string GetLoadPath( Type type, string path ) {
+		string GetLoadPath( SMFileLocation location, string path ) {
 			var topPath = "";
-			switch ( type ) {
-				case Type.Server:	topPath = "";											break;
-				case Type.External:	topPath = $"file://{SMFileManager.LOAD_EXTERNAL_PATH}";	break;
-				case Type.Resource:	topPath = SMFileManager.LOAD_RESOURCE_PATH;				break;
+			switch ( location ) {
+				case SMFileLocation.Server:		topPath = "";											break;
+				case SMFileLocation.External:	topPath = $"file://{SMMainSetting.LOAD_EXTERNAL_PATH}";	break;
+				case SMFileLocation.Resource:	topPath = SMMainSetting.LOAD_RESOURCE_PATH;				break;
 			}
 			// 階層を結合
 			return Path.Combine( topPath, path );
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 配信型を取得
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public DataType GetDataType<T>( System.Type type = null ) {
-			if ( type == null )	{ type = typeof( T ); }
-			return (
-				type.IsInheritance<Texture2D>()			? DataType.Texture :
-				type.IsInheritance<Sprite>()			? DataType.Sprite :
-				type.IsInheritance<AudioClip>()			? DataType.Audio :
-				type.IsInheritance<ISMSerializeData>()	? DataType.Serialize :
-				type.IsInheritance<string>()			? DataType.Text
-														: DataType.Raw
-			);
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
 		/// ● キャッシュ使用可能か？
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public bool IsCanUseCache( Type type, bool isWantUseCache ) {
-			switch ( type ) {
+		public bool IsCanUseCache( SMFileLocation location, bool isWantUseCache ) {
+			switch ( location ) {
 				// サーバー通信読込の場合、使用希望か、キャッシュ読込可能の場合、可能
-				case Type.Server:
-					return isWantUseCache || _allDataManager._server.IsCanLoadServerCache();
+				case SMFileLocation.Server:
+					return isWantUseCache || _allDataManager.Get<Server>().IsCanLoadServerCache();
 
 				// それ以外の場合、希望通りに可能
 				default:
@@ -297,33 +267,33 @@ namespace SubmarineMirage.File {
 		) {
 			try {
 				_savingCount++;
-				path = Path.Combine( SMFileManager.SAVE_EXTERNAL_PATH, path );	// 外部保存のみ対応
+				path = Path.Combine( SMMainSetting.SAVE_EXTERNAL_PATH, path );	// 外部保存のみ対応
 				byte[] rawData = null;
 
-				var dataType = GetDataType<T>();
+				var dataType = SMAllDataManager.GetDataType( typeof( T ) );
 				switch ( dataType ) {
-					case DataType.Texture: {
+					case SMDataType.Texture: {
 						var rawTexture = ( data as Texture2D ).ToRawData( encodeType.Value, encodeOption );
 						rawData = rawTexture._data;
 						break;
 					}
-					case DataType.Sprite: {
+					case SMDataType.Sprite: {
 						var rawTexture = ( data as Sprite ).texture.ToRawData( encodeType.Value, encodeOption );
 						rawData = rawTexture._data;
 						break;
 					}
-					case DataType.Audio:
+					case SMDataType.Audio:
 						rawData = ( data as AudioClip ).EncodeToWAV();
 						break;
-					case DataType.Serialize:
+					case SMDataType.Serialize:
 						rawData = SerializerSMUtility.Serialize( data );
 						break;
-					case DataType.Text:
-						// TODO : BOM除去したいが、出来てない
+					case SMDataType.Text:
+// TODO : BOM除去したいが、出来てない
 						var encoding = new UTF8Encoding( false );
 						rawData = encoding.GetBytes( data as string );
 						break;
-					case DataType.Raw:
+					case SMDataType.Raw:
 						rawData = data as byte[];
 						break;
 				}

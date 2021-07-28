@@ -42,7 +42,7 @@ namespace SubmarineMirage.Data.Save {
 			private set { _setting._data._playDataIndex = value; }
 		}
 		/// <summary>設定情報</summary>
-		SettingDataManager _setting	=> AllDataManager.s_instance._save._setting;
+		SettingDataManager _setting	=> SMAllDataManager.s_instance._save._setting;
 		/// <summary>暗号化書類の読み書き</summary>
 		SMCryptoLoader _loader		=> SMFileManager.s_instance._cryptoLoader;
 		///------------------------------------------------------------------------------------------------

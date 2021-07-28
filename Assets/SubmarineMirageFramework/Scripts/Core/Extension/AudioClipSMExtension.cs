@@ -9,6 +9,7 @@ namespace SubmarineMirage.Extension {
 	using System.IO;
 	using System.Text;
 	using UnityEngine;
+	using Data.Raw;
 	using Data;
 	///====================================================================================================
 	/// <summary>

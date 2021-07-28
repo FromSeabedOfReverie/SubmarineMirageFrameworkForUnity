@@ -8,10 +8,10 @@ namespace SubmarineMirage.File {
 	using System.IO;
 	using System.Linq;
 	using System.Collections.Generic;
-	using UnityEngine;
 	using Service;
 	using Task;
-	using Data.Save;
+	using Data;
+	using Data.Cache;
 	using Setting;
 	using Debug;
 	///====================================================================================================
@@ -24,27 +24,10 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>外部の階層</summary>
-		static readonly string EXTERNAL_PATH =
-#if UNITY_ANDROID || UNITY_IOS
-			// スマートフォンビルドの場合
-			Application.persistentDataPath;
-#else
-			// PC、WEBビルドの場合
-			Application.dataPath.Substring( 0, Application.dataPath.LastIndexOf( "/" ) + 1 );
-#endif
-		/// <summary>リソース書類の読込階層</summary>
-		public const string LOAD_RESOURCE_PATH = "Data";
-		/// <summary>外部書類の読込階層</summary>
-		public static readonly string LOAD_EXTERNAL_PATH = EXTERNAL_PATH;
-		/// <summary>情報を保存する階層</summary>
-		public static readonly string SAVE_EXTERNAL_PATH = EXTERNAL_PATH;
-
-
 		[SMShowLine] public override SMTaskRunType _type => SMTaskRunType.Sequential;
 
 		/// <summary>キャッシュ情報</summary>
-		public readonly CacheDataManager _cacheData = new CacheDataManager();
+		public SMTemporaryCacheDataManager _tempCaches	{ get; private set; }
 
 		/// <summary>書類読み書き</summary>
 		public readonly SMFileLoader _fileLoader = new SMFileLoader();
@@ -78,6 +61,7 @@ namespace SubmarineMirage.File {
 		public bool _isError		=> _errorCount > 0;
 		/// <summary>全読み書きクラスが、総合的に成功か？</summary>
 		public bool _isSuccess		=> !_isLoading && !_isSaving && !_isDownloading && !_isError;
+
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
@@ -91,11 +75,10 @@ namespace SubmarineMirage.File {
 
 			_disposables.AddFirst( () => {
 				ResetAllCount();
+				_tempCaches = null;
 
 				_loaders.ForEach( l => l.Dispose() );
 				_loaders.Clear();
-
-				_cacheData.Dispose();
 			} );
 		}
 
@@ -103,6 +86,7 @@ namespace SubmarineMirage.File {
 		/// ● 作成
 		/// </summary>
 		public override void Create() {
+			_tempCaches = SMServiceLocator.Resolve<SMAllDataManager>().Get<SMTemporaryCacheDataManager>();
 			_loaders.ForEach( l => l.Setup( this ) );
 		}
 
@@ -111,6 +95,7 @@ namespace SubmarineMirage.File {
 		/// </summary>
 		public void ResetAllCount()
 			=> _loaders.ForEach( l => l.ResetCount() );
+
 		///------------------------------------------------------------------------------------------------
 		/// ● 階層
 		///------------------------------------------------------------------------------------------------

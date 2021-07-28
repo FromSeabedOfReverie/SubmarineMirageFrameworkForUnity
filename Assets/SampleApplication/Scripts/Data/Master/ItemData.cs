@@ -6,7 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 using System.Collections.Generic;
 using KoganeUnityLib;
-using SubmarineMirage.File;
 using SubmarineMirage.Data;
 ///========================================================================================================
 /// <summary>
@@ -43,10 +42,5 @@ public class ItemData : SMCSVData<string> {
 		_name			= texts[1];
 		_consumption	= texts[2].ToInt();
 		_explanation	= texts[3];
-	}
-
-	void hoge() {
-// TODO : プロジェクト固有箇所に移動して、下記を全体データに登録する
-		new SMCSVDataManager<string, ItemData>( "Item/TestItem", "", SMFileLoader.Type.Resource, 1 );
 	}
 }

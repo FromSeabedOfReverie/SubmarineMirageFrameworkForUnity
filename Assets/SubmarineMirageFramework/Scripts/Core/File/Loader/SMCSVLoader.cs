@@ -29,31 +29,30 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>書類の拡張子</summary>
-		public const string EXTENSION = ".csv";
+
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 読込
 		///		※拡張子は含まない。
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public async UniTask< List< List<string> > > Load( SMFileLoader.Type type, string path,
+		public async UniTask< List< List<string> > > Load( SMFileLocation location, string path,
 															bool isUseCache = false
 		) {
 			string texts = null;
 
 			// 指定階層の書類を読み込み
-			switch ( type ) {
-				case SMFileLoader.Type.Server:
+			switch ( location ) {
+				case SMFileLocation.Server:
 					texts = await _fileManager._fileLoader.LoadServer<string>( path );
 					break;
 
-				case SMFileLoader.Type.External:
-					path = $"{path}{EXTENSION}";	// 階層を結合
+				case SMFileLocation.External:
+					path = $"{path}{SMMainSetting.CSV_EXTENSION}";	// 階層を結合
 					texts = await _fileManager._fileLoader.LoadExternal<string>( path, isUseCache );
 					break;
 
-				case SMFileLoader.Type.Resource:
+				case SMFileLocation.Resource:
 					var asset = await _fileManager._fileLoader.LoadResource<TextAsset>( path, isUseCache );
 					if ( asset != null ) {
 						texts = asset.text;
@@ -73,7 +72,7 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		public async UniTask SaveExternal( string path, List< List<string> > data ) {
 			var texts = CSVToText( data );
-			path = $"{path}{EXTENSION}";	// 階層を結合
+			path = $"{path}{SMMainSetting.CSV_EXTENSION}";	// 階層を結合
 			await _fileManager._fileLoader.SaveExternal( path, texts );	// 保存
 		}
 		///------------------------------------------------------------------------------------------------

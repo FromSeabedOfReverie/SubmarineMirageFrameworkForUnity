@@ -14,7 +14,9 @@ namespace SubmarineMirage.Data.Save {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using File;
+	using Data.Raw;
 	using Extension;
+	using Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 遊戯情報のクラス
@@ -26,7 +28,7 @@ namespace SubmarineMirage.Data.Save {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>セーブ情報の保存階層</summary>
-		static readonly string SUB_PATH = Path.Combine( SMCryptoLoader.SUB_PATH, "Pictures" );
+		static readonly string SUB_PATH = Path.Combine( SMMainSetting.CRYPTO_PATH, "Pictures" );
 		/// <summary>スクリーンショット画像の保存書類名</summary>
 		const string PICTURE_NAME_FORMAT = "Picture{0}.jpg";
 
@@ -98,7 +100,7 @@ namespace SubmarineMirage.Data.Save {
 		///------------------------------------------------------------------------------------------------
 		public override async UniTask Save() {
 			// フォルダ内の、元々ある写真を削除
-			var folder = Path.Combine( SMFileManager.SAVE_EXTERNAL_PATH, SUB_PATH );
+			var folder = Path.Combine( SMMainSetting.SAVE_EXTERNAL_PATH, SUB_PATH );
 			SMFileManager.s_instance.DeletePath( folder );
 
 			// 写真をJPG形式で非同期保存

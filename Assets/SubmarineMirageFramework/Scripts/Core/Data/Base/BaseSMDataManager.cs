@@ -6,24 +6,44 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
-	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Base;
+	using Event;
+	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 情報管理の基盤クラス
 	///		各種情報管理クラスは、このクラスを継承する。
 	/// </summary>
 	///====================================================================================================
-	public abstract class BaseSMDataManager<TKey, TValue> : SMStandardBase, ISMSerializeData
+	public class BaseSMDataManager<TKey, TValue> : SMStandardBase, IBaseSMDataManager
 		where TValue : BaseSMData
 	{
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		/// <summary>名前</summary>
+		public string _name	{ get; protected set; }
 		/// <summary>全情報の辞書</summary>
-		protected readonly Dictionary<TKey, TValue> _datas = new Dictionary<TKey, TValue>();
+		[SMShow] protected readonly Dictionary<TKey, TValue> _datas = new Dictionary<TKey, TValue>();
+
+		public SMAsyncEvent _loadEvent	{ get; private set; } = new SMAsyncEvent();
+		public SMAsyncEvent _saveEvent	{ get; private set; } = new SMAsyncEvent();
+
+#region ToString
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 文章変換を設定
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.SetValue( nameof( _datas ), i => _toStringer.DefaultValue( _datas, i, true ) );
+		}
+#endregion
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -32,9 +52,25 @@ namespace SubmarineMirage.Data {
 		/// ● コンストラクタ
 		/// </summary>
 		public BaseSMDataManager() {
+			_name = typeof( TValue ).GetAboutName();
+
+			_loadEvent.AddLast( async canceler => {
+				foreach ( var pair in _datas ) {
+					await pair.Value.Load();
+				}
+			} );
+			_saveEvent.AddLast( async canceler => {
+				foreach ( var pair in _datas ) {
+					await pair.Value.Save();
+				}
+			} );
+
 			_disposables.AddFirst( () => {
 				_datas.ForEach( pair => pair.Value.Dispose() );
 				_datas.Clear();
+
+				_loadEvent.Dispose();
+				_saveEvent.Dispose();
 			} );
 		}
 
@@ -45,11 +81,11 @@ namespace SubmarineMirage.Data {
 		/// ● 登録
 		/// </summary>
 		public virtual void Register( TKey key, TValue data ) {
-			if ( _datas.ContainsKey( key ) ) {
+			if ( IsLoaded( key ) ) {
 				throw new InvalidOperationException( string.Join( "\n",
 					$"登録済みの値を再登録 : ",
 					$"{nameof( key )} : {key}",
-					$"{nameof( data )} last : {data}",
+					$"{nameof( data )} last : {Get( key )}",
 					$"{nameof( data )} new : {data}",
 					$"{this}"
 				) );
@@ -61,7 +97,7 @@ namespace SubmarineMirage.Data {
 		/// <summary>
 		/// ● 登録解除
 		/// </summary>
-		public virtual void Unregister( TKey key ) {
+		public void Unregister( TKey key ) {
 			_datas.Remove( key );
 		}
 
@@ -71,28 +107,19 @@ namespace SubmarineMirage.Data {
 		/// <summary>
 		/// ● 取得
 		/// </summary>
-		public virtual TValue Get( TKey key )
+		public TValue Get( TKey key )
 			=> _datas.GetOrDefault( key );
 
-		///------------------------------------------------------------------------------------------------
-		/// ● 読み書き
-		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 読込
+		/// ● 全取得
 		/// </summary>
-		public virtual async UniTask Load() {
-			foreach ( var pair in _datas ) {
-				await pair.Value.Load();
-			}
-		}
+		public IEnumerable<TValue> GetAlls()
+			=> _datas.Select( pair => pair.Value );
 
 		/// <summary>
-		/// ● 保存
+		/// ● 読込済か？
 		/// </summary>
-		public virtual async UniTask Save() {
-			foreach ( var pair in _datas ) {
-				await pair.Value.Save();
-			}
-		}
+		public bool IsLoaded( TKey key )
+			=> _datas.ContainsKey( key );
 	}
 }

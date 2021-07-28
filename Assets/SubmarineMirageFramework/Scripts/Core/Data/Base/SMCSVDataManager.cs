@@ -5,14 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data {
+	using System;
 	using System.IO;
 	using System.Collections.Generic;
-	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using Service;
 	using File;
-	using Extension;
-	using Setting;
+	using Utility;
 	using Debug;
 	///====================================================================================================
 	/// <summary>
@@ -31,7 +30,7 @@ namespace SubmarineMirage.Data {
 		/// <summary>読込書類名</summary>
 		public readonly string _fileName;
 		/// <summary>書類の型</summary>
-		protected readonly SMFileLoader.Type _fileType;
+		protected readonly SMFileLocation _fileType;
 		/// <summary>読込開始の行数</summary>
 		protected readonly int _loadStartIndex;
 
@@ -41,35 +40,35 @@ namespace SubmarineMirage.Data {
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public SMCSVDataManager( string path, string fileName, SMFileLoader.Type fileType, int loadStartIndex ) {
+		public SMCSVDataManager( string path, string fileName, SMFileLocation fileType, int loadStartIndex ) {
 			_path = path;
 			_fileName = fileName;
 			_fileType = fileType;
 			_loadStartIndex = loadStartIndex;
-		}
 
-		///------------------------------------------------------------------------------------------------
-		/// ● 読み書き
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 読込
-		/// </summary>
-		public override async UniTask Load() {
-			var loader = SMServiceLocator.Resolve<SMFileManager>()._csvLoader;
-			var path = Path.Combine( _path, _fileName );
-			var datas = await loader.Load( _fileType, path, false );	// 指定書類を読込
+			_loadEvent.AddFirst( async canceler => {
+				var loader = SMServiceLocator.Resolve<SMFileManager>()._csvLoader;
+				var path = Path.Combine( _path, _fileName );
+				var datas = await loader.Load( _fileType, path, false );    // 指定書類を読込
 
-			// データが存在しない場合、エラー表示
-			if ( datas == null ) {
-				SMLog.Error( $"{this.GetAboutName()} : データ読込失敗", SMLogTag.Data );
+				// データが存在しない場合、エラー
+				if ( datas == null ) {
+					throw new InvalidOperationException( string.Join( "\n",
+						$"データ読込失敗 : ",
+						$"{nameof( SMCSVDataManager<TKey, TValue> )}.()",
+						$"{nameof( _path )} : {_path}",
+						$"{this}"
+					) );
+				}
 
-			// データが存在する場合
-			} else {
 				// 全情報を設定
 				datas.ForEach( ( d, i ) => SetData( _fileName, i, d ) );
-			}
+			} );
 
-			await base.Load();
+			_saveEvent.AddFirst( async canceler => {
+// TODO : 情報からCSVに保存を実装
+				await UTask.DontWait();
+			} );
 		}
 
 		/// <summary>
@@ -79,14 +78,6 @@ namespace SubmarineMirage.Data {
 			var data = new TValue();
 			data.Setup( fileName, index, texts );
 			Register( data._registerKey, data );
-		}
-
-		/// <summary>
-		/// ● 保存
-		/// </summary>
-		public override async UniTask Save() {
-// TODO : 情報からCSVに保存を実装
-			await base.Save();
 		}
 	}
 }

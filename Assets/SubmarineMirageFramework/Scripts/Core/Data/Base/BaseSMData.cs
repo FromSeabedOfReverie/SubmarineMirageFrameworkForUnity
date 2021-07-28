@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data {
+	using System.Runtime.Serialization;
 	using Cysharp.Threading.Tasks;
 	using Base;
 	using Utility;
@@ -18,7 +19,7 @@ namespace SubmarineMirage.Data {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public bool _isDispose	{ get; private set; }
+		[IgnoreDataMember, SMShowLine] public bool _isDispose	{ get; private set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -43,7 +44,6 @@ namespace SubmarineMirage.Data {
 		/// ● 解放（補助）
 		/// </summary>
 		protected virtual void DisposeSub() {
-
 		}
 
 		///------------------------------------------------------------------------------------------------
