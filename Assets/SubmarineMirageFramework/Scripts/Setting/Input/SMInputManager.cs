@@ -377,20 +377,11 @@ namespace SubmarineMirage.Setting {
 				}
 			);
 
+
+			// デバッグキー押下の場合、画面ログ表示を切り替え
 			var displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
-#if false
-			var dataManager = SMServiceLocator.Resolve<AllDataManager>();
-#endif
-			// デバッグキー押下の場合
+
 			GetKey( SMInputKey.Debug )._enabledEvent.AddLast().Subscribe( _ => {
-#if false
-				// 設定を保存
-				var setting = AllDataManager.s_instance._save._setting;
-				setting._data._isViewDebug = !setting._data._isViewDebug;
-				setting.Save().Forget();
-				// 描画切り替え
-				displayLog._isDraw = setting._data._isViewDebug;
-#endif
 				displayLog._isDraw = !displayLog._isDraw;
 			} );
 		}

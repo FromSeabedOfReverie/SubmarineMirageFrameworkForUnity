@@ -18,7 +18,7 @@ namespace SubmarineMirage.Data {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>名前</summary>
-		string _name	{ get; }
+		[SMShow] string _name	{ get; }
 
 		/// <summary>読込イベント</summary>
 		SMAsyncEvent _loadEvent { get; }

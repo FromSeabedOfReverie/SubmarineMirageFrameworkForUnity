@@ -5,48 +5,43 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data.Server {
-	using File;
+	using System.Collections.Generic;
+	using KoganeUnityLib;
+	using Setting;
 	///====================================================================================================
 	/// <summary>
-	/// ■ 製品版の宣伝情報の管理クラス
-	///----------------------------------------------------------------------------------------------------
+	/// ■ アプリケーションの情報クラス
 	/// </summary>
 	///====================================================================================================
-	public class CMDataManager : CSVDataManager<CMData.Platform, CMData> {
+	public class ApplicationData : SMURLData<SMEdition> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		/// <summary>辞書への登録鍵</summary>
+		public override SMEdition _registerKey		=> _edition;
+		/// <summary>URL読込の初期添字</summary>
+		protected override int _setURLStartIndex	=> 3;
+
+		/// <summary>商品版</summary>
+		public SMEdition _edition		{ get; private set; }
+		/// <summary>更新版</summary>
+		public string _version			{ get; private set; }
+		/// <summary>サーバー版</summary>
+		public string _serverVersion	{ get; private set; }
 
 		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● コンストラクタ
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public CMDataManager() : base (
-			"https://docs.google.com/spreadsheets/d/e/2PACX-1vQZjl0KQ3qdx1ghjDLczrLpmWQ11Ao75IdaSobLMoFHjuzhG4pTCX0bXvZgGl_P4-2fjLCdCbBKHaRE/pub?gid=1475705626&single=true&output=csv",
-			"",
-			FileLoader.Type.Server, 1 )
-		{
-		}
+		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 取得
+		/// ● 設定
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public CMData Get() {
-			return Get(
-#if UNITY_ANDROID
-				CMData.Platform.Android
-#elif UNITY_STANDALONE_WIN || UNITY_WSA
-				CMData.Platform.Windows
-#elif UNITY_IOS
-				CMData.Platform.IOS
-#elif UNITY_STANDALONE_OSX
-				CMData.Platform.MacOSX
-#elif UNITY_STANDALONE_LINUX
-				CMData.Platform.Linux
-#endif
-			);
+		public override void Setup( string fileName, int index, List<string> texts ) {
+			_edition = texts[0].ToEnum<SMEdition>();
+			_version = texts[1];
+			if ( _version == "?" )	{ _version = SMMainSetting.APPLICATION_VERSION; }
+			_serverVersion = texts[2];
+
+			base.Setup( fileName, index, texts );
 		}
 	}
 }

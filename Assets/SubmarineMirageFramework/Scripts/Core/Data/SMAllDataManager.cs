@@ -15,8 +15,9 @@ namespace SubmarineMirage.Data {
 	using Service;
 	using Task;
 	using File;
-	using Save;
 	using Cache;
+	using Save;
+	using Server;
 	using Extension;
 	using Setting;
 	using Debug;
@@ -55,17 +56,22 @@ namespace SubmarineMirage.Data {
 		/// </summary>
 		public override void Create() {
 			_fileManager = SMServiceLocator.Resolve<SMFileManager>();
+			var setting = SMServiceLocator.Resolve<ISMDataSetting>();
 
 
+			// 一時キャッシュを登録
 			Register( new SMTemporaryCacheDataManager() );
+			// 保存キャッシュを登録
 			Register( new SMSaveCacheDataManager() );
-
 			// アプリ情報を登録
 			Register( new ApplicationDataManager() );
-			// CM情報を登録
-			Register( new CMDataManager() );
-			// アプリCM情報を登録
-			Register( new ApplicationCMDataManager() );
+			// アプリ固有の保存情報を登録
+			setting.RegisterDatas( SMDataSettingType.Save );
+
+
+			// アプリ固有のサーバー情報を登録
+			setting.RegisterDatas( SMDataSettingType.Server );
+
 
 			// システム情報を登録
 			Register( new SMCSVDataManager<SMSystemInfo, SMSystemInfoData>(
@@ -84,11 +90,11 @@ namespace SubmarineMirage.Data {
 			// 広告情報を登録
 			Register( new SMCSVDataManager<SMAdvertisementType, SMAdvertisementData>(
 				"System", "AdvertisementIDs", SMFileLocation.Resource, 1 ) );
+			// アプリ固有のマスター情報を登録
+			setting.RegisterDatas( SMDataSettingType.Master );
 
 
-			var setting = SMServiceLocator.Resolve<ISMDataSetting>();
-			setting._datas.ForEach( d => Register( d ) );
-			setting._datas.Clear();	// Dispose前に、参照を切る
+			// 情報設定を解放
 			SMServiceLocator.Unregister<ISMDataSetting>();
 
 

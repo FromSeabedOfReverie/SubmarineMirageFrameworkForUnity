@@ -31,8 +31,10 @@ namespace SubmarineMirage.Data.Save {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		/// <summary>名前</summary>
+		public string _name { get; protected set; }
 		/// <summary>版</summary>
-		[SMShow] public string _version = SMMainSetting.INITIAL_CACHE_VERSION;
+		[SMShow] public string _version = SMMainSetting.INITIAL_VERSION;
 
 		// 以下辞書達は、基底クラスの辞書で纏めると、シリアライザ非対応の為、復元されない
 		// その為、仕方無くジェネリック型ごとに分離した
@@ -74,29 +76,37 @@ namespace SubmarineMirage.Data.Save {
 		/// ● コンストラクタ（読込用）
 		/// </summary>
 		public SMSaveCacheDataManager() {
+			_name = nameof( SMSaveCacheDataManager );
+
 			var loader = SMServiceLocator.Resolve<SMFileManager>()._cryptoLoader;
 			var allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
 			var tempCaches = allDataManager.Get<SMTemporaryCacheDataManager>();
 
 
 			_loadEvent.AddLast( async canceler => {
-				Reset();	// 既存の保存キャッシュを消去
+				Reset();    // 既存の保存キャッシュを消去
 
 				// サーバー版をダウンロード版に変更し、保存
 				var currentVersion = allDataManager.Get<ApplicationDataManager>().Get()._serverVersion;
 				_version = currentVersion;
 
 				var data = await loader.Load<SMSaveCacheDataManager>( SMMainSetting.CACHE_FILE_NAME );
-				if ( data != null && data._version == currentVersion ) {
-					_textureDatas = data._textureDatas;
-					_audioDatas = data._audioDatas;
-					_textDatas = data._textDatas;
-					_rawDatas = data._rawDatas;
-					// data.Dispose時に、自身のデータも解放される為、参照を切る
-					data._textureDatas = null;
-					data._audioDatas = null;
-					data._textDatas = null;
-					data._rawDatas = null;
+				if ( data != null ) {
+					// 中央設定の版を設定
+					var setting = SMServiceLocator.Resolve<SMMainSetting>();
+					setting._serverVersionBySave = data._version;
+
+					if ( data._version == currentVersion ) {
+						_textureDatas = data._textureDatas;
+						_audioDatas = data._audioDatas;
+						_textDatas = data._textDatas;
+						_rawDatas = data._rawDatas;
+						// data.Dispose時に、自身のデータも解放される為、参照を切る
+						data._textureDatas = null;
+						data._audioDatas = null;
+						data._textDatas = null;
+						data._rawDatas = null;
+					}
 				}
 				data.Dispose();
 

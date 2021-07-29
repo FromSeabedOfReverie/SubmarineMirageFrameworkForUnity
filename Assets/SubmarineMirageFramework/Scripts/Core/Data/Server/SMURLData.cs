@@ -6,60 +6,45 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Data.Server {
 	using System.Collections.Generic;
+	using KoganeUnityLib;
+	using Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ WEBサイトURLの情報クラス
 	/// </summary>
 	///====================================================================================================
-	public abstract class URLData<T> : SMCSVData<T> {
+	public abstract class SMURLData<T> : SMCSVData<T> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>AndroidのURL</summary>
-		public string _androidURL	{ get; private set; }
-		/// <summary>WindowsのURL</summary>
-		public string _windowsURL	{ get; private set; }
-		/// <summary>iOSのURL</summary>
-		public string _iOSURL		{ get; private set; }
-		/// <summary>MacOSXのURL</summary>
-		public string _macOSXURL	{ get; private set; }
-		/// <summary>LinuxのURL</summary>
-		public string _linuxURL		{ get; private set; }
+		/// <summary>URL情報の一覧</summary>
+		readonly Dictionary<SMPlatformType, string> _urls = new Dictionary<SMPlatformType, string>();
 		/// <summary>URL読込の初期添字</summary>
 		protected abstract int _setURLStartIndex { get; }
+
 		///------------------------------------------------------------------------------------------------
-		/// ● アクセサ
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● URLを取得
-		/// </summary>
-		public string _url
-#if UNITY_ANDROID
-			=> _androidURL;
-
-#elif UNITY_STANDALONE_WIN || UNITY_WSA
-			=> _windowsURL;
-
-#elif UNITY_IOS
-			=> _iOSURL;
-
-#elif UNITY_STANDALONE_OSX
-			=> _macOSXURL;
-
-#elif UNITY_STANDALONE_LINUX
-			=> _linuxURL;
-#endif
+		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 設定
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		public override void Setup( string fileName, int index, List<string> texts ) {
-			_androidURL	= texts[_setURLStartIndex];
-			_windowsURL	= texts[_setURLStartIndex + 1];
-			_iOSURL		= texts[_setURLStartIndex + 2];
-			_macOSXURL	= texts[_setURLStartIndex + 3];
-			_linuxURL	= texts[_setURLStartIndex + 4];
+			_urls[SMPlatformType.Windows]	= texts[_setURLStartIndex + 0];
+			_urls[SMPlatformType.MacOSX]	= texts[_setURLStartIndex + 1];
+			_urls[SMPlatformType.Linux]		= texts[_setURLStartIndex + 2];
+			_urls[SMPlatformType.Android]	= texts[_setURLStartIndex + 3];
+			_urls[SMPlatformType.IOS]		= texts[_setURLStartIndex + 4];
 		}
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 取得
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● URLを取得
+		/// </summary>
+		public string GetURL( SMPlatformType? type = null ) => (
+			type.HasValue	? _urls.GetOrDefault( type.Value )
+							: _urls[SMMainSetting.PLATFORM]
+		);
 	}
 }
