@@ -32,7 +32,7 @@ namespace SubmarineMirage.Data.Save {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>名前</summary>
-		public string _name { get; protected set; }
+		[IgnoreDataMember] public string _name { get; protected set; }
 		/// <summary>版</summary>
 		[SMShow] public string _version = SMMainSetting.INITIAL_VERSION;
 
@@ -50,6 +50,8 @@ namespace SubmarineMirage.Data.Save {
 		/// <summary>生情報の辞書</summary>
 		public Dictionary< string, SMSaveCacheData<byte[]> > _rawDatas
 			= new Dictionary< string, SMSaveCacheData<byte[]> >();
+
+		[IgnoreDataMember] SMTemporaryCacheDataManager _tempCaches	{ get; set; }
 
 		[IgnoreDataMember] public SMAsyncEvent _loadEvent	{ get; private set; } = new SMAsyncEvent();
 		[IgnoreDataMember] public SMAsyncEvent _saveEvent	{ get; private set; } = new SMAsyncEvent();
@@ -78,25 +80,20 @@ namespace SubmarineMirage.Data.Save {
 		public SMSaveCacheDataManager() {
 			_name = nameof( SMSaveCacheDataManager );
 
-			var loader = SMServiceLocator.Resolve<SMFileManager>()._cryptoLoader;
-			var allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
-			var tempCaches = allDataManager.Get<SMTemporaryCacheDataManager>();
+			_tempCaches = SMServiceLocator.Resolve<SMAllDataManager>().Get<SMTemporaryCacheDataManager>();
+			var loader = SMServiceLocator.Resolve<SMFileManager>().Get<SMCryptoLoader>();
+			var setting = SMServiceLocator.Resolve<SMMainSetting>();
 
 
 			_loadEvent.AddLast( async canceler => {
 				Reset();    // 既存の保存キャッシュを消去
 
-				// サーバー版をダウンロード版に変更し、保存
-				var currentVersion = allDataManager.Get<ApplicationDataManager>().Get()._serverVersion;
-				_version = currentVersion;
-
 				var data = await loader.Load<SMSaveCacheDataManager>( SMMainSetting.CACHE_FILE_NAME );
 				if ( data != null ) {
 					// 中央設定の版を設定
-					var setting = SMServiceLocator.Resolve<SMMainSetting>();
 					setting._serverVersionBySave = data._version;
 
-					if ( data._version == currentVersion ) {
+					if ( data._version == setting._serverVersionByServer ) {
 						_textureDatas = data._textureDatas;
 						_audioDatas = data._audioDatas;
 						_textDatas = data._textDatas;
@@ -107,8 +104,11 @@ namespace SubmarineMirage.Data.Save {
 						data._textDatas = null;
 						data._rawDatas = null;
 					}
+					data.Dispose();
 				}
-				data.Dispose();
+
+				// サーバー版をダウンロード版に適用
+				_version = setting._serverVersionByServer;
 
 				await Enumerable.Empty<UniTask>()
 					.Concat( _textureDatas.Select( pair => pair.Value.Load() ) )
@@ -117,12 +117,26 @@ namespace SubmarineMirage.Data.Save {
 					.Concat( _rawDatas.Select( pair => pair.Value.Load() ) );
 
 				// 一時キャッシュに格納
-				_textureDatas.ForEach( pair => tempCaches.Register( pair.Value ) );
-				_audioDatas.ForEach( pair => tempCaches.Register( pair.Value ) );
-				_textDatas.ForEach( pair => tempCaches.Register( pair.Value ) );
-				_rawDatas.ForEach( pair => tempCaches.Register( pair.Value ) );
+				_textureDatas.ForEach( pair => RegisterTempCaches( pair.Value ) );
+				_audioDatas.ForEach( pair => RegisterTempCaches( pair.Value ) );
+				_textDatas.ForEach( pair => RegisterTempCaches( pair.Value ) );
+				_rawDatas.ForEach( pair => RegisterTempCaches( pair.Value ) );
 
-				Reset();	// メモリ負荷を抑える為、保存キャッシュを消去
+				Reset();    // メモリ負荷を抑える為、保存キャッシュを消去
+
+				if ( SMDebugManager.IS_DEVELOP ) {
+					// デバッグ情報を表示
+					SMLog.Debug(
+						string.Join( "\n",
+							$"アプリ版 : サーバー{setting._versionByServer} : 保存{setting._versionBySave}",
+							$"サーバー版 : サーバー{setting._serverVersionByServer} : " +
+								$"保存{setting._serverVersionBySave}",
+							$"アプリ : {( setting._isRequestUpdateApplication ? "更新が必要" : "最新" )}",
+							$"読込 : {( setting._isRequestUpdateServer ? "サーバー" : "キャッシュ" )}"
+						),
+						SMLogTag.Server
+					);
+				}
 
 				await Load();
 			} );
@@ -132,7 +146,7 @@ namespace SubmarineMirage.Data.Save {
 				Reset();	// 既存の保存キャッシュを消去
 
 				// サーバー情報のみ、一時キャッシュを保存
-				tempCaches.GetAlls()
+				_tempCaches.GetAlls()
 					.Where( d => PathSMUtility.IsURL( d._path ) )
 					.ForEach( d => Register( d ) );
 
@@ -181,7 +195,7 @@ namespace SubmarineMirage.Data.Save {
 		/// <summary>
 		/// ● 登録
 		/// </summary>
-		public void Register( SMTemporaryCacheData data ) {
+		void Register( SMTemporaryCacheData data ) {
 			var type = SMAllDataManager.GetDataType( data._type );
 
 			switch ( type ) {
@@ -213,9 +227,18 @@ namespace SubmarineMirage.Data.Save {
 		}
 
 		/// <summary>
+		/// ● 一時キャッシュに登録
+		/// </summary>
+		void RegisterTempCaches<T>( SMSaveCacheData<T> data ) where T : class {
+			_tempCaches.Register( data._cacheData );
+			// Dispose時に、解放されないように、参照を切る
+			data._cacheData = null;
+		}
+
+		/// <summary>
 		/// ● 登録解除
 		/// </summary>
-		public void Unregister( string path ) {
+		void Unregister( string path ) {
 			if ( _textureDatas.DisposeAndRemove( path ) )	{ return; }
 			if ( _audioDatas.DisposeAndRemove( path ) )		{ return; }
 			if ( _textDatas.DisposeAndRemove( path ) )		{ return; }

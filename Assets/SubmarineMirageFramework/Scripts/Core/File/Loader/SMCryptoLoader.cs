@@ -28,6 +28,22 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>パスワードの長さ</summary>
 		static readonly int PASSWORD_CHARS_LENGTH = SMMainSetting.CRYPTO_PASSWORD.Length;
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 作成、削除
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● コンストラクタ
+		/// </summary>
+		public SMCryptoLoader( SMFileManager fileManager ) : base( fileManager ) {
+		}
+
+		/// <summary>
+		/// ● 設定
+		/// </summary>
+		public override void Setup() {
+		}
+
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 読込
@@ -118,7 +134,7 @@ namespace SubmarineMirage.File {
 
 				// フォルダを作成
 				var folder = Path.GetDirectoryName( path );
-				_fileManager.CreatePath( folder );
+				PathSMUtility.Create( folder );
 
 				// 保存
 				var ivBytes = Encoding.UTF8.GetBytes( iv );

@@ -29,6 +29,25 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		SMFileLoader _loader	{ get; set; }
+		///------------------------------------------------------------------------------------------------
+		/// ● 作成、削除
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● コンストラクタ
+		/// </summary>
+		public SMCSVLoader( SMFileManager fileManager ) : base( fileManager ) {
+			_disposables.AddLast( () => {
+				_loader = null;
+			} );
+		}
+
+		/// <summary>
+		/// ● 設定
+		/// </summary>
+		public override void Setup() {
+			_loader = _fileManager.Get<SMFileLoader>();
+		}
 
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
@@ -44,16 +63,16 @@ namespace SubmarineMirage.File {
 			// 指定階層の書類を読み込み
 			switch ( location ) {
 				case SMFileLocation.Server:
-					texts = await _fileManager._fileLoader.LoadServer<string>( path );
+					texts = await _loader.LoadServer<string>( path );
 					break;
 
 				case SMFileLocation.External:
 					path = $"{path}{SMMainSetting.CSV_EXTENSION}";	// 階層を結合
-					texts = await _fileManager._fileLoader.LoadExternal<string>( path, isUseCache );
+					texts = await _loader.LoadExternal<string>( path, isUseCache );
 					break;
 
 				case SMFileLocation.Resource:
-					var asset = await _fileManager._fileLoader.LoadResource<TextAsset>( path, isUseCache );
+					var asset = await _loader.LoadResource<TextAsset>( path, isUseCache );
 					if ( asset != null ) {
 						texts = asset.text;
 						if ( !isUseCache )	{ Resources.UnloadAsset( asset ); }
@@ -73,7 +92,7 @@ namespace SubmarineMirage.File {
 		public async UniTask SaveExternal( string path, List< List<string> > data ) {
 			var texts = CSVToText( data );
 			path = $"{path}{SMMainSetting.CSV_EXTENSION}";	// 階層を結合
-			await _fileManager._fileLoader.SaveExternal( path, texts );	// 保存
+			await _loader.SaveExternal( path, texts );	// 保存
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>

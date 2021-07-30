@@ -87,7 +87,10 @@ public class SettingData : BaseSMSaveData {
 	/// ● コンストラクタ
 	/// </summary>
 	public SettingData() {
-		_edition = GetEdition();
+		_edition = EDITION_TO_NAME
+			.First( pair => Application.productName.Contains( pair.Value ) )
+			.Key;
+
 		_version = SMMainSetting.APPLICATION_VERSION;
 		_screenMode = SMScreenMode.Full;
 
@@ -109,11 +112,6 @@ public class SettingData : BaseSMSaveData {
 				_frameRate = SMFrameRate._30;
 				break;
 		}
-		if ( SMDebugManager.IS_UNITY_EDITOR ) {
-			_screenMode = SMScreenMode.Window;
-			_screenSize = SMScreenSize._960X540;
-			_quality = SMQuality.Middle;
-		}
 
 		_bgmVolume = 1;
 		_voiceVolume = 1;
@@ -130,6 +128,14 @@ public class SettingData : BaseSMSaveData {
 	/// </summary>
 	///----------------------------------------------------------------------------------------------------
 	void Apply() {
+		_version = SMMainSetting.APPLICATION_VERSION;
+
+		if ( SMDebugManager.IS_UNITY_EDITOR ) {
+			_screenMode = SMScreenMode.Window;
+			_screenSize = SMScreenSize._960X540;
+			_quality = SMQuality.Middle;
+		}
+
 		// 解像度、画面表示を適用
 		var size = SCREEN_SIZE_TO_VECTORS[_screenSize];
 		Screen.SetResolution( size.x, size.y, _screenMode == SMScreenMode.Full );
@@ -189,22 +195,9 @@ public class SettingData : BaseSMSaveData {
 	/// ● 保存
 	/// </summary>
 	public override async UniTask Save() {
-		_version = SMMainSetting.APPLICATION_VERSION;
 		Apply();
 		await base.Save();
 	}
-
-	///----------------------------------------------------------------------------------------------------
-	/// ● 取得
-	///----------------------------------------------------------------------------------------------------
-	/// <summary>
-	/// ● 版を取得
-	///		アプリ名から版を取得。
-	/// </summary>
-	public static SMEdition GetEdition()
-		=> EDITION_TO_NAME
-			.First( pair => Application.productName.Contains( pair.Value ) )
-			.Key;
 
 	///----------------------------------------------------------------------------------------------------
 	/// <summary>

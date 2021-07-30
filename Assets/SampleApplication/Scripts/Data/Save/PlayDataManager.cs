@@ -46,14 +46,18 @@ public class PlayDataManager : BaseSMDataManager<int, PlayData> {
 	/// ● コンストラクタ
 	/// </summary>
 	public PlayDataManager() {
-		_loader = SMServiceLocator.Resolve<SMFileManager>()._cryptoLoader;
+		_loader = SMServiceLocator.Resolve<SMFileManager>().Get<SMCryptoLoader>();
 		_allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
-		_setting = _allDataManager.Get<SettingDataManager>();
 
 
-		_loadEvent.AddFirst( async canceler => {
-			// バージョンアップする必要があるか、判定
-			var isUpdate = _setting.Get()._version != SMMainSetting.APPLICATION_VERSION;
+		_loadEvent.Remove( _registerEventKey );
+		_saveEvent.Remove( _registerEventKey );
+
+		_loadEvent.AddLast( async canceler => {
+			_setting = _allDataManager.Get<SettingDataManager>();
+
+			// 情報更新の必要があるか？判定
+			var isRequestUpdate = _setting.Get()._version != SMMainSetting.APPLICATION_VERSION;
 
 			// 全情報を非同期読込
 			await Enumerable
@@ -64,16 +68,16 @@ public class PlayDataManager : BaseSMDataManager<int, PlayData> {
 
 					// 存在しない場合、新規作成
 					if ( data == null ) {
-						Register( i, new PlayData() );
+						Register( i, new PlayData( i ) );
 						SMLog.Debug( "データが存在しない為、初期化生成", SMLogTag.Data );
 						return;
 					}
 
-					// 更新対応
-					if ( isUpdate ) {
+					// 情報更新が必要な場合
+					if ( isRequestUpdate ) {
 // TODO : 本当は、更新対応した方が良いが、省略
 						data.Dispose();
-						Register( i, new PlayData() );
+						Register( i, new PlayData( i ) );
 						SMLog.Debug( "データが古い為、初期化生成", SMLogTag.Data );
 						return;
 					}
@@ -82,9 +86,7 @@ public class PlayDataManager : BaseSMDataManager<int, PlayData> {
 					Register( i, data );
 					SMLog.Debug( "読み込み成功", SMLogTag.Data );
 				} );
-		} );
 
-		_loadEvent.AddLast( async canceler => {
 			// 現在情報を読込
 			await LoadCurrentData();
 		} );
@@ -104,7 +106,7 @@ public class PlayDataManager : BaseSMDataManager<int, PlayData> {
 	/// </summary>
 	public void ResetCurrentData() {
 		_currentData?.Dispose();
-		_currentData = new PlayData();
+		_currentData = new PlayData( _index );
 	}
 
 	///----------------------------------------------------------------------------------------------------

@@ -18,9 +18,6 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		protected SMFileManager _fileManager { get; private set; }
-		protected readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
-
 		/// <summary>読込中の数</summary>
 		public int _loadingCount		{ get; protected set; }
 		/// <summary>保存中の数</summary>
@@ -44,13 +41,18 @@ namespace SubmarineMirage.File {
 		public bool _isError		=> _errorCount > 0;
 		/// <summary>成功か？</summary>
 		public bool _isSuccess		=> !_isLoading && !_isSaving && !_isDownloading && !_isError;
+
+		protected SMFileManager _fileManager	{ get; private set; }
+		protected readonly SMAsyncCanceler _asyncCanceler = new SMAsyncCanceler();
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public BaseSMDataLoader() {
+		public BaseSMDataLoader( SMFileManager fileManager ) {
+			_fileManager = fileManager;
+
 			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 				ResetCount();
@@ -61,8 +63,7 @@ namespace SubmarineMirage.File {
 		/// <summary>
 		/// ● 設定
 		/// </summary>
-		public virtual void Setup( SMFileManager fileManager ) {
-			_fileManager = fileManager;
+		public virtual void Setup() {
 		}
 
 		/// <summary>

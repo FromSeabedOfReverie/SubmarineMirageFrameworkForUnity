@@ -26,6 +26,8 @@ namespace SubmarineMirage.Data {
 		///------------------------------------------------------------------------------------------------
 		/// <summary>名前</summary>
 		public string _name	{ get; protected set; }
+		/// <summary>イベント登録鍵</summary>
+		protected readonly string _registerEventKey;
 		/// <summary>全情報の辞書</summary>
 		[SMShow] protected readonly Dictionary<TKey, TValue> _datas = new Dictionary<TKey, TValue>();
 
@@ -53,13 +55,14 @@ namespace SubmarineMirage.Data {
 		/// </summary>
 		public BaseSMDataManager() {
 			_name = typeof( TValue ).GetAboutName();
+			_registerEventKey = _name;
 
-			_loadEvent.AddLast( async canceler => {
+			_loadEvent.AddLast( _registerEventKey, async canceler => {
 				foreach ( var pair in _datas ) {
 					await pair.Value.Load();
 				}
 			} );
-			_saveEvent.AddLast( async canceler => {
+			_saveEvent.AddLast( _registerEventKey, async canceler => {
 				foreach ( var pair in _datas ) {
 					await pair.Value.Save();
 				}

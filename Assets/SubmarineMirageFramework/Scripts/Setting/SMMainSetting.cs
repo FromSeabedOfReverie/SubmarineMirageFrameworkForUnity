@@ -9,7 +9,6 @@ namespace SubmarineMirage.Setting {
 	using UnityEngine;
 	using Base;
 	using Service;
-	using File;
 	using Debug;
 	///====================================================================================================
 	/// <summary>
@@ -121,10 +120,10 @@ namespace SubmarineMirage.Setting {
 		/// <summary>サーバー版（サーバー）</summary>
 		public string _serverVersionByServer	{ get; set; } = INITIAL_VERSION;
 
-		/// <summary>アプリケーションを更新するべきか？</summary>
-		public bool _isUpdateApplication { get; private set; }
-		/// <summary>サーバーキャッシュ情報を更新するべきか？</summary>
-		public bool _isUpdateServer { get; private set; }
+		/// <summary>アプリケーション更新を要求か？</summary>
+		public bool _isRequestUpdateApplication	=> _versionBySave != _versionByServer;
+		/// <summary>サーバーキャッシュ情報更新を要求か？</summary>
+		public bool _isRequestUpdateServer		=> _serverVersionBySave != _serverVersionByServer;
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -133,33 +132,6 @@ namespace SubmarineMirage.Setting {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMMainSetting() {
-		}
-
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 更新要求を判定
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public void CheckRequestUpdate() {
-			// ダウンロード失敗の場合、更新を見送る
-			var networkManager = SMServiceLocator.Resolve<SMNetworkManager>();
-			if ( networkManager._isConnecting ) {
-				_isUpdateApplication = _versionBySave != _versionByServer;
-				_isUpdateServer = _serverVersionBySave != _serverVersionByServer;
-			}
-
-			if ( !SMDebugManager.IS_DEVELOP )	{ return; }
-
-			// デバッグ情報を表示
-			SMLog.Debug(
-				string.Join( "\n",
-					$"アプリ版 : サーバー{_versionByServer} : 保存{_versionBySave}",
-					$"サーバー版 : サーバー{_serverVersionByServer} : 保存{_serverVersionBySave}",
-					$"アプリ : {( _isUpdateApplication ? "更新が必要" : "最新" )}",
-					$"読込 : {( _isUpdateServer ? "サーバー" : "キャッシュ" )}"
-				),
-				SMLogTag.Server
-			);
 		}
 	}
 }

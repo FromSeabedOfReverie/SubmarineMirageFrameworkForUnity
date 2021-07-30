@@ -145,6 +145,9 @@ namespace SubmarineMirage.Data.Save {
 					break;
 			}
 
+			// Dispose時に、元のキャッシュが解放されないよう、リンクを切る
+			_cacheData = null;
+
 			await base.Save();
 		}
 	}

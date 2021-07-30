@@ -59,7 +59,7 @@ public class CMData : SMCSVData<SMPlatformType> {
 	/// </summary>
 	public override async UniTask Load() {
 		// バナー画像読込
-		var loader = SMServiceLocator.Resolve<SMFileManager>()._fileLoader;
+		var loader = SMServiceLocator.Resolve<SMFileManager>().Get<SMFileLoader>();
 		_banner = await loader.LoadServer<Sprite>( _bannerURL );
 
 		await base.Load();

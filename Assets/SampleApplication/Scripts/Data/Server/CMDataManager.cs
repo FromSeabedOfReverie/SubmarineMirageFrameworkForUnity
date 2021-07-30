@@ -23,7 +23,7 @@ public class CMDataManager : SMCSVDataManager<SMPlatformType, CMData> {
 	/// <summary>
 	/// ● コンストラクタ
 	/// </summary>
-	public CMDataManager() : base ( SMMainSetting.CM_DATA_PATH, "", SMFileLocation.Server, 1 ) {
+	public CMDataManager() : base( SMMainSetting.CM_DATA_PATH, "", SMFileLocation.Server, 1 ) {
 	}
 
 	///----------------------------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ namespace SubmarineMirage.Data {
 		/// <summary>読込書類名</summary>
 		public readonly string _fileName;
 		/// <summary>書類の型</summary>
-		protected readonly SMFileLocation _fileType;
+		protected readonly SMFileLocation _location;
 		/// <summary>読込開始の行数</summary>
 		protected readonly int _loadStartIndex;
 
@@ -40,29 +40,31 @@ namespace SubmarineMirage.Data {
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public SMCSVDataManager( string path, string fileName, SMFileLocation fileType, int loadStartIndex ) {
+		public SMCSVDataManager( string path, string fileName, SMFileLocation location, int loadStartIndex ) {
 			_path = path;
 			_fileName = fileName;
-			_fileType = fileType;
+			_location = location;
 			_loadStartIndex = loadStartIndex;
 
 			_loadEvent.AddFirst( async canceler => {
-				var loader = SMServiceLocator.Resolve<SMFileManager>()._csvLoader;
-				var path = Path.Combine( _path, _fileName );
-				var datas = await loader.Load( _fileType, path, false );    // 指定書類を読込
+				var loader = SMServiceLocator.Resolve<SMFileManager>().Get<SMCSVLoader>();
+				var allPath = Path.Combine( _path, _fileName );
+				var datas = await loader.Load( _location, allPath, false );    // 指定書類を読込
 
 				// データが存在しない場合、エラー
 				if ( datas == null ) {
 					throw new InvalidOperationException( string.Join( "\n",
 						$"データ読込失敗 : ",
 						$"{nameof( SMCSVDataManager<TKey, TValue> )}.()",
-						$"{nameof( _path )} : {_path}",
+						$"{nameof( allPath )} : {allPath}",
 						$"{this}"
 					) );
 				}
 
 				// 全情報を設定
-				datas.ForEach( ( d, i ) => SetData( _fileName, i, d ) );
+				for ( var i = _loadStartIndex; i < datas.Count; i++ ) {
+					SetData( _fileName, i - _loadStartIndex, datas[i] );
+				}
 			} );
 
 			_saveEvent.AddFirst( async canceler => {

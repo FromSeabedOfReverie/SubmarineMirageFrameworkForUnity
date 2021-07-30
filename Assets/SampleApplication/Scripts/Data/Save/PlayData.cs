@@ -16,6 +16,7 @@ using SubmarineMirage.File;
 using SubmarineMirage.Data.Raw;
 using SubmarineMirage.Data.Save;
 using SubmarineMirage.Extension;
+using SubmarineMirage.Utility;
 using SubmarineMirage.Setting;
 ///========================================================================================================
 /// <summary>
@@ -26,6 +27,8 @@ public class PlayData : BaseSMSaveData {
 	///----------------------------------------------------------------------------------------------------
 	/// ● 要素
 	///----------------------------------------------------------------------------------------------------
+	/// <summary>保存番号</summary>
+	public int _saveID;
 	/// <summary>一度でも保存したか？</summary>
 	public bool _isSave;
 	/// <summary>日付</summary>
@@ -40,6 +43,7 @@ public class PlayData : BaseSMSaveData {
 	public List<string> _afterFieldNames = new List<string>();
 	/// <summary>スクリーンショット画像の、生情報一覧</summary>
 	public List<SMTextureRawData> _pictureRawData = new List<SMTextureRawData>();
+
 	/// <summary>スクリーンショット画像の、情報一覧</summary>
 	// Sprite型は、そのまま保存できない
 	[IgnoreDataMember] public List<Sprite> _pictures = new List<Sprite>();
@@ -48,9 +52,16 @@ public class PlayData : BaseSMSaveData {
 	/// ● 作成、削除
 	///----------------------------------------------------------------------------------------------------
 	/// <summary>
-	/// ● コンストラクタ
+	/// ● コンストラクタ（読込用）
 	/// </summary>
 	public PlayData() {
+	}
+
+	/// <summary>
+	/// ● コンストラクタ（書込用）
+	/// </summary>
+	public PlayData( int saveID ) {
+		_saveID = saveID;
 	}
 
 	/// <summary>
@@ -94,26 +105,23 @@ public class PlayData : BaseSMSaveData {
 	/// ● 保存
 	/// </summary>
 	public override async UniTask Save() {
-		var fileManager = SMServiceLocator.Resolve<SMFileManager>();
-		var loader = fileManager._fileLoader;
-
-		// フォルダ内の、元々ある写真を削除
-		var path = Path.Combine( SMMainSetting.SAVE_EXTERNAL_PATH, SMMainSetting.PICTURE_FILE_PATH );
-		fileManager.DeletePath( path );
+		var loader = SMServiceLocator.Resolve<SMFileManager>().Get<SMFileLoader>();
 
 		// 生情報に変換
 		ResetRawData();
 		_pictureRawData = _pictures
-			.Select( data => data.ToRawData( SMTextureRawData.Type.JPG, 90 ) )	// JPG形式で変換
+			.Select( data => data.ToRawData( SMTextureRawData.Type.JPG, 100 ) )	// JPG形式に変換
 			.ToList();
+
+		// フォルダ内の、元々ある写真を削除
+		var path = Path.Combine( SMMainSetting.SAVE_EXTERNAL_PATH, SMMainSetting.PICTURE_FILE_PATH, $"{_saveID}" );
+		PathSMUtility.Delete( path );
 
 		// 写真をJPG形式で非同期保存
 		await _pictureRawData.Select( async ( data, i ) => {
-			var path = Path.Combine(
-				SMMainSetting.PICTURE_FILE_PATH,
-				string.Format( SMMainSetting.PICTURE_FILE_NAME_FORMAT, i + 1 )
-			);
-			await loader.SaveExternal( path, data._data );
+			var name = string.Format( SMMainSetting.PICTURE_FILE_NAME_FORMAT, i + 1 );
+			var p = Path.Combine( SMMainSetting.PICTURE_FILE_PATH, $"{_saveID}", name );
+			await loader.SaveExternal( p, data._data );
 		} );
 
 		_isSave = true;
@@ -122,7 +130,7 @@ public class PlayData : BaseSMSaveData {
 	}
 
 	///----------------------------------------------------------------------------------------------------
-	/// ● 取得
+	/// ● 判定
 	///----------------------------------------------------------------------------------------------------
 	/// <summary>
 	/// ● 操作説明後か？

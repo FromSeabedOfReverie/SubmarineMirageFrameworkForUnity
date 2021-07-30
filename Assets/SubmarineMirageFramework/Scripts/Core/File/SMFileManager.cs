@@ -5,14 +5,14 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.File {
-	using System.IO;
+	using System;
 	using System.Linq;
 	using System.Collections.Generic;
+	using KoganeUnityLib;
 	using Service;
 	using Task;
 	using Data;
 	using Data.Cache;
-	using Setting;
 	using Debug;
 	///====================================================================================================
 	/// <summary>
@@ -26,28 +26,21 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		[SMShowLine] public override SMTaskRunType _type => SMTaskRunType.Sequential;
 
-		/// <summary>キャッシュ情報</summary>
-		public SMTemporaryCacheDataManager _tempCaches	{ get; private set; }
-
-		/// <summary>書類読み書き</summary>
-		public readonly SMFileLoader _fileLoader = new SMFileLoader();
-		/// <summary>暗号化書類読み書き</summary>
-		public readonly SMCryptoLoader _cryptoLoader = new SMCryptoLoader();
-		/// <summary>CSV書類読み書き</summary>
-		public readonly SMCSVLoader _csvLoader = new SMCSVLoader();
 		/// <summary>読み書きクラスの一覧</summary>
-		readonly List<BaseSMDataLoader> _loaders;
+		readonly Dictionary<Type, BaseSMDataLoader> _loaders = new Dictionary<Type, BaseSMDataLoader>();
+		/// <summary>キャッシュ情報</summary>
+		public SMTemporaryCacheDataManager _tempCaches { get; private set; }
 
 		/// <summary>全読み書きクラス総合の、読込中の数</summary>
-		public int _loadingCount		=> _loaders.Sum( l => l._loadingCount );
+		public int _loadingCount		=> _loaders.Sum( pair => pair.Value._loadingCount );
 		/// <summary>全読み書きクラス総合の、保存中の数</summary>
-		public int _savingCount			=> _loaders.Sum( l => l._savingCount );
+		public int _savingCount			=> _loaders.Sum( pair => pair.Value._savingCount );
 		/// <summary>全読み書きクラス総合の、配信中の数</summary>
-		public int _downloadingCount	=> _loaders.Sum( l => l._downloadingCount );
+		public int _downloadingCount	=> _loaders.Sum( pair => pair.Value._downloadingCount );
 		/// <summary>全読み書きクラス総合の、読込後の数</summary>
-		public int _downloadedCount		=> _loaders.Sum( l => l._downloadedCount );
+		public int _downloadedCount		=> _loaders.Sum( pair => pair.Value._downloadedCount );
 		/// <summary>全読み書きクラス総合の、失敗の数</summary>
-		public int _errorCount			=> _loaders.Sum( l => l._errorCount );
+		public int _errorCount			=> _loaders.Sum( pair => pair.Value._errorCount );
 
 		/// <summary>全読み書きクラスが、総合的に読込中か？</summary>
 		public bool _isLoading		=> _loadingCount > 0;
@@ -69,15 +62,16 @@ namespace SubmarineMirage.File {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMFileManager() {
-			_loaders = new List<BaseSMDataLoader>() {
-				_fileLoader, _cryptoLoader, _csvLoader,
-			};
+			Register( new SMFileLoader( this ) );
+			Register( new SMCryptoLoader( this ) );
+			Register( new SMCSVLoader( this ) );
+
 
 			_disposables.AddFirst( () => {
 				ResetAllCount();
 				_tempCaches = null;
 
-				_loaders.ForEach( l => l.Dispose() );
+				_loaders.ForEach( pair => pair.Value.Dispose() );
 				_loaders.Clear();
 			} );
 		}
@@ -86,41 +80,36 @@ namespace SubmarineMirage.File {
 		/// ● 作成
 		/// </summary>
 		public override void Create() {
-			_tempCaches = SMServiceLocator.Resolve<SMAllDataManager>().Get<SMTemporaryCacheDataManager>();
-			_loaders.ForEach( l => l.Setup( this ) );
+			// 一時キャッシュを登録
+			var allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
+			_tempCaches = allDataManager.Register( new SMTemporaryCacheDataManager() );
+
+			_loaders.ForEach( pair => pair.Value.Setup() );
 		}
 
 		/// <summary>
 		/// ● 全回数をリセット
 		/// </summary>
 		public void ResetAllCount()
-			=> _loaders.ForEach( l => l.ResetCount() );
+			=> _loaders.ForEach( pair => pair.Value.ResetCount() );
 
 		///------------------------------------------------------------------------------------------------
-		/// ● 階層
+		/// ● 登録、解除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 階層を作成
+		/// ● 登録
 		/// </summary>
-		public void CreatePath( string path ) {
-			// 階層が存在する場合、未処理
-			if ( Directory.Exists( path ) )	{ return; }
-
-			// 階層作成
-			Directory.CreateDirectory( path );
-			SMLog.Debug( $"階層作成 : {path}", SMLogTag.File );
+		public void Register( BaseSMDataLoader loader ) {
+			_loaders[loader.GetType()] = loader;
 		}
 
+		///------------------------------------------------------------------------------------------------
+		/// ● 取得
+		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 階層を削除
+		/// ● 取得
 		/// </summary>
-		public void DeletePath( string path ) {
-			// 階層が存在しない場合、未処理
-			if ( !Directory.Exists ( path ) )	{ return; }
-
-			// 階層削除
-			Directory.Delete( path, true );
-			SMLog.Debug( $"階層削除 : {path}", SMLogTag.File );
-		}
+		public T Get<T>() where T : BaseSMDataLoader
+			=> _loaders.GetOrDefault( typeof( T ) ) as T;
 	}
 }

@@ -32,10 +32,11 @@ namespace SubmarineMirage.Data {
 		///------------------------------------------------------------------------------------------------
 		public override SMTaskRunType _type => SMTaskRunType.Sequential;
 
-		SMFileManager _fileManager { get; set; }
-
 		/// <summary>全情報の辞書</summary>
 		readonly Dictionary<Type, IBaseSMDataManager> _datas = new Dictionary<Type, IBaseSMDataManager>();
+
+		SMFileManager _fileManager { get; set; }
+		SMMainSetting _setting { get; set; }
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
@@ -48,6 +49,7 @@ namespace SubmarineMirage.Data {
 				_datas.Clear();
 
 				_fileManager = null;
+				_setting = null;
 			} );
 		}
 
@@ -56,21 +58,23 @@ namespace SubmarineMirage.Data {
 		/// </summary>
 		public override void Create() {
 			_fileManager = SMServiceLocator.Resolve<SMFileManager>();
-			var setting = SMServiceLocator.Resolve<ISMDataSetting>();
+			_setting = SMServiceLocator.Resolve<SMMainSetting>();
+			var dataSetting = SMServiceLocator.Resolve<BaseSMDataSetting>();
+			dataSetting.Setup();
 
 
-			// 一時キャッシュを登録
-			Register( new SMTemporaryCacheDataManager() );
+			// アプリ固有の保存情報を登録
+			dataSetting.RegisterDatas( SMDataSettingType.Save );
+
+
+			// アプリのサーバー情報を登録
+			Register( new SMApplicationServerDataManager() );
 			// 保存キャッシュを登録
 			Register( new SMSaveCacheDataManager() );
-			// アプリ情報を登録
-			Register( new ApplicationDataManager() );
-			// アプリ固有の保存情報を登録
-			setting.RegisterDatas( SMDataSettingType.Save );
 
 
 			// アプリ固有のサーバー情報を登録
-			setting.RegisterDatas( SMDataSettingType.Server );
+			dataSetting.RegisterDatas( SMDataSettingType.Server );
 
 
 			// システム情報を登録
@@ -91,11 +95,11 @@ namespace SubmarineMirage.Data {
 			Register( new SMCSVDataManager<SMAdvertisementType, SMAdvertisementData>(
 				"System", "AdvertisementIDs", SMFileLocation.Resource, 1 ) );
 			// アプリ固有のマスター情報を登録
-			setting.RegisterDatas( SMDataSettingType.Master );
+			dataSetting.RegisterDatas( SMDataSettingType.Master );
 
 
 			// 情報設定を解放
-			SMServiceLocator.Unregister<ISMDataSetting>();
+			SMServiceLocator.Unregister<BaseSMDataSetting>();
 
 
 			_selfInitializeEvent.AddLast( async canceler => {
@@ -164,8 +168,8 @@ namespace SubmarineMirage.Data {
 				SMLog.Debug( $"{this.GetAboutName()} : 読込完了", SMLogTag.Data );
 
 				// 更新する必要があり、データをダウンロードした場合、キャッシュ保存
-				if ( _application._isUpdateServer && _fileManager._isDownloaded ) {
-					await saveCache.Save();
+				if ( _setting._isRequestUpdateServer && _fileManager._isDownloaded ) {
+					await saveCache._saveEvent.Run( _asyncCancelerOnDispose );
 				}
 			}
 			_fileManager.ResetAllCount();    // 計測初期化
@@ -184,18 +188,6 @@ namespace SubmarineMirage.Data {
 			foreach ( var pair in _datas ) {
 				await pair.Value._saveEvent.Run( _asyncCancelerOnDispose );
 			}
-		}
-
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● サーバーのキャッシュを読込可能か？
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public bool IsCanLoadServerCache() {
-			var networkManager = SMServiceLocator.Resolve<SMNetworkManager>();
-
-			// 接続切れか、ダウンロード済キャッシュが最新の場合、キャッシュ使用可能
-			return !networkManager._isConnecting || !_application._isUpdateServer;
 		}
 	}
 }

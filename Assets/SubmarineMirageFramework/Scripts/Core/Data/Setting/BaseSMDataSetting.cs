@@ -4,19 +4,24 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Cache {
-	using Data.Save;
+namespace SubmarineMirage.Data {
+	using System.Linq;
+	using System.Collections.Generic;
+	using KoganeUnityLib;
+	using Base;
+	using Service;
 	///====================================================================================================
 	/// <summary>
-	/// ■ 一時キャッシュ情報の管理クラス
-	///		アプリ起動時のみ確保され、セーブされない、一時キャッシュ。
-	///		サーバー受信情報、Resourcesファイル等の、全情報をキャッシュし、格納している。
+	/// ■ データ設定の基盤クラス
 	/// </summary>
 	///====================================================================================================
-	public class SMTemporaryCacheDataManager : BaseSMDataManager<string, SMTemporaryCacheData> {
+	public abstract class BaseSMDataSetting : SMStandardBase, ISMService {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
+		public Dictionary< SMDataSettingType, List<IBaseSMDataManager> > _datas { get; protected set; }
+			= new Dictionary< SMDataSettingType, List<IBaseSMDataManager> >();
+		SMAllDataManager _allDataManager	{ get; set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -24,29 +29,35 @@ namespace SubmarineMirage.Data.Cache {
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public SMTemporaryCacheDataManager() {
+		public BaseSMDataSetting() {
+			_disposables.AddLast( () => {
+				_datas
+					.SelectMany( pair => pair.Value )
+					.ForEach( d => d.Dispose() );
+				_datas.Clear();
+
+				_allDataManager = null;
+			} );
+		}
+
+		/// <summary>
+		/// ● 設定
+		/// </summary>
+		public virtual void Setup() {
+			_allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
 		}
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 登録、解除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 登録（書込用）
+		/// ● 登録
 		/// </summary>
-		public void Register( string path, object data ) {
-			var cacheData = Get( path );
-			if ( cacheData != null ) {
-				cacheData.Setup( data );
-				return;
-			}
-			_datas[path] = new SMTemporaryCacheData( path, data );
-		}
-
-		/// <summary>
-		/// ● 登録（読込用）
-		/// </summary>
-		public void Register( SMTemporaryCacheData data ) {
-			_datas[data._path] = data;
+		public void RegisterDatas( SMDataSettingType type ) {
+			_datas[type].ForEach( d => _allDataManager.Register( d ) );
+			// Dispose前に、参照を切る
+			_datas[type].Clear();
+			_datas.Remove( type );
 		}
 	}
 }

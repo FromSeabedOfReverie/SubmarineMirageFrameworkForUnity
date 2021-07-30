@@ -12,10 +12,10 @@ namespace SubmarineMirage.Data.Server {
 	using Debug;
 	///====================================================================================================
 	/// <summary>
-	/// ■ アプリケーション情報の管理クラス
+	/// ■ アプリケーションのサーバー情報の管理クラス
 	/// </summary>
 	///====================================================================================================
-	public class ApplicationDataManager : SMCSVDataManager<SMEdition, ApplicationData> {
+	public class SMApplicationServerDataManager : SMCSVDataManager<SMEdition, SMApplicationServerData> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
@@ -25,8 +25,9 @@ namespace SubmarineMirage.Data.Server {
 		/// ● コンストラクタ
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public ApplicationDataManager() : base( SMMainSetting.APPLICATION_DATA_PATH, "", SMFileLocation.Server, 1
-		) {
+		public SMApplicationServerDataManager()
+			: base( SMMainSetting.APPLICATION_DATA_PATH, "", SMFileLocation.Server, 1 )
+		{
 			_mainSetting = SMServiceLocator.Resolve<SMMainSetting>();
 
 			_loadEvent.AddLast( async canceler => {
@@ -44,7 +45,7 @@ namespace SubmarineMirage.Data.Server {
 		/// ● 取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		public ApplicationData Get()
+		public SMApplicationServerData Get()
 			=> Get( _mainSetting._editionBySave );
 	}
 }

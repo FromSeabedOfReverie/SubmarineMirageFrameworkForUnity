@@ -29,29 +29,21 @@ public class SettingDataManager : BaseSMDataManager<int, SettingData> {
 	/// ● コンストラクタ（読込用）
 	/// </summary>
 	public SettingDataManager() {
-		var loader = SMServiceLocator.Resolve<SMFileManager>()._cryptoLoader;
+		var loader = SMServiceLocator.Resolve<SMFileManager>().Get<SMCryptoLoader>();
 
 
 		_loadEvent.AddFirst( async canceler => {
-			// 展示版の場合、新規情報のまま、未読込
-			if ( SettingData.GetEdition() == SMEdition.Exhibition ) {
-				Register( REGISTER_INDEX, new SettingData() );
-				return;
+			var data = await loader.Load<SettingData>( SMMainSetting.SETTING_FILE_NAME );
+			if ( data == null )	{ data = new SettingData(); }
+
+			// 保存版とアプリ版が異なる場合、更新
+			if ( data._version != SMMainSetting.APPLICATION_VERSION ) {
+// TODO : 本当は、更新対応した方が良いが、省略
+				data.Dispose();
+				data = new SettingData();
 			}
 
-			// 評価版、製品版の場合
-			// 読込成功で、バージョンが等しい場合、登録
-			var newData = await loader.Load<SettingData>( SMMainSetting.SETTING_FILE_NAME );
-			if ( newData != null ) {
-				if ( newData._version == SMMainSetting.APPLICATION_VERSION ) {
-					Register( REGISTER_INDEX, newData );
-				} else {
-					newData.Dispose();
-				}
-			}
-			if ( Get() == null ) {
-				Register( REGISTER_INDEX, new SettingData() );
-			}
+			Register( REGISTER_INDEX, data );
 		} );
 
 

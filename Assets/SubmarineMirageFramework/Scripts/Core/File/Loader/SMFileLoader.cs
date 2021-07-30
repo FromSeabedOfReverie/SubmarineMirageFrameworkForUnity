@@ -29,7 +29,8 @@ namespace SubmarineMirage.File {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		SMAllDataManager _allDataManager	{ get; set; }
+		SMNetworkManager _networkManager	{ get; set; }
+		SMMainSetting _setting				{ get; set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -37,20 +38,21 @@ namespace SubmarineMirage.File {
 		/// <summary>
 		/// ● コンストラクタ
 		/// </summary>
-		public SMFileLoader() {
+		public SMFileLoader( SMFileManager fileManager ) : base( fileManager ) {
 			_disposables.AddFirst( () => {
-				_allDataManager = null;
+				_networkManager = null;
+				_setting = null;
 			} );
 		}
 
 		/// <summary>
 		/// ● 設定
 		/// </summary>
-		public override void Setup( SMFileManager fileManager ) {
-			base.Setup( fileManager );
-
-			_allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
+		public override void Setup() {
+			_networkManager = SMServiceLocator.Resolve<SMNetworkManager>();
+			_setting = SMServiceLocator.Resolve<SMMainSetting>();
 		}
+
 		///------------------------------------------------------------------------------------------------
 		/// ● 読込
 		///------------------------------------------------------------------------------------------------
@@ -227,37 +229,6 @@ namespace SubmarineMirage.File {
 		}
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 取得（読込階層）
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		string GetLoadPath( SMFileLocation location, string path ) {
-			var topPath = "";
-			switch ( location ) {
-				case SMFileLocation.Server:		topPath = "";											break;
-				case SMFileLocation.External:	topPath = $"file://{SMMainSetting.LOAD_EXTERNAL_PATH}";	break;
-				case SMFileLocation.Resource:	topPath = SMMainSetting.LOAD_RESOURCE_PATH;				break;
-			}
-			// 階層を結合
-			return Path.Combine( topPath, path );
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● キャッシュ使用可能か？
-		/// </summary>
-		///------------------------------------------------------------------------------------------------
-		public bool IsCanUseCache( SMFileLocation location, bool isWantUseCache ) {
-			switch ( location ) {
-				// サーバー通信読込の場合、使用希望か、キャッシュ読込可能の場合、可能
-				case SMFileLocation.Server:
-					return isWantUseCache || _allDataManager.Get<Server>().IsCanLoadServerCache();
-
-				// それ以外の場合、希望通りに可能
-				default:
-					return isWantUseCache;
-			}
-		}
-		///------------------------------------------------------------------------------------------------
-		/// <summary>
 		/// ● 保存（アプリ外階層）
 		///		※拡張子を含む。
 		/// </summary>
@@ -267,7 +238,7 @@ namespace SubmarineMirage.File {
 		) {
 			try {
 				_savingCount++;
-				path = Path.Combine( SMMainSetting.SAVE_EXTERNAL_PATH, path );	// 外部保存のみ対応
+				path = Path.Combine( SMMainSetting.SAVE_EXTERNAL_PATH, path );  // 外部保存のみ対応
 				byte[] rawData = null;
 
 				var dataType = SMAllDataManager.GetDataType( typeof( T ) );
@@ -300,7 +271,7 @@ namespace SubmarineMirage.File {
 
 				// フォルダを作成
 				var folder = Path.GetDirectoryName( path );
-				_fileManager.CreatePath( folder );
+				PathSMUtility.Create( folder );
 
 				// 上書き保存
 				var file = new FileStream( path, FileMode.Create, FileAccess.Write );
@@ -315,6 +286,41 @@ namespace SubmarineMirage.File {
 				SMLog.Error( $"保存中に問題発生 : {path}\n{data}\n{e}", SMLogTag.File );
 				_errorCount++;
 			}
+		}
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 判定
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● キャッシュ使用可能か？
+		/// </summary>
+		public bool IsCanUseCache( SMFileLocation location, bool isWantUseCache ) {
+			switch ( location ) {
+				// サーバー通信読込の場合、使用希望か、接続切れか、ダウンロード済キャッシュが最新の場合
+				case SMFileLocation.Server:
+					return isWantUseCache || !_networkManager._isConnecting || !_setting._isRequestUpdateServer;
+
+				// それ以外の場合、希望通りに可能
+				default:
+					return isWantUseCache;
+			}
+		}
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 取得
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 読込階層を取得
+		/// </summary>
+		string GetLoadPath( SMFileLocation location, string path ) {
+			var topPath = "";
+			switch ( location ) {
+				case SMFileLocation.Server:		topPath = "";											break;
+				case SMFileLocation.External:	topPath = $"file://{SMMainSetting.LOAD_EXTERNAL_PATH}";	break;
+				case SMFileLocation.Resource:	topPath = SMMainSetting.LOAD_RESOURCE_PATH;				break;
+			}
+			// 階層を結合
+			return Path.Combine( topPath, path );
 		}
 	}
 }

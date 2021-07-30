@@ -65,7 +65,7 @@ public class ApplicationCMData : SMURLData<int> {
 	/// </summary>
 	public override async UniTask Load() {
 		// アイコン画像読込
-		var loader = SMServiceLocator.Resolve<SMFileManager>()._fileLoader;
+		var loader = SMServiceLocator.Resolve<SMFileManager>().Get<SMFileLoader>();
 		_icon = await loader.LoadServer<Sprite>( _iconURL );
 
 		await base.Load();
