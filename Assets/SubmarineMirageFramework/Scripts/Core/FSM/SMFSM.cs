@@ -22,7 +22,7 @@ namespace SubmarineMirage.FSM {
 
 
 	public class SMFSM : SMLinkNode {
-		[SMShowLine] ISMFSMOwner _owner	{ get; set; }
+		[SMShowLine] object _owner	{ get; set; }
 		[SMShow] readonly Dictionary<Type, SMState> _states = new Dictionary<Type, SMState>();
 		[SMShowLine] public SMState _state	{ get; private set; }
 
@@ -31,6 +31,10 @@ namespace SubmarineMirage.FSM {
 
 		[SMShow] public bool _isInitialized	{ get; private set; }
 		bool _isInternalActive				{ get; set; }
+
+		SMSubject _fixedUpdateEvent	{ get; set; }
+		SMSubject _updateEvent		{ get; set; }
+		SMSubject _lateUpdateEvent	{ get; set; }
 
 		[SMShow] readonly SMModifyler _modifyler = new SMModifyler( nameof( SMFSM ) );
 
@@ -76,8 +80,14 @@ namespace SubmarineMirage.FSM {
 
 
 
-		public SMFSM() {
+		public SMFSM( SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
+						SMSubject lateUpdateEvent = null
+		) {
 			_isActive = true;
+			_fixedUpdateEvent = fixedUpdateEvent;
+			_updateEvent = updateEvent;
+			_lateUpdateEvent = lateUpdateEvent;
+
 
 			_disposables.AddLast( () => {
 				_modifyler.Dispose();
@@ -89,10 +99,14 @@ namespace SubmarineMirage.FSM {
 				_states.Clear();
 				_state = null;
 
-				new SMSubject[] { _owner._fixedUpdateEvent, _owner._updateEvent, _owner._lateUpdateEvent }
+				new SMSubject[] { _fixedUpdateEvent, _updateEvent, _lateUpdateEvent }
 					.Where( e => e != null )
 					.Where( e => !e._isDispose )
 					.ForEach( e => e.Remove( _name ) );
+				_fixedUpdateEvent = null;
+				_updateEvent = null;
+				_lateUpdateEvent = null;
+
 				_owner = null;
 
 				_isInternalActive = false;
@@ -105,7 +119,7 @@ namespace SubmarineMirage.FSM {
 
 		public override void Dispose() => base.Dispose();
 
-		public void Setup( ISMFSMOwner owner, IEnumerable<SMState> states, Type baseStateType = null ) {
+		public void Setup( object owner, IEnumerable<SMState> states, Type baseStateType = null ) {
 			CheckDisposeError( nameof( Setup ) );
 			if ( _owner != null ) {
 				throw new InvalidOperationException( $"既に実行済 : {nameof( Setup )}\n{this}" );
@@ -129,14 +143,14 @@ namespace SubmarineMirage.FSM {
 				_states[type] = s;
 			} );
 
-			_owner._fixedUpdateEvent	?.AddLast( _name ).Subscribe( _ => FixedUpdateState() );
-			_owner._updateEvent			?.AddLast( _name ).Subscribe( _ => UpdateState() );
-			_owner._lateUpdateEvent		?.AddLast( _name ).Subscribe( _ => LateUpdateState() );
+			_fixedUpdateEvent	?.AddLast( _name ).Subscribe( _ => FixedUpdateState() );
+			_updateEvent		?.AddLast( _name ).Subscribe( _ => UpdateState() );
+			_lateUpdateEvent	?.AddLast( _name ).Subscribe( _ => LateUpdateState() );
 		}
 
 
 
-		public static SMFSM Generate( ISMFSMOwner owner, SMFSMGenerateList generateDatas ) {
+		public static SMFSM Generate( object owner, SMFSMGenerateList generateDatas ) {
 			SMFSM first = null;
 			SMFSM last = null;
 			generateDatas.ForEach( data => {
@@ -194,7 +208,7 @@ namespace SubmarineMirage.FSM {
 
 
 
-		void FixedUpdateState() {
+		public void FixedUpdateState() {
 			if ( _state == null )									{ return; }
 			if ( _state._ranState < SMStateRunState.AsyncUpdate )	{ return; }
 
@@ -208,7 +222,7 @@ namespace SubmarineMirage.FSM {
 			}
 		}
 
-		void UpdateState() {
+		public void UpdateState() {
 			if ( _state == null )									{ return; }
 			if ( _state._ranState < SMStateRunState.FixedUpdate )	{ return; }
 
@@ -222,7 +236,7 @@ namespace SubmarineMirage.FSM {
 			}
 		}
 
-		void LateUpdateState() {
+		public void LateUpdateState() {
 			if ( _state == null )								{ return; }
 			if ( _state._ranState < SMStateRunState.Update )	{ return; }
 

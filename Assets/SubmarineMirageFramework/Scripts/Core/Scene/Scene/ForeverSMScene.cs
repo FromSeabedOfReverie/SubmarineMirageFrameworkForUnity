@@ -4,15 +4,17 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM {
-	using Base;
-	using Event;
+namespace SubmarineMirage.Scene {
+	using UnityEngine.SceneManagement;
 
 
 
-	public interface ISMFSMOwner : ISMStandardBase {
-		SMSubject _fixedUpdateEvent	{ get; }
-		SMSubject _updateEvent		{ get; }
-		SMSubject _lateUpdateEvent	{ get; }
+	public class ForeverSMScene : SMScene {
+		public ForeverSMScene() {
+			_rawScene = SceneManager.CreateScene( _name );
+		}
+
+
+		protected override void ReloadRawScene() {}
 	}
 }

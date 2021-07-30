@@ -15,8 +15,8 @@ namespace SubmarineMirage.FSM {
 
 
 	public abstract class SMState : SMStandardBase {
-		[SMShow] protected ISMFSMOwner _owner	{ get; private set; }
-		[SMShow] protected SMFSM _fsm			{ get; private set; }
+		[SMShow] protected object _owner	{ get; private set; }
+		[SMShow] protected SMFSM _fsm		{ get; private set; }
 
 		[SMShowLine] public SMStateRunState _ranState	{ get; set; }
 
@@ -69,7 +69,7 @@ namespace SubmarineMirage.FSM {
 
 		public override void Dispose() => base.Dispose();
 
-		public virtual void Setup( ISMFSMOwner owner, SMFSM fsm ) {
+		public virtual void Setup( object owner, SMFSM fsm ) {
 			CheckDisposeError( nameof( Setup ) );
 
 			_owner = owner;

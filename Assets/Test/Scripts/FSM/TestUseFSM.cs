@@ -14,7 +14,7 @@ namespace SubmarineMirage.TestFSM {
 
 
 
-	public class Human : SMTask, ISMFSMOwner {
+	public class Human : SMTask {
 		public SMFSM _fsm	{ get; private set; }
 		public override void Create() {
 			_fsm = new SMFSM();
@@ -28,7 +28,7 @@ namespace SubmarineMirage.TestFSM {
 	}
 	public abstract class HumanState : SMState {
 		public new Human _owner { get; private set; }
-		public override void Setup( ISMFSMOwner owner, SMFSM fsm ) {
+		public override void Setup( object owner, SMFSM fsm ) {
 			base.Setup( owner, fsm );
 			_owner = base._owner as Human;
 		}
@@ -62,7 +62,7 @@ namespace SubmarineMirage.TestFSM {
 
 
 
-	public class Dragon : SMTask, ISMFSMOwner {
+	public class Dragon : SMTask {
 		public SMFSM _headFSM	{ get; private set; }
 		public SMFSM _bodyFSM	{ get; private set; }
 		public SMFSM _dummyFSM	{ get; private set; }
@@ -106,7 +106,7 @@ namespace SubmarineMirage.TestFSM {
 	}
 	public abstract class DragonState : SMState {
 		public new Dragon _owner { get; private set; }
-		public override void Setup( ISMFSMOwner owner, SMFSM fsm ) {
+		public override void Setup( object owner, SMFSM fsm ) {
 			base.Setup( owner, fsm );
 			_owner = base._owner as Dragon;
 		}
@@ -176,7 +176,7 @@ namespace SubmarineMirage.TestFSM {
 
 
 
-	public class Dummy : SMTask, ISMFSMOwner {
+	public class Dummy : SMTask {
 		public SMFSM _fsm	{ get; private set; }
 		public override void Create() {
 			_fsm = SMFSM.Generate(
@@ -194,7 +194,7 @@ namespace SubmarineMirage.TestFSM {
 	}
 	public abstract class DummyState : SMState {
 		public new Dummy _owner { get; private set; }
-		public override void Setup( ISMFSMOwner owner, SMFSM fsm ) {
+		public override void Setup( object owner, SMFSM fsm ) {
 			base.Setup( owner, fsm );
 			_owner = base._owner as Dummy;
 		}

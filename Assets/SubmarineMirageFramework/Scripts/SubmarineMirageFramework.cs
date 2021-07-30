@@ -14,6 +14,7 @@ namespace SubmarineMirage {
 	using Task;
 	using File;
 	using Data;
+	using Scene;
 	using Extension;
 	using Utility;
 	using Setting;
@@ -96,7 +97,8 @@ namespace SubmarineMirage {
 			await registerSettingsEvent();
 
 			new SMSplashScreenWaiter();
-//			SMServiceLocator.Register( new SMSceneManager() );
+			SMServiceLocator.Register( new SMSceneManager() );
+
 			await taskManager.Initialize();
 
 			if ( SMDebugManager.s_isPlayTest ) {

@@ -12,6 +12,7 @@ using KoganeUnityLib;
 using SubmarineMirage;
 using SubmarineMirage.Service;
 using SubmarineMirage.Data;
+using SubmarineMirage.Scene;
 using SubmarineMirage.Extension;
 using SubmarineMirage.Utility;
 using SubmarineMirage.Debug;
@@ -41,7 +42,7 @@ public static class ApplicationMain {
 
 	static async UniTask RegisterSettings() {
 		SMServiceLocator.Register<BaseSMDataSetting>( new SMDataSetting() );
-//		SMServiceLocator.Register<ISMSceneSetting>( new SMSceneSetting() );
+		SMServiceLocator.Register<ISMSceneSetting>( new SMSceneSetting() );
 
 		await UTask.DontWait();
 	}
