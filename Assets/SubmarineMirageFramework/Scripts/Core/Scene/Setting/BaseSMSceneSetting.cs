@@ -5,18 +5,23 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
-	using Task;
-	using Debug;
+	using Base;
+	using FSM;
+	using Service;
 
 
 
-	public class OpenWorldCenter : SMBehaviour {
-		public override void Create() {
-			var scene = ( OpenWorldSMScene )_object._body._groupBody._managerBody._scene;
-			scene.Setup( this );
+	public abstract class BaseSMSceneSetting : SMStandardBase, ISMService {
+		public SMFSMGenerateList _datas	{ get; protected set; } = new SMFSMGenerateList();
 
-			var test = new Test.TestOpenWorldCenter( this );
-			_disposables.AddLast( test );
+
+
+		public BaseSMSceneSetting() {
+			_disposables.AddLast( () => {
+				_datas.Dispose();
+			} );
 		}
+
+		public abstract void Setup();
 	}
 }

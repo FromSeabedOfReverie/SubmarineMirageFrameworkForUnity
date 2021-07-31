@@ -42,7 +42,7 @@ public static class ApplicationMain {
 
 	static async UniTask RegisterSettings() {
 		SMServiceLocator.Register<BaseSMDataSetting>( new SMDataSetting() );
-		SMServiceLocator.Register<ISMSceneSetting>( new SMSceneSetting() );
+		SMServiceLocator.Register<BaseSMSceneSetting>( new SMSceneSetting() );
 
 		await UTask.DontWait();
 	}

@@ -101,6 +101,9 @@ namespace SubmarineMirage.Task {
 					UniRxSMExtension.EveryOnGUI().Subscribe( _ => _onGUIEvent.Run() )
 				);
 			}
+			_disposables.AddLast( () => {
+				SubmarineMirageFramework.Shutdown();
+			} );
 #if TestTask
 			_disposables.AddFirst( () =>
 				SMLog.Debug( $"{nameof( SMTaskManager )}.{nameof( Dispose )} : start\n{this}" )

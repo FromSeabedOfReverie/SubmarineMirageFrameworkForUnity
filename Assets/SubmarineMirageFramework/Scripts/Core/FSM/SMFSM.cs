@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestFSM
+//#define TestFSM
 namespace SubmarineMirage.FSM {
 	using System;
 	using System.Linq;
@@ -52,6 +52,7 @@ namespace SubmarineMirage.FSM {
 				_modifyler._isLock = !_isInternalActive;
 			}
 		}
+
 		public bool _isAllActive {
 			get => GetFSMs().All( fsm => fsm._isActive );
 			set {
@@ -60,6 +61,7 @@ namespace SubmarineMirage.FSM {
 				GetFSMs().ForEach( fsm => fsm._isActive = value );
 			}
 		}
+
 		public bool _isAllInitialized
 			=> GetFSMs().All( fsm => fsm._isInitialized );
 
@@ -80,13 +82,8 @@ namespace SubmarineMirage.FSM {
 
 
 
-		public SMFSM( SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
-						SMSubject lateUpdateEvent = null
-		) {
+		public SMFSM() {
 			_isActive = true;
-			_fixedUpdateEvent = fixedUpdateEvent;
-			_updateEvent = updateEvent;
-			_lateUpdateEvent = lateUpdateEvent;
 
 
 			_disposables.AddLast( () => {
@@ -119,7 +116,10 @@ namespace SubmarineMirage.FSM {
 
 		public override void Dispose() => base.Dispose();
 
-		public void Setup( object owner, IEnumerable<SMState> states, Type baseStateType = null ) {
+		public void Setup( object owner, IEnumerable<SMState> states, Type baseStateType = null,
+							SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
+							SMSubject lateUpdateEvent = null
+		) {
 			CheckDisposeError( nameof( Setup ) );
 			if ( _owner != null ) {
 				throw new InvalidOperationException( $"既に実行済 : {nameof( Setup )}\n{this}" );
@@ -129,6 +129,14 @@ namespace SubmarineMirage.FSM {
 			_baseStateType = baseStateType ?? typeof( SMState );
 			_name = $"{nameof( SMFSM )}<{_baseStateType.GetAboutName()}>";
 			_modifyler._name = _name;
+
+			var task = _owner as SMTask;
+			_fixedUpdateEvent	= fixedUpdateEvent	?? task?._fixedUpdateEvent;
+			_updateEvent		= updateEvent		?? task?._updateEvent;
+			_lateUpdateEvent	= lateUpdateEvent	?? task?._lateUpdateEvent;
+			_fixedUpdateEvent	?.AddLast( _name ).Subscribe( _ => FixedUpdateState() );
+			_updateEvent		?.AddLast( _name ).Subscribe( _ => UpdateState() );
+			_lateUpdateEvent	?.AddLast( _name ).Subscribe( _ => LateUpdateState() );
 
 			states.ForEach( s => {
 				var type = s.GetType();
@@ -142,21 +150,21 @@ namespace SubmarineMirage.FSM {
 				s.Setup( _owner, this );
 				_states[type] = s;
 			} );
-
-			_fixedUpdateEvent	?.AddLast( _name ).Subscribe( _ => FixedUpdateState() );
-			_updateEvent		?.AddLast( _name ).Subscribe( _ => UpdateState() );
-			_lateUpdateEvent	?.AddLast( _name ).Subscribe( _ => LateUpdateState() );
 		}
 
 
 
-		public static SMFSM Generate( object owner, SMFSMGenerateList generateDatas ) {
+		public static SMFSM Generate( object owner, SMFSMGenerateList generateDatas,
+										SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
+										SMSubject lateUpdateEvent = null
+		) {
 			SMFSM first = null;
 			SMFSM last = null;
 			generateDatas.ForEach( data => {
 				data.CreateStates();
 				var current = new SMFSM();
-				current.Setup( owner, data._states, data._baseStateType );
+				current.Setup(
+					owner, data._states, data._baseStateType, fixedUpdateEvent, updateEvent, lateUpdateEvent );
 
 				if ( first == null )	{ first = current; }
 				last?.LinkLast( current );
@@ -171,7 +179,9 @@ namespace SubmarineMirage.FSM {
 		public IEnumerable<SMFSM> GetFSMs() {
 			CheckDisposeError( nameof( GetFSMs ) );
 
-			return GetAlls() as IEnumerable<SMFSM>;
+			foreach ( var node in GetAlls() ) {
+				yield return node as SMFSM;
+			}
 		}
 
 		public SMFSM GetFSM( Type baseStateType ) {
@@ -310,7 +320,7 @@ namespace SubmarineMirage.FSM {
 
 			switch ( type ) {
 				case SMTaskRunType.Sequential:
-					foreach ( var fsm in GetFSMs() ) {
+					foreach ( var fsm in GetFSMs().Reverse() ) {
 						await fsm.ChangeState( null );
 					}
 					break;

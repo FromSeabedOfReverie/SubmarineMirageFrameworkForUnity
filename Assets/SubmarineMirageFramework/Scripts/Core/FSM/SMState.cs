@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestFSM
+//#define TestFSM
 namespace SubmarineMirage.FSM {
 	using Base;
 	using Event;

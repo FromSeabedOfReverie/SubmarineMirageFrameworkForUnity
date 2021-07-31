@@ -5,57 +5,33 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 using System;
-using SubmarineMirage.Base;
 using SubmarineMirage.FSM;
 using SubmarineMirage.Scene;
 
 
 
-public class SMSceneSetting : SMStandardBase, ISMSceneSetting {
-	public SMFSMGenerateList _sceneFSMList	{ get; private set; }
-
-
-	public SMSceneSetting() {
-		_sceneFSMList = new SMFSMGenerateList {
+public class SMSceneSetting : BaseSMSceneSetting {
+	public override void Setup() {
+		_datas = new SMFSMGenerateList {
 			{
 				new Type[] { typeof( ForeverSMScene ), },
-				typeof( ForeverSMScene ),
-				null,
-				false,
-				true
+				typeof( ForeverSMScene )
 			}, {
 				new Type[] {
+					typeof( UnknownSMScene ),
 					typeof( TitleSMScene ),
 					typeof( GameSMScene ),
-//					typeof( FieldSMScene ),
-//					typeof( GameOverSMScene ),
-//					typeof( GameClearSMScene ),
-					typeof( UnknownSMScene ),
+					typeof( GameOverSMScene ),
+					typeof( GameClearSMScene ),
 				},
-				typeof( MainSMScene ),
-				null,
-				false,
-				true
-/*
+				typeof( MainSMScene )
 			}, {
 				new Type[] { typeof( UISMScene ), },
-				typeof( UISMScene ),
-				null,
-				false,
-				true
+				typeof( UISMScene )
 			}, {
 				new Type[] { typeof( DebugSMScene ), },
-				typeof( DebugSMScene ),
-				null,
-				false,
-				true
-*/
+				typeof( DebugSMScene )
 			},
 		};
-
-
-		_disposables.AddLast( () => {
-			_sceneFSMList.Dispose();
-		} );
 	}
 }

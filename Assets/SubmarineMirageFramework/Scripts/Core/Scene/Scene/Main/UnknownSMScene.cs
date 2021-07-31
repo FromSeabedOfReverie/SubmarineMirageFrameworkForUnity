@@ -7,6 +7,8 @@
 namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
+	using System.Collections.Generic;
+	using UnityEngine.SceneManagement;
 	using KoganeUnityLib;
 	using Extension;
 	using Debug;
@@ -18,31 +20,30 @@ namespace SubmarineMirage.Scene {
 		}
 
 
-		public void Setup() {
-			// 中心シーンが設定済の場合、未処理
-			if ( _owner._mainFSM._body._startStateType != null )	{ return; }
-
-			var scenes = _owner.GetUnknownRawScenes();
-			var count = scenes.Count();
-			if ( count == 0 )	{ return; }
-
+		public void Setup( List<Scene> unknownScenes ) {
+			var count = unknownScenes.Count();
+			if ( count == 0 ) {
+				throw new InvalidOperationException( string.Join( "\n",
+					$"設定不可 : 不明場面が無",
+					$"{nameof( UnknownSMScene )}.{nameof( Setup )}",
+					$"{unknownScenes.ToShowString( 0, true )}"
+				) );
+			}
 			if ( count > 1 ) {
-				throw new InvalidOperationException(
-					$"不明なシーンが複数ある為、{nameof( UnknownSMScene )}に設定不可 : \n"
-					+ scenes.ToShowString()
-				);
+				throw new InvalidOperationException( string.Join( "\n",
+					$"設定不可 : 不明場面が複数存在",
+					$"{nameof( UnknownSMScene )}.{nameof( Setup )}",
+					$"{unknownScenes.ToShowString( 0, true )}"
+				) );
 			}
 
-			_rawScene = scenes.FirstOrDefault();
+			_rawScene = unknownScenes.FirstOrDefault();
 			_name = _rawScene.name;
-			_fsm._body._startStateType = GetType();
 
 			// テストの場合、高確率で不明シーンはテストシーンな為、下手に読み込み解除しないようにする
-			if ( SubmarineMirageFramework.s_isPlayTest ) {
+			if ( SMDebugManager.s_isPlayTest ) {
 				_exitEvent.Remove( _registerEventName );
 			}
-
-//			SMLog.Debug( _owner._mainFSM._body._startStateType?.GetAboutName() );
 		}
 
 

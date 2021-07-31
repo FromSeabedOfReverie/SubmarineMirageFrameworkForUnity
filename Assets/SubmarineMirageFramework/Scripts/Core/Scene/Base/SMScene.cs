@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestScene
 namespace SubmarineMirage.Scene {
 	using System;
 	using System.Linq;
@@ -12,13 +13,11 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
+	using Service;
 	using Event;
 	using Task;
-	using Task.Modifyler;
 	using Task.Marker;
 	using FSM;
-	using FSM.State;
-	using Behaviour;
 	using Extension;
 	using Utility;
 	using Debug;
@@ -28,16 +27,16 @@ namespace SubmarineMirage.Scene {
 	public abstract class SMScene : SMState {
 		public new SMSceneManager _owner { get; private set; }
 
-//		SMTaskRunType _type = SMTaskRunType.Parallel;
-
-		public bool _isEntered	{ get; private set; }
-		protected virtual bool _isUseUnloadUnusedAssets => true;
-
-		SMTaskMarkerManager _taskMarkers;
-
-		[SMShow] public Scene _rawScene { get; protected set; }
 		[SMShowLine] public string _name { get; protected set; }
 		[SMShow] protected string _registerEventName { get; private set; }
+
+		[SMShow] public bool _isEntered	{ get; private set; }
+		[SMShow] protected virtual bool _isUseUnloadUnusedAssets => true;
+
+		SMTaskMarkerManager _taskMarkers { get; set; }
+
+		[SMShow] public Scene _rawScene { get; protected set; }
+
 		public readonly SMAsyncEvent _createBehavioursEvent = new SMAsyncEvent();
 
 
@@ -47,20 +46,52 @@ namespace SubmarineMirage.Scene {
 			ReloadRawScene();
 			_registerEventName = this.GetAboutName();
 
-			_enterEvent.AddLast( _registerEventName, _ => Enter() );
-			_exitEvent.AddLast( _registerEventName, _ => Exit() );
+
+			_enterEvent.AddLast( _registerEventName, async canceler => {
+				var isRemove = _owner.RemoveFirstLoaded( this );
+				if ( !isRemove ) {
+					await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive )
+						.ToUniTask( canceler );
+					ReloadRawScene();
+				}
+				if ( this is MainSMScene ) {
+					SceneManager.SetActiveScene( _rawScene );
+				}
+
+				var taskManager = SMServiceLocator.Resolve<SMTaskManager>();
+//				_taskMarkers = new SMTaskMarkerManager( _registerEventName, taskManager );
+				await _createBehavioursEvent.Run( canceler );
+				await LoadBehaviour( canceler );
+
+// TODO : 循環待機になり、永遠に終わらない
+//				await _taskMarkers.InitializeAll();
+
+				_isEntered = true;
+			} );
+
+
+			_exitEvent.AddLast( _registerEventName, async canceler => {
+				_isEntered = false;
+
+//				await _taskMarkers.FinalizeAll();
+				_taskMarkers = null;
+
+				await SceneManager.UnloadSceneAsync( _name )
+					.ToUniTask( canceler );
+				ReloadRawScene();
+				if ( _isUseUnloadUnusedAssets ) {
+					await Resources.UnloadUnusedAssets()
+						.ToUniTask( canceler );
+				}
+			} );
+
 
 			_disposables.AddLast( () => {
 				_taskMarkers?.Dispose();
-			} );
+				_createBehavioursEvent.Dispose();
 
-/*
-			var test = new Test.TestSMScene( this );
-			test.SetEvent();
-			_disposables.AddLast( () => {
-				test.Dispose();
+				_isEntered = false;
 			} );
-*/
 		}
 
 		public override void Setup( object owner, SMFSM fsm ) {
@@ -72,41 +103,11 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public async UniTask Enter() {
-			var isRemove = _owner.RemoveFirstLoaded( this );
-			if ( !isRemove ) {
-				await SceneManager.LoadSceneAsync( _name, LoadSceneMode.Additive )
-					.ToUniTask( _asyncCancelerOnDisableAndExit );
-				ReloadRawScene();
-			}
-			if ( this is MainSMScene ) {
-				SceneManager.SetActiveScene( _rawScene );
-			}
+		async UniTask LoadBehaviour( SMAsyncCanceler canceler ) {
+			await UTask.DontWait();
+/*
+// TODO : SMBehaviour修正後、コメントアウト
 
-			_taskMarkers = new SMTaskMarkerManager( this.GetAboutName() );
-			await _createBehavioursEvent.Run( _asyncCancelerOnDisableAndExit );
-			await Load();
-
-			await _taskMarkers.InitializeAll();
-
-			_isEntered = true;
-		}
-
-		public async UniTask Exit() {
-			_isEntered = false;
-
-			await _taskMarkers.FinalizeAll();
-
-			await SceneManager.UnloadSceneAsync( _name )
-				.ToUniTask( _asyncCancelerOnDisableAndExit );
-			ReloadRawScene();
-			if ( _isUseUnloadUnusedAssets ) {
-				await Resources.UnloadUnusedAssets()
-					.ToUniTask( _asyncCancelerOnDisableAndExit );
-			}
-		}
-
-		async UniTask Load() {
 			foreach ( var go in _rawScene.GetRootGameObjects() ) {
 				var bs = go.GetComponentsInChildren<SMBehaviour>();
 				if ( bs.IsEmpty() )	{ continue; }
@@ -120,8 +121,9 @@ namespace SubmarineMirage.Scene {
 					b.Constructor( this );
 				} );
 
-				await UTask.NextFrame( _asyncCancelerOnDisableAndExit );
+				await UTask.NextFrame( canceler );
 			}
+*/
 		}
 
 
@@ -138,19 +140,10 @@ namespace SubmarineMirage.Scene {
 		public bool IsInBuild()
 			=> _owner.IsExistSceneInBuild( _rawScene.path );
 
-
-
-		public SMTask GetFirst( SMTaskRunType type, bool isRaw = false )
-			=> _taskMarkers.GetFirst( type, isRaw );
-
-		public SMTask GetLast( SMTaskRunType type, bool isRaw = false )
-			=> _taskMarkers.GetLast( type, isRaw );
-
-		IEnumerable<SMTask> GetAlls( SMTaskRunType type )
-			=> _taskMarkers.GetAlls( type, true );
-
+/*
 		public IEnumerable<SMBehaviourBody> GetBehaviours()
-			=> _taskMarkers.GetAlls()
+			=> _taskMarkers.GetAlls( type, false )
 				.Select( t => t as SMBehaviourBody );
+*/
 	}
 }

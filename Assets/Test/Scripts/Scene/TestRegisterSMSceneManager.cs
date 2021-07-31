@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene.Test {
+namespace SubmarineMirage.TestScene {
 	using System;
 	using System.Linq;
 	using UnityEngine;
@@ -13,23 +13,24 @@ namespace SubmarineMirage.Scene.Test {
 	using KoganeUnityLib;
 	using Base;
 	using Service;
+	using Scene;
 	using Extension;
 	using Utility;
 	using Debug;
 
 
 
-	public class TestSMSceneManager : SMStandardBase {
+	public class TestRegisterSMSceneManager : SMStandardBase {
 		SMSceneManager _sceneManager;
 
 
-		public TestSMSceneManager( SMSceneManager sceneManager ) {
+		public TestRegisterSMSceneManager( SMSceneManager sceneManager ) {
 			_sceneManager = sceneManager;
 
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Return ) ).Subscribe( _ => {
 					SMLog.Warning( "終了押下！！" );
-					_sceneManager.Finalize().Forget();
+					_sceneManager.AllChangeNullState().Forget();
 				} )
 			);
 			
@@ -37,32 +38,31 @@ namespace SubmarineMirage.Scene.Test {
 			var scenes = new Type[] {
 				typeof( TitleSMScene ),
 				typeof( GameSMScene ),
-//				typeof( FieldSMScene ),
-//				typeof( GameOverSMScene ),
-//				typeof( GameClearSMScene ),
+				typeof( GameOverSMScene ),
+				typeof( GameClearSMScene ),
 			};
 			_disposables.AddLast(
 				Observable.EveryUpdate().Where( _ => Input.GetKeyDown( KeyCode.Space ) ).Subscribe( _ => {
 					var t = scenes[i];
 					SMLog.Warning( $"遷移押下 : {t.GetAboutName()}" );
-					_sceneManager._mainFSM.ChangeState( t ).Forget();
+					_sceneManager.GetFSM<MainSMScene>().ChangeState( t ).Forget();
 					i = ( i + 1 ) % scenes.Count();
-//					SMLog.Debug( _sceneManager._mainFSM._body._modifyler.ToString() );
 				} )
 			);
-///*
+
+//			return;
+
 			UTask.Void( async () => {
 				var debugDisplay =
-					await SMServiceLocator.WaitResolve<DebugDisplay>( _sceneManager._asyncCancelerOnDispose );
+					await SMServiceLocator.WaitResolve<SMDisplayLog>( _sceneManager._asyncCancelerOnDispose );
 				while ( true ) {
 					debugDisplay.Add( $"{_sceneManager.GetAboutName()} : { _sceneManager._ranState }" );
 					_sceneManager.GetScenes().ForEach(
-						s => debugDisplay.Add( $"{s.GetAboutName()} : { s._body._ranState }" )
+						s => debugDisplay.Add( $"{s.GetAboutName()} : { s._ranState }" )
 					);
 					await UTask.NextFrame( _sceneManager._asyncCancelerOnDispose );
 				}
 			} );
-//*/
 		}
 
 
@@ -90,14 +90,16 @@ namespace SubmarineMirage.Scene.Test {
 				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._disableEvent )}" );
 			} );
 
+			return;
+
 			_sceneManager._fixedUpdateEvent.AddLast().Subscribe( _ => {
-//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._fixedUpdateEvent )}" );
+				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._fixedUpdateEvent )}" );
 			} );
 			_sceneManager._updateEvent.AddLast().Subscribe( _ => {
-//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._updateEvent )}" );
+				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._updateEvent )}" );
 			} );
 			_sceneManager._lateUpdateEvent.AddLast().Subscribe( _ => {
-//				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._lateUpdateEvent )}" );
+				SMLog.Debug( $"{_sceneManager.GetAboutName()}.{nameof( _sceneManager._lateUpdateEvent )}" );
 			} );
 		}
 	}

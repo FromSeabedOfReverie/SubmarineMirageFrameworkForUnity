@@ -6,15 +6,25 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
+	using Utility;
 
 
 
 	public class ForeverSMScene : SMScene {
 		public ForeverSMScene() {
-			_rawScene = SceneManager.CreateScene( _name );
+			_exitEvent.AddLast( _registerEventName, async canceler => {
+				_owner.ResetForeverRawScene();
+				await UTask.DontWait();
+			} );
+		}
+
+		public void Setup( Scene rawScene ) {
+			_rawScene = rawScene;
 		}
 
 
-		protected override void ReloadRawScene() {}
+
+		protected override void ReloadRawScene() {
+		}
 	}
 }
