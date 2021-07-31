@@ -1,18 +1,21 @@
 {
     "name": "Application",
+    "rootNamespace": "",
     "references": [
-        "GameDevWare.Serialization",
-        "KoganeUnityLib",
-        "SubmarineMirageFramework",
         "UniRx",
-        "UniTask"
+        "UniTask",
+        "KoganeUnityLib",
+        "GameDevWare.Serialization",
+        "BuildBaseSMLog",
+        "SubmarineMirageFramework"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
