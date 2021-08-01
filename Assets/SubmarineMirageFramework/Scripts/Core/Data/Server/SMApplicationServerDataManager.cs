@@ -37,6 +37,8 @@ namespace SubmarineMirage.Data.Server {
 				_mainSetting._versionByServer = data._version;
 				_mainSetting._serverVersionByServer = data._serverVersion;
 
+//				SMLog.Debug( this );
+
 				await UTask.DontWait();
 			} );
 		}

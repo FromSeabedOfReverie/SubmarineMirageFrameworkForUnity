@@ -10,6 +10,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using SubmarineMirage;
 using SubmarineMirage.Service;
 using SubmarineMirage.Data.Save;
 using SubmarineMirage.Setting;
@@ -56,29 +57,29 @@ public class SettingData : BaseSMSaveData {
 	};
 
 	/// <summary>現在のアプリケーションの版</summary>
-	public SMEdition _edition;
+	[SMShow] public SMEdition _edition;
 	/// <summary>現在のアプリケーションの更新版</summary>
-	public string _version;
+	[SMShow] public string _version;
 	/// <summary>画面状態</summary>
-	public SMScreenMode _screenMode;
+	[SMShow] public SMScreenMode _screenMode;
 	/// <summary>画面の大きさ</summary>
-	public SMScreenSize _screenSize;
+	[SMShow] public SMScreenSize _screenSize;
 	/// <summary>描画品質</summary>
-	public SMQuality _quality;
+	[SMShow] public SMQuality _quality;
 	/// <summary>目標の、1秒間の画面描画回数（FPS）</summary>
-	public SMFrameRate _frameRate;
+	[SMShow] public SMFrameRate _frameRate;
 	/// <summary>音楽の音量</summary>
-	public float _bgmVolume;
+	[SMShow] public float _bgmVolume;
 	/// <summary>声音の音量</summary>
-	public float _voiceVolume;
+	[SMShow] public float _voiceVolume;
 	/// <summary>効果音の音量</summary>
-	public float _seVolume;
+	[SMShow] public float _seVolume;
 	/// <summary>デバッグ表示するか？</summary>
-	public bool  _isViewDebug;
+	[SMShow] public bool  _isViewDebug;
 	/// <summary>広告削除機能を購入したか？</summary>
-	public bool _isPurchasedDeleteAdvertisement;
+	[SMShow] public bool _isPurchasedDeleteAdvertisement;
 	/// <summary>遊戯情報一覧の内、読込中の遊戯情報の添字</summary>
-	public int _playDataIndex;
+	[SMShow] public int _playDataIndex;
 
 	///----------------------------------------------------------------------------------------------------
 	/// ● 作成、削除

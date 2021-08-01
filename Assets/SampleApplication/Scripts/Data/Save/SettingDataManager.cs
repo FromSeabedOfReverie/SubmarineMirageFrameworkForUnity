@@ -34,16 +34,25 @@ public class SettingDataManager : BaseSMDataManager<int, SettingData> {
 
 		_loadEvent.AddFirst( async canceler => {
 			var data = await loader.Load<SettingData>( SMMainSetting.SETTING_FILE_NAME );
-			if ( data == null )	{ data = new SettingData(); }
+			if ( data == null ) {
+				Register( REGISTER_INDEX, new SettingData() );
+				SMLog.Debug( $"データが存在しない為、初期化生成\n{nameof( SettingData )}", SMLogTag.Data );
+				await loader.Save( SMMainSetting.SETTING_FILE_NAME, Get() );
+				return;
+			}
 
 			// 保存版とアプリ版が異なる場合、更新
 			if ( data._version != SMMainSetting.APPLICATION_VERSION ) {
 // TODO : 本当は、更新対応した方が良いが、省略
 				data.Dispose();
-				data = new SettingData();
+				Register( REGISTER_INDEX, new SettingData() );
+				SMLog.Debug( $"データが古い為、初期化生成\n{nameof( SettingData )}", SMLogTag.Data );
+				await loader.Save( SMMainSetting.SETTING_FILE_NAME, Get() );
+				return;
 			}
 
 			Register( REGISTER_INDEX, data );
+			SMLog.Debug( $"読込成功\n{nameof( SettingData )}", SMLogTag.Data );
 		} );
 
 

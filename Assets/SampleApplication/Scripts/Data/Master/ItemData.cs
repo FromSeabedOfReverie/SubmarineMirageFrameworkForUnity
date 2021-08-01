@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 using System.Collections.Generic;
 using KoganeUnityLib;
+using SubmarineMirage;
 using SubmarineMirage.Data;
 ///========================================================================================================
 /// <summary>
@@ -20,15 +21,15 @@ public class ItemData : SMCSVData<string> {
 	public override string _registerKey => _name;
 
 	/// <summary>番号</summary>
-	public int _itemID			{ get; private set; }
+	[SMShow] public int _itemID			{ get; private set; }
 	/// <summary>オブジェクト名</summary>
-	public string _objectName	{ get; private set; }
+	[SMShow] public string _objectName	{ get; private set; }
 	/// <summary>名前</summary>
-	public string _name			{ get; private set; }
+	[SMShow] public string _name		{ get; private set; }
 	/// <summary>消費値</summary>
-	public int _consumption		{ get; private set; }
+	[SMShow] public int _consumption	{ get; private set; }
 	/// <summary>説明文</summary>
-	public string _explanation	{ get; private set; }
+	[SMShow] public string _explanation	{ get; private set; }
 
 	///----------------------------------------------------------------------------------------------------
 	/// ● 作成、削除

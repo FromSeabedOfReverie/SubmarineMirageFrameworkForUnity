@@ -69,7 +69,7 @@ namespace SubmarineMirage.Setting {
 		/// <summary>現在のアプリ版</summary>
 		public static readonly string APPLICATION_VERSION = Application.version;
 		/// <summary>版の初期値</summary>
-		public const string INITIAL_VERSION = "0.00";
+		public const string INITIAL_VERSION = "0.01";
 
 
 		/// <summary>設定情報の書類名</summary>

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using KoganeUnityLib;
+using SubmarineMirage;
 using SubmarineMirage.Service;
 using SubmarineMirage.File;
 using SubmarineMirage.Data;
@@ -25,17 +26,17 @@ public class CMData : SMCSVData<SMPlatformType> {
 	public override SMPlatformType _registerKey => _platform;
 
 	/// <summary>アプリ実行機種</summary>
-	public SMPlatformType _platform	{ get; private set; }
+	[SMShow] public SMPlatformType _platform	{ get; private set; }
 	/// <summary>表題名</summary>
-	public string _title			{ get; private set; }
+	[SMShow] public string _title				{ get; private set; }
 	/// <summary>説明文</summary>
-	public string _info				{ get; private set; }
+	[SMShow] public string _info				{ get; private set; }
 	/// <summary>バナー画像のURL</summary>
-	public string _bannerURL		{ get; private set; }
+	[SMShow] public string _bannerURL			{ get; private set; }
 	/// <summary>ストアのURL</summary>
-	public string _url				{ get; private set; }
+	[SMShow] public string _url					{ get; private set; }
 	/// <summary>バナー画像</summary>
-	public Sprite _banner			{ get; private set; }
+	public Sprite _banner						{ get; private set; }
 
 	///----------------------------------------------------------------------------------------------------
 	/// ● 作成、削除

@@ -17,6 +17,10 @@ namespace SubmarineMirage.Scene {
 
 	public class UnknownSMScene : MainSMScene {
 		public UnknownSMScene() {
+			// テストの場合、高確率で不明シーンはテストシーンな為、下手に読み込み解除しないようにする
+			if ( SMDebugManager.s_isPlayTest ) {
+				_exitEvent.Remove( _registerEventName );
+			}
 		}
 
 
@@ -39,11 +43,6 @@ namespace SubmarineMirage.Scene {
 
 			_rawScene = unknownScenes.FirstOrDefault();
 			_name = _rawScene.name;
-
-			// テストの場合、高確率で不明シーンはテストシーンな為、下手に読み込み解除しないようにする
-			if ( SMDebugManager.s_isPlayTest ) {
-				_exitEvent.Remove( _registerEventName );
-			}
 		}
 
 

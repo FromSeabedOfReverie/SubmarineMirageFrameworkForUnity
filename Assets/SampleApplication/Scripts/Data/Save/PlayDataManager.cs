@@ -55,37 +55,38 @@ public class PlayDataManager : BaseSMDataManager<int, PlayData> {
 
 		_loadEvent.AddLast( async canceler => {
 			_setting = _allDataManager.Get<SettingDataManager>();
+			var mainSetting = SMServiceLocator.Resolve<SMMainSetting>();
 
 			// 情報更新の必要があるか？判定
-			var isRequestUpdate = _setting.Get()._version != SMMainSetting.APPLICATION_VERSION;
+			var isRequestUpdate = mainSetting._versionBySave != SMMainSetting.APPLICATION_VERSION;
 
 			// 全情報を非同期読込
-			await Enumerable
-				.Range( 0, SMMainSetting.MAX_PLAY_DATA_COUNT - 1 )
-				.Select( async i => {
-					var name = string.Format( SMMainSetting.PLAY_FILE_NAME_FORMAT, i );
-					var data = await _loader.Load<PlayData>( name );
+			for ( var i = 0; i < SMMainSetting.MAX_PLAY_DATA_COUNT; i++ ) {
+				var name = string.Format( SMMainSetting.PLAY_FILE_NAME_FORMAT, i );
+				var data = await _loader.Load<PlayData>( name );
 
-					// 存在しない場合、新規作成
-					if ( data == null ) {
-						Register( i, new PlayData( i ) );
-						SMLog.Debug( "データが存在しない為、初期化生成", SMLogTag.Data );
-						return;
-					}
+				// 存在しない場合、新規作成
+				if ( data == null ) {
+					Register( i, new PlayData( i ) );
+					SMLog.Debug( $"データが存在しない為、初期化生成\n{nameof( PlayData )}", SMLogTag.Data );
+					await _loader.Save( name, Get( i ) );
+					continue;
+				}
 
-					// 情報更新が必要な場合
-					if ( isRequestUpdate ) {
+				// 情報更新が必要な場合
+				if ( isRequestUpdate ) {
 // TODO : 本当は、更新対応した方が良いが、省略
-						data.Dispose();
-						Register( i, new PlayData( i ) );
-						SMLog.Debug( "データが古い為、初期化生成", SMLogTag.Data );
-						return;
-					}
+					data.Dispose();
+					Register( i, new PlayData( i ) );
+					SMLog.Debug( $"データが古い為、初期化生成\n{nameof( PlayData )}", SMLogTag.Data );
+					await _loader.Save( name, Get( i ) );
+					continue;
+				}
 
-					// 読み込み成功
-					Register( i, data );
-					SMLog.Debug( "読み込み成功", SMLogTag.Data );
-				} );
+				// 読み込み成功
+				Register( i, data );
+				SMLog.Debug( $"読込成功\n{nameof( PlayData )}", SMLogTag.Data );
+			}
 
 			// 現在情報を読込
 			await LoadCurrentData();

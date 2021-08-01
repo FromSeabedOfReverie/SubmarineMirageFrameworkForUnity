@@ -58,7 +58,7 @@ namespace SubmarineMirage.Scene {
 					SceneManager.SetActiveScene( _rawScene );
 				}
 
-				var taskManager = SMServiceLocator.Resolve<SMTaskManager>();
+//				var taskManager = SMServiceLocator.Resolve<SMTaskManager>();
 //				_taskMarkers = new SMTaskMarkerManager( _registerEventName, taskManager );
 				await _createBehavioursEvent.Run( canceler );
 				await LoadBehaviour( canceler );

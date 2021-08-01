@@ -25,9 +25,9 @@ namespace SubmarineMirage.Data {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>名前</summary>
-		public string _name	{ get; protected set; }
+		[SMShow] public string _name	{ get; protected set; }
 		/// <summary>イベント登録鍵</summary>
-		protected readonly string _registerEventKey;
+		[SMShow] protected readonly string _registerEventKey;
 		/// <summary>全情報の辞書</summary>
 		[SMShow] protected readonly Dictionary<TKey, TValue> _datas = new Dictionary<TKey, TValue>();
 

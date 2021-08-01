@@ -6,7 +6,9 @@
 //---------------------------------------------------------------------------------------------------------
 using SubmarineMirage.File;
 using SubmarineMirage.Data;
+using SubmarineMirage.Utility;
 using SubmarineMirage.Setting;
+using SubmarineMirage.Debug;
 ///========================================================================================================
 /// <summary>
 /// ■ 製品版の宣伝情報の管理クラス
@@ -24,6 +26,12 @@ public class CMDataManager : SMCSVDataManager<SMPlatformType, CMData> {
 	/// ● コンストラクタ
 	/// </summary>
 	public CMDataManager() : base( SMMainSetting.CM_DATA_PATH, "", SMFileLocation.Server, 1 ) {
+/*
+		_loadEvent.AddLast( async canceler => {
+			SMLog.Debug( this );
+			await UTask.DontWait();
+		} );
+*/
 	}
 
 	///----------------------------------------------------------------------------------------------------

@@ -27,7 +27,7 @@ namespace SubmarineMirage.Scene {
 		public override SMTaskRunType _type => SMTaskRunType.Sequential;
 
 		[SMShow] SMFSM _fsm		{ get; set; }
-		Scene _foreverRawScene	{ get; set; }
+		public Scene _foreverRawScene	{ private get; set; }
 		[SMShow] public List<Scene> _firstLoadedRawScenes	{ get; set; } = new List<Scene>();
 
 
@@ -46,7 +46,7 @@ namespace SubmarineMirage.Scene {
 
 
 		public SMSceneManager() {
-			ResetForeverRawScene();
+			_foreverRawScene = SceneManager.CreateScene( "Forever" );
 
 			_disposables.AddLast( () => {
 				_fsm.Dispose();
@@ -113,12 +113,6 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public void ResetForeverRawScene() {
-			_foreverRawScene = SceneManager.CreateScene( "Forever" );
-		}
-
-
-
 		public bool IsFirstLoaded( SMScene scene )
 			=> _firstLoadedRawScenes
 				.Any( s => s.name == scene._name );
@@ -153,19 +147,21 @@ namespace SubmarineMirage.Scene {
 
 
 
-		public IEnumerable<SMScene> GetScenes()
-			=> _fsm.GetFSMs()
+		public IEnumerable<SMScene> GetScenes() {
+			if ( _fsm == null )	{ return Enumerable.Empty<SMScene>(); }
+
+			return _fsm.GetFSMs()
 				.SelectMany( fsm => fsm.GetStates() )
 				.Select( s => s as SMScene )
 				.Distinct();
+		}
 
 		public SMScene GetScene( Scene rawScene )
 			=> GetScenes()
 				.FirstOrDefault( s => s._rawScene == rawScene );
 
-
-
-		public UniTask AllChangeNullState()
-			=> _fsm.AllChangeNullState( SMTaskRunType.Sequential );
+		public SMScene GetScene( Type baseStateType )
+			=> GetFSM( baseStateType )
+				._state as SMScene;
 	}
 }

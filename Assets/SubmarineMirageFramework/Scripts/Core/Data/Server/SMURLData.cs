@@ -18,7 +18,7 @@ namespace SubmarineMirage.Data.Server {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>URL情報の一覧</summary>
-		readonly Dictionary<SMPlatformType, string> _urls = new Dictionary<SMPlatformType, string>();
+		[SMShow] readonly Dictionary<SMPlatformType, string> _urls = new Dictionary<SMPlatformType, string>();
 		/// <summary>URL読込の初期添字</summary>
 		protected abstract int _setURLStartIndex { get; }
 

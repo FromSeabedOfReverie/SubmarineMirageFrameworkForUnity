@@ -16,7 +16,7 @@ namespace SubmarineMirage.Data {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>題目</summary>
-		public string _title { get; private set; }
+		[SMShow] public string _title { get; private set; }
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 設定

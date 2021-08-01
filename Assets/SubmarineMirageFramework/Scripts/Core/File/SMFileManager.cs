@@ -32,28 +32,28 @@ namespace SubmarineMirage.File {
 		public SMTemporaryCacheDataManager _tempCaches { get; private set; }
 
 		/// <summary>全読み書きクラス総合の、読込中の数</summary>
-		public int _loadingCount		=> _loaders.Sum( pair => pair.Value._loadingCount );
+		[SMShow] public int _loadingCount		=> _loaders.Sum( pair => pair.Value._loadingCount );
 		/// <summary>全読み書きクラス総合の、保存中の数</summary>
-		public int _savingCount			=> _loaders.Sum( pair => pair.Value._savingCount );
+		[SMShow] public int _savingCount		=> _loaders.Sum( pair => pair.Value._savingCount );
 		/// <summary>全読み書きクラス総合の、配信中の数</summary>
-		public int _downloadingCount	=> _loaders.Sum( pair => pair.Value._downloadingCount );
+		[SMShow] public int _downloadingCount	=> _loaders.Sum( pair => pair.Value._downloadingCount );
 		/// <summary>全読み書きクラス総合の、読込後の数</summary>
-		public int _downloadedCount		=> _loaders.Sum( pair => pair.Value._downloadedCount );
+		[SMShow] public int _downloadedCount	=> _loaders.Sum( pair => pair.Value._downloadedCount );
 		/// <summary>全読み書きクラス総合の、失敗の数</summary>
-		public int _errorCount			=> _loaders.Sum( pair => pair.Value._errorCount );
+		[SMShow] public int _errorCount			=> _loaders.Sum( pair => pair.Value._errorCount );
 
 		/// <summary>全読み書きクラスが、総合的に読込中か？</summary>
-		public bool _isLoading		=> _loadingCount > 0;
+		[SMShow] public bool _isLoading		=> _loadingCount > 0;
 		/// <summary>全読み書きクラスが、総合的に保存中か？</summary>
-		public bool _isSaving		=> _savingCount > 0;
+		[SMShow] public bool _isSaving		=> _savingCount > 0;
 		/// <summary>全読み書きクラスが、総合的に配信中か？</summary>
-		public bool _isDownloading	=> _downloadingCount > 0;
+		[SMShow] public bool _isDownloading	=> _downloadingCount > 0;
 		/// <summary>全読み書きクラスが、総合的に配信後か？</summary>
-		public bool _isDownloaded	=> _downloadedCount > 0;
+		[SMShow] public bool _isDownloaded	=> _downloadedCount > 0;
 		/// <summary>全読み書きクラスが、総合的に失敗か？</summary>
-		public bool _isError		=> _errorCount > 0;
+		[SMShow] public bool _isError		=> _errorCount > 0;
 		/// <summary>全読み書きクラスが、総合的に成功か？</summary>
-		public bool _isSuccess		=> !_isLoading && !_isSaving && !_isDownloading && !_isError;
+		[SMShow] public bool _isSuccess		=> !_isLoading && !_isSaving && !_isDownloading && !_isError;
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除

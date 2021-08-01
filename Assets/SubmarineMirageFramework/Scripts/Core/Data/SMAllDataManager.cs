@@ -94,6 +94,8 @@ namespace SubmarineMirage.Data {
 			// 広告情報を登録
 			Register( new SMCSVDataManager<SMAdvertisementType, SMAdvertisementData>(
 				"System", "AdvertisementIDs", SMFileLocation.Resource, 1 ) );
+
+
 			// アプリ固有のマスター情報を登録
 			dataSetting.RegisterDatas( SMDataSettingType.Master );
 
@@ -113,11 +115,26 @@ namespace SubmarineMirage.Data {
 		/// <summary>
 		/// ● 登録
 		/// </summary>
-		public T Register<T>( T manager ) where T : class, IBaseSMDataManager {
-			var key = typeof( T );
-			_datas[key] = manager;
+		public IBaseSMDataManager Register( Type type, IBaseSMDataManager manager ) {
+			if ( _datas.ContainsKey( type ) ) {
+				throw new InvalidOperationException( string.Join( "\n",
+					$"登録済みの値を再登録 : ",
+					$"{nameof( type )} : {type}",
+					$"{nameof( manager )} last : {_datas.GetOrDefault( type )}",
+					$"{nameof( manager )} new : {manager}",
+					$"{this}"
+				) );
+			}
+
+			_datas[type] = manager;
 			return manager;
 		}
+
+		/// <summary>
+		/// ● 登録
+		/// </summary>
+		public T Register<T>( T manager ) where T : class, IBaseSMDataManager
+			=> Register( typeof( T ), manager ) as T;
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 取得
@@ -163,21 +180,20 @@ namespace SubmarineMirage.Data {
 				await pair.Value._loadEvent.Run( _asyncCancelerOnDispose );
 			}
 
-			// 読込成功の場合
-			if ( _fileManager._isSuccess ) {
-				SMLog.Debug( $"{this.GetAboutName()} : 読込完了", SMLogTag.Data );
-
-				// 更新する必要があり、データをダウンロードした場合、キャッシュ保存
-				if ( _setting._isRequestUpdateServer && _fileManager._isDownloaded ) {
-					await saveCache._saveEvent.Run( _asyncCancelerOnDispose );
-				}
+			// 更新する必要があり、データをダウンロードした場合、キャッシュ保存
+			if (
+//				_setting._isRequestUpdateServer &&
+				_fileManager._downloadedCount > 1
+			) {
+				await saveCache._saveEvent.Run( _asyncCancelerOnDispose );
 			}
 			_fileManager.ResetAllCount();    // 計測初期化
 
+			SMLog.Debug( $"{nameof( SMAllDataManager )} : 読込完了", SMLogTag.Data );
+
 #if TestData
 			// キャッシュ読込の確認用
-			SMLog.Debug( saveCache );
-			SMLog.Debug( tempCache );
+//			SMLog.Debug( tempCache );
 #endif
 		}
 

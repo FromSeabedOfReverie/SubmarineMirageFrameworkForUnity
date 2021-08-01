@@ -263,7 +263,7 @@ namespace SubmarineMirage.FSM {
 
 
 		public async UniTask ChangeState( Type stateType ) {
-			CheckDisposeError( $"{nameof( ChangeState )}( {stateType.GetAboutName()} )" );
+			CheckDisposeError( $"{nameof( ChangeState )}( {stateType?.GetAboutName()} )" );
 
 			await _modifyler.Register(
 				nameof( ChangeState ),

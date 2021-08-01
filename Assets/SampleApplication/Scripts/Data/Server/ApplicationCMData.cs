@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using KoganeUnityLib;
+using SubmarineMirage;
 using SubmarineMirage.Service;
 using SubmarineMirage.File;
 using SubmarineMirage.Data.Server;
@@ -26,19 +27,19 @@ public class ApplicationCMData : SMURLData<int> {
 	protected override int _setURLStartIndex => 5;
 
 	/// <summary>番号</summary>
-	public int _cmID		{ get; private set; }
+	[SMShow] public int _cmID		{ get; private set; }
 	/// <summary>表題名</summary>
-	public string _title	{ get; private set; }
+	[SMShow] public string _title	{ get; private set; }
 	/// <summary>種類</summary>
-	public string _genre	{ get; private set; }
+	[SMShow] public string _genre	{ get; private set; }
 	/// <summary>説明文</summary>
-	public string _info		{ get; private set; }
+	[SMShow] public string _info	{ get; private set; }
 	/// <summary>新規情報か？</summary>
-	public bool _isNew		{ get; private set; }
+	[SMShow] public bool _isNew		{ get; private set; }
 	/// <summary>アイコン画像のURL</summary>
-	public string _iconURL	{ get; private set; }
+	[SMShow] public string _iconURL	{ get; private set; }
 	/// <summary>アイコン画像</summary>
-	public Sprite _icon		{ get; private set; }
+	public Sprite _icon				{ get; private set; }
 
 	///----------------------------------------------------------------------------------------------------
 	/// ● 作成、削除

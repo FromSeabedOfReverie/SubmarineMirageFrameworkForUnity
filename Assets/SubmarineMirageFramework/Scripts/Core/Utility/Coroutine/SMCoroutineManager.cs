@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestCoroutine
+//#define TestCoroutine
 namespace SubmarineMirage.Utility {
 	using System.Collections.Generic;
 	using UniRx;

@@ -32,23 +32,23 @@ namespace SubmarineMirage.Data.Save {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>名前</summary>
-		[IgnoreDataMember] public string _name { get; protected set; }
+		[IgnoreDataMember, SMShow] public string _name { get; protected set; }
 		/// <summary>版</summary>
 		[SMShow] public string _version = SMMainSetting.INITIAL_VERSION;
 
 		// 以下辞書達は、基底クラスの辞書で纏めると、シリアライザ非対応の為、復元されない
 		// その為、仕方無くジェネリック型ごとに分離した
 		/// <summary>画像の生情報の辞書</summary>
-		public Dictionary< string, SMSaveCacheData<SMTextureRawData> > _textureDatas
+		[SMShow] public Dictionary< string, SMSaveCacheData<SMTextureRawData> > _textureDatas
 			= new Dictionary< string, SMSaveCacheData<SMTextureRawData> >();
 		/// <summary>音の生情報の辞書</summary>
-		public Dictionary< string, SMSaveCacheData<SMAudioRawData> > _audioDatas
+		[SMShow] public Dictionary< string, SMSaveCacheData<SMAudioRawData> > _audioDatas
 			= new Dictionary< string, SMSaveCacheData<SMAudioRawData> >();
 		/// <summary>文章情報の辞書</summary>
-		public Dictionary< string, SMSaveCacheData<string> > _textDatas
+		[SMShow] public Dictionary< string, SMSaveCacheData<string> > _textDatas
 			= new Dictionary< string, SMSaveCacheData<string> >();
 		/// <summary>生情報の辞書</summary>
-		public Dictionary< string, SMSaveCacheData<byte[]> > _rawDatas
+		[SMShow] public Dictionary< string, SMSaveCacheData<byte[]> > _rawDatas
 			= new Dictionary< string, SMSaveCacheData<byte[]> >();
 
 		[IgnoreDataMember] SMTemporaryCacheDataManager _tempCaches	{ get; set; }
@@ -57,6 +57,7 @@ namespace SubmarineMirage.Data.Save {
 		[IgnoreDataMember] public SMAsyncEvent _saveEvent	{ get; private set; } = new SMAsyncEvent();
 
 #region ToString
+/*
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 文章変換を追加
@@ -69,6 +70,7 @@ namespace SubmarineMirage.Data.Save {
 			_textDatas.ToShowString( indent, true ),
 			_rawDatas.ToShowString( indent, true )
 		);
+*/
 #endregion
 
 		///------------------------------------------------------------------------------------------------
@@ -89,11 +91,23 @@ namespace SubmarineMirage.Data.Save {
 				Reset();    // 既存の保存キャッシュを消去
 
 				var data = await loader.Load<SMSaveCacheDataManager>( SMMainSetting.CACHE_FILE_NAME );
-				if ( data != null ) {
+
+				if ( data == null ) {
+					SMLog.Debug(
+						$"データが存在しない為、初期化生成\n{nameof( SMSaveCacheDataManager )}", SMLogTag.Data );
+					await loader.Save( SMMainSetting.CACHE_FILE_NAME, this );
+
+				} else {
 					// 中央設定の版を設定
 					setting._serverVersionBySave = data._version;
 
-					if ( data._version == setting._serverVersionByServer ) {
+					if ( data._version != setting._serverVersionByServer ) {
+						data.Dispose();
+						SMLog.Debug(
+							$"データが古い為、初期化生成\n{nameof( SMSaveCacheDataManager )}", SMLogTag.Data );
+						await loader.Save( SMMainSetting.CACHE_FILE_NAME, this );
+
+					} else {
 						_textureDatas = data._textureDatas;
 						_audioDatas = data._audioDatas;
 						_textDatas = data._textDatas;
@@ -103,8 +117,9 @@ namespace SubmarineMirage.Data.Save {
 						data._audioDatas = null;
 						data._textDatas = null;
 						data._rawDatas = null;
+						data.Dispose();
+						SMLog.Debug( $"読込成功\n{nameof( SMSaveCacheDataManager )}", SMLogTag.Data );
 					}
-					data.Dispose();
 				}
 
 				// サーバー版をダウンロード版に適用
@@ -124,6 +139,7 @@ namespace SubmarineMirage.Data.Save {
 
 				Reset();    // メモリ負荷を抑える為、保存キャッシュを消去
 
+/*
 				if ( SMDebugManager.IS_DEVELOP ) {
 					// デバッグ情報を表示
 					SMLog.Debug(
@@ -137,6 +153,7 @@ namespace SubmarineMirage.Data.Save {
 						SMLogTag.Server
 					);
 				}
+*/
 
 				await Load();
 			} );

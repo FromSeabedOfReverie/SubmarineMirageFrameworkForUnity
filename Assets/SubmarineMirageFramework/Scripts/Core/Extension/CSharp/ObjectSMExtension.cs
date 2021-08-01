@@ -142,9 +142,12 @@ namespace SubmarineMirage.Extension {
 							ToShowString(
 								i.GetValue( self ), indent, isUseInternalLineString, isNextUseLineString, false )
 					) );
-					switch ( self ) {
-						case ISMLightBase lb:	ms += lb.AddToString( indent );	break;
-						case ISMRawBase rb:		ms += rb.AddToString( indent );	break;
+// TODO : 内部がLine表示の時、詳細表示されてしまう
+					if ( !isUseLineString && !isUseInternalLineString ) {
+						switch ( self ) {
+							case ISMLightBase lb:	ms += lb.AddToString( indent );	break;
+							case ISMRawBase rb:		ms += rb.AddToString( indent );	break;
+						}
 					}
 					return string.Join( "\n",
 						$"{hPrefix}{self.GetAboutName()}(",

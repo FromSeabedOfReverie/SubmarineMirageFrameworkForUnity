@@ -11,6 +11,7 @@ namespace SubmarineMirage.Data {
 	using KoganeUnityLib;
 	using Service;
 	using File;
+	using Extension;
 	using Utility;
 	using Debug;
 	///====================================================================================================
@@ -26,13 +27,26 @@ namespace SubmarineMirage.Data {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>読込階層</summary>
-		public readonly string _path;
+		[SMShow] public readonly string _path;
 		/// <summary>読込書類名</summary>
-		public readonly string _fileName;
+		[SMShow] public readonly string _fileName;
 		/// <summary>書類の型</summary>
-		protected readonly SMFileLocation _location;
+		[SMShow] protected readonly SMFileLocation _location;
 		/// <summary>読込開始の行数</summary>
 		protected readonly int _loadStartIndex;
+
+#region ToString
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● 文章変換を設定
+		/// </summary>
+		///------------------------------------------------------------------------------------------------
+		public override void SetToString() {
+			base.SetToString();
+
+			_toStringer.AddLine( nameof( TValue ), () => typeof( TValue ).GetAboutName() );
+		}
+#endregion
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -66,6 +80,12 @@ namespace SubmarineMirage.Data {
 					SetData( _fileName, i - _loadStartIndex, datas[i] );
 				}
 			} );
+/*
+			_loadEvent.AddLast( async canceler => {
+				SMLog.Debug( this );
+				await UTask.DontWait();
+			} );
+*/
 
 			_saveEvent.AddFirst( async canceler => {
 // TODO : 情報からCSVに保存を実装

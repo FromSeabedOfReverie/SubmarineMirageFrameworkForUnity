@@ -23,11 +23,11 @@ namespace SubmarineMirage.Data.Server {
 		protected override int _setURLStartIndex	=> 3;
 
 		/// <summary>商品版</summary>
-		public SMEdition _edition		{ get; private set; }
+		[SMShow] public SMEdition _edition		{ get; private set; }
 		/// <summary>更新版</summary>
-		public string _version			{ get; private set; }
+		[SMShow] public string _version			{ get; private set; }
 		/// <summary>サーバー版</summary>
-		public string _serverVersion	{ get; private set; }
+		[SMShow] public string _serverVersion	{ get; private set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除

@@ -12,8 +12,8 @@ namespace SubmarineMirage.Scene {
 
 	public class ForeverSMScene : SMScene {
 		public ForeverSMScene() {
-			_exitEvent.AddLast( _registerEventName, async canceler => {
-				_owner.ResetForeverRawScene();
+			_exitEvent.AddFirst( _registerEventName, async canceler => {
+				_owner._foreverRawScene = SceneManager.CreateScene( "UntilQuit" );
 				await UTask.DontWait();
 			} );
 		}

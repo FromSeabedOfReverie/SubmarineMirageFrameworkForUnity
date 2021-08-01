@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using SubmarineMirage;
 using SubmarineMirage.Service;
 using SubmarineMirage.File;
 using SubmarineMirage.Data.Raw;
@@ -28,19 +29,19 @@ public class PlayData : BaseSMSaveData {
 	/// ● 要素
 	///----------------------------------------------------------------------------------------------------
 	/// <summary>保存番号</summary>
-	public int _saveID;
+	[SMShow] public int _saveID;
 	/// <summary>一度でも保存したか？</summary>
-	public bool _isSave;
+	[SMShow] public bool _isSave;
 	/// <summary>日付</summary>
-	public DateTime _date;
+	[SMShow] public DateTime _date;
 	/// <summary>プレイヤーの状態</summary>
-//		public PlayerStatus _playerStatus;
+//	[SMShow] public PlayerStatus _playerStatus;
 	/// <summary>実行後の、操作説明名一覧</summary>
-	public List<string> _afterHelpNames = new List<string>();
+	[SMShow] public List<string> _afterHelpNames = new List<string>();
 	/// <summary>実行後の、イベント名一覧</summary>
-	public List<string> _afterEventNames = new List<string>();
+	[SMShow] public List<string> _afterEventNames = new List<string>();
 	/// <summary>実行後の、地形名一覧</summary>
-	public List<string> _afterFieldNames = new List<string>();
+	[SMShow] public List<string> _afterFieldNames = new List<string>();
 	/// <summary>スクリーンショット画像の、生情報一覧</summary>
 	public List<SMTextureRawData> _pictureRawData = new List<SMTextureRawData>();
 

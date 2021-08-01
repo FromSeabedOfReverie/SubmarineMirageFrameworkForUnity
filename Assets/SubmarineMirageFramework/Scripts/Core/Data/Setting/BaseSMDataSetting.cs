@@ -54,7 +54,7 @@ namespace SubmarineMirage.Data {
 		/// ● 登録
 		/// </summary>
 		public void RegisterDatas( SMDataSettingType type ) {
-			_datas[type].ForEach( d => _allDataManager.Register( d ) );
+			_datas[type].ForEach( d => _allDataManager.Register( d.GetType(), d ) );
 			// Dispose前に、参照を切る
 			_datas[type].Clear();
 			_datas.Remove( type );

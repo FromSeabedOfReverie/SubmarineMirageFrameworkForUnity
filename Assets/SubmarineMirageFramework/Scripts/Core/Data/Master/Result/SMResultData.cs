@@ -23,9 +23,9 @@ namespace SubmarineMirage.Data {
 		public override T _registerKey => _type;
 
 		/// <summary>型</summary>
-		public T _type { get; private set; }
+		[SMShow] public T _type { get; private set; }
 		/// <summary>文章</summary>
-		public string _text { get; private set; }
+		[SMShow] public string _text { get; private set; }
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 設定

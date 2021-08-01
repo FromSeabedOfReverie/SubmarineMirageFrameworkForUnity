@@ -21,13 +21,13 @@ namespace SubmarineMirage.Data {
 		public override SMAdvertisementType _registerKey => _type;
 
 		/// <summary>型</summary>
-		public SMAdvertisementType _type { get; private set; }
+		[SMShow] public SMAdvertisementType _type	{ get; private set; }
 		/// <summary>Android番号</summary>
-		public string _androidID { get; private set; }
+		[SMShow] public string _androidID			{ get; private set; }
 		/// <summary>iOS番号</summary>
-		public string _iOSID { get; private set; }
+		[SMShow] public string _iOSID				{ get; private set; }
 		/// <summary>補足説明</summary>
-		public string _info { get; private set; }
+		[SMShow] public string _info				{ get; private set; }
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 設定
