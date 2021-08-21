@@ -89,8 +89,6 @@ namespace SubmarineMirage.Data {
 			Register( new SMCSVDataManager< SMAdvertisementError, SMResultData<SMAdvertisementError> >(
 				"System", "AdvertisementErrors", SMFileLocation.Resource, 1
 			) );
-			// 購入情報を登録
-//			Register( new PurchaseProductDataManager() );
 			// 広告情報を登録
 			Register( new SMCSVDataManager<SMAdvertisementType, SMAdvertisementData>(
 				"System", "AdvertisementIDs", SMFileLocation.Resource, 1 ) );

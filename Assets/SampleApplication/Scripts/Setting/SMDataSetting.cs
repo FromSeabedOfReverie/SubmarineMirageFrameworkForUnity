@@ -32,8 +32,6 @@ public class SMDataSetting : BaseSMDataSetting {
 			}, {
 				SMDataSettingType.Master,
 				new List<IBaseSMDataManager> {
-//					new AllWordDataManager(),
-//					new AllAIDataManager(),
 					new SMCSVDataManager<string, ItemData>( "Item", "TestItem", SMFileLocation.Resource, 1 ),
 				}
 			},
