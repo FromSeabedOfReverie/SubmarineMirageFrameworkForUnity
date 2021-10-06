@@ -31,11 +31,9 @@ public static class ApplicationMain {
 		DOTween.defaultAutoPlay = AutoPlay.None;
 
 		if ( SMDebugManager.IS_DEVELOP ) {
-/*
 			var prefab = Resources.Load<GameObject>( "LunarConsole" );
 			var go = prefab.Instantiate();
 			go.DontDestroyOnLoad();
-*/
 		}
 
 		await UTask.DontWait();
