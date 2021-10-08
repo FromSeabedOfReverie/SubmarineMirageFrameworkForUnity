@@ -12,12 +12,14 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using SubmarineMirage;
 using SubmarineMirage.Service;
+using SubmarineMirage.Audio;
 using SubmarineMirage.Data.Save;
 using SubmarineMirage.Setting;
 using SubmarineMirage.Debug;
 ///========================================================================================================
 /// <summary>
 /// ■ 設定情報のクラス
+///		暗号化され、保存される。
 /// </summary>
 ///========================================================================================================
 public class SettingData : BaseSMSaveData {
@@ -70,6 +72,8 @@ public class SettingData : BaseSMSaveData {
 	[SMShow] public SMFrameRate _frameRate;
 	/// <summary>音楽の音量</summary>
 	[SMShow] public float _bgmVolume;
+	[SMShow] public float _bgsVolume;
+	[SMShow] public float _jingleVolume;
 	/// <summary>声音の音量</summary>
 	[SMShow] public float _voiceVolume;
 	/// <summary>効果音の音量</summary>
@@ -80,6 +84,8 @@ public class SettingData : BaseSMSaveData {
 	[SMShow] public bool _isPurchasedDeleteAdvertisement;
 	/// <summary>遊戯情報一覧の内、読込中の遊戯情報の添字</summary>
 	[SMShow] public int _playDataIndex;
+	/// <summary>操作説明を表示したか？</summary>
+	[SMShow] public bool _isShowHelp;
 
 	///----------------------------------------------------------------------------------------------------
 	/// ● 作成、削除
@@ -93,13 +99,13 @@ public class SettingData : BaseSMSaveData {
 			.Key;
 
 		_version = SMMainSetting.APPLICATION_VERSION;
-		_screenMode = SMScreenMode.Full;
 
 		switch ( SMMainSetting.PLATFORM ) {
 			// PC版、中クオリティに設定
 			case SMPlatformType.Windows:
 			case SMPlatformType.MacOSX:
 			case SMPlatformType.Linux:
+				_screenMode = SMScreenMode.Full;
 				_screenSize = SMScreenSize._1920X1080;
 				_quality = SMQuality.Middle;
 				_frameRate = SMFrameRate._60;
@@ -108,6 +114,8 @@ public class SettingData : BaseSMSaveData {
 			// スマートフォン版、低クオリティに設定（動かない可能性がある為）
 			case SMPlatformType.Android:
 			case SMPlatformType.IOS:
+			case SMPlatformType.WebGL:
+				_screenMode = SMScreenMode.Full;
 				_screenSize = SMScreenSize._960X540;
 				_quality = SMQuality.VeryLow;
 				_frameRate = SMFrameRate._30;
@@ -115,6 +123,8 @@ public class SettingData : BaseSMSaveData {
 		}
 
 		_bgmVolume = 1;
+		_bgsVolume = 1;
+		_jingleVolume = 1;
 		_voiceVolume = 1;
 		_seVolume = 1;
 
@@ -157,10 +167,13 @@ public class SettingData : BaseSMSaveData {
 		Time.fixedDeltaTime = 1f / 30;//rate;	// 物理重いので固定
 
 		// 音量を設定
+		var audioManager = SMServiceLocator.Resolve<SMAudioManager>();
 		AudioListener.volume = 1;
-//		GameAudioManager.s_instance._bgmVolume = _bgmVolume;
-//		GameAudioManager.s_instance._voiceVolume = _voiceVolume;
-//		GameAudioManager.s_instance._seVolume = _seVolume;
+		audioManager._bgmVolume = _bgmVolume;
+		audioManager._bgsVolume = _bgsVolume;
+		audioManager._jingleVolume = _jingleVolume;
+		audioManager._voiceVolume = _voiceVolume;
+		audioManager._seVolume = _seVolume;
 
 		// デバッグ表示を適用
 		var displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
@@ -172,8 +185,10 @@ public class SettingData : BaseSMSaveData {
 */
 
 		// マウスカーソルを設定
-//		Cursor.visible = true;
-//		Cursor.lockState = CursorLockMode.Confined;
+/*
+		Cursor.visible = true;
+		Cursor.lockState = CursorLockMode.Confined;
+*/
 
 		// 中央設定の版を設定
 		var setting = SMServiceLocator.Resolve<SMMainSetting>();
