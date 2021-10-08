@@ -86,7 +86,7 @@ namespace SubmarineMirage.FSM {
 			_isActive = true;
 
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_modifyler.Dispose();
 
 				_asyncCancelerOnExit.Dispose();

@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestService
 namespace SubmarineMirage.Service {
 	using System;
 	using System.Collections.Generic;
@@ -14,27 +15,44 @@ namespace SubmarineMirage.Service {
 	using Utility;
 	using Setting;
 	using Debug;
-
-
-
+	///====================================================================================================
+	/// <summary>
+	/// ■ オブジェクト注入のクラス
+	/// </summary>
+	///====================================================================================================
 	public static class SMServiceLocator {
+		///------------------------------------------------------------------------------------------------
+		/// ● 要素
+		///------------------------------------------------------------------------------------------------
 		[SMShowLine] public static bool s_isDisposed => s_disposables._isDispose;
 		static readonly SMDisposable s_disposables = new SMDisposable();
 		public static readonly Dictionary<Type, ISMService> s_container = new Dictionary<Type, ISMService>();
 
-
-
+		///------------------------------------------------------------------------------------------------
+		/// ● 作成、削除
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● コンストラクタ
+		/// </summary>
 		static SMServiceLocator() {
+#if TestService
 			SMLog.Debug( $"{nameof( SMServiceLocator )}()", SMLogTag.Service );
+#endif
 
 			s_disposables.AddFirst( () => {
+#if TestService
 				SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Dispose )}", SMLogTag.Service );
+#endif
 				s_container.ForEach( pair => pair.Value?.Dispose() );
 				s_container.Clear();
 			} );
 		}
 
-		public static void Dispose() => s_disposables.Dispose();
+		/// <summary>
+		/// ● 解放
+		/// </summary>
+		public static void Dispose()
+			=> s_disposables.Dispose();
 
 
 
@@ -45,9 +63,10 @@ namespace SubmarineMirage.Service {
 			if ( s_container.ContainsKey( type ) ) {
 				throw new InvalidOperationException( $"既に登録済 : {type}" );
 			}
+#if TestService
 			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Register )} : {type.GetAboutName()}",
 				SMLogTag.Service );
-
+#endif
 			s_container[type] = instance;
 			return instance;
 		}
@@ -56,9 +75,10 @@ namespace SubmarineMirage.Service {
 			if ( s_isDisposed )	{ return; }
 
 			var type = typeof( T );
+#if TestService
 			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Unregister )} : {type.GetAboutName()}",
 				SMLogTag.Service );
-
+#endif
 			if ( isCallDispose ) {
 				var instance = s_container.GetOrDefault( type );
 				instance?.Dispose();

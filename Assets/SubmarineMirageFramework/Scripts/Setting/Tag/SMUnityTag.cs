@@ -12,13 +12,16 @@ namespace SubmarineMirage.Setting {
 	public enum SMUnityTag {
 		/// <summary>未設定</summary>
 		Untagged,
-
-// TODO : リファクタリング次第で、以下タグは不要になるかもしれない
-
+		Respawn,
+		Finish,
+		EditorOnly,
 		/// <summary>中心カメラ</summary>
 		MainCamera,
 		/// <summary>プレイヤー</summary>
 		Player,
+		GameController,
+
+// TODO : リファクタリング次第で、以下タグは不要になるかもしれない
 		/// <summary>中心光</summary>
 		MainLight,
 		/// <summary>時間</summary>

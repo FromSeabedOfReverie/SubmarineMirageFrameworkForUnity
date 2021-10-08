@@ -6,11 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Extension {
 	using UnityEngine;
-	using KoganeUnityLib;
 	using Base;
-	using Service;
-	using Extension;
-	using Utility;
 	using Debug;
 
 

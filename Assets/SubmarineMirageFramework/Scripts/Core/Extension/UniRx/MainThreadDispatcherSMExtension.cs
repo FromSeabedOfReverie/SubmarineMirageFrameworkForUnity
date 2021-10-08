@@ -15,6 +15,7 @@ namespace SubmarineMirage.Extension {
 		public readonly Subject<Unit> _onGUIEvent = new Subject<Unit>();
 
 
+
 		protected override void Awake() {
 			base.Awake();
 
@@ -30,6 +31,7 @@ namespace SubmarineMirage.Extension {
 
 		void OnGUI() {
 			if ( _disposables._isDispose )	{ return; }
+			
 			_onGUIEvent.OnNext( Unit.Default );
 		}
 	}

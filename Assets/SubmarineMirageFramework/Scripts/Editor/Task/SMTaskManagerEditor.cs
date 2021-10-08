@@ -18,7 +18,8 @@ namespace SubmarineMirage.EditorTask {
 
 
 	public class SMTaskManagerEditor : EditorWindowSMExtension {
-		Vector2 _scrollPosition	{ get; set; }
+		Vector2 _tasksScrollPosition	{ get; set; }
+		Vector2 _detailScrollPosition	{ get; set; }
 		string _focusedText	{ get; set; } = string.Empty;
 		int _focusedID { get; set; } = int.MinValue;
 		SMTaskManager _taskManager;
@@ -27,7 +28,7 @@ namespace SubmarineMirage.EditorTask {
 		public override void Dispose()	{}
 
 
-		[MenuItem( "Window/SubmarineMirage/TaskManager" )]
+		[MenuItem( "Window/SubmarineMirage/SMTaskManager" )]
 		static void Open() => GetWindow<SMTaskManagerEditor>();
 
 
@@ -42,11 +43,14 @@ namespace SubmarineMirage.EditorTask {
 				return;
 			}
 
-			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
+			_tasksScrollPosition = EditorGUILayout.BeginScrollView( _tasksScrollPosition );
 			ShowTasks();
 			ShowModifyler();
 			EditorGUILayout.EndScrollView();
+
+			_detailScrollPosition = EditorGUILayout.BeginScrollView( _detailScrollPosition );
 			ShowDetail();
+			EditorGUILayout.EndScrollView();
 
 			Repaint();
 			if ( Event.current.type == EventType.Repaint ) {

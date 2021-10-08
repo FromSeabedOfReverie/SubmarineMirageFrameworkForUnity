@@ -1,14 +1,24 @@
 {
     "name": "SubmarineMirageFramework.Editor",
+    "rootNamespace": "",
     "references": [
+        "Unity.TextMeshPro",
+        "DOTween.Modules",
         "UniRx",
         "UniTask",
+        "UniTask.Linq",
+        "UniTask.DOTween",
+        "UniTask.TextMeshPro",
+        "UniTask.Addressables",
         "KoganeUnityLib",
         "GameDevWare.Serialization",
+        "PhotonChat",
+        "PhotonRealtime",
+        "PhotonUnityNetworking",
+        "PhotonUnityNetworking.Utilities",
         "BuildBaseSMLog",
         "SubmarineMirageFramework"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -17,5 +27,7 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -15,14 +15,15 @@ namespace SubmarineMirage.EditorService {
 
 
 	public class SMServiceLocatorEditor : EditorWindowSMExtension {
-		Vector2 _scrollPosition	{ get; set; }
+		Vector2 _servicesScrollPosition	{ get; set; }
+		Vector2 _detailScrollPosition { get; set; }
 		string _focusedText	{ get; set; } = string.Empty;
 
 
 		public override void Dispose() {}
 
 
-		[MenuItem( "Window/SubmarineMirage/ServiceLocator" )]
+		[MenuItem( "Window/SubmarineMirage/SMServiceLocator" )]
 		static void Open() => GetWindow<SMServiceLocatorEditor>();
 
 
@@ -36,10 +37,13 @@ namespace SubmarineMirage.EditorService {
 				return;
 			}
 
-			_scrollPosition = EditorGUILayout.BeginScrollView( _scrollPosition );
+			_servicesScrollPosition = EditorGUILayout.BeginScrollView( _servicesScrollPosition );
 			ShowServices();
 			EditorGUILayout.EndScrollView();
+
+			_detailScrollPosition = EditorGUILayout.BeginScrollView( _detailScrollPosition );
 			ShowDetail();
+			EditorGUILayout.EndScrollView();
 
 			Repaint();
 			if ( Event.current.type == EventType.Repaint ) {

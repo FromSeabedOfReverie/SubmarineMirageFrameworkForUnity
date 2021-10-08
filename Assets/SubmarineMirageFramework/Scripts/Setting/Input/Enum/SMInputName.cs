@@ -24,13 +24,7 @@ namespace SubmarineMirage.Setting {
 		DebugAxisY,
 
 		/// <summary>視点スクロール</summary>
-		CameraScroll,
-		/// <summary>視点回転</summary>
-		CameraRotate,
-		/// <summary>行動</summary>
-		Action,
-		/// <summary>歩行</summary>
-		Walk,
+		Scroll,
 		/// <summary>決定</summary>
 		Decide,
 		/// <summary>終了</summary>

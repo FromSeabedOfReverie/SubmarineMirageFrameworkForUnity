@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestFile
 namespace SubmarineMirage.File {
 	using System;
 	using System.IO;
@@ -74,8 +75,9 @@ namespace SubmarineMirage.File {
 				var bytes = await DecryptAES( loadData, iv );
 				// 保存データ復元
 				data = SerializerSMUtility.Deserialize<T>( bytes );
-
+#if TestFile
 				SMLog.Debug( $"読込成功 : {path}\n{data}", SMLogTag.File );
+#endif
 				_loadingCount--;
 
 
@@ -146,8 +148,9 @@ namespace SubmarineMirage.File {
 				bw.Write( saveData );
 				bw.Dispose();
 				fs.Dispose();
-
+#if TestFile
 				SMLog.Debug( $"保存成功 : {path}\n{data}", SMLogTag.File );
+#endif
 				_savingCount--;
 
 

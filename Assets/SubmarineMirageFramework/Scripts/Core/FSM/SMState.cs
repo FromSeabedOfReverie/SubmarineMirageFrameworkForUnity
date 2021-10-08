@@ -43,7 +43,7 @@ namespace SubmarineMirage.FSM {
 
 
 		public SMState() {
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 #if TestFSM
 				SMLog.Debug( $"{this.GetAboutName()}.{nameof( Dispose )} : start\n{this}" );
 #endif

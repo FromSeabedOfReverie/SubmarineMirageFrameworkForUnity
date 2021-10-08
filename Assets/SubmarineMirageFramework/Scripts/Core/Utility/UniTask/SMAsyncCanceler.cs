@@ -108,7 +108,7 @@ namespace SubmarineMirage.Utility {
 			if ( !_isRawCancel ) {
 				_canceler.Cancel();
 				if ( isRecreateAfterCancel )	{ Recreate(); }
-				_cancelEvent.Run();
+				if ( !_cancelEvent._isDispose )	{ _cancelEvent.Run(); }
 			}
 			_next?.Cancel();
 #if TestAsyncCanceler

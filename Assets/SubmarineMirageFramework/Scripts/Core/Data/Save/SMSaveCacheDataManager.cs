@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestData
 namespace SubmarineMirage.Data.Save {
 	using System;
 	using System.Linq;
@@ -118,7 +119,9 @@ namespace SubmarineMirage.Data.Save {
 						data._textDatas = null;
 						data._rawDatas = null;
 						data.Dispose();
+#if TestData
 						SMLog.Debug( $"読込成功\n{nameof( SMSaveCacheDataManager )}", SMLogTag.Data );
+#endif
 					}
 				}
 

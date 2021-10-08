@@ -18,25 +18,41 @@ namespace SubmarineMirage.Scene {
 	using Task;
 	using Task.Marker;
 	using FSM;
+	using Audio;
+	using Network;
+	using UI;
 	using Extension;
 	using Utility;
 	using Debug;
-
-
-
+	///====================================================================================================
+	/// <summary>
+	/// ■ シーンのクラス
+	/// </summary>
+	///====================================================================================================
 	public abstract class SMScene : SMState {
+		///------------------------------------------------------------------------------------------------
+		/// ● 要素
+		///------------------------------------------------------------------------------------------------
+		/// <summary>シーン管理クラス</summary>
 		public new SMSceneManager _owner { get; private set; }
 
+		/// <summary>シーン名</summary>
 		[SMShowLine] public string _name { get; protected set; }
+		/// <summary>登録イベント名</summary>
 		[SMShow] protected string _registerEventName { get; private set; }
 
+		/// <summary>シーン実行中か？</summary>
 		[SMShow] public bool _isEntered	{ get; private set; }
+		/// <summary>シーン遷移時に、未使用アセットを破棄するか？</summary>
 		[SMShow] protected virtual bool _isUseUnloadUnusedAssets => true;
 
+		/// <summary>タスクの印の管理者</summary>
 		SMTaskMarkerManager _taskMarkers { get; set; }
 
+		/// <summary>生のUnityシーン</summary>
 		[SMShow] public Scene _rawScene { get; protected set; }
 
+		/// <summary>モノ動作を作成するイベント</summary>
 		public readonly SMAsyncEvent _createBehavioursEvent = new SMAsyncEvent();
 
 
@@ -46,6 +62,10 @@ namespace SubmarineMirage.Scene {
 			ReloadRawScene();
 			_registerEventName = this.GetAboutName();
 
+			var uiFade = SMServiceLocator.Resolve<SMUIFade>();
+			var audioManager = SMServiceLocator.Resolve<SMAudioManager>();
+			var gameServer = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
+			var isMainScene = this is MainSMScene;
 
 			_enterEvent.AddLast( _registerEventName, async canceler => {
 				var isRemove = _owner.RemoveFirstLoaded( this );
@@ -54,7 +74,7 @@ namespace SubmarineMirage.Scene {
 						.ToUniTask( canceler );
 					ReloadRawScene();
 				}
-				if ( this is MainSMScene ) {
+				if ( isMainScene ) {
 					SceneManager.SetActiveScene( _rawScene );
 				}
 
@@ -66,12 +86,32 @@ namespace SubmarineMirage.Scene {
 // TODO : 循環待機になり、永遠に終わらない
 //				await _taskMarkers.InitializeAll();
 
+				if ( isMainScene ) {
+					UTask.Void( async () => {
+						await UTask.Delay( _asyncCancelerOnExit, 500 );
+						await uiFade.In();
+					} );
+					if ( gameServer != null ) {
+						gameServer._isActive = true;
+					}
+				}
+
 				_isEntered = true;
 			} );
 
 
 			_exitEvent.AddLast( _registerEventName, async canceler => {
 				_isEntered = false;
+
+				if ( isMainScene ) {
+					if ( gameServer != null ) {
+						gameServer._isActive = false;
+					}
+					await UniTask.WhenAll(
+						uiFade.Out(),
+						audioManager.StopAll()
+					);
+				}
 
 //				await _taskMarkers.FinalizeAll();
 				_taskMarkers = null;
@@ -86,7 +126,7 @@ namespace SubmarineMirage.Scene {
 			} );
 
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_taskMarkers?.Dispose();
 				_createBehavioursEvent.Dispose();
 

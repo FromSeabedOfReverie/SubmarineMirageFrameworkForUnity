@@ -17,7 +17,7 @@ namespace SubmarineMirage.Scene {
 
 
 		public BaseSMSceneSetting() {
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_datas.Dispose();
 			} );
 		}

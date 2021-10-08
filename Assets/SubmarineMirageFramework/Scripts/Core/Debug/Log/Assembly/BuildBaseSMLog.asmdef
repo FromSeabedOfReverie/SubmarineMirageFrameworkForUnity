@@ -2,9 +2,7 @@
     "name": "BuildBaseSMLog",
     "rootNamespace": "",
     "references": [],
-    "includePlatforms": [
-        "XboxOne"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

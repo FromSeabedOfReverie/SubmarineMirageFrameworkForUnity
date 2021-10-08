@@ -30,7 +30,7 @@ namespace SubmarineMirage.Data {
 		/// ● コンストラクタ
 		/// </summary>
 		public BaseSMDataSetting() {
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_datas
 					.SelectMany( pair => pair.Value )
 					.ForEach( d => d.Dispose() );

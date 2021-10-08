@@ -37,7 +37,7 @@ namespace SubmarineMirage.File {
 		/// ● コンストラクタ
 		/// </summary>
 		public SMCSVLoader( SMFileManager fileManager ) : base( fileManager ) {
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_loader = null;
 			} );
 		}

@@ -23,13 +23,15 @@ namespace SubmarineMirage.Setting {
 #if UNITY_STANDALONE_WIN || UNITY_WSA
 			SMPlatformType.Windows;
 #elif UNITY_STANDALONE_OSX
-			PlatformType.MacOSX;
+			SMPlatformType.MacOSX;
 #elif UNITY_STANDALONE_LINUX
-			PlatformType.Linux;
+			SMPlatformType.Linux;
 #elif UNITY_ANDROID
-			PlatformType.Android;
+			SMPlatformType.Android;
 #elif UNITY_IOS
-			PlatformType.IOS;
+			SMPlatformType.IOS;
+#elif UNITY_WEBGL
+			SMPlatformType.WebGL;
 #endif
 
 
@@ -104,6 +106,14 @@ namespace SubmarineMirage.Setting {
 		public const string APPLICATION_CM_DATA_PATH =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZjl0KQ3qdx1ghjDLczrLpmWQ11Ao75IdaSobLMoFHjuzhG4pTCX0bXvZgGl_P4-2fjLCdCbBKHaRE/pub?gid=1057403382&single=true&output=csv"
 			;
+
+
+		/// <summary>音のリソース読込の階層</summary>
+		public const string Audio_RESOURCE_PATH = "Audio";
+
+
+		/// <summary>最大プレイヤー数</summary>
+		public const int MAX_PLAYERS = 2;
 
 
 		/// <summary>商品版（保存）</summary>

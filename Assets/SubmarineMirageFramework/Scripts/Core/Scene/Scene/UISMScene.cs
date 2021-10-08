@@ -5,16 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Scene {
-	using UnityEngine.SceneManagement;
 
 
 
-	public class UISMScene : SMScene {
+	public abstract class UISMScene : SMScene {
 		public UISMScene() {
-			_rawScene = SceneManager.CreateScene( _name );
 		}
-
-
-		protected override void ReloadRawScene() {}
 	}
 }

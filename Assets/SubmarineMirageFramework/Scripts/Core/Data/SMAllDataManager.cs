@@ -89,6 +89,8 @@ namespace SubmarineMirage.Data {
 			Register( new SMCSVDataManager< SMAdvertisementError, SMResultData<SMAdvertisementError> >(
 				"System", "AdvertisementErrors", SMFileLocation.Resource, 1
 			) );
+			// 購入情報を登録
+			Register( new PurchaseProductDataManager() );
 			// 広告情報を登録
 			Register( new SMCSVDataManager<SMAdvertisementType, SMAdvertisementData>(
 				"System", "AdvertisementIDs", SMFileLocation.Resource, 1 ) );
@@ -174,8 +176,10 @@ namespace SubmarineMirage.Data {
 			var saveCache = Get<SMSaveCacheDataManager>();
 			var tempCache = Get<SMTemporaryCacheDataManager>();
 
-			foreach ( var pair in _datas ) {
-				await pair.Value._loadEvent.Run( _asyncCancelerOnDispose );
+// TODO : 本当は、配列複製とかしたくない・・・変更対応の構造を考える
+			foreach ( var data in _datas.Values.ToArray() ) {
+				if ( _isDispose )	{ return; }
+				await data._loadEvent.Run( _asyncCancelerOnDispose );
 			}
 
 			// 更新する必要があり、データをダウンロードした場合、キャッシュ保存
@@ -187,9 +191,9 @@ namespace SubmarineMirage.Data {
 			}
 			_fileManager.ResetAllCount();    // 計測初期化
 
+#if TestData
 			SMLog.Debug( $"{nameof( SMAllDataManager )} : 読込完了", SMLogTag.Data );
 
-#if TestData
 			// キャッシュ読込の確認用
 //			SMLog.Debug( tempCache );
 #endif

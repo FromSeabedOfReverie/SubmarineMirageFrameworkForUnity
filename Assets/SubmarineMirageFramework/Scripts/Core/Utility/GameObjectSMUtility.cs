@@ -7,6 +7,7 @@
 namespace SubmarineMirage.Utility {
 	using UnityEngine;
 	using KoganeUnityLib;
+	using Base;
 	using Service;
 	using Extension;
 	using Setting;
@@ -23,7 +24,7 @@ namespace SubmarineMirage.Utility {
 		/// <summary>
 		/// ● インスタンス生成
 		/// </summary>
-		public static T Instantiate<T>() where T : MonoBehaviourSMExtension {
+		public static T Instantiate<T>() where T : SMStandardMonoBehaviour {
 			var type = typeof( T );
 			var go = new GameObject( type.GetAboutName() );
 			var b = go.AddComponent( type ) as T;

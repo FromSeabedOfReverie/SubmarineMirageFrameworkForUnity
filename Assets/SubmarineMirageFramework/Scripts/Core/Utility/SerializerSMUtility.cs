@@ -32,14 +32,25 @@ namespace SubmarineMirage.Utility {
 			return rawData;
 		}
 		///------------------------------------------------------------------------------------------------
+		/// ● 非シリアル化
+		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 非シリアル化
 		/// </summary>
-		///------------------------------------------------------------------------------------------------
 		public static T Deserialize<T>( byte[] rawData ) {
 			T data;
 			using ( var stream = new MemoryStream( rawData ) ) {
 				data = MsgPack.Deserialize<T>( stream, SerializationOptions.SuppressTypeInformation );
+			}
+			return data;
+		}
+		/// <summary>
+		/// ● 非シリアル化
+		/// </summary>
+		public static object Deserialize( Type type, byte[] rawData ) {
+			object data;
+			using ( var stream = new MemoryStream( rawData ) ) {
+				data = MsgPack.Deserialize( type, stream, SerializationOptions.SuppressTypeInformation );
 			}
 			return data;
 		}

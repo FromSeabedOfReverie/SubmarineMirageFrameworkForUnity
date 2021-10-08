@@ -4,6 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+//#define TestFile
 namespace SubmarineMirage.File {
 	using System;
 	using System.IO;
@@ -14,6 +15,7 @@ namespace SubmarineMirage.File {
 	using Service;
 	using Data;
 	using Data.Raw;
+	using Network;
 	using Extension;
 	using Utility;
 	using Setting;
@@ -194,7 +196,9 @@ namespace SubmarineMirage.File {
 					if ( cache != null ) {
 						// 既に読込要求済の場合、読込まで待機（無登録中は、読込中フラグ）
 						await UTask.WaitWhile( _asyncCanceler, () => cache._data == null );
+#if TestFile
 						SMLog.Debug( $"キャッシュ読込成功 : {cache._data}\n{path}", SMLogTag.File );
+#endif
 						return ( T )cache._data;
 					}
 					_fileManager._tempCaches.Register( path, null );	// 読込中フラグとして、無を登録
@@ -210,7 +214,9 @@ namespace SubmarineMirage.File {
 						_fileManager._tempCaches.Register( path, result );	// 情報を登録
 					}
 					_loadingCount--;
+#if TestFile
 					SMLog.Debug( $"読込成功 : {path}\n{result}", SMLogTag.File );
+#endif
 					return ( T )result;
 				}
 
@@ -223,6 +229,7 @@ namespace SubmarineMirage.File {
 			// 未読込の為、失敗
 			_errorCount++;
 			SMLog.Error( $"読込失敗 : {path}", SMLogTag.File );
+
 			// キャッシュ使用中の場合、読込フラグの無を登録解除
 			if ( isUseCache )	{ _fileManager._tempCaches.Unregister( path ); }
 			return default;
@@ -277,8 +284,9 @@ namespace SubmarineMirage.File {
 				var file = new FileStream( path, FileMode.Create, FileAccess.Write );
 				await file.WriteAsync( rawData, 0, rawData.Length, _asyncCanceler.ToToken() );
 				file.Close();
-
+#if TestFile
 				SMLog.Debug( $"保存成功 : {path}\n{data}", SMLogTag.File );
+#endif
 				_savingCount--;
 
 
@@ -298,7 +306,7 @@ namespace SubmarineMirage.File {
 			switch ( location ) {
 				// サーバー通信読込の場合、使用希望か、接続切れか、ダウンロード済キャッシュが最新の場合
 				case SMFileLocation.Server:
-					return isWantUseCache || !_networkManager._isConnecting || !_setting._isRequestUpdateServer;
+					return isWantUseCache || !_networkManager._isConnect || !_setting._isRequestUpdateServer;
 
 				// それ以外の場合、希望通りに可能
 				default:

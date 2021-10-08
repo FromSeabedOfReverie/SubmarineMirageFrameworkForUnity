@@ -19,5 +19,7 @@ namespace SubmarineMirage.Setting {
 		Android,
 		/// <summary>iOS端末</summary>
 		IOS,
+		/// <summary>Webサイト</summary>
+		WebGL,
 	}
 }

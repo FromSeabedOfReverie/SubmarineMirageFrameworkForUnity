@@ -5,6 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Setting {
+	using System.Linq;
 	using UnityEngine;
 	using Utility;
 	///====================================================================================================
@@ -16,7 +17,6 @@ namespace SubmarineMirage.Setting {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		
 
 		/// <summary>AIの視界遮断マスク</summary>
 		public int _aiSightObstructMask	=> LayerMask.GetMask( Get( SMUnityLayer.Ground ) );
@@ -27,23 +27,45 @@ namespace SubmarineMirage.Setting {
 		public int _groundedMask		=> LayerMask.GetMask( Get( SMUnityLayer.Ground ) );
 		/// <summary>水マスク</summary>
 		public int _waterMask			=> LayerMask.GetMask( Get( SMUnityLayer.Water ) );
+
+		///------------------------------------------------------------------------------------------------
+		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 作成
 		/// </summary>
+		public override void Create() {
+		}
+
 		///------------------------------------------------------------------------------------------------
-		public override void Create() {}
+		/// ● 取得
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● レイヤー番号を取得
+		/// ● マスクを取得
 		/// </summary>
+		public int GetMask( params SMUnityLayer[] names )
+			=> LayerMask.GetMask(
+				names
+					.Select( type => Get( type ) )
+					.ToArray()
+			);
+
 		///------------------------------------------------------------------------------------------------
-		public int ToInt( SMUnityLayer name ) => LayerMask.NameToLayer( Get( name ) );
+		/// ● 判定
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● レイヤーが等しいか？
 		/// </summary>
+		public bool IsEqual( int layer, SMUnityLayer name )
+			=> layer == ToInt( name );
+
 		///------------------------------------------------------------------------------------------------
-		public bool IsEqual( int layer, SMUnityLayer name ) => layer == ToInt( name );
+		/// ● 変換
+		///------------------------------------------------------------------------------------------------
+		/// <summary>
+		/// ● レイヤー名から、番号に変換
+		/// </summary>
+		public int ToInt( SMUnityLayer name )
+			=> LayerMask.NameToLayer( Get( name ) );
 	}
 }

@@ -74,7 +74,7 @@ namespace SubmarineMirage.Debug {
 			// デバッグ表示
 			var displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
 			_updateEvent.AddLast().Subscribe( _ => {
-				displayLog.Add( Color.blue );
+				displayLog.Add( Color.cyan );
 				displayLog.Add( $"FPS : {_fps}" );
 				displayLog.Add( $"GC : {GC.CollectionCount( 0 )}" );
 				displayLog.Add( $"Memory System : {SystemInfo.systemMemorySize} MB" );

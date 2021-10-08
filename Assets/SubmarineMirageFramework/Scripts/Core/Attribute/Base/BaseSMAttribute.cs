@@ -17,8 +17,10 @@ namespace SubmarineMirage {
 
 
 
+#region ToString
 		public virtual string AddToString( int indent )
 			=> string.Empty;
+#endregion
 
 
 

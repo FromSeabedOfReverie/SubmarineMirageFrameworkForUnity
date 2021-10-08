@@ -34,6 +34,7 @@ namespace SubmarineMirage.Data.Server {
 			_urls[SMPlatformType.Linux]		= texts[_setURLStartIndex + 2];
 			_urls[SMPlatformType.Android]	= texts[_setURLStartIndex + 3];
 			_urls[SMPlatformType.IOS]		= texts[_setURLStartIndex + 4];
+			_urls[SMPlatformType.WebGL]		= texts[_setURLStartIndex + 5];
 		}
 
 		///------------------------------------------------------------------------------------------------

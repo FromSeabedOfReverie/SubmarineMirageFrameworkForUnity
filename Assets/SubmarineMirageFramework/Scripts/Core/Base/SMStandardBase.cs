@@ -12,10 +12,12 @@ namespace SubmarineMirage.Base {
 	using Debug.ToString;
 
 
+
 	public abstract class SMStandardBase : BaseSM, ISMStandardBase {
 		public SMDisposable _disposables	{ get; private set; } = new SMDisposable();
 		[SMShowLine] public bool _isDispose => _disposables._isDispose;
 		public SMToStringer _toStringer	{ get; private set; }
+
 
 
 		public SMStandardBase() {
