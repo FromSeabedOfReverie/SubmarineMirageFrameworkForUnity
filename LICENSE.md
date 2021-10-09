@@ -1,9 +1,9 @@
 ---------------------------------------------------------------------------------------------------------
-▽ Submarine Mirage Framework for Unity (Version 0.1) (MIT License)
+▽ Submarine Mirage Framework for Unity (Version 0.5) (MIT License)
 ---------------------------------------------------------------------------------------------------------
 MIT License
 
-Copyright (c) 2020 夢想海の水底より(from Seabed of Reverie)
+Copyright (c) 2021 呪歌人魚(Siren Sings Curse), 夢想海の水底より(from Seabed of Reverie)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ SOFTWARE.
 
 
 ---------------------------------------------------------------------------------------------------------
-▽ DOTween (v1.2.320) (DOTween License)
+▽ DOTween (v1.2.632) (DOTween License)
 ---------------------------------------------------------------------------------------------------------
 DOTween License
 Copyright (c) 2014 Daniele Giardini - Demigiant
@@ -62,7 +62,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ---------------------------------------------------------------------------------------------------------
-▽ Json & MessagePack Serialization (2019/5/9) (MIT License)
+▽ Json & MessagePack Serialization (2.4.3) (MIT License)
 ---------------------------------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -77,7 +77,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ---------------------------------------------------------------------------------------------------------
-▽ KoganeUnityLib (2019/11/20) (MIT License)
+▽ KoganeUnityLib (2021/10/10) (MIT License)
 ---------------------------------------------------------------------------------------------------------
 MIT License
 
@@ -92,7 +92,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 ---------------------------------------------------------------------------------------------------------
-▽ Lunar Unity Mobile Console (v1.6.4) (Apache License)
+▽ Lunar Unity Mobile Console (v1.8.4) (Apache License)
 ---------------------------------------------------------------------------------------------------------
 Lunar Unity Mobile Console https://github.com/SpaceMadness/lunar-unity-console
 
@@ -133,7 +133,7 @@ SOFTWARE.
 
 
 ---------------------------------------------------------------------------------------------------------
-▽ UniTask (Ver.2.0.24) (MIT License)
+▽ UniTask (Ver.2.2.5) (MIT License)
 ---------------------------------------------------------------------------------------------------------
 The MIT License (MIT)
 
@@ -156,38 +156,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-
----------------------------------------------------------------------------------------------------------
-▽ 参考プログラム (Unknown License)
----------------------------------------------------------------------------------------------------------
-・音イントロループの参考程度
-(:3[kanのメモ帳] : https://kan-kikuchi.hatenablog.com
-
-・暗号化保存の参考程度
-てんぷら : https://qiita.com/tempura
-
-・WAV解析の参考程度
-千里伏骥 : https://www.jianshu.com/u/2b75747cf703
-Calvin Rien : http://the.darktable.com
-
-・AudioSource保存の参考程度
-・Texture保存の参考程度
-TestSerialize : https://github.com/Veselov-Dmitry/TestSerialize
-
-・PNG画像の大きさ取得の参考程度
-r-ngtm : https://qiita.com/r-ngtm
-
-・ログ詳細化の参考程度
-・JSON整形の参考程度
-コガネブログ : http://baba-s.hatenablog.com
-
-・クラス継承判定の参考程度
-stack overflow : https://stackoverflow.com
-
-・ジェネリック関数動的実行の参考程度
-いろいろ備忘録日記 : https://devlights.hatenablog.com
 
 
 
