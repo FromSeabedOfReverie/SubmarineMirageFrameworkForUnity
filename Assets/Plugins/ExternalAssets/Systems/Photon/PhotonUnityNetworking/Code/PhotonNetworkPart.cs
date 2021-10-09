@@ -2239,11 +2239,15 @@ namespace Photon.Pun
                 case PunEvent.CloseConnection:
 
                     // MasterClient "requests" a disconnection from us
-                    if (originatingPlayer == null || !originatingPlayer.IsMasterClient)
+                    if (PhotonNetwork.EnableCloseConnection == false)
                     {
-                        Debug.LogError("Error: Someone else(" + originatingPlayer + ") then the masterserver requests a disconnect!");
+                        Debug.LogWarning("CloseConnection received from " + originatingPlayer + ". PhotonNetwork.EnableCloseConnection is false. Ignoring the request (this client stays in the room).");
                     }
-                    else
+                    else if (originatingPlayer == null || !originatingPlayer.IsMasterClient)
+                    {
+                        Debug.LogWarning("CloseConnection received from " + originatingPlayer + ". That player is not the Master Client. " + PhotonNetwork.MasterClient + " is.");
+                    }
+                    else if (PhotonNetwork.EnableCloseConnection)
                     {
                         PhotonNetwork.LeaveRoom(false);
                     }

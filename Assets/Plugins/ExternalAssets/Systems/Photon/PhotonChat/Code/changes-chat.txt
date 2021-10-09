@@ -3,7 +3,10 @@ Photon Chat C# Client - Changelog
 Exit Games GmbH - www.photonengine.com - forum.photonengine.com
 
 
-Version 4.1.6.5
+Version 4.1.6.6 (21. September 2021 - rev6204)
+    Changed: For Xbox, order of checked assemblies when getting Type SocketNativeSource. It's more likely to be in Assembly-CSharp.
+
+Version 4.1.6.5 (24. August 2021 - rev6181)
     Updated: The default name server host to "ns.photonengine.io". When using WSS on this, it expects TLS1.2 (Win 7 and old Unity versions may not support this).
 
 Version 4.1.6.2 (17. June 2021)

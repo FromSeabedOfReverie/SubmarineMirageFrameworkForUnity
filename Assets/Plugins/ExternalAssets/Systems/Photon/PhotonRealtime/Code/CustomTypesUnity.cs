@@ -60,6 +60,11 @@ namespace Photon.Realtime
         private static object DeserializeVector3(StreamBuffer inStream, short length)
         {
             Vector3 vo = new Vector3();
+            if (length != 3 * 4)
+            {
+                return vo;
+            }
+
             lock (memVector3)
             {
                 inStream.Read(memVector3, 0, 3 * 4);
@@ -93,6 +98,11 @@ namespace Photon.Realtime
         private static object DeserializeVector2(StreamBuffer inStream, short length)
         {
             Vector2 vo = new Vector2();
+            if (length != 2 * 4)
+            {
+                return vo;
+            }
+
             lock (memVector2)
             {
                 inStream.Read(memVector2, 0, 2 * 4);
@@ -128,6 +138,10 @@ namespace Photon.Realtime
         private static object DeserializeQuaternion(StreamBuffer inStream, short length)
         {
             Quaternion o = new Quaternion();
+            if (length != 4 * 4)
+            {
+                return o;
+            }
 
             lock (memQuarternion)
             {

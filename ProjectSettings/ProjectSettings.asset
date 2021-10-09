@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: FromSeabedOfReverie
-  productName: "SubmarineMirageFrameworkForUnity\u88FD\u54C1\u7248"
+  productName: "SubmarineMirageFramework\u88FD\u54C1\u7248"
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -155,8 +155,8 @@ PlayerSettings:
   androidSupportedAspectRatio: 0
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.FromSeabedOfReverie.SubmarineMirageFrameworkForUnity
-    Standalone: com.FromSeabedOfReverie.SubmarineMirageFrameworkForUnity
+    Android: com.FromSeabedOfReverie.SubmarineMirageFramework
+    Standalone: com.FromSeabedOfReverie.SubmarineMirageFramework
     Tizen: com.Company.ProductName
     iPhone: com.FromSeabedOfReverie.SubmarineMirageFrameworkForUnity
     tvOS: com.Company.ProductName

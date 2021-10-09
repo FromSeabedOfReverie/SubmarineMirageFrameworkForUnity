@@ -888,8 +888,17 @@ namespace Photon.Realtime
             this.LoadBalancingPeer.DebugOut = appSettings.NetworkLogging;
 
             this.AuthMode = appSettings.AuthMode;
-            this.LoadBalancingPeer.TransportProtocol = (this.AuthMode == AuthModeOption.AuthOnceWss) ? ConnectionProtocol.WebSocketSecure : appSettings.Protocol;
-            this.ExpectedProtocol = appSettings.Protocol;
+            if (appSettings.AuthMode == AuthModeOption.AuthOnceWss)
+            {
+                this.LoadBalancingPeer.TransportProtocol = ConnectionProtocol.WebSocketSecure;
+                this.ExpectedProtocol = appSettings.Protocol;
+            }
+            else
+            {
+                this.LoadBalancingPeer.TransportProtocol = appSettings.Protocol;
+                this.ExpectedProtocol = null;
+            }
+            
             this.EnableProtocolFallback = appSettings.EnableProtocolFallback;
 
             this.bestRegionSummaryFromStorage = appSettings.BestRegionSummaryFromStorage;
@@ -897,7 +906,6 @@ namespace Photon.Realtime
 
 
             this.CheckConnectSetupWebGl();
-            this.CheckConnectSetupXboxOne(); // may throw an exception if there are issues that can not be corrected
 
 
             if (this.IsUsingNameServer)
@@ -976,7 +984,6 @@ namespace Photon.Realtime
             }
 
             this.CheckConnectSetupWebGl();
-            this.CheckConnectSetupXboxOne(); // may throw an exception if there are issues that can not be corrected
 
             if (this.LoadBalancingPeer.Connect(this.MasterServerAddress, this.ProxyServerAddress, this.AppId, this.TokenForInit))
             {
@@ -1009,7 +1016,6 @@ namespace Photon.Realtime
 
 
             this.CheckConnectSetupWebGl();
-            this.CheckConnectSetupXboxOne(); // may throw an exception if there are issues that can not be corrected
 
 
             if (this.AuthMode == AuthModeOption.AuthOnceWss)
@@ -1088,7 +1094,6 @@ namespace Photon.Realtime
 
 
             this.CheckConnectSetupWebGl();
-            this.CheckConnectSetupXboxOne(); // may throw an exception if there are issues that can not be corrected
 
 
             if (this.AuthMode == AuthModeOption.AuthOnceWss)
@@ -1123,64 +1128,6 @@ namespace Photon.Realtime
             }
 
             this.EnableProtocolFallback = false; // no fallback on WebGL
-            #endif
-        }
-
-        [Conditional("UNITY_XBOXONE"), Conditional("UNITY_GAMECORE")]
-        private void CheckConnectSetupXboxOne()
-        {
-            // on the xbox, clients must use
-            //   Xbox Authentication
-            //   WSS  or  WSS and Datagram Encryption
-
-            #if (UNITY_XBOXONE || UNITY_GAMECORE) && !UNITY_EDITOR
-            if (this.AuthValues.AuthType != CustomAuthenticationType.Xbox)
-            {
-                this.DebugReturn(DebugLevel.WARNING, "XBOX builds must use AuthValues.AuthType \"CustomAuthenticationType.Xbox\". PUN sets this value now. Refer to the online docs to avoid this warning.");
-                this.AuthValues.AuthType = CustomAuthenticationType.Xbox;
-            }
-            if (this.AuthValues == null)
-            {
-                this.DebugReturn(DebugLevel.ERROR, "XBOX builds must set AuthValues. Set this before calling any Connect method. Refer to the online docs for guidance.");
-                throw new Exception("XBOX builds must set AuthValues.");
-            }
-            if (this.AuthValues.AuthPostData == null)
-            {
-                this.DebugReturn(DebugLevel.ERROR,"XBOX builds must use Photon's XBox Authentication and set the XSTS token by calling: PhotonNetwork.AuthValues.SetAuthPostData(xstsToken). Refer to the online docs for guidance.");
-                throw new Exception("XBOX builds must use Photon's XBox Authentication.");
-            }
-
-
-            // protocol-based checks (udp or wss are allowed with specific sub-settings required)
-
-            if (this.LoadBalancingPeer.TransportProtocol == ConnectionProtocol.Udp || (this.AuthMode == AuthModeOption.AuthOnceWss && this.ExpectedProtocol == ConnectionProtocol.Udp))
-            {
-                if (!PhotonPeer.NativeDatagramEncryptionLibAvailable)
-                {
-                    this.DebugReturn(DebugLevel.ERROR,"XBOX builds must use Photon's Native Datagram Encryption library when using UDP. It seems this is not available (PhotonPeer.NativeDatagramEncryptionLibAvailable == false). Check the project and lib settings.");
-                    throw new Exception("XBOX builds using UDP must also use Photon's Native Datagram Encryption library.");
-                }
-
-                // make sure settings are correct:
-                this.AuthMode = AuthModeOption.AuthOnceWss;
-                this.ExpectedProtocol = ConnectionProtocol.Udp;
-                this.EncryptionMode = EncryptionMode.DatagramEncryptionGCM;
-
-            }
-            else if (this.LoadBalancingPeer.TransportProtocol == ConnectionProtocol.WebSocketSecure)
-                {
-                // make sure settings are correct:
-                this.AuthMode = AuthModeOption.Auth;
-                this.ExpectedProtocol = null;
-                this.EncryptionMode = EncryptionMode.PayloadEncryption;
-                }
-            else
-            {
-                // any other protocol is not allowed on xbox
-                throw new Exception("XBOX builds must use either UDP or WSS (Secure WebSockets) as transport protocol.");
-            }
-
-            this.EnableProtocolFallback = false; // no transport protocol fallback on XBOX
             #endif
         }
 

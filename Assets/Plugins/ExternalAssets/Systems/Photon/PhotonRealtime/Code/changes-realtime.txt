@@ -3,7 +3,17 @@ Photon Realtime C# Client - Changelog
 Exit Games GmbH - www.photonengine.com - forum.photonengine.com
 
 
-Version 4.1.6.5
+Version 4.1.6.7 (27. September 2021)
+    Replaced: Pointer_stringify with UTF8ToString in WebSocket.jslib. It was removed from newer Emscripten versions and is no longer working when exporting from Unity 2021.2. betas. Replaced with UTF8ToString. Tested in 2018.4.x and a current beta.
+    Fixed: Usage of websocketType for console.
+
+Version 4.1.6.6 (17. September 2021)
+    Removed: Usage of class EncryptorNative. This needs to be replaced by EncryptorNativeSource where the Native Socket Plugin should be used.
+    Changed: The Native Socket Plugin can also be used for UDP on Xbox (not in Editor).
+    Removed: CheckConnectSetupXboxOne() as platform requirements were turned into recommendations.
+    Changed: For Xbox, order of checked assemblies when getting Type SocketNativeSource. It's more likely to be in Assembly-CSharp.
+
+Version 4.1.6.5 (24. August 2021)
     Updated: The default name server host to "ns.photonengine.io". When using WSS on this, it expects TLS1.2 (Win 7 and old Unity versions may not support this).
     Fixed: Internally used OpJoinRoom() will now send custom room properties (all RoomOptions set) to the Master Server, too. This allows the Master Server to immediately find the room, even if property filtering is used. This was affecting matchmaking with OpJoinOrCreateRoom.
 

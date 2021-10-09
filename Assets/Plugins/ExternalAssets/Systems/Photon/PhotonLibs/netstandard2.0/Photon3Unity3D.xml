@@ -228,19 +228,6 @@
             Packet authentication algorithm impelmenation
             </summary>
         </member>
-        <member name="T:ExitGames.Client.Photon.Encryption.EncryptorNative">
-            <summary>
-            Implementation of encryption for "Datagram Encryption".
-            </summary>
-        </member>
-        <member name="M:ExitGames.Client.Photon.Encryption.EncryptorNative.Init(System.Byte[],System.Byte[],System.Byte[],System.Boolean,System.Int32)">
-            <summary>
-            Initialize
-            </summary>
-            <param name="encryptionSecret"></param>
-            <param name="hmacSecret"></param>
-            <param name="ivBytes"></param>
-        </member>
         <member name="F:ExitGames.Client.Photon.EnetChannel.outgoingReliableUnsequencedNumber">
             <summary>Number for reliable unsequenced commands (separate from "standard" reliable sequenced). Used to avoid duplicates.</summary>
         </member>
@@ -1170,50 +1157,14 @@
         <member name="P:ExitGames.Client.Photon.PhotonPeer.Version">
             <summary>Version of this library as string.</summary>
         </member>
-        <member name="P:ExitGames.Client.Photon.PhotonPeer.NativeSocketLibAvailable">
-             <summary>Checks if a native library for network sockets (PhotonSocketPlugin.dll) is available. To use it, see remarks.</summary>
-             <remarks>
-             When the native socket library is available, the SocketNative class may be used as socket implementation.
-            
-             If the SocketImplementationConfig is null, the SocketNative class is assigned for UDP, TCP and WebSocket.
-            
-             Alternatively the type SocketNative (or other) can be assigend in the SocketImplementationConfig.
-            
-             The SocketNative class in this assembly is compiled for dynamic linking.
-             A class "SocketNativeSource" can be made available for you to compile it along with your source for
-             platforms that use static linking (e.g. for iOS and some consoles).
-            
-             Note: Native libraries must match the execution platform.
-             Even if the native plugin is found it may fail to execute.
-             </remarks>
+        <member name="F:ExitGames.Client.Photon.PhotonPeer.NativeSocketLibAvailable">
+            <summary>A Native Socket implementation is no longer part of this DLL but delivered in a separate add-on. This value always returns false.</summary>
         </member>
-        <member name="P:ExitGames.Client.Photon.PhotonPeer.NativePayloadEncryptionLibAvailable">
-             <summary>Checks if native library for Payload Encryption (PhotonCryptoPlugin.dll) is available. Used automatically.</summary>
-             <remarks>
-             While the encryptor Type for Datagram Encryption can be defined, Payload Encryption
-             will always use built-in types as encryptor.
-            
-             Note: Native libraries must match the execution platform.
-             Even if the native plugin is found it may fail to execute.
-             </remarks>
+        <member name="F:ExitGames.Client.Photon.PhotonPeer.NativePayloadEncryptionLibAvailable">
+            <summary>Native Payload Encryption is no longer part of this DLL but delivered in a separate add-on. This value always returns false.</summary>
         </member>
-        <member name="P:ExitGames.Client.Photon.PhotonPeer.NativeDatagramEncryptionLibAvailable">
-             <summary>Checks if a native library for Datagram Encryption is available. To use it, see remarks.</summary>
-             <remarks>
-             If the PhotonPeer.EncryptorType is set, this type is used as implementation for Datagram Encryption.
-             If it's not set, a native plugin is used if available. As fallback, a managed implementation is being used.
-            
-             Note: The native plugin is performing much better than the managed alternatives.
-             This is why we make the plugin available for various platforms.
-            
-             Note: Native libraries must match the execution platform.
-             Even if the native plugin is found it may fail to execute.
-             </remarks>
-        </member>
-        <member name="M:ExitGames.Client.Photon.PhotonPeer.CheckNativeLibsAvailability">
-            <summary>
-            Checks availability and completeness of native libs and sets respective "available" values.
-            </summary>
+        <member name="F:ExitGames.Client.Photon.PhotonPeer.NativeDatagramEncryptionLibAvailable">
+            <summary>Native Datagram Encryption is no longer part of this DLL but delivered in a separate add-on. This value always returns false.</summary>
         </member>
         <member name="P:ExitGames.Client.Photon.PhotonPeer.SerializationProtocolType">
             <summary>Enables selection of a (Photon-)serialization protocol. Used in Connect methods.</summary>
@@ -1223,11 +1174,10 @@
              <summary>Optional definition of IPhotonSocket type per ConnectionProtocol.</summary>
              <remarks>
              Several platforms have special Socket implementations and slightly different APIs.
-             To accomodate this, switching the socket implementation for a network protocol was made available.
+             Customizing the SocketImplementationConfig helps to accomodate this.
              By default, UDP and TCP have socket implementations assigned.
             
-             If a native socket plugin is available (see: PhotonPeer.NativeSocketLibAvailable), the SocketNative
-             class is used by default (with dynamic linking).
+             If a native socket plugin is available set the SocketNativeSource class as Type definition here.
             
              You only need to set the SocketImplementationConfig once, after creating a PhotonPeer
              and before connecting. If you switch the TransportProtocol, the correct implementation is being used.
@@ -1746,14 +1696,22 @@
         <member name="F:ExitGames.Client.Photon.PhotonPeer.peerBase">
             <summary>Implements the message-protocol, based on the underlying network protocol (udp, tcp, http).</summary>
         </member>
+        <member name="P:ExitGames.Client.Photon.PhotonPeer.PayloadEncryptorType">
+             <summary>Setter for the Payload Encryptor type. Used for next connection.</summary>
+             <remarks>
+             If null, the PhotonPeer will create a DiffieHellmanCryptoProvider, which is the default.
+             This is only needed in rare cases, where using native payload encryption makes sense.
+            
+             Get in touch about this, if you got questions: developer@photonengine.com
+             </remarks>
+        </member>
         <member name="F:ExitGames.Client.Photon.PhotonPeer.PayloadEncryptionSecret">
             <summary>PayloadEncryption Secret. Message payloads get encrypted with it individually and on demand.</summary>
         </member>
         <member name="P:ExitGames.Client.Photon.PhotonPeer.EncryptorType">
-            <summary>Setter for the Datagram Encryptor instance. Used at next connect.</summary>
+            <summary>Setter for the Datagram Encryptor type. Used at next connect.</summary>
             <remarks>
-            If null, the PhotonPeer will create a default encryptor instance, which may be native or managed.
-            See also: PhotonPeer.NativeDatagramEncryptionLibAvailable.
+            If null, the PhotonPeer will create a default datagram encryptor instance.
             </remarks>
         </member>
         <member name="F:ExitGames.Client.Photon.PhotonPeer.Encryptor">
@@ -2504,9 +2462,6 @@
         <member name="P:ExitGames.Client.Photon.SendOptions.Reliability">
             <summary>Sets the DeliveryMode either to true: Reliable or false: Unreliable, overriding any current value.</summary>
             <remarks>Use this to conveniently select reliable/unreliable delivery.</remarks>
-        </member>
-        <member name="M:ExitGames.Client.Photon.SocketNative.Send(System.Byte[],System.Int32)">
-            <summary>used by PhotonPeer*</summary>
         </member>
         <member name="T:ExitGames.Client.Photon.SocketTcp">
             <summary>Encapsulates the network i/o functionality for the realtime library.</summary>

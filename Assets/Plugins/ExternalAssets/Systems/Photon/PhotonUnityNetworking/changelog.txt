@@ -3,6 +3,16 @@ PUN 2 - Changelog
 Exit Games GmbH - www.photonengine.com - forum.photonengine.com
 
 
+v2.37 (27. September 2021)
+Added: CustomType deserialization length checks.
+Added: PhotonNetwork.EnableCloseConnection which defaults to false. This is a breaking change: Only if you set this to true, CloseConnection will work anymore.
+Updated: Library to 4.1.6.7. More details in changes-library.txt.
+
+
+v2.36 (20. September 2021)
+Updated: Realtime API. Check out changes-realtime.txt.
+Updated: Library to 4.1.6.6. More details in changes-library.txt.
+
 v2.35 (24. August 2021)
 Changed: CheckConnectSetupXboxOne() to allow AuthOnceWss and Datagram Encryption (GCM mode). It will set ExpectedProtocol and EncryptionMode silently. Datagram Encryption is only possible with a native plugin.
 Changed: Interest Culling in UtilityScripts/Culling/.

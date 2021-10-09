@@ -64,7 +64,7 @@ namespace Photon.Pun
     public static partial class PhotonNetwork
     {
         /// <summary>Version number of PUN. Used in the AppVersion, which separates your playerbase in matchmaking.</summary>
-        public const string PunVersion = "2.35";
+        public const string PunVersion = "2.37";
 
         /// <summary>Version number of your game. Setting this updates the AppVersion, which separates your playerbase in matchmaking.</summary>
         /// <remarks>
@@ -398,6 +398,16 @@ namespace Photon.Pun
             }
         }
 
+        /// <summary>
+        /// Used to enable reaction to CloseConnection events. Default: false.
+        /// </summary>
+        /// <remarks>
+        /// Using CloseConnection is a security risk, as exploiters can send the event as Master Client.
+        ///
+        /// In best case, a game would implement this "disconnect others" independently from PUN in game-code
+        /// with some security checks.
+        /// </remarks>
+        public static bool EnableCloseConnection = false;
 
         /// <summary>
         /// The minimum difference that a Vector2 or Vector3(e.g. a transforms rotation) needs to change before we send it via a PhotonView's OnSerialize/ObservingComponent.
@@ -1485,13 +1495,19 @@ namespace Photon.Pun
             }
         }
 
-        /// <summary>Request a client to disconnect (KICK). Only the master client can do this</summary>
-        /// <remarks>Only the target player gets this event. That player will disconnect automatically, which is what the others will notice, too.</remarks>
+        /// <summary>Request a client to disconnect/kick, which happens if EnableCloseConnection is set to true. Only the master client can do this.</summary>
+        /// <remarks>Only the target player gets this event. That player will disconnect if EnableCloseConnection = true.</remarks>
         /// <param name="kickPlayer">The Player to kick.</param>
         public static bool CloseConnection(Player kickPlayer)
         {
             if (!VerifyCanUseNetwork())
             {
+                return false;
+            }
+
+            if (!PhotonNetwork.EnableCloseConnection)
+            {
+                Debug.LogError("CloseConnection is disabled. No need to call it.");
                 return false;
             }
 
