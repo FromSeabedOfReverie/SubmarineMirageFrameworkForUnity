@@ -1,4 +1,4 @@
-#if UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_4 || UNITY_5 || UNITY_5_3_OR_NEWER
+#if UNITY_3_3 || UNITY_3_4 || UNITY_3_5 || UNITY_4 || UNITY_4_7 || UNITY_5 || UNITY_5_3_OR_NEWER
 #define UNITY
 #endif
 /* 
@@ -29,7 +29,10 @@ namespace GameDevWare.Serialization.Metadata
 {
 	internal static class MetadataReflection
 	{
-		private static readonly bool AotRuntime;
+		/// <summary>
+		/// Set to true to disable access optimizations (generated read/write access delegates) in AOT runtime.
+		/// </summary>
+		public static bool AotRuntime;
 
 		private static readonly Dictionary<MemberInfo, Func<object, object>> ReadFunctions;
 		private static readonly Dictionary<MemberInfo, Action<object, object>> WriteFunctions;
@@ -40,8 +43,21 @@ namespace GameDevWare.Serialization.Metadata
 #if ((UNITY_WEBGL || UNITY_IOS || ENABLE_IL2CPP) && !UNITY_EDITOR)
 			AotRuntime = true;
 #else
-			try { Expression.Lambda<Func<bool>>(Expression.Constant(true)).Compile(); }
-			catch (Exception) { AotRuntime = true; }
+			try
+			{
+				// try compile expression
+				Expression.Lambda<Func<bool>>(Expression.Constant(true)).Compile();
+#if (NET35 || UNITY) && !NET_STANDARD_2_0
+				var voidDynamicMethod = new DynamicMethod("TestVoidMethod", typeof(void), Type.EmptyTypes, restrictedSkipVisibility: true);
+				var il = voidDynamicMethod.GetILGenerator();
+				il.Emit(OpCodes.Nop);
+				voidDynamicMethod.CreateDelegate(typeof(Action));
+#endif
+			}
+			catch
+			{
+				AotRuntime = true;
+			}
 #endif
 			ReadFunctions = new Dictionary<MemberInfo, Func<object, object>>();
 			WriteFunctions = new Dictionary<MemberInfo, Action<object, object>>();

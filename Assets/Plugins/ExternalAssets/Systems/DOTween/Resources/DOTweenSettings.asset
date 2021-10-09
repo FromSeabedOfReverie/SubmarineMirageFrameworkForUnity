@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useSafeMode: 1
   safeModeOptions:
+    logBehaviour: 3
     nestedTweenFailureBehaviour: 1
   timeScale: 1
   useSmoothDeltaTime: 0
@@ -32,7 +33,7 @@ MonoBehaviour:
   defaultAutoKill: 1
   defaultLoopType: 0
   debugMode: 0
-  debugStoreTargetId: 0
+  debugStoreTargetId: 1
   showPreviewPanel: 1
   storeSettingsLocation: 1
   modules:
@@ -44,5 +45,9 @@ MonoBehaviour:
     uiEnabled: 1
     textMeshProEnabled: 0
     tk2DEnabled: 0
+    deAudioEnabled: 0
+    deUnityExtendedEnabled: 0
+    epoOutlineEnabled: 0
+  createASMDEF: 0
   showPlayingTweens: 0
   showPausedTweens: 0
