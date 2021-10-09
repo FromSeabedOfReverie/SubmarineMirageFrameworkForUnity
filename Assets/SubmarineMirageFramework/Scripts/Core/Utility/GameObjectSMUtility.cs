@@ -24,7 +24,7 @@ namespace SubmarineMirage.Utility {
 		/// <summary>
 		/// ● インスタンス生成
 		/// </summary>
-		public static T Instantiate<T>() where T : SMStandardMonoBehaviour {
+		public static T Instantiate<T>() where T : MonoBehaviourSMExtension {
 			var type = typeof( T );
 			var go = new GameObject( type.GetAboutName() );
 			var b = go.AddComponent( type ) as T;

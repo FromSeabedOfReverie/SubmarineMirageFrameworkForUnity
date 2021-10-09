@@ -45,7 +45,7 @@ public class UINetworkError : SMStandardMonoBehaviour {
 
 							var mainFSM = _sceneManager.GetFSM<MainSMScene>();
 							if ( mainFSM._state is GameSMScene ) {
-								mainFSM.ChangeState<NetworkSMScene>().Forget();
+//								mainFSM.ChangeState<NetworkSMScene>().Forget();
 							}
 							return;
 						}

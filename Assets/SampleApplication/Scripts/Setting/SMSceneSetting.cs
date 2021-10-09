@@ -40,7 +40,6 @@ public class SMSceneSetting : BaseSMSceneSetting {
 				// UI配置専用のシーン
 				new Type[] {
 					typeof( UINoneSMScene ),
-					typeof( UIHelpSMScene ),
 				},
 				typeof( UISMScene )
 			}, {

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using KoganeUnityLib;
 using SubmarineMirage;
+using SubmarineMirage.Base;
+using SubmarineMirage.Service;
 using SubmarineMirage.Utility;
 using SubmarineMirage.Debug;
 
@@ -10,7 +12,7 @@ using SubmarineMirage.Debug;
 /// <summary>
 /// ■ 全モデルの管理クラス
 /// </summary>
-public class AllModelManager : Singleton<AllModelManager> {
+public class AllModelManager : SMStandardMonoBehaviour, ISMService {
 	/// <summary>全モデルの辞書</summary>
 	[SMShow] readonly Dictionary<Type, IModel> _models = new Dictionary<Type, IModel>();
 

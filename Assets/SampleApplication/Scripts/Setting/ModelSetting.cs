@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Sample;
 using SubmarineMirage.Base;
 using SubmarineMirage.Debug;
 
@@ -22,16 +21,7 @@ public class ModelSetting : SMStandardBase {
 		} );
 
 		_registerModels = new List<IModel> {
-			// --------------------------------------------------------------------------------------------
-			//  ★ ここに、Modelを登録してください。
-			// --------------------------------------------------------------------------------------------
-			// こんな感じに
-			new SampleModel(),
-
-			new MotionModel(),
-			new FieldModel(),
-			new ScoreModel(),
-			new MainGameManagementModel(),
+			// ここに、Modelを登録
 		};
 	}
 }
