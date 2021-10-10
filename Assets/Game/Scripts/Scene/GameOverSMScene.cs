@@ -4,9 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-using SubmarineMirage.Scene;
+namespace Game {
+	using SubmarineMirage.Scene;
 
 
 
-public class GameOverSMScene : MainSMScene {
+	public class GameOverSMScene : MainSMScene {
+	}
 }

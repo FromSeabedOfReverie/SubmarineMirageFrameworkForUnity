@@ -1,27 +1,35 @@
-using System.Collections.Generic;
-using SubmarineMirage.Base;
-using SubmarineMirage.Debug;
-
-
-
-/// <summary>
-/// ■ モデルの設定クラス
-/// </summary>
-public class ModelSetting : SMStandardBase {
-	public readonly List<IModel> _registerModels;
+//---------------------------------------------------------------------------------------------------------
+// ▽ Submarine Mirage Framework for Unity
+//		Copyright (c) 2020 夢想海の水底より(from Seabed of Reverie)
+//		Released under the MIT License :
+//			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
+//---------------------------------------------------------------------------------------------------------
+namespace Game {
+	using System.Collections.Generic;
+	using SubmarineMirage.Base;
+	using SubmarineMirage.Debug;
 
 
 
 	/// <summary>
-	/// ● コンストラクタ
+	/// ■ モデルの設定クラス
 	/// </summary>
-	public ModelSetting() {
-		_disposables.AddFirst( () => {
-			_registerModels.Clear();
-		} );
+	public class ModelSetting : SMStandardBase {
+		public readonly List<IModel> _registerModels;
 
-		_registerModels = new List<IModel> {
-			// ここに、Modelを登録
-		};
+
+
+		/// <summary>
+		/// ● コンストラクタ
+		/// </summary>
+		public ModelSetting() {
+			_disposables.AddFirst( () => {
+				_registerModels.Clear();
+			} );
+
+			_registerModels = new List<IModel> {
+				// ここに、Modelを登録
+			};
+		}
 	}
 }

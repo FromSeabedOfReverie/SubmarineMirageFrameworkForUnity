@@ -116,7 +116,6 @@ namespace SubmarineMirage {
 			SMServiceLocator.Register( new SMDecorationManager() );
 			SMServiceLocator.Register( new SMDebugManager() );
 			SMServiceLocator.Register( new SMDisplayLog() );
-			SMServiceLocator.Register( new SMCoroutineManager() );
 			SMServiceLocator.Register( new SMInputManager() );
 			SMServiceLocator.Register( new SMUnityTagManager() );
 			SMServiceLocator.Register( new SMUnityLayerManager() );

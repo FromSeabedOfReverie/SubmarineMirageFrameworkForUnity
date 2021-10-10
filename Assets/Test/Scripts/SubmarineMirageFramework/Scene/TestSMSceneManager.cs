@@ -22,6 +22,7 @@ namespace SubmarineMirage.TestScene {
 	using Setting;
 	using Debug;
 	using TestBase;
+	using Game;
 
 
 
