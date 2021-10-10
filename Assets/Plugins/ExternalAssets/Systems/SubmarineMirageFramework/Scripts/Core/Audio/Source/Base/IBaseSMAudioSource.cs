@@ -4,9 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Audio {
+namespace SubmarineMirage {
 	using Cysharp.Threading.Tasks;
-	using Base;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 音源管理のインタフェース

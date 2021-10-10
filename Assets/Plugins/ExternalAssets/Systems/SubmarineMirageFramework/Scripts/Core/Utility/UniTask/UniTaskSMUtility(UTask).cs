@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System;
 	using System.Threading;
 	using System.Collections;
@@ -15,7 +15,6 @@ namespace SubmarineMirage.Utility {
 	using UnityEngine.Networking;
 	using Cysharp.Threading.Tasks;
 	using DG.Tweening;
-	using Extension;
 
 	// 本当はこう書かなければならないが、記述を省く為、省略
 	// 全書類に跨る、別名定義機能は、C#に無い

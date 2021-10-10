@@ -4,12 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Server {
-	using Service;
-	using File;
-	using Utility;
-	using Setting;
-	using Debug;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ アプリケーションのサーバー情報の管理クラス

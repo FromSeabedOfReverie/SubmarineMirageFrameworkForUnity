@@ -6,17 +6,13 @@
 //---------------------------------------------------------------------------------------------------------
 //#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Photon.Realtime;
 	using Photon.Pun;
 	using ExitGames.Client.Photon;
 	using KoganeUnityLib;
-	using Base;
-	using Extension;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ フォトンサーバーのビュークラス

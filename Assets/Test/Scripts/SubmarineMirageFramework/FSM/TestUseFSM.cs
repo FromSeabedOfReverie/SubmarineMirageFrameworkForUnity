@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestFSM {
+namespace SubmarineMirage.Test {
 	using System;
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Task;
-	using FSM;
 
 
 

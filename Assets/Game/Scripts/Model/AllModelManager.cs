@@ -9,10 +9,6 @@ namespace Game {
 	using System.Collections.Generic;
 	using KoganeUnityLib;
 	using SubmarineMirage;
-	using SubmarineMirage.Base;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.Utility;
-	using SubmarineMirage.Debug;
 
 
 

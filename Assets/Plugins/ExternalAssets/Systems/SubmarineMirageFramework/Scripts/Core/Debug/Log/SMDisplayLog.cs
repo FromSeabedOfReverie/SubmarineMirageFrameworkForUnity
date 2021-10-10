@@ -4,12 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Debug {
+namespace SubmarineMirage {
 	using System.Collections;
 	using UnityEngine;
 	using UniRx;
-	using Service;
-	using Task;
 	///====================================================================================================
 	/// <summary>
 	/// ■ デバッグ画面記録のクラス

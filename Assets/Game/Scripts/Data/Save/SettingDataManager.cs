@@ -8,11 +8,7 @@
 namespace Game {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.File;
-	using SubmarineMirage.Data;
-	using SubmarineMirage.Setting;
-	using SubmarineMirage.Debug;
+	using SubmarineMirage;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 設定情報の管理クラス

@@ -4,12 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.Serialization;
 	using KoganeUnityLib;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲームサーバーの例外クラス

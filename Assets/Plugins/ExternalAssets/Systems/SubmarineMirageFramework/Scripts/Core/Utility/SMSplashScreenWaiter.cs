@@ -4,9 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using UnityEngine.Rendering;
-	using Task;
 	///====================================================================================================
 	/// <summary>
 	/// ■ スプラッシュ画面の待機クラス

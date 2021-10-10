@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace Game {
-	using SubmarineMirage.Scene;
+	using SubmarineMirage;
 
 
 

@@ -12,11 +12,6 @@ namespace Game {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.Audio;
-	using SubmarineMirage.Data.Save;
-	using SubmarineMirage.Setting;
-	using SubmarineMirage.Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 設定情報のクラス

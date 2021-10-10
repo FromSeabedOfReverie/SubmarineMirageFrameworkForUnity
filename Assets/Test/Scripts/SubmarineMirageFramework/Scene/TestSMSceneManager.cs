@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestScene {
+namespace SubmarineMirage.Test {
 	using System;
 	using System.Linq;
 	using System.Collections;
@@ -14,14 +14,6 @@ namespace SubmarineMirage.TestScene {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
-	using Scene;
-	using Extension;
-	using Utility;
-	using Setting;
-	using Debug;
-	using TestBase;
 	using Game;
 
 

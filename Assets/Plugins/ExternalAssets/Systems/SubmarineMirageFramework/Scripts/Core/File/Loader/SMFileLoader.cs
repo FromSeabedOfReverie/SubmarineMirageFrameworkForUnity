@@ -5,21 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestFile
-namespace SubmarineMirage.File {
+namespace SubmarineMirage {
 	using System;
 	using System.IO;
 	using System.Text;
 	using UnityEngine;
 	using UnityEngine.Networking;
 	using Cysharp.Threading.Tasks;
-	using Service;
-	using Data;
-	using Data.Raw;
-	using Network;
-	using Extension;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 書類の読み書きクラス

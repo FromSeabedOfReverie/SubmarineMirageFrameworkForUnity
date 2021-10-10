@@ -5,19 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestFSM
-namespace SubmarineMirage.FSM {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using Modifyler;
-	using Event;
-	using Task;
-	using Extension;
-	using Utility;
-	using Debug;
 
 
 

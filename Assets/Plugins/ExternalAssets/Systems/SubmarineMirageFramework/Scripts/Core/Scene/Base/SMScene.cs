@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestScene
-namespace SubmarineMirage.Scene {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -13,17 +13,6 @@ namespace SubmarineMirage.Scene {
 	using UnityEngine.SceneManagement;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Service;
-	using Event;
-	using Task;
-	using Task.Marker;
-	using FSM;
-	using Audio;
-	using Network;
-	using UI;
-	using Extension;
-	using Utility;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ シーンのクラス

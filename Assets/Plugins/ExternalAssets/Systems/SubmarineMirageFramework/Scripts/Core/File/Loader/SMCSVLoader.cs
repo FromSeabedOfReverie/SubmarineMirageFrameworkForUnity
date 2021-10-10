@@ -5,15 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestFile
-namespace SubmarineMirage.File {
+namespace SubmarineMirage {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Extension;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ CSVの読み書きクラス

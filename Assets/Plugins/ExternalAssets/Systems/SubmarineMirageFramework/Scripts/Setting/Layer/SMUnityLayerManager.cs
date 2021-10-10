@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
+namespace SubmarineMirage {
 	using System.Linq;
 	using UnityEngine;
-	using Utility;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 層の管理クラス

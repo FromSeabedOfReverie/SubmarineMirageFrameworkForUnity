@@ -4,16 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.EditorTask {
+namespace SubmarineMirage.Editor {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEditor;
 	using KoganeUnityLib;
-	using Task;
-	using Service;
-	using Modifyler;
-	using Debug;
-	using EditorExtension;
 
 
 

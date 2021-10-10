@@ -4,16 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data {
+namespace SubmarineMirage {
 	using System;
 	using System.IO;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Service;
-	using File;
-	using Extension;
-	using Utility;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ CSV情報の管理クラス

@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Event {
+namespace SubmarineMirage {
 	using System;
 	using KoganeUnityLib;
-	using Debug;
 
 
 

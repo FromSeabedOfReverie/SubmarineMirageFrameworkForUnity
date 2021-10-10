@@ -4,9 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
-	using Service;
-	using Task;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 装飾管理クラス

@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Extension {
+namespace SubmarineMirage {
 	using System;
 	using System.IO;
 	using System.Text;
 	using UnityEngine;
-	using Data.Raw;
-	using Data;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 音の拡張クラス

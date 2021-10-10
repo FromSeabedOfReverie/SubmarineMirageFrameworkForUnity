@@ -5,22 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestData
-namespace SubmarineMirage.Data {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
-	using File;
-	using Cache;
-	using Save;
-	using Server;
-	using Extension;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 全情報の管理クラス

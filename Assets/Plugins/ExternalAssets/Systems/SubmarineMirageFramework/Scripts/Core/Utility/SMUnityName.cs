@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
 	///====================================================================================================
 	/// <summary>
 	/// ■ Unity設定の名称使用の基盤クラス

@@ -4,10 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using UnityEngine;
-	using Base;
-	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 範囲のクラス

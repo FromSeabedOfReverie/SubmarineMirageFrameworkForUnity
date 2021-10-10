@@ -10,10 +10,6 @@ namespace Game {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SubmarineMirage;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.File;
-	using SubmarineMirage.Data;
-	using SubmarineMirage.Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 製品版の宣伝情報クラス

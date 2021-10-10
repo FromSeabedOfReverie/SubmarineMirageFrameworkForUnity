@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 //#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -15,12 +15,6 @@ namespace SubmarineMirage.Network {
 	using Photon.Pun;
 	using Photon.Realtime;
 	using KoganeUnityLib;
-	using Base;
-	using Service;
-	using Extension;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ フォトンのモノ動作のビュークラス

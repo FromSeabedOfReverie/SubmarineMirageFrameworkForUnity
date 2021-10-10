@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestScene
-namespace SubmarineMirage.Scene {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -14,12 +14,6 @@ namespace SubmarineMirage.Scene {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using Task;
-	using FSM;
-	using Service;
-	using Extension;
-	using Utility;
-	using Debug;
 
 
 

@@ -4,12 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
+namespace SubmarineMirage {
 	using System;
-	using Base;
-	using Event;
-	using Service;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ キー入力の情報クラス

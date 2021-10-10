@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestAudio
-namespace SubmarineMirage.Audio {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -13,11 +13,6 @@ namespace SubmarineMirage.Audio {
 	using UnityEngine;
 	using UniRx;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
-	using Extension;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 音再生管理のクラス

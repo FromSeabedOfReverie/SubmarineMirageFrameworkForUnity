@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestAudio
-namespace SubmarineMirage.Audio {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -16,11 +16,6 @@ namespace SubmarineMirage.Audio {
 	using DG.Tweening.Core;
 	using DG.Tweening.Plugins.Options;
 	using KoganeUnityLib;
-	using Base;
-	using Service;
-	using Extension;
-	using Utility;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 音源管理の基盤クラス

@@ -4,16 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.File {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
-	using Data;
-	using Data.Cache;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 書類の管理クラス

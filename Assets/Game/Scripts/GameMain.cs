@@ -11,13 +11,6 @@ namespace Game {
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 	using SubmarineMirage;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.Data;
-	using SubmarineMirage.Scene;
-	using SubmarineMirage.Extension;
-	using SubmarineMirage.Utility;
-	using SubmarineMirage.Setting;
-	using SubmarineMirage.Debug;
 	using SystemTask = System.Threading.Tasks.Task;
 
 

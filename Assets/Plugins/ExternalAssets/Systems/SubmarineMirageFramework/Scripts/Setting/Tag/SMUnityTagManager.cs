@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
-	using Utility;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 付箋の管理クラス

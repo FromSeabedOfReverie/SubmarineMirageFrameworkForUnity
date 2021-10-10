@@ -4,12 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
-	using Base;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲームサーバーのモデルクラス

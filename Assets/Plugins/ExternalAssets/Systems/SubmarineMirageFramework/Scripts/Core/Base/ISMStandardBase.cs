@@ -4,10 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Base {
-	using Event;
-	using Extension;
-	using Debug.ToString;
+namespace SubmarineMirage {
 
 
 	public interface ISMStandardBase : IBaseSM, IDisposableSMExtension {

@@ -4,11 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data {
+namespace SubmarineMirage {
 	using System.Runtime.Serialization;
 	using Cysharp.Threading.Tasks;
-	using Base;
-	using Utility;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 情報の基盤クラス

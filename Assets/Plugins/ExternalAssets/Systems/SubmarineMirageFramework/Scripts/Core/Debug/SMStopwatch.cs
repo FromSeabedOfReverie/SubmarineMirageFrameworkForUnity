@@ -4,9 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Debug {
+namespace SubmarineMirage {
 	using System.Diagnostics;
-	using Base;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 処理時間の計測クラス

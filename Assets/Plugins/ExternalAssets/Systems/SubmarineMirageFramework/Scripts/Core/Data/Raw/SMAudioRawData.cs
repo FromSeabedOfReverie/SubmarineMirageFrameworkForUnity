@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Raw {
+namespace SubmarineMirage {
 	using UnityEngine;
 	///====================================================================================================
 	/// <summary>

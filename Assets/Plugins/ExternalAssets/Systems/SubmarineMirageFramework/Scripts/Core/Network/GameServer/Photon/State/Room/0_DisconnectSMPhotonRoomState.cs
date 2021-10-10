@@ -5,8 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
-	using Utility;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 部屋が、未接続の、フォトン状態クラス

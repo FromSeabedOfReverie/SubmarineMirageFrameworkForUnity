@@ -4,14 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System;
 	using System.IO;
 	using System.Text;
 	using UnityEngine;
 	using GameDevWare.Serialization;
 	using KoganeUnityLib;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ シリアル化の便利クラス

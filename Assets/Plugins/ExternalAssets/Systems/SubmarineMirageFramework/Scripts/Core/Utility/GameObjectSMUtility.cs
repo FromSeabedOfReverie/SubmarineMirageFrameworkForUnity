@@ -4,13 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using UnityEngine;
 	using KoganeUnityLib;
-	using Base;
-	using Service;
-	using Extension;
-	using Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲーム物の便利クラス

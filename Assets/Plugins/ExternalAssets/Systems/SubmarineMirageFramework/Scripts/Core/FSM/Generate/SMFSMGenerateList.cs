@@ -4,12 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.FSM {
+namespace SubmarineMirage {
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
-	using Base;
-	using Debug;
 
 
 

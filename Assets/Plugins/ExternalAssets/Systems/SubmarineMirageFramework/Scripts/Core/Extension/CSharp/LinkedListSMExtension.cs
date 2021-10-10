@@ -5,12 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestLinkedList
-namespace SubmarineMirage.Extension {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Debug;
 
 
 

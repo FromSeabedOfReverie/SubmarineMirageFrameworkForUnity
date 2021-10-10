@@ -4,11 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Extension {
+namespace SubmarineMirage {
 	using System;
 	using UniRx;
-	using Service;
-	using Utility;
+
 
 
 	public static class UniRxSMExtension {

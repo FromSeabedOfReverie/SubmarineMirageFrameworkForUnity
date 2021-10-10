@@ -5,16 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestFile
-namespace SubmarineMirage.File {
+namespace SubmarineMirage {
 	using System;
 	using System.IO;
 	using System.Text;
 	using System.Collections.Generic;
 	using System.Security.Cryptography;
 	using Cysharp.Threading.Tasks;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 暗号の読み書きクラス

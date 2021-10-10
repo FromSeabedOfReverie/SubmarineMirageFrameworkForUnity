@@ -4,15 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestBase {
+namespace SubmarineMirage.Test {
 	using UnityEngine.TestTools;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
-	using Base;
-	using Event;
-	using Utility;
-	using Debug;
-	using Debug.ToString;
+
 
 
 	public abstract class SMStandardTest : BaseSMTest, ISMStandardBase {

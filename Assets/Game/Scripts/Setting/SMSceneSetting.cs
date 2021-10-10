@@ -6,8 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace Game {
 	using System;
-	using SubmarineMirage.FSM;
-	using SubmarineMirage.Scene;
+	using SubmarineMirage;
 
 
 

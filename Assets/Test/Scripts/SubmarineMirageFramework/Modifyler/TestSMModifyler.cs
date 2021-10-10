@@ -4,16 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestModifyler {
+namespace SubmarineMirage.Test {
 	using System;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
 	using Cysharp.Threading.Tasks;
-	using Modifyler;
-	using Utility;
-	using Debug;
-	using TestBase;
 
 
 

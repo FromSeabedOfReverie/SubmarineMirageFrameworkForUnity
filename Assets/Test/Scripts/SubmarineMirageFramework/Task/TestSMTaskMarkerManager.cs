@@ -4,19 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestTask {
+namespace SubmarineMirage.Test {
 	using System;
 	using System.Collections;
 	using NUnit.Framework;
 	using UnityEngine.TestTools;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
-	using Task.Marker;
-	using Extension;
-	using Utility;
-	using Debug;
-	using TestBase;
 
 
 

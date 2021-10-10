@@ -5,10 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System;
 	using Photon.Realtime;
-	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ マスターサーバーの、フォトン状態クラス

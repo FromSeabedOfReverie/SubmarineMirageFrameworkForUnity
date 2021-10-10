@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Extension {
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 真偽値の拡張クラス

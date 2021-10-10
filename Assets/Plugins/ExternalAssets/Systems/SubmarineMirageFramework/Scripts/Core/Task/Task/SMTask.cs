@@ -5,14 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestTask
-namespace SubmarineMirage.Task {
+namespace SubmarineMirage {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Event;
-	using Service;
-	using Extension;
-	using Utility;
-	using Debug;
 
 
 

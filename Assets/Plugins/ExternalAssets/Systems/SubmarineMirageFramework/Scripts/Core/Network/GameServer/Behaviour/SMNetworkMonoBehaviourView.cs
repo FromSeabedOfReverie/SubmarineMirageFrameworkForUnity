@@ -4,13 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx;
 	using KoganeUnityLib;
-	using Base;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ネットワークのモノ動作のビュークラス

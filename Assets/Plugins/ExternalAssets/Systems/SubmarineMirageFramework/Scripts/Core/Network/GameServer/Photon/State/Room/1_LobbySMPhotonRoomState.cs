@@ -6,15 +6,11 @@
 //---------------------------------------------------------------------------------------------------------
 //#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System.Linq;
 	using System.Collections.Generic;
 	using Photon.Realtime;
 	using Photon.Pun;
-	using Extension;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 部屋が、控室の、フォトン状態クラス

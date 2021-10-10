@@ -13,13 +13,6 @@ namespace Game {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using SubmarineMirage;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.File;
-	using SubmarineMirage.Data.Raw;
-	using SubmarineMirage.Data.Save;
-	using SubmarineMirage.Extension;
-	using SubmarineMirage.Utility;
-	using SubmarineMirage.Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 遊戯情報のクラス

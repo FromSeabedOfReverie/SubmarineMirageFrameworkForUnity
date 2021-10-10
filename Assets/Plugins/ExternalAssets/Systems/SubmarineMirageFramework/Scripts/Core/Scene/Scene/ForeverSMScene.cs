@@ -4,9 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Scene {
+namespace SubmarineMirage {
 	using UnityEngine.SceneManagement;
-	using Utility;
 
 
 

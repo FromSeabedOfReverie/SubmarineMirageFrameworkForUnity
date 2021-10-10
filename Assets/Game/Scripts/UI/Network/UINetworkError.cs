@@ -10,14 +10,7 @@ namespace Game {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using SubmarineMirage.Base;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.Audio;
-	using SubmarineMirage.Scene;
-	using SubmarineMirage.Network;
-	using SubmarineMirage.Utility;
-	using SubmarineMirage.Setting;
-	using SubmarineMirage.Debug;
+	using SubmarineMirage;
 
 
 

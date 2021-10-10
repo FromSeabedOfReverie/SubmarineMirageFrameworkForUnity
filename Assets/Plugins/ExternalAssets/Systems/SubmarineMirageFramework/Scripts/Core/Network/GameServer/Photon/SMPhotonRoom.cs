@@ -5,11 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using Photon.Realtime;
 	using Photon.Pun;
 	using KoganeUnityLib;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ フォトンの部屋クラス

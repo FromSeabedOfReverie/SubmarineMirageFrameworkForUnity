@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System.Collections.Generic;
 	using UnityEngine;
-	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ UGUIの装飾クラス

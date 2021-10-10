@@ -4,16 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.UI {
+namespace SubmarineMirage {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using Cysharp.Threading.Tasks;
 	using UniRx;
-	using Service;
-	using Task;
-	using Extension;
-	using Utility;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ フェードのクラス

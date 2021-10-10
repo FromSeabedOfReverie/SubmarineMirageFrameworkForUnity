@@ -4,12 +4,21 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task.Marker {
+namespace SubmarineMirage {
 
 
 
-	public enum SMTaskMarkerType {
-		First,
-		Last,
+	public enum SMTaskRunState {
+		None,
+		Create,
+		SelfInitialize,
+		Initialize,
+		InitialEnable,
+		FixedUpdate,
+		Update,
+		LateUpdate,
+		FinalDisable,
+		Finalize,
+		Dispose,
 	}
 }

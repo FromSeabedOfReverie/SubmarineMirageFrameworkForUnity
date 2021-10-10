@@ -4,12 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data {
+namespace SubmarineMirage {
 	using System.Linq;
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Base;
-	using Service;
 	///====================================================================================================
 	/// <summary>
 	/// ■ データ設定の基盤クラス

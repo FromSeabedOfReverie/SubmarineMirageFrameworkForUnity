@@ -4,12 +4,10 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestBase.Test {
+namespace SubmarineMirage.Test {
 	using System.Collections;
 	using UnityEngine;
-	using Base;
-	using Utility;
-	using Debug;
+
 
 
 	public class TestSMTestBody : SMStandardBase {

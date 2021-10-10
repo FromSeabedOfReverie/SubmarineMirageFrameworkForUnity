@@ -4,15 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Audio {
+namespace SubmarineMirage {
 	using System;
 	using System.IO;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using Base;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ AudioClipのラッパークラス

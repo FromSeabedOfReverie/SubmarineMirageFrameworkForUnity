@@ -7,9 +7,7 @@
 namespace Game {
 	using UnityEngine;
 	using UniRx;
-	using SubmarineMirage.Service;
-	using SubmarineMirage.Setting;
-	using SubmarineMirage.Debug;
+	using SubmarineMirage;
 
 
 

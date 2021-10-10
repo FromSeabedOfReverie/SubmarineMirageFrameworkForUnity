@@ -5,14 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestLog
-namespace SubmarineMirage.Debug {
+namespace SubmarineMirage {
 	using UnityEngine;
-	using Base;
-	using Service;
-	using Event;
-	using Utility;
-	using Setting;
-	using Debug.ToString;
 	///====================================================================================================
 	/// <summary>
 	/// ■ デバッグ記録のクラス

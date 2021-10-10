@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Save {
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 保存情報の基盤クラス

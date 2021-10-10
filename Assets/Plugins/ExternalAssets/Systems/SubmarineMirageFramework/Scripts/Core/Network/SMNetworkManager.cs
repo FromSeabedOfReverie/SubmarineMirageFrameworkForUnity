@@ -4,14 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using UnityEngine;
 	using UniRx;
-	using Service;
-	using Task;
-	using Extension;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ネットワークの管理クラス

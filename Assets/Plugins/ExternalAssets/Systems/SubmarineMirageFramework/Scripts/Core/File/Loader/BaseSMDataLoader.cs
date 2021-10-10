@@ -4,10 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.File {
-	using Base;
-	using Utility;
-	using Debug;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 情報読み書きの基盤クラス

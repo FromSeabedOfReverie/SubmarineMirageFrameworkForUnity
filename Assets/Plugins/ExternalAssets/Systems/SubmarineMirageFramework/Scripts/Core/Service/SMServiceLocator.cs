@@ -5,16 +5,11 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestService
-namespace SubmarineMirage.Service {
+namespace SubmarineMirage {
 	using System;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Event;
-	using Extension;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ オブジェクト注入のクラス

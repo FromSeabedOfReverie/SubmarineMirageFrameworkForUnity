@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System.Collections.Generic;
 	using UnityEngine;
-	using Base;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 文字の装飾基盤クラス

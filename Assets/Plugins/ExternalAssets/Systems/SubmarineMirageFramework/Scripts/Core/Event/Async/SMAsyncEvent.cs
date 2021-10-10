@@ -4,11 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Event {
+namespace SubmarineMirage {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Utility;
-	using Debug;
 
 
 

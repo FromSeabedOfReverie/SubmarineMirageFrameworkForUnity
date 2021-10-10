@@ -4,12 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
+namespace SubmarineMirage {
 	using System.IO;
 	using UnityEngine;
-	using Base;
-	using Service;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 中心設定のクラス

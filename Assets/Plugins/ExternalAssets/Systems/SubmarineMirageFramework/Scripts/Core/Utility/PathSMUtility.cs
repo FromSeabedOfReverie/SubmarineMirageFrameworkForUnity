@@ -5,10 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestPathUtility
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System;
 	using System.IO;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 階層の便利クラス

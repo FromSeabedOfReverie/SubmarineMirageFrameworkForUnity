@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Network {
-	using Base;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲームサーバーの送信対象クラス

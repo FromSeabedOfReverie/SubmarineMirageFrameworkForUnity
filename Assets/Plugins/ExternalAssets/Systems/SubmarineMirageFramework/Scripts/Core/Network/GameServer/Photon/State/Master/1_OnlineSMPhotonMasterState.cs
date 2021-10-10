@@ -6,11 +6,8 @@
 //---------------------------------------------------------------------------------------------------------
 //#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using Photon.Pun;
-	using Extension;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ マスターサーバーが、オンライン接続の、フォトン状態クラス

@@ -4,8 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Extension {
+namespace SubmarineMirage {
 	using System.Threading;
+
 
 
 	public static class CancellationTokenSMExtension {

@@ -4,14 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Base {
+namespace SubmarineMirage {
 	using System;
-	using Event;
-	using Service;
-	using Extension;
-	using Utility;
-	using Debug;
-	using Debug.ToString;
 	///====================================================================================================
 	/// <summary>
 	/// ■ フレームワーク標準のモノ動作クラス

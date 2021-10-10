@@ -4,9 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
-	using Base;
-	using Service;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 入力設定の基盤クラス

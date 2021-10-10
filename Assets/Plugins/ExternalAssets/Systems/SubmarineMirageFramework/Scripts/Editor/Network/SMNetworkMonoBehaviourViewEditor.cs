@@ -4,10 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.EditorNetwork {
+namespace SubmarineMirage.Editor {
 	using UnityEditor;
-	using Network;
-	using EditorExtension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ネットワークのモノ動作のビューの編集クラス

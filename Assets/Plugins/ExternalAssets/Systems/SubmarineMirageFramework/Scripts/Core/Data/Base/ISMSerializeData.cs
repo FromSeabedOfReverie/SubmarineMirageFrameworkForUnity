@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data {
-	using Base;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ シリアル化情報のインタフェース

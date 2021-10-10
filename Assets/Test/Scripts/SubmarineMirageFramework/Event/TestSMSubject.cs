@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.TestEvent {
+namespace SubmarineMirage.Test {
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
@@ -14,10 +14,7 @@ namespace SubmarineMirage.TestEvent {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using KoganeUnityLib;
-	using Event;
-	using Utility;
-	using Debug;
-	using TestBase;
+
 
 
 	public class TestSMSubject : SMUnitTest {

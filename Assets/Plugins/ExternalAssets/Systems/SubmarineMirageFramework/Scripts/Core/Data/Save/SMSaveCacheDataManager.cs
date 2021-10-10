@@ -5,22 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestData
-namespace SubmarineMirage.Data.Save {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Runtime.Serialization;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Service;
-	using Event;
-	using File;
-	using Data.Raw;
-	using Data.Cache;
-	using Extension;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 保存キャッシュ情報の管理クラス

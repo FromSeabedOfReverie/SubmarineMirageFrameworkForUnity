@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Raw {
-	using Base;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ Unity物の生情報クラス

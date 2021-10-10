@@ -6,9 +6,6 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage {
 	using System;
-	using Base;
-	using Extension;
-	using Debug;
 
 
 

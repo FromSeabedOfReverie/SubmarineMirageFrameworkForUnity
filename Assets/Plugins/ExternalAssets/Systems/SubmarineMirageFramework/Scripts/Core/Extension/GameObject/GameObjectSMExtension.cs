@@ -4,14 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Extension {
+namespace SubmarineMirage {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UniRx;
 	using KoganeUnityLib;
-	using Service;
-	using Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ゲーム物の拡張クラス

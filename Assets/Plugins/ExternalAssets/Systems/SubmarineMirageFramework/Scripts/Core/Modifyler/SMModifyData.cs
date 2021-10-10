@@ -5,11 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestModifyData
-namespace SubmarineMirage.Modifyler {
+namespace SubmarineMirage {
 	using System;
 	using Cysharp.Threading.Tasks;
-	using Base;
-	using Debug;
 
 
 

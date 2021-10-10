@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Server {
+namespace SubmarineMirage {
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using Setting;
 	///====================================================================================================
 	/// <summary>
 	/// ■ WEBサイトURLの情報クラス

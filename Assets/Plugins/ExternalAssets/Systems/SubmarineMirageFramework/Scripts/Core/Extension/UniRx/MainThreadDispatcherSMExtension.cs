@@ -4,10 +4,9 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Extension {
+namespace SubmarineMirage {
 	using UniRx;
-	using Event;
-	using Service;
+
 
 
 	public class MainThreadDispatcherSMExtension : MonoBehaviourSMExtension, ISMService {

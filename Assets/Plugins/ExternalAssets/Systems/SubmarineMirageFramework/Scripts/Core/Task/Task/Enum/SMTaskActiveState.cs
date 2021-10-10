@@ -4,7 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task {
+namespace SubmarineMirage {
+
 
 
 	public enum SMTaskActiveState {

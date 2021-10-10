@@ -4,9 +4,8 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Raw {
+namespace SubmarineMirage {
 	using UnityEngine;
-	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 画像の生情報クラス

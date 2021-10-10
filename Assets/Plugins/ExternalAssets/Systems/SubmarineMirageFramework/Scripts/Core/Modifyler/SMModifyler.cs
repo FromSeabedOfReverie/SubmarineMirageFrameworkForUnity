@@ -5,17 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestModifyler
-namespace SubmarineMirage.Modifyler {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Base;
-	using Extension;
-	using Utility;
-	using Debug;
 
 
 

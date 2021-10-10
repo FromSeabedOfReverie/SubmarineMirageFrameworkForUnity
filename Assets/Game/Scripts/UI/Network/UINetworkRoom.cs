@@ -8,9 +8,7 @@ namespace Game {
 	using UnityEngine;
 	using UnityEngine.UI;
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage.Base;
-	using SubmarineMirage.Network;
-	using SubmarineMirage.Debug;
+	using SubmarineMirage;
 
 
 

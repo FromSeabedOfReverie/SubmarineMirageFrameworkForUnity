@@ -4,17 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Save {
+namespace SubmarineMirage {
 	using System;
 	using System.Runtime.Serialization;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using Service;
-	using Data.Raw;
-	using Data.Cache;
-	using Extension;
-	using Utility;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 保存キャッシュの情報クラス

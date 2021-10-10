@@ -5,12 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System;
 	using UniRx;
-	using FSM;
-	using Extension;
-	using Utility;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 部屋の、フォトン状態クラス

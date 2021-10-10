@@ -5,10 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestLinkNode
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System.Collections.Generic;
-	using Base;
-	using Debug;
 
 
 

@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 //#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
-namespace SubmarineMirage.Network {
+namespace SubmarineMirage {
 	using System;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
@@ -14,12 +14,6 @@ namespace SubmarineMirage.Network {
 	using Photon.Realtime;
 	using Photon.Pun;
 	using ExitGames.Client.Photon;
-	using Service;
-	using FSM;
-	using Extension;
-	using Utility;
-	using Setting;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ フォトンサーバーのモデルクラス

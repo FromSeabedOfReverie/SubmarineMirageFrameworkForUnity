@@ -4,20 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Task {
+namespace SubmarineMirage {
 
 
-	public enum SMTaskRunState {
-		None,
-		Create,
-		SelfInitialize,
-		Initialize,
-		InitialEnable,
-		FixedUpdate,
-		Update,
-		LateUpdate,
-		FinalDisable,
-		Finalize,
-		Dispose,
+
+	public enum SMTaskRunType {
+		Dont,
+		Sequential,
+		Parallel,
 	}
 }

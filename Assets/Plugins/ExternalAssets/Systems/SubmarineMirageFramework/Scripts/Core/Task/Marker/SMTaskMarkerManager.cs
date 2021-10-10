@@ -5,16 +5,12 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestTask
-namespace SubmarineMirage.Task.Marker {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Task;
-	using Base;
-	using Extension;
-	using Debug;
 
 
 

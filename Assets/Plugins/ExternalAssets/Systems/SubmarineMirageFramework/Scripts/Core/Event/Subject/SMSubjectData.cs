@@ -5,11 +5,9 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestEventData
-namespace SubmarineMirage.Event {
+namespace SubmarineMirage {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
-	using Utility;
-	using Debug;
 
 
 

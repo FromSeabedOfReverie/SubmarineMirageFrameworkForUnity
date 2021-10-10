@@ -4,8 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Data.Cache {
-	using Data.Save;
+namespace SubmarineMirage {
 	///====================================================================================================
 	/// <summary>
 	/// ■ 一時キャッシュ情報の管理クラス

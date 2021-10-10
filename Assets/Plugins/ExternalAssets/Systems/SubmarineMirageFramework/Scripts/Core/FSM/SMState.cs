@@ -5,12 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestFSM
-namespace SubmarineMirage.FSM {
-	using Base;
-	using Event;
-	using Extension;
-	using Utility;
-	using Debug;
+namespace SubmarineMirage {
 
 
 

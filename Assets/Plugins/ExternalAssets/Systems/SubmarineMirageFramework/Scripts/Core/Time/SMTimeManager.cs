@@ -7,9 +7,6 @@
 namespace SubmarineMirage {
 	using UnityEngine;
 	using UniRx;
-	using Service;
-	using Task;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 時間の管理クラス

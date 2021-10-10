@@ -5,18 +5,13 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestEvent
-namespace SubmarineMirage.Event {
+namespace SubmarineMirage {
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using Base;
-	using Modifyler;
-	using Extension;
-	using Utility;
-	using Debug;
 
 
 

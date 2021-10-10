@@ -4,17 +4,13 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Setting {
+namespace SubmarineMirage {
 	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using UnityEngine.EventSystems;
 	using UniRx;
 	using KoganeUnityLib;
-	using Service;
-	using Task;
-	using Utility;
-	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 入力の管理クラス

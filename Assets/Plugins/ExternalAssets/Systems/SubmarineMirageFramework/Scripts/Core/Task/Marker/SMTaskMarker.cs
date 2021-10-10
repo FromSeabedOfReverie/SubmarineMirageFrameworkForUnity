@@ -5,8 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestTask
-namespace SubmarineMirage.Task.Marker {
-	using Debug;
+namespace SubmarineMirage {
 
 
 

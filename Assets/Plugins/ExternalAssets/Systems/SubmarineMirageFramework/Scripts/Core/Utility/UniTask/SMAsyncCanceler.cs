@@ -5,12 +5,10 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 //#define TestAsyncCanceler
-namespace SubmarineMirage.Utility {
+namespace SubmarineMirage {
 	using System.Threading;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using Event;
-	using Debug;
 
 
 
