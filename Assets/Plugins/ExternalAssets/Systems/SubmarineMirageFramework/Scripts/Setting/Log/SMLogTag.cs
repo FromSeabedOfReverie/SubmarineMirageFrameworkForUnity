@@ -16,8 +16,6 @@ namespace SubmarineMirage {
 		Task,
 		/// <summary>サービスのデバッグ記録</summary>
 		Service,
-		/// <summary>シングルトンのデバッグ記録</summary>
-		Singleton,
 		/// <summary>有限状態機械のデバッグ記録</summary>
 		FSM,
 		/// <summary>ビルドのデバッグ記録</summary>

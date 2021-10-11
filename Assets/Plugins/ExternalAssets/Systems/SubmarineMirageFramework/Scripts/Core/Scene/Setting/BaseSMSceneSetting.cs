@@ -5,17 +5,20 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage {
+	using System;
+	using System.Collections.Generic;
 
 
 
 	public abstract class BaseSMSceneSetting : SMStandardBase, ISMService {
-		public SMFSMGenerateList _datas	{ get; protected set; } = new SMFSMGenerateList();
+		public Dictionary< Type, IEnumerable<Type> > _datas	{ get; protected set; }
+			= new Dictionary< Type, IEnumerable<Type> >();
 
 
 
 		public BaseSMSceneSetting() {
 			_disposables.AddFirst( () => {
-				_datas.Dispose();
+				_datas.Clear();
 			} );
 		}
 

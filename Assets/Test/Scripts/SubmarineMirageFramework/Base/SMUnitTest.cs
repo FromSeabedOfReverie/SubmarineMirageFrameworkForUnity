@@ -23,11 +23,11 @@ namespace SubmarineMirage.Test {
 		protected void Awake() {
 			SMLog.s_isEnable = true;
 
-			_disposables.AddFirst(
-				Observable.EveryUpdate()
-					.Where( _ => !LogAssert.ignoreFailingMessages )
-					.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
-			);
+			Observable.EveryUpdate()
+				.Where( _ => !LogAssert.ignoreFailingMessages )
+				.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
+				.AddFirst( this );
+
 			_disposables.AddFirst( () => {
 				_stopwatch.Dispose();
 			} );

@@ -90,7 +90,7 @@ namespace SubmarineMirage {
 			_name = name;
 			if ( isUseAsync )	{ _asyncCanceler = new SMAsyncCanceler(); }
 
-			_disposables.Add( () => {
+			_disposables.AddLast( () => {
 #if TestModifyler
 				SMLog.Debug( $"{nameof( Dispose )} : start\n{this}" );
 #endif

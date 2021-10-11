@@ -91,7 +91,9 @@ namespace SubmarineMirage {
 		/// </summary>
 		async UniTask Initialize( Func<UniTask> initializePluginEvent, Func<UniTask> registerSettingsEvent )
 		{
-			_disposables.AddFirst( Observable.OnceApplicationQuit().Subscribe( _ => Shutdown( false ) ) );
+			Observable.OnceApplicationQuit()
+				.Subscribe( _ => Shutdown( false ) )
+				.AddFirst( this );
 
 			await initializePluginEvent();
 

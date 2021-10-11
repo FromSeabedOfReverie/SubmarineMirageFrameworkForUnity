@@ -83,16 +83,23 @@ namespace SubmarineMirage {
 				_lateUpdateEvent.Dispose();
 				_onGUIEvent.Dispose();
 			} );
-			_disposables.AddFirst(
-				Observable.EveryFixedUpdate()	.Subscribe( _ => _fixedUpdateEvent.Run() ),
-				Observable.EveryUpdate()		.Subscribe( _ => _updateEvent.Run() ),
-				Observable.EveryLateUpdate()	.Subscribe( _ => _lateUpdateEvent.Run() )
-			);
+
+			Observable.EveryFixedUpdate()
+				.Subscribe( _ => _fixedUpdateEvent.Run() )
+				.AddFirst( this );
+			Observable.EveryUpdate()
+				.Subscribe( _ => _updateEvent.Run() )
+				.AddFirst( this );
+			Observable.EveryLateUpdate()
+				.Subscribe( _ => _lateUpdateEvent.Run() )
+				.AddFirst( this );
+
 			if ( SMDebugManager.IS_DEVELOP ) {
-				_disposables.AddFirst(
-					UniRxSMExtension.EveryOnGUI().Subscribe( _ => _onGUIEvent.Run() )
-				);
+				UniRxSMExtension.EveryOnGUI()
+					.Subscribe( _ => _onGUIEvent.Run() )
+					.AddFirst( this );
 			}
+
 			_disposables.AddLast( () => {
 				SubmarineMirageFramework.Shutdown();
 			} );

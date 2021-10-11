@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestNetwork
+#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage {
 	using System;
@@ -28,7 +28,7 @@ namespace SubmarineMirage {
 
 
 		/// <summary>接続の型</summary>
-		[SMShow] public override SMGameServerType _type => _masterState?._type ?? SMGameServerType.Disconnect;
+		[SMShow] public override SMGameServerType _type => _masterFSM._state?._type ?? SMGameServerType.Disconnect;
 
 		/// <summary>プレイヤー名</summary>
 		[SMShow] public override string _playerName {
@@ -40,11 +40,10 @@ namespace SubmarineMirage {
 
 		/// <summary>全て接続完了か？</summary>
 		[SMShow] public override bool _isConnect =>
-			_roomState._status == SMGameServerStatus.Connect &&
+			_roomFSM._state?._status == SMGameServerStatus.Connect &&
 			PhotonNetwork.IsConnectedAndReady;
 		/// <summary>サーバーか？</summary>
-		// Photonの場合、マスタークライアントか？
-		[SMShow] public override bool _isServer => PhotonNetwork.IsMasterClient;
+		[SMShow] public override bool _isServer => PhotonNetwork.IsMasterClient;    // マスタークライアントで代用
 		/// <summary>活動中か？</summary>
 		[SMShow] public override bool _isActive {
 			// Photonの場合、RPC送信を実行中か？
@@ -53,18 +52,16 @@ namespace SubmarineMirage {
 		}
 		/// <summary>鍵部屋か？</summary>
 		[SMShow] public override bool _isLockRoom {
-			get => _roomState._room?._isLock ?? false;
+			get => _roomFSM._state._room?._isLock ?? false;
 			set {
-				if ( _roomState._room != null ) {
-					_roomState._room._isLock = value;
+				if ( _roomFSM._state._room != null ) {
+					_roomFSM._state._room._isLock = value;
 				}
 			}
 		}
 
-		[SMShow] public SMFSM _masterFSM	{ get; private set; }
-		[SMShow] public SMFSM _roomFSM		{ get; private set; }
-		public SMPhotonMasterState _masterState	=> _masterFSM._state as SMPhotonMasterState;
-		public SMPhotonRoomState _roomState		=> _roomFSM._state as SMPhotonRoomState;
+		[SMShow] public readonly SMFSM<SMPhotonMasterState> _masterFSM = new SMFSM<SMPhotonMasterState>();
+		[SMShow] public readonly SMFSM<SMPhotonRoomState> _roomFSM = new SMFSM<SMPhotonRoomState>();
 
 		public SMNetworkManager _networkManager { get; private set; }
 		SMDisplayLog _displayLog { get; set; }
@@ -75,29 +72,23 @@ namespace SubmarineMirage {
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		public SMPhotonServerModel( SMNetworkManager networkManager ) {
-			var fsm = SMFSM.Generate(
+			_masterFSM.Setup(
 				this,
-				new SMFSMGenerateList {
-					{
-						new SMPhotonMasterState[] {
-							new DisconnectSMPhotonMasterState(),
-							new OfflineSMPhotonMasterState(),
-							new OnlineSMPhotonMasterState(),
-						},
-						typeof( SMPhotonMasterState )
-					}, {
-						new SMPhotonRoomState[] {
-							new DisconnectSMPhotonRoomState(),
-							new LobbySMPhotonRoomState(),
-							new CreateRoomSMPhotonRoomState(),
-							new JoinRoomSMPhotonRoomState(),
-						},
-						typeof( SMPhotonRoomState )
-					}
+				new SMPhotonMasterState[] {
+					new DisconnectSMPhotonMasterState(),
+					new OfflineSMPhotonMasterState(),
+					new OnlineSMPhotonMasterState(),
 				}
 			);
-			_masterFSM = fsm.GetFSM<SMPhotonMasterState>();
-			_roomFSM = fsm.GetFSM<SMPhotonRoomState>();
+			_roomFSM.Setup(
+				this,
+				new SMPhotonRoomState[] {
+					new DisconnectSMPhotonRoomState(),
+					new LobbySMPhotonRoomState(),
+					new CreateRoomSMPhotonRoomState(),
+					new JoinRoomSMPhotonRoomState(),
+				}
+			);
 			_masterFSM.ChangeState<DisconnectSMPhotonMasterState>().Forget();
 			_roomFSM.ChangeState<DisconnectSMPhotonRoomState>().Forget();
 
@@ -105,26 +96,28 @@ namespace SubmarineMirage {
 			_displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
 #if TestNetwork
 			// デバッグ表示を設定
-			_disposables.AddFirst(
-				_networkManager._updateEvent.AddLast().Subscribe( _ => {
+			_networkManager._updateEvent.AddLast()
+				.Subscribe( _ => {
 					_displayLog?.Add( Color.cyan );
 					_displayLog?.Add( $"● {this.GetAboutName()}" );
 					_displayLog?.Add( Color.white );
 
-					_displayLog?.Add( $"{nameof( _masterState )} : {_masterState?.ToLineString()}" );
-					_displayLog?.Add( $"{nameof( _roomState )} : {_roomState?.ToLineString()}" );
+					_displayLog?.Add( $"{nameof( _masterFSM )}._state : {_masterFSM._state?.ToLineString()}" );
+					_displayLog?.Add( $"{nameof( _roomFSM )}._state : {_roomFSM._state?.ToLineString()}" );
 					_displayLog?.Add( $"{nameof( _isConnect )} : {_isConnect}" );
 					_displayLog?.Add( $"{nameof( _isServer )} : {_isServer}" );
 					_displayLog?.Add( $"{nameof( _isLockRoom )} : {_isLockRoom}" );
 				} )
-			);
+				.AddFirst( this );
 #endif
 
 			_disposables.AddFirst( () => {
 				_canceler.Dispose();
+
 				_playerCountEvent.Dispose();
 				_roomsEvent.Dispose();
 				_errorEvent.Dispose();
+
 				_masterFSM.Dispose();
 				_roomFSM.Dispose();
 			} );
@@ -140,12 +133,12 @@ namespace SubmarineMirage {
 			var type = isOnline ? typeof( OnlineSMPhotonMasterState ) : typeof( OfflineSMPhotonMasterState );
 
 // TODO : type比較が、継承を考慮してないかも？
-			if ( _masterState.GetType() != type ) {
+			if ( _masterFSM._state.GetType() != type ) {
 				_playerName = playerName;
 				await _masterFSM.ChangeState( type );
 			}
-			if ( _masterState.GetType() == type ) {
-				return await _masterState.WaitConnect();
+			if ( _masterFSM._state.GetType() == type ) {
+				return await _masterFSM._state.WaitConnect();
 			} else {
 				return false;
 			}
@@ -155,7 +148,7 @@ namespace SubmarineMirage {
 		/// ● 接続解除
 		/// </summary>
 		public override async UniTask<bool> Disconnect() {
-			if ( !( _masterState is DisconnectSMPhotonMasterState ) ) {
+			if ( !( _masterFSM._state is DisconnectSMPhotonMasterState ) ) {
 				await _masterFSM.ChangeState<DisconnectSMPhotonMasterState>();
 			}
 			return true;
@@ -165,13 +158,13 @@ namespace SubmarineMirage {
 		/// ● 控室に入室
 		/// </summary>
 		public override async UniTask<bool> EnterLobby() {
-			if ( !( _masterState is OnlineSMPhotonMasterState ) )	{ return false; }
+			if ( !( _masterFSM._state is OnlineSMPhotonMasterState ) )	{ return false; }
 
-			if ( !( _roomState is LobbySMPhotonRoomState ) ) {
+			if ( !( _roomFSM._state is LobbySMPhotonRoomState ) ) {
 				await _roomFSM.ChangeState<LobbySMPhotonRoomState>();
 			}
-			if ( _roomState is LobbySMPhotonRoomState ) {
-				return await _roomState.WaitConnect();
+			if ( _roomFSM._state is LobbySMPhotonRoomState ) {
+				return await _roomFSM._state.WaitConnect();
 			} else {
 				return false;
 			}
@@ -181,7 +174,7 @@ namespace SubmarineMirage {
 		/// ● 部屋を作成
 		/// </summary>
 		public override async UniTask<bool> CreateRoom( string name, string password, int maxPlayerCount ) {
-			if ( _masterState is DisconnectSMPhotonMasterState )	{ return false; }
+			if ( _masterFSM._state is DisconnectSMPhotonMasterState )	{ return false; }
 
 			SMPhotonRoom photonRoom;
 			try {
@@ -192,13 +185,13 @@ namespace SubmarineMirage {
 				return false;
 			}
 
-			if ( photonRoom.ToToken() != _roomState._room?.ToToken() ) {
+			if ( photonRoom.ToToken() != _roomFSM._state._room?.ToToken() ) {
 				var state = _roomFSM.GetState<CreateRoomSMPhotonRoomState>();
 				state._room = photonRoom;
 				await _roomFSM.ChangeState<CreateRoomSMPhotonRoomState>();
 			}
-			if ( _roomState is CreateRoomSMPhotonRoomState ) {
-				return await _roomState.WaitConnect();
+			if ( _roomFSM._state is CreateRoomSMPhotonRoomState ) {
+				return await _roomFSM._state.WaitConnect();
 			} else {
 				return false;
 			}
@@ -208,7 +201,7 @@ namespace SubmarineMirage {
 		/// ● 部屋に入室
 		/// </summary>
 		public override async UniTask<bool> EnterRoom( SMGameServerRoom room, string inputPassword ) {
-			if ( !( _masterState is OnlineSMPhotonMasterState ) )	{ return false; }
+			if ( !( _masterFSM._state is OnlineSMPhotonMasterState ) )	{ return false; }
 
 			SMPhotonRoom photonRoom;
 			try {
@@ -241,13 +234,13 @@ namespace SubmarineMirage {
 				return false;
 			}
 
-			if ( photonRoom.ToToken() != _roomState._room?.ToToken() ) {
+			if ( photonRoom.ToToken() != _roomFSM._state._room?.ToToken() ) {
 				var state = _roomFSM.GetState<JoinRoomSMPhotonRoomState>();
 				state._room = photonRoom;
 				await _roomFSM.ChangeState<JoinRoomSMPhotonRoomState>();
 			}
-			if ( _roomState is JoinRoomSMPhotonRoomState ) {
-				return await _roomState.WaitConnect();
+			if ( _roomFSM._state is JoinRoomSMPhotonRoomState ) {
+				return await _roomFSM._state.WaitConnect();
 			} else {
 				return false;
 			}

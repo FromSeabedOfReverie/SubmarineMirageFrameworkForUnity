@@ -18,13 +18,10 @@ namespace SubmarineMirage {
 	/// ■ シーンのクラス
 	/// </summary>
 	///====================================================================================================
-	public abstract class SMScene : SMState {
+	public abstract class SMScene : SMState<SMSceneManager, SMScene> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		/// <summary>シーン管理クラス</summary>
-		public new SMSceneManager _owner { get; private set; }
-
 		/// <summary>シーン名</summary>
 		[SMShowLine] public string _name { get; protected set; }
 		/// <summary>登録イベント名</summary>
@@ -121,11 +118,6 @@ namespace SubmarineMirage {
 
 				_isEntered = false;
 			} );
-		}
-
-		public override void Setup( object owner, SMFSM fsm ) {
-			base.Setup( owner, fsm );
-			_owner = base._owner as SMSceneManager;
 		}
 
 		public override void Dispose() => base.Dispose();

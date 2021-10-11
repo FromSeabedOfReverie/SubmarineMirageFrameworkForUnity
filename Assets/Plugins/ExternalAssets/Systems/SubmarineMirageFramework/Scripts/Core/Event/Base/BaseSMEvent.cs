@@ -68,7 +68,7 @@ namespace SubmarineMirage {
 		public BaseSMEvent() {
 			_modifyler = new SMModifyler( this.GetAboutName(), false );
 
-			_disposables.Add( () => {
+			_disposables.AddLast( () => {
 #if TestEvent
 				SMLog.Debug( $"{nameof( Dispose )} : start\n{this}" );
 #endif

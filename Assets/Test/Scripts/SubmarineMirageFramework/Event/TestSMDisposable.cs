@@ -49,8 +49,8 @@ namespace SubmarineMirage.Test {
 			SMLog.Warning( "Start" );
 
 			var d = new CompositeDisposable();
-			d.Add( Disposable.Create( () => SMLog.Debug( 1 ) ) );
-			d.Add( Disposable.Create( () => SMLog.Debug( 2 ) ) );
+			d.AddLast( () => SMLog.Debug( 1 ) );
+			d.AddLast( () => SMLog.Debug( 2 ) );
 
 			SMLog.Debug( "・解放 1" );
 			d.Dispose();

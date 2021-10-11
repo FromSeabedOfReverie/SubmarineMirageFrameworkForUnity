@@ -55,29 +55,28 @@ namespace Game {
 			ChangeButtonGuard( false );
 
 
-			_disposables.AddFirst(
-				_gameServer._playerCountEvent
-					.Where( i => i == SMNetworkManager.MAX_PLAYERS )
-					.Subscribe( i => {
-						UTask.Void( async () => {
-							ChangeButtonGuard( true );
-							if ( _gameServer._isServer ) {
-								_gameServer._isLockRoom = true;
-							}
-							await _audioManager.Play( SMSE.Title );
-							_sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
-						} );
-					} )
-			);
+			_gameServer._playerCountEvent
+				.Where( i => i == SMNetworkManager.MAX_PLAYERS )
+				.Subscribe( i => {
+					UTask.Void( async () => {
+						ChangeButtonGuard( true );
+						if ( _gameServer._isServer ) {
+							_gameServer._isLockRoom = true;
+						}
+						await _audioManager.Play( SMSE.Title );
+						_sceneManager.ChangeScene<GameSMScene>().Forget();
+					} );
+				} )
+				.AddFirst( this );
 
-			_disposables.AddFirst(
-				_gameServer._currentRoomEvent.Subscribe( r => {
+			_gameServer._currentRoomEvent
+				.Subscribe( r => {
 					_page3Room.Setup( this, r );
 				} )
-			);
+				.AddFirst( this );
 
-			_disposables.AddFirst(
-				_gameServer._roomsEvent.Subscribe( rs => {
+			_gameServer._roomsEvent
+				.Subscribe( rs => {
 					foreach ( RectTransform t in _roomTop ) {
 						t.gameObject.Destroy();
 					}
@@ -88,15 +87,14 @@ namespace Game {
 						ui.Setup( this, r );
 					} );
 				} )
-			);
+				.AddFirst( this );
 
-			_disposables.AddFirst(
-				_gameServer._errorEvent
-					.Where( e => e._isDisconnect )
-					.Subscribe( e => {
-						ChangePage( 0 );
-					} )
-			);
+			_gameServer._errorEvent
+				.Where( e => e._isDisconnect )
+				.Subscribe( e => {
+					ChangePage( 0 );
+				} )
+				.AddFirst( this );
 
 			_disposables.AddFirst( () => {
 				_canceler.Dispose();
@@ -116,7 +114,7 @@ namespace Game {
 									if ( await _gameServer.CreateRoom(
 											$"お祭り会場", string.Empty, SMNetworkManager.MAX_PLAYERS )
 									) {
-										_sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
+										_sceneManager.ChangeScene<GameSMScene>().Forget();
 									}
 								}
 								return;
@@ -137,7 +135,7 @@ namespace Game {
 								await _audioManager.Play( SMSE.Decide );
 								if ( await _gameServer.Disconnect() ) {
 								}
-								_sceneManager.GetFSM<MainSMScene>().ChangeState<TitleSMScene>().Forget();
+								_sceneManager.ChangeScene<TitleSMScene>().Forget();
 								return;
 							}
 

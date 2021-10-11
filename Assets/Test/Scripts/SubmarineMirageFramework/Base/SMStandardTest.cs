@@ -26,11 +26,11 @@ namespace SubmarineMirage.Test {
 			_toStringer = new SMToStringer( this );
 			SetToString();
 
-			_disposables.AddFirst(
-				Observable.EveryUpdate()
-					.Where( _ => !LogAssert.ignoreFailingMessages )
-					.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
-			);
+			Observable.EveryUpdate()
+				.Where( _ => !LogAssert.ignoreFailingMessages )
+				.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
+				.AddFirst( this );
+
 			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 				_stopwatch.Dispose();

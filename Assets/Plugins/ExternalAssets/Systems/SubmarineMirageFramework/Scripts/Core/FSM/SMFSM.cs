@@ -15,13 +15,15 @@ namespace SubmarineMirage {
 
 
 
-	public class SMFSM : SMLinkNode {
+	public class SMFSM<TState> : SMStandardBase
+		where TState : BaseSMState
+	{
 		[SMShowLine] object _owner	{ get; set; }
-		[SMShow] readonly Dictionary<Type, SMState> _states = new Dictionary<Type, SMState>();
-		[SMShowLine] public SMState _state	{ get; private set; }
+		[SMShowLine] public string _name { get; private set; }
 
-		[SMShowLine] public string _name	{ get; private set; }
-		[SMShow] Type _baseStateType		{ get; set; }
+		[SMShow] readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
+		[SMShowLine] public TState _state	{ get; private set; }
+		[SMShow] public Type _baseStateType { get; private set; }
 
 		[SMShow] public bool _isInitialized	{ get; private set; }
 		bool _isInternalActive				{ get; set; }
@@ -30,7 +32,7 @@ namespace SubmarineMirage {
 		SMSubject _updateEvent		{ get; set; }
 		SMSubject _lateUpdateEvent	{ get; set; }
 
-		[SMShow] readonly SMModifyler _modifyler = new SMModifyler( nameof( SMFSM ) );
+		[SMShow] readonly SMModifyler _modifyler = new SMModifyler( nameof( SMFSM<TState> ) );
 
 		public readonly SMAsyncCanceler _asyncCancelerOnExit	= new SMAsyncCanceler();
 		public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
@@ -46,18 +48,6 @@ namespace SubmarineMirage {
 				_modifyler._isLock = !_isInternalActive;
 			}
 		}
-
-		public bool _isAllActive {
-			get => GetFSMs().All( fsm => fsm._isActive );
-			set {
-				CheckDisposeError( $"{nameof( _isAllActive )} = {value}" );
-
-				GetFSMs().ForEach( fsm => fsm._isActive = value );
-			}
-		}
-
-		public bool _isAllInitialized
-			=> GetFSMs().All( fsm => fsm._isInitialized );
 
 
 
@@ -101,16 +91,13 @@ namespace SubmarineMirage {
 				_owner = null;
 
 				_isInternalActive = false;
-
-				_next?.Dispose();
-				_previous = null;
-				_next = null;
 			} );
 		}
 
-		public override void Dispose() => base.Dispose();
+		public override void Dispose()
+			=> base.Dispose();
 
-		public void Setup( object owner, IEnumerable<SMState> states, Type baseStateType = null,
+		public void Setup( object owner, IEnumerable<TState> states,
 							SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
 							SMSubject lateUpdateEvent = null
 		) {
@@ -120,8 +107,8 @@ namespace SubmarineMirage {
 			}
 
 			_owner = owner;
-			_baseStateType = baseStateType ?? typeof( SMState );
-			_name = $"{nameof( SMFSM )}<{_baseStateType.GetAboutName()}>";
+			_baseStateType = typeof( TState );
+			_name = nameof( SMFSM<TState> );
 			_modifyler._name = _name;
 
 			var task = _owner as SMTask;
@@ -133,78 +120,35 @@ namespace SubmarineMirage {
 			_lateUpdateEvent	?.AddLast( _name ).Subscribe( _ => LateUpdateState() );
 
 			states.ForEach( s => {
-				var type = s.GetType();
-				if ( !type.IsInheritance( _baseStateType ) ) {
-					throw new InvalidOperationException( string.Join( "\n",
-						$"異なる種類の状態は、設定不可 : ",
-						$"{nameof( type )} : {type}",
-						$"{nameof( _baseStateType )} : {_baseStateType}"
-					) );
-				}
 				s.Setup( _owner, this );
+				var type = s.GetType();
 				_states[type] = s;
 			} );
 		}
 
-
-
-		public static SMFSM Generate( object owner, SMFSMGenerateList generateDatas,
-										SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
-										SMSubject lateUpdateEvent = null
+		public void Setup( object owner, IEnumerable<Type> stateTypes,
+							SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
+							SMSubject lateUpdateEvent = null
 		) {
-			SMFSM first = null;
-			SMFSM last = null;
-			generateDatas.ForEach( data => {
-				data.CreateStates();
-				var current = new SMFSM();
-				current.Setup(
-					owner, data._states, data._baseStateType, fixedUpdateEvent, updateEvent, lateUpdateEvent );
-
-				if ( first == null )	{ first = current; }
-				last?.LinkLast( current );
-				last = current;
-			} );
-
-			return first;
+			var states = stateTypes.Select( t => t.Create<TState>() );
+			Setup( owner, states, fixedUpdateEvent, updateEvent, lateUpdateEvent );
 		}
 
 
 
-		public IEnumerable<SMFSM> GetFSMs() {
-			CheckDisposeError( nameof( GetFSMs ) );
-
-			foreach ( var node in GetAlls() ) {
-				yield return node as SMFSM;
-			}
-		}
-
-		public SMFSM GetFSM( Type baseStateType ) {
-			CheckDisposeError( $"{nameof( GetFSM )}( {baseStateType.GetAboutName()} )" );
-
-			return GetFSMs().FirstOrDefault( fsm => fsm._baseStateType == baseStateType );
-		}
-
-		public SMFSM GetFSM<T>() where T : SMState {
-			CheckDisposeError( $"{nameof( GetFSM )}<{typeof( T ).GetAboutName()}>" );
-
-			return GetFSM( typeof( T ) );
-		}
-
-
-
-		public IEnumerable<SMState> GetStates() {
+		public IEnumerable<TState> GetStates() {
 			CheckDisposeError( nameof( GetStates ) );
 
 			return _states.Select( pair => pair.Value );
 		}
 
-		public SMState GetState( Type stateType ) {
+		public TState GetState( Type stateType ) {
 			CheckDisposeError( $"{nameof( GetState )}( {stateType.GetAboutName()} )" );
 
 			return _states.GetOrDefault( stateType );
 		}
 
-		public T GetState<T>() where T : SMState {
+		public T GetState<T>() where T : TState {
 			CheckDisposeError( $"{nameof( GetState )}<{typeof( T ).GetAboutName()}>" );
 
 			return GetState( typeof( T ) ) as T;
@@ -221,7 +165,7 @@ namespace SubmarineMirage {
 			if ( _state._ranState == SMStateRunState.AsyncUpdate ) {
 				_state._ranState = SMStateRunState.FixedUpdate;
 #if TestFSM
-				SMLog.Debug( $"{nameof( SMFSM )}.{nameof( FixedUpdateState )} : First Run\n{_state}" );
+				SMLog.Debug( $"{nameof( SMFSM<TState> )}.{nameof( FixedUpdateState )} : First Run\n{_state}" );
 #endif
 			}
 		}
@@ -235,7 +179,7 @@ namespace SubmarineMirage {
 			if ( _state._ranState == SMStateRunState.FixedUpdate ) {
 				_state._ranState = SMStateRunState.Update;
 #if TestFSM
-				SMLog.Debug( $"{nameof( SMFSM )}.{nameof( UpdateState )} : First Run\n{_state}" );
+				SMLog.Debug( $"{nameof( SMFSM<TState> )}.{nameof( UpdateState )} : First Run\n{_state}" );
 #endif
 			}
 		}
@@ -249,7 +193,7 @@ namespace SubmarineMirage {
 			if ( _state._ranState == SMStateRunState.Update ) {
 				_state._ranState = SMStateRunState.LateUpdate;
 #if TestFSM
-				SMLog.Debug( $"{nameof( SMFSM )}.{nameof( LateUpdateState )} : First Run\n{_state}" );
+				SMLog.Debug( $"{nameof( SMFSM<TState> )}.{nameof( LateUpdateState )} : First Run\n{_state}" );
 #endif
 			}
 		}
@@ -263,7 +207,7 @@ namespace SubmarineMirage {
 				nameof( ChangeState ),
 				SMModifyType.Single,
 				async () => {
-					SMState state = null;
+					TState state = null;
 					if ( stateType != null ) {
 						state = GetState( stateType );
 						if ( state == null ) {
@@ -303,26 +247,10 @@ namespace SubmarineMirage {
 			);
 		}
 
-		public async UniTask ChangeState<T>() where T : SMState {
+		public async UniTask ChangeState<T>() where T : TState {
 			CheckDisposeError( $"{nameof( ChangeState )}<{typeof( T ).GetAboutName()}>" );
 
 			await ChangeState( typeof( T ) );
-		}
-
-		public async UniTask AllChangeNullState( SMTaskRunType type ) {
-			CheckDisposeError( $"{nameof( AllChangeNullState )}( {type} )" );
-
-			switch ( type ) {
-				case SMTaskRunType.Sequential:
-					foreach ( var fsm in GetFSMs().Reverse() ) {
-						await fsm.ChangeState( null );
-					}
-					break;
-
-				case SMTaskRunType.Parallel:
-					await GetFSMs().Select( fsm => fsm.ChangeState( null ) );
-					break;
-			}
 		}
 	}
 }

@@ -14,8 +14,13 @@ namespace SubmarineMirage {
 		static MainThreadDispatcherSMExtension s_mainThreadDispatcher	{ get; set; }
 
 
-		public static void Add( this CompositeDisposable disposable, Action action )
-			=> disposable.Add( Disposable.Create( action ) );
+
+		public static void AddLast( this CompositeDisposable self, IDisposable disposable )
+			=> self.Add( disposable );
+
+		public static void AddLast( this CompositeDisposable self, Action @event )
+			=> AddLast( self, Disposable.Create( @event ) );
+
 
 
 		public static Subject<Unit> EveryOnGUI() {

@@ -51,7 +51,8 @@ namespace SubmarineMirage {
 			_model = model;
 		}
 
-		void OnDestroy() => Dispose();
+		void OnDestroy()
+			=> Dispose();
 
 		public virtual void Dispose() {
 			gameObject.Destroy();
@@ -65,7 +66,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnConnectedToMaster() {
 			base.OnConnectedToMaster();
-			_model._masterState.OnConnect();
+			_model._masterFSM._state.OnConnect();
 		}
 
 		/// <summary>
@@ -73,7 +74,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnDisconnected( DisconnectCause cause ) {
 			base.OnDisconnected( cause );
-			_model._masterState.OnDisconnect( cause );
+			_model._masterFSM._state.OnDisconnect( cause );
 		}
 
 
@@ -83,7 +84,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnJoinedLobby() {
 			base.OnJoinedLobby();
-			_model._roomState.OnConnect();
+			_model._roomFSM._state.OnConnect();
 		}
 
 		/// <summary>
@@ -91,7 +92,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnLeftLobby() {
 			base.OnLeftLobby();
-			_model._roomState.OnDisconnect();
+			_model._roomFSM._state.OnDisconnect();
 		}
 
 		/// <summary>
@@ -99,7 +100,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnRoomListUpdate( List<RoomInfo> roomList ) {
 			base.OnRoomListUpdate( roomList );
-			( _model._roomState as LobbySMPhotonRoomState ).OnUpdateRoom( roomList );
+			( _model._roomFSM._state as LobbySMPhotonRoomState ).OnUpdateRoom( roomList );
 		}
 
 
@@ -109,7 +110,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnCreatedRoom() {
 			base.OnCreatedRoom();
-			_model._roomState.OnConnect();
+			_model._roomFSM._state.OnConnect();
 		}
 
 		/// <summary>
@@ -117,7 +118,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnCreateRoomFailed( short returnCode, string message ) {
 			base.OnCreateRoomFailed( returnCode, message );
-			_model._roomState.OnError( returnCode, message );
+			_model._roomFSM._state.OnError( returnCode, message );
 		}
 
 
@@ -127,7 +128,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnJoinedRoom() {
 			base.OnJoinedRoom();
-			_model._roomState.OnConnect();
+			_model._roomFSM._state.OnConnect();
 		}
 
 		/// <summary>
@@ -135,7 +136,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnJoinRoomFailed( short returnCode, string message ) {
 			base.OnJoinRoomFailed( returnCode, message );
-			_model._roomState.OnError( returnCode, message );
+			_model._roomFSM._state.OnError( returnCode, message );
 		}
 
 
@@ -145,7 +146,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public override void OnLeftRoom() {
 			base.OnLeftRoom();
-			_model._roomState.OnDisconnect();
+			_model._roomFSM._state.OnDisconnect();
 		}
 
 

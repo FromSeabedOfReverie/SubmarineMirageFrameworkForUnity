@@ -5,8 +5,6 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace Game {
-	using UnityEngine;
-	using UniRx;
 	using SubmarineMirage;
 
 

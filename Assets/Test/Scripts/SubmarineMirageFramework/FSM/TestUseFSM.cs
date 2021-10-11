@@ -6,34 +6,26 @@
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Test {
 	using System;
-	using System.Linq;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
 
 
 
 	public class Human : SMTask {
-		public SMFSM _fsm	{ get; private set; }
+		public SMFSM<HumanState> _fsm	{ get; private set; }
 		public override void Create() {
-			_fsm = new SMFSM();
+			_fsm = new SMFSM<HumanState>();
 			_fsm.Setup( this, new HumanState[] { new NormalHumanState(), new DeathHumanState() } );
 		}
 		public void _Owner() {
 			_fsm.GetStates()
-				.Select( s => s as HumanState )
 				.ForEach( s => s._State() );
 		}
 	}
-	public abstract class HumanState : SMState {
-		public new Human _owner { get; private set; }
-		public override void Setup( object owner, SMFSM fsm ) {
-			base.Setup( owner, fsm );
-			_owner = base._owner as Human;
-		}
+	public abstract class HumanState : SMState<Human, HumanState> {
 		public void _State() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as HumanState )
 				.ForEach( s => s._State() );
 			_fsm.ChangeState( typeof( NormalHumanState ) ).Forget();
 			_fsm.ChangeState<NormalHumanState>().Forget();
@@ -43,7 +35,6 @@ namespace SubmarineMirage.Test {
 		public void _Normal() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as HumanState )
 				.ForEach( s => s._State() );
 			_State();
 		}
@@ -52,7 +43,6 @@ namespace SubmarineMirage.Test {
 		public void _Death() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as HumanState )
 				.ForEach( s => s._State() );
 			_State();
 		}
@@ -61,67 +51,53 @@ namespace SubmarineMirage.Test {
 
 
 	public class Dragon : SMTask {
-		public SMFSM _headFSM	{ get; private set; }
-		public SMFSM _bodyFSM	{ get; private set; }
-		public SMFSM _dummyFSM	{ get; private set; }
+		public SMFSM<DragonHeadState> _headFSM	{ get; private set; }
+		public SMFSM<DragonBodyState> _bodyFSM	{ get; private set; }
+		public SMFSM<DummyState> _dummyFSM		{ get; private set; }
 		public override void Create() {
-			var fsm = SMFSM.Generate(
+			_headFSM = new SMFSM<DragonHeadState>();
+			_headFSM.Setup(
 				this,
-				new SMFSMGenerateList {
-					{
-						new DragonState[] {
-							new NormalDragonHeadState(),
-							new BiteDragonHeadState(),
-						},
-						typeof( DragonHeadState )
-					}, {
-						new DragonState[] {
-							new NormalDragonBodyState(),
-							new DeathDragonBodyState(),
-							new NormalDragonHeadState(),	// コンパイルエラーにならない
-//							new NormalDummyState(),			// エラー
-						},
-						typeof( DragonBodyState )
-					}, {
-						new Type[] {
-							typeof( NormalDummyState ),	// コンパイルエラーにならない
-						},
-						typeof( DummyState )	// コンパイルエラーにならない
-					}
+				new DragonHeadState[] { new NormalDragonHeadState(), new BiteDragonHeadState(), }
+			);
+			_bodyFSM = new SMFSM<DragonBodyState>();
+			_bodyFSM.Setup(
+				this,
+				new DragonBodyState[] {
+					new NormalDragonBodyState(),
+					new DeathDragonBodyState(),
+//					new NormalDragonHeadState(),	// エラー
+//					new NormalDummyState(),			// エラー
 				}
 			);
-			_headFSM = fsm.GetFSM<DragonHeadState>();
-			_bodyFSM = fsm.GetFSM<DragonBodyState>();
-			_dummyFSM = fsm.GetFSM<DummyState>();	// コンパイルエラーにならない
+			_dummyFSM = new SMFSM<DummyState>();
+			_dummyFSM.Setup(
+				this,   // コンパイルエラーにならない
+				new Type[] { typeof( NormalDummyState ), }
+			);
 		}
 		public void _Owner() {
 			_headFSM.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_headFSM.ChangeState<BiteDragonHeadState>().Forget();
-			_headFSM.ChangeState<DeathDragonBodyState>().Forget();	// コンパイルエラーにならない
+//			_headFSM.ChangeState<DeathDragonBodyState>().Forget();	// エラー
 		}
 	}
-	public abstract class DragonState : SMState {
-		public new Dragon _owner { get; private set; }
-		public override void Setup( object owner, SMFSM fsm ) {
-			base.Setup( owner, fsm );
-			_owner = base._owner as Dragon;
-		}
+	public abstract class DragonState<TState> : SMState<Dragon, TState>
+		where TState : DragonState<TState>
+	{
 		public void _BaseState() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
-			_fsm.ChangeState<BiteDragonHeadState>().Forget();	// コンパイルエラーにならない
-			_fsm.ChangeState<DeathDragonBodyState>().Forget();	// コンパイルエラーにならない
+//			_fsm.ChangeState<BiteDragonHeadState>().Forget();	// エラー
+//			_fsm.ChangeState<DeathDragonBodyState>().Forget();	// エラー
 		}
 	}
-	public abstract class DragonHeadState : DragonState {
+	public abstract class DragonHeadState : DragonState<DragonHeadState> {
 		public void _BaseHead() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_BaseState();
 		}
@@ -130,7 +106,6 @@ namespace SubmarineMirage.Test {
 		public void _NormalHead() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_BaseState();
 		}
@@ -139,16 +114,14 @@ namespace SubmarineMirage.Test {
 		public void _BiteHead() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_BaseState();
 		}
 	}
-	public abstract class DragonBodyState : DragonState {
+	public abstract class DragonBodyState : DragonState<DragonBodyState> {
 		public void _BaseBody() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_BaseState();
 		}
@@ -157,7 +130,6 @@ namespace SubmarineMirage.Test {
 		public void _NormalBody() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_BaseState();
 		}
@@ -166,7 +138,6 @@ namespace SubmarineMirage.Test {
 		public void _DeathBody() {
 			_owner._Owner();
 			_fsm.GetStates()
-				.Select( s => s as DragonState )
 				.ForEach( s => s._BaseState() );
 			_BaseState();
 		}
@@ -175,27 +146,16 @@ namespace SubmarineMirage.Test {
 
 
 	public class Dummy : SMTask {
-		public SMFSM _fsm	{ get; private set; }
+		public SMFSM<DummyState> _fsm	{ get; private set; }
 		public override void Create() {
-			_fsm = SMFSM.Generate(
+			_fsm = new SMFSM<DummyState>();
+			_fsm.Setup(
 				this,
-				new SMFSMGenerateList {
-					{
-						new DummyState[] {
-							new NormalDummyState()
-						},
-						typeof( DummyState )
-					},
-				}
+				new DummyState[] { new NormalDummyState() }
 			);
 		}
 	}
-	public abstract class DummyState : SMState {
-		public new Dummy _owner { get; private set; }
-		public override void Setup( object owner, SMFSM fsm ) {
-			base.Setup( owner, fsm );
-			_owner = base._owner as Dummy;
-		}
+	public abstract class DummyState : SMState<Dummy, DummyState> {
 	}
 	public class NormalDummyState : DummyState {
 	}

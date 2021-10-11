@@ -29,12 +29,12 @@ namespace SubmarineMirage.Test {
 		protected override void Awake() {
 			base.Awake();
 
-			_disposables.Add(
-				Observable.EveryUpdate()
-					.Where( _ => !LogAssert.ignoreFailingMessages )
-					.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
-			);
-			_disposables.Add( () => {
+			Observable.EveryUpdate()
+				.Where( _ => !LogAssert.ignoreFailingMessages )
+				.Subscribe( _ => LogAssert.ignoreFailingMessages = true )
+				.AddLast( this );
+
+			_disposables.AddLast( () => {
 				_asyncCanceler.Dispose();
 				_stopwatch.Dispose();
 				_finalizeEvent.OnNext( Unit.Default );

@@ -29,7 +29,7 @@ namespace SubmarineMirage {
 			} );
 
 			_exitEvent.AddFirst( _registerEventKey, async canceler => {
-				if ( !( _owner._roomState is DisconnectSMPhotonRoomState ) ) {
+				if ( !( _owner._roomFSM._state is DisconnectSMPhotonRoomState ) ) {
 					await _owner._roomFSM.ChangeState<DisconnectSMPhotonRoomState>();
 				}
 			} );

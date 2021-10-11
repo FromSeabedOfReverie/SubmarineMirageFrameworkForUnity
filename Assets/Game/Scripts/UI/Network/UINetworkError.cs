@@ -43,9 +43,8 @@ namespace Game {
 								_audioManager.Play( SMSE.Decide ).Forget();
 								SetError( null );
 
-								var mainFSM = _sceneManager.GetFSM<MainSMScene>();
-								if ( mainFSM._state is GameSMScene ) {
-//									mainFSM.ChangeState<NetworkSMScene>().Forget();
+								if ( _sceneManager.GetCurrentScene<MainSMScene>() is GameSMScene ) {
+//									_sceneManager.ChangeState<NetworkSMScene>().Forget();
 								}
 								return;
 							}
@@ -56,9 +55,9 @@ namespace Game {
 				} );
 			} );
 
-			_disposables.AddFirst(
-				_gameServer._errorEvent.Subscribe( e => SetError( e ) )
-			);
+			_gameServer._errorEvent
+				.Subscribe( e => SetError( e ) )
+				.AddFirst( this );
 		}
 
 

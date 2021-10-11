@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestNetwork
+#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage {
 	using System;
@@ -15,12 +15,12 @@ namespace SubmarineMirage {
 	/// ■ フォトンの状態クラス
 	/// </summary>
 	///====================================================================================================
-	public abstract class SMPhotonState : SMState {
+	public abstract class SMPhotonState<TState> : SMState<SMPhotonServerModel, TState>
+		where TState : SMPhotonState<TState>
+	{
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public new SMPhotonServerModel _owner { get; private set; }
-
 		/// <summary>接続状態</summary>
 		[SMShowLine] public SMGameServerStatus _status { get; protected set; }
 
@@ -40,7 +40,7 @@ namespace SubmarineMirage {
 #endif
 				_status = SMGameServerStatus.Disconnect;
 				_error = null;
-				if ( _owner._masterState._status == SMGameServerStatus.Connect ) {
+				if ( _owner._masterFSM._state._status == SMGameServerStatus.Connect ) {
 					await UTask.WaitWhile( canceler, () => !PhotonNetwork.IsConnectedAndReady );
 				}
 				if ( Connect() ) {
@@ -67,11 +67,6 @@ namespace SubmarineMirage {
 					}
 				}
 			} );
-		}
-
-		public override void Setup( object owner, SMFSM fsm ) {
-			base.Setup( owner, fsm );
-			_owner = base._owner as SMPhotonServerModel;
 		}
 
 

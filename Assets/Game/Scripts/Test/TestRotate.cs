@@ -38,7 +38,7 @@ namespace Game {
 			UTask.Void( async () => {
 				await UTask.WaitWhile( _canceler, () => !Input.GetKey( KeyCode.Return ) );
 				var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
-				sceneManager.GetFSM<MainSMScene>().ChangeState<TitleSMScene>().Forget();
+				sceneManager.ChangeScene<TitleSMScene>().Forget();
 //				_canceler.Cancel();
 			} );
 

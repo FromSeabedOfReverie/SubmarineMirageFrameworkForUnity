@@ -20,7 +20,8 @@ namespace SubmarineMirage {
 	public class SMSceneManager : SMTask, ISMService {
 		public override SMTaskRunType _type => SMTaskRunType.Sequential;
 
-		[SMShow] SMFSM _fsm		{ get; set; }
+		[SMShow] readonly Dictionary< Type, SMFSM<SMScene> > _fsms = new Dictionary< Type, SMFSM<SMScene> >();
+
 		public Scene _foreverRawScene	{ private get; set; }
 		[SMShow] public List<Scene> _firstLoadedRawScenes	{ get; set; } = new List<Scene>();
 
@@ -30,8 +31,8 @@ namespace SubmarineMirage {
 		public override void SetToString() {
 			base.SetToString();
 
-			_toStringer.SetValue( nameof( _fsm ), i =>
-				_toStringer.DefaultValue( _fsm?.GetFSMs(), i, true ) );
+			_toStringer.SetValue( nameof( _fsms ), i =>
+				_toStringer.DefaultValue( GetFSMs(), i, true ) );
 			_toStringer.SetValue( nameof( _firstLoadedRawScenes ), i =>
 				_toStringer.DefaultValue( _firstLoadedRawScenes.Select( s => s.name ), i, false ) );
 		}
@@ -43,14 +44,22 @@ namespace SubmarineMirage {
 			_foreverRawScene = SceneManager.CreateScene( "Forever" );
 
 			_disposables.AddFirst( () => {
-				_fsm?.Dispose();
+				_fsms.ForEach( pair => pair.Value.Dispose() );
+				_fsms.Clear();
 			} );
 		}
 
 		public override void Create() {
 			var setting = SMServiceLocator.Resolve<BaseSMSceneSetting>();
 			setting.Setup();
-			_fsm = SMFSM.Generate( this, setting._datas );
+			setting._datas.ForEach( pair => {
+				var fsm = new SMFSM<SMScene>();
+				fsm.Setup( this, pair.Value );
+				if ( _fsms.ContainsKey( pair.Key ) ) {
+					throw new InvalidOperationException( $"既に作成済 : {pair.Key}" );
+				}
+				_fsms[pair.Key] = fsm;
+			} );
 			SMServiceLocator.Unregister<BaseSMSceneSetting>();
 
 			_firstLoadedRawScenes = Enumerable.Range( 0, SceneManager.sceneCount )
@@ -60,12 +69,10 @@ namespace SubmarineMirage {
 
 			_selfInitializeEvent.AddLast( async canceler => {
 				// 初期読込場面を設定
-				var firstScenes = _fsm.GetFSMs().ToDictionary(
+				var firstScenes = GetFSMs().ToDictionary(
 					fsm => fsm,
 					fsm => {
-						var scenes = fsm.GetStates()
-						.Select( s => s as SMScene )
-						.ToList();
+						var scenes = fsm.GetStates().ToArray();
 						return scenes.FirstOrDefault( s => IsFirstLoaded( s ) )
 							?? scenes.FirstOrDefault();
 					}
@@ -99,11 +106,14 @@ namespace SubmarineMirage {
 
 
 			_finalizeEvent.AddLast( async canceler => {
-				await _fsm.AllChangeNullState( _type );
+				foreach ( var fsm in GetFSMs().Reverse() ) {
+					await fsm.ChangeState( null );
+				}
 			} );
 		}
 
-		public override void Dispose() => base.Dispose();
+		public override void Dispose()
+			=> base.Dispose();
 
 
 
@@ -133,29 +143,42 @@ namespace SubmarineMirage {
 
 
 
-		public SMFSM GetFSM( Type baseStateType )
-			=> _fsm.GetFSM( baseStateType );
+		public IEnumerable< SMFSM<SMScene> > GetFSMs()
+			=> _fsms.Select( pair => pair.Value );
 
-		public SMFSM GetFSM<T>() where T : SMScene
-			=> _fsm.GetFSM<T>();
+		public SMFSM<SMScene> GetFSM( Type baseStateType )
+			=> _fsms.GetOrDefault( baseStateType );
+
+		public SMFSM<SMScene> GetFSM<T>() where T : SMScene
+			=> GetFSM( typeof( T ) );
 
 
 
-		public IEnumerable<SMScene> GetScenes() {
-			if ( _fsm == null )	{ return Enumerable.Empty<SMScene>(); }
-
-			return _fsm.GetFSMs()
+		public IEnumerable<SMScene> GetScenes()
+			=> GetFSMs()
 				.SelectMany( fsm => fsm.GetStates() )
-				.Select( s => s as SMScene )
 				.Distinct();
-		}
 
 		public SMScene GetScene( Scene rawScene )
 			=> GetScenes()
 				.FirstOrDefault( s => s._rawScene == rawScene );
 
-		public SMScene GetScene( Type baseStateType )
-			=> GetFSM( baseStateType )
-				._state as SMScene;
+		public SMScene GetCurrentScene( Type baseStateType )
+			=> GetFSM( baseStateType )._state;
+
+		public SMScene GetCurrentScene<T>() where T : SMScene
+			=> GetCurrentScene( typeof( T ) );
+
+
+
+		public async UniTask ChangeScene( Type stateType ) {
+			var fsm = _fsms
+				.First( pair => stateType.IsInheritance( pair.Key ) )
+				.Value;
+			await fsm.ChangeState( stateType );
+		}
+
+		public UniTask ChangeScene<T>() where T : SMScene
+			=> ChangeScene( typeof( T ) );
 	}
 }

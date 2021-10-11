@@ -13,7 +13,7 @@ namespace SubmarineMirage {
 	/// ■ 部屋の、フォトン状態クラス
 	/// </summary>
 	///====================================================================================================
-	public abstract class SMPhotonRoomState : SMPhotonState {
+	public abstract class SMPhotonRoomState : SMPhotonState<SMPhotonRoomState> {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
@@ -52,17 +52,16 @@ namespace SubmarineMirage {
 			} );
 		}
 
-		public override void Setup( object owner, SMFSM fsm ) {
+		public override void Setup( object owner, object fsm ) {
 			base.Setup( owner, fsm );
 
-			_disposables.AddFirst(
-				_owner._playerCountEvent
-					.Where( _ => _room != null )
-					.Subscribe( i => {
-						_room._playerCount = i;
-						_room = _room;
-					} )
-			);
+			_owner._playerCountEvent
+				.Where( _ => _room != null )
+				.Subscribe( i => {
+					_room._playerCount = i;
+					_room = _room;
+				} )
+				.AddFirst( this );
 		}
 
 

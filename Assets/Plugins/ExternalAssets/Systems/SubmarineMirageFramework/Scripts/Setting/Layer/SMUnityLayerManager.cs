@@ -18,14 +18,13 @@ namespace SubmarineMirage {
 		///------------------------------------------------------------------------------------------------
 
 		/// <summary>AIの視界遮断マスク</summary>
-		public int _aiSightObstructMask	=> LayerMask.GetMask( Get( SMUnityLayer.Ground ) );
+		public int _aiSightObstructMask	=> GetMask( SMUnityLayer.Ground );
 		/// <summary>カメラ遮断マスク</summary>
-		public int _cameraObstructMask	=> LayerMask.GetMask(
-											Get( SMUnityLayer.Ground ), Get( SMUnityLayer.Water ) );
+		public int _cameraObstructMask	=> GetMask( SMUnityLayer.Ground, SMUnityLayer.Water );
 		/// <summary>地面マスク</summary>
-		public int _groundedMask		=> LayerMask.GetMask( Get( SMUnityLayer.Ground ) );
+		public int _groundedMask		=> GetMask( SMUnityLayer.Ground );
 		/// <summary>水マスク</summary>
-		public int _waterMask			=> LayerMask.GetMask( Get( SMUnityLayer.Water ) );
+		public int _waterMask			=> GetMask( SMUnityLayer.Water );
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除

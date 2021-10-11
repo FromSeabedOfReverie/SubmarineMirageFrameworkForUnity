@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace Game {
 	using System;
+	using System.Collections.Generic;
 	using SubmarineMirage;
 
 
@@ -20,32 +21,36 @@ namespace Game {
 		/// ● 設定
 		/// </summary>
 		public override void Setup() {
-			_datas = new SMFSMGenerateList {
+			_datas = new Dictionary< Type, IEnumerable<Type> >() {
 				{
 					// アプリ終了まで、永続読込のシーン
-					new Type[] { typeof( ForeverSMScene ), },
-					typeof( ForeverSMScene )
+					typeof( ForeverSMScene ),
+					new Type[] {
+						typeof( ForeverSMScene ),
+					}
 				}, {
 					// アクティブ状態とする、メインシーン
-					// ここに、Unityシーンと対応する、クラスを登録（シーン名 + SMScene）
+					typeof( MainSMScene ),
 					new Type[] {
+						// ここに、Unityシーンと対応する、クラスを登録（シーン名 + SMScene）
 						typeof( UnknownSMScene ),
 						typeof( TitleSMScene ),
 						typeof( GameSMScene ),
 						typeof( GameOverSMScene ),
 						typeof( GameClearSMScene ),
-					},
-					typeof( MainSMScene )
+					}
 				}, {
 					// UI配置専用のシーン
+					typeof( UISMScene ),
 					new Type[] {
 						typeof( UINoneSMScene ),
-					},
-					typeof( UISMScene )
+					}
 				}, {
 					// デバッグ用のシーン
-					new Type[] { typeof( DebugSMScene ), },
-					typeof( DebugSMScene )
+					typeof( DebugSMScene ),
+					new Type[] {
+						typeof( DebugSMScene ),
+					}
 				},
 			};
 		}

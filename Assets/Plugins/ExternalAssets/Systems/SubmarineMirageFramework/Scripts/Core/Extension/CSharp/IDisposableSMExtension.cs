@@ -8,6 +8,7 @@ namespace SubmarineMirage {
 	using System;
 
 
+
 	public interface IDisposableSMExtension : IDisposable {
 		bool _isDispose	{ get; }
 	}
