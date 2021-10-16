@@ -1,5 +1,5 @@
 {
-    "name": "SubmarineMirageFramework.Test",
+    "name": "Test",
     "rootNamespace": "",
     "references": [
         "Unity.TextMeshPro",
