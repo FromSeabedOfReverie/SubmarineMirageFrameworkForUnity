@@ -23,7 +23,6 @@ namespace SubmarineMirage {
 
 		[SMShow] readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 		[SMShowLine] public TState _state	{ get; private set; }
-		[SMShow] public Type _baseStateType { get; private set; }
 
 		[SMShow] public bool _isInitialized	{ get; private set; }
 		bool _isInternalActive				{ get; set; }
@@ -67,8 +66,7 @@ namespace SubmarineMirage {
 
 
 		public SMFSM() {
-			_isActive = true;
-
+			_isActive = false;
 
 			_disposables.AddFirst( () => {
 				_modifyler.Dispose();
@@ -107,7 +105,6 @@ namespace SubmarineMirage {
 			}
 
 			_owner = owner;
-			_baseStateType = typeof( TState );
 			_name = nameof( SMFSM<TState> );
 			_modifyler._name = _name;
 
@@ -124,6 +121,9 @@ namespace SubmarineMirage {
 				var type = s.GetType();
 				_states[type] = s;
 			} );
+			_states.ForEach( pair => pair.Value._setupEvent.Run() );
+
+			_isActive = true;
 		}
 
 		public void Setup( object owner, IEnumerable<Type> stateTypes,

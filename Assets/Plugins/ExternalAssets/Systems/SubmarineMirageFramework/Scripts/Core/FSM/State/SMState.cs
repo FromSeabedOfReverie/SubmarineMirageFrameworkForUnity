@@ -37,7 +37,9 @@ namespace SubmarineMirage {
 				_fsm = null;
 			} );
 
-#if TestFSM
+#if !TestFSM
+			return;
+#endif
 			_disposables.AddFirst( () => {
 				SMLog.Debug( $"{this.GetAboutName()}.{nameof( Dispose )} : start\n{this}" );
 			} );
@@ -45,7 +47,6 @@ namespace SubmarineMirage {
 				SMLog.Debug( $"{this.GetAboutName()}.{nameof( Dispose )} : end\n{this}" );
 			} );
 			SMLog.Debug( $"{this.GetAboutName()}() : \n{this}" );
-#endif
 		}
 
 		public override void Dispose()

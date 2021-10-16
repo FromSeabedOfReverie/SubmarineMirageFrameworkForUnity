@@ -36,6 +36,16 @@ namespace SubmarineMirage {
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		public SMPhotonRoomState() {
+			_setupEvent.AddLast().Subscribe( _ => {
+				_owner._playerCountEvent
+					.Where( _ => _room != null )
+					.Subscribe( i => {
+						_room._playerCount = i;
+						_room = _room;
+					} )
+					.AddFirst( this );
+			} );
+
 			_enterEvent.AddFirst( _registerEventKey, async canceler => {
 				_room = _room;
 				await UTask.DontWait();
@@ -50,18 +60,6 @@ namespace SubmarineMirage {
 				_owner._playerCountEvent.Value = _owner._playerCount;
 				await UTask.DontWait();
 			} );
-		}
-
-		public override void Setup( object owner, object fsm ) {
-			base.Setup( owner, fsm );
-
-			_owner._playerCountEvent
-				.Where( _ => _room != null )
-				.Subscribe( i => {
-					_room._playerCount = i;
-					_room = _room;
-				} )
-				.AddFirst( this );
 		}
 
 
