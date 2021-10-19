@@ -193,10 +193,10 @@ namespace SubmarineMirage {
 			var tempSource = new CancellationTokenSource();
 			var linkSource = originalToken.Link( tempSource.Token );
 
-			// どんな設定をしても、DOTween解放と、非同期停止が、実行されない不具合がある。
+			// どんな設定をしても、DOTween破棄と、非同期停止が、実行されない不具合がある。
 			// よって、確実に行われるよう、拡張修正。
 			await UniTask.WhenAny(
-				tween.ToUniTask( TweenCancelBehaviour.Kill, originalToken ),	// DOTween解放のみ、非同期停止しない
+				tween.ToUniTask( TweenCancelBehaviour.Kill, originalToken ),    // DOTween破棄のみ、非同期停止しない
 				UniTask.WaitUntilCanceled( linkSource.Token )					// 非同期停止時は、絶対停止
 			);
 			tempSource.Cancel();
@@ -204,7 +204,7 @@ namespace SubmarineMirage {
 			linkSource.Cancel();
 			linkSource.Dispose();
 
-			// DOTweenは、絶対に解放
+			// DOTweenは、絶対に破棄
 			if ( tween.IsActive() && tween.IsPlaying() ) {
 				tween.Kill();
 			}

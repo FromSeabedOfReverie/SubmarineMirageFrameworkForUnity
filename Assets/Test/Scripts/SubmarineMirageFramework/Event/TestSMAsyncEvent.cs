@@ -22,7 +22,7 @@ namespace SubmarineMirage.Test {
 		protected override void Create() {
 			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 			} );
 		}
@@ -51,13 +51,13 @@ namespace SubmarineMirage.Test {
 
 		async UniTask TestDispose( SMAsyncEvent asyncEvent, SMAsyncCanceler canceler, string name ) {
 			await UTask.Delay( canceler, 500 );
-			SMLog.Warning( $"解放 : \n{name}" );
+			SMLog.Warning( $"破棄 : \n{name}" );
 			asyncEvent.Dispose();
 		}
 
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestDispose() => From( async () => {
 			await UTask.DelayFrame( _asyncCanceler, 2 );
 			SMLog.Warning( "Start" );
@@ -97,7 +97,7 @@ namespace SubmarineMirage.Test {
 
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestCancel() => From( async () => {
 			SMLog.Warning( "Start" );
 
@@ -127,7 +127,7 @@ namespace SubmarineMirage.Test {
 
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestIs() => From( async () => {
 			SMLog.Warning( "Start" );
 
@@ -150,7 +150,7 @@ namespace SubmarineMirage.Test {
 
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestRegister() => From( async () => {
 			SMLog.Warning( "Start" );
 
@@ -202,7 +202,7 @@ namespace SubmarineMirage.Test {
 
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestRun() => From( async () => {
 			SMLog.Warning( "Start" );
 
@@ -255,7 +255,7 @@ namespace SubmarineMirage.Test {
 
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestDisposeRun() => From( async () => {
 			SMLog.Warning( "Start" );
 
@@ -292,7 +292,7 @@ namespace SubmarineMirage.Test {
 
 
 
-		[UnityTest] [Timeout( int.MaxValue )]
+		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestErrorRun() => From( async () => {
 			SMLog.Warning( "Start" );
 

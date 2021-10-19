@@ -89,7 +89,7 @@ namespace SubmarineMirage {
 				_settingVolume.Dispose();
 				_volumePercent.Dispose();
 
-				// 音データを全て解放
+				// 音データを全て破棄
 				_audioCache.ForEach( pair => pair.Value.Dispose() );
 				_audioCache.Clear();
 			} );
@@ -221,7 +221,7 @@ namespace SubmarineMirage {
 				return audio;
 
 			} catch {
-				// まだ読み込まれていない場合、解放
+				// まだ読み込まれていない場合、破棄
 				if ( audio._state != SMAudioFileState.Loaded ) {
 					Unload( enumName );
 				}

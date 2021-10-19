@@ -122,7 +122,7 @@ namespace SubmarineMirage {
 
 			_loadCanceler.Cancel();
 			_state = SMAudioFileState.Unload;
-			Resources.UnloadAsset( _audioClip );	// 実機でのみ解放される
+			Resources.UnloadAsset( _audioClip );	// 実機でのみ破棄される
 		}
 	}
 }

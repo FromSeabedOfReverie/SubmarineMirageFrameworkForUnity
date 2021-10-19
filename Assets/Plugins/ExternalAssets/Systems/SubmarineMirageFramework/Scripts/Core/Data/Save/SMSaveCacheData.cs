@@ -49,7 +49,7 @@ namespace SubmarineMirage {
 		}
 
 		/// <summary>
-		/// ● 解放（補助）
+		/// ● 破棄（補助）
 		/// </summary>
 		protected override void DisposeSub() {
 			base.DisposeSub();
@@ -139,7 +139,7 @@ namespace SubmarineMirage {
 					break;
 			}
 
-			// Dispose時に、元のキャッシュが解放されないよう、リンクを切る
+			// Dispose時に、元のキャッシュが破棄されないよう、リンクを切る
 			_cacheData = null;
 
 			await base.Save();

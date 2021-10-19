@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-//#define TestFSM
+#define TestFSM
 namespace SubmarineMirage {
 	using System;
 	using System.Linq;
@@ -19,7 +19,7 @@ namespace SubmarineMirage {
 		where TState : BaseSMState
 	{
 		[SMShowLine] object _owner	{ get; set; }
-		[SMShowLine] public string _name { get; private set; }
+		[SMShowLine] public readonly string _name = typeof( SMFSM<TState> ).GetName();
 
 		[SMShow] readonly Dictionary<Type, TState> _states = new Dictionary<Type, TState>();
 		[SMShowLine] public TState _state	{ get; private set; }
@@ -31,7 +31,7 @@ namespace SubmarineMirage {
 		SMSubject _updateEvent		{ get; set; }
 		SMSubject _lateUpdateEvent	{ get; set; }
 
-		[SMShow] readonly SMModifyler _modifyler = new SMModifyler( nameof( SMFSM<TState> ) );
+		[SMShow] readonly SMModifyler _modifyler = new SMModifyler( string.Empty );
 
 		public readonly SMAsyncCanceler _asyncCancelerOnExit	= new SMAsyncCanceler();
 		public readonly SMAsyncCanceler _asyncCancelerOnDispose	= new SMAsyncCanceler();
@@ -66,7 +66,9 @@ namespace SubmarineMirage {
 
 
 		public SMFSM() {
+			_modifyler._name = _name;
 			_isActive = false;
+			_asyncCancelerOnExit.Cancel( false );
 
 			_disposables.AddFirst( () => {
 				_modifyler.Dispose();
@@ -78,10 +80,17 @@ namespace SubmarineMirage {
 				_states.Clear();
 				_state = null;
 
-				new SMSubject[] { _fixedUpdateEvent, _updateEvent, _lateUpdateEvent }
+				var es = new SMSubject[] { _fixedUpdateEvent, _updateEvent, _lateUpdateEvent };
+#if TestFSM
+				SMLog.Debug( $"{this.GetName()} Updateイベント破棄 : {es.ToShowString()}", SMLogTag.FSM );
+#endif
+				es
 					.Where( e => e != null )
 					.Where( e => !e._isDispose )
 					.ForEach( e => e.Remove( _name ) );
+#if TestFSM
+				SMLog.Debug( $"{this.GetName()} Updateイベント破棄 : {es.ToShowString()}", SMLogTag.FSM );
+#endif
 				_fixedUpdateEvent = null;
 				_updateEvent = null;
 				_lateUpdateEvent = null;
@@ -90,10 +99,21 @@ namespace SubmarineMirage {
 
 				_isInternalActive = false;
 			} );
+#if TestFSM
+			_disposables.AddFirst( () => {
+				SMLog.Debug( $"{this.GetName()}.{nameof( Dispose )} : start\n{this}", SMLogTag.FSM );
+			} );
+			_disposables.AddLast( () => {
+				SMLog.Debug( $"{this.GetName()}.{nameof( Dispose )} : end\n{this}", SMLogTag.FSM );
+			} );
+			SMLog.Debug( $"{this.GetName()}() : \n{this}", SMLogTag.FSM );
+#endif
 		}
+
 
 		public override void Dispose()
 			=> base.Dispose();
+
 
 		public void Setup( object owner, IEnumerable<TState> states,
 							SMSubject fixedUpdateEvent = null, SMSubject updateEvent = null,
@@ -101,21 +121,32 @@ namespace SubmarineMirage {
 		) {
 			CheckDisposeError( nameof( Setup ) );
 			if ( _owner != null ) {
-				throw new InvalidOperationException( $"既に実行済 : {nameof( Setup )}\n{this}" );
+				throw new InvalidOperationException( $"{this.GetName()}.{nameof( Setup )} : 既に実行済\n{this}" );
 			}
 
 			_owner = owner;
-			_name = nameof( SMFSM<TState> );
-			_modifyler._name = _name;
 
 			var task = _owner as SMTask;
 			_fixedUpdateEvent	= fixedUpdateEvent	?? task?._fixedUpdateEvent;
 			_updateEvent		= updateEvent		?? task?._updateEvent;
 			_lateUpdateEvent	= lateUpdateEvent	?? task?._lateUpdateEvent;
+#if TestFSM
+			SMLog.Debug( $"{this.GetName()} Updateイベント設定 : " + string.Join( "\n",
+				_fixedUpdateEvent,
+				_updateEvent,
+				_lateUpdateEvent
+			), SMLogTag.FSM );
+#endif
 			_fixedUpdateEvent	?.AddLast( _name ).Subscribe( _ => FixedUpdateState() );
 			_updateEvent		?.AddLast( _name ).Subscribe( _ => UpdateState() );
 			_lateUpdateEvent	?.AddLast( _name ).Subscribe( _ => LateUpdateState() );
-
+#if TestFSM
+			SMLog.Debug( $"{this.GetName()} Updateイベント設定 : " + string.Join( "\n",
+				_fixedUpdateEvent,
+				_updateEvent,
+				_lateUpdateEvent
+			), SMLogTag.FSM );
+#endif
 			states.ForEach( s => {
 				s.Setup( _owner, this );
 				var type = s.GetType();
@@ -157,6 +188,9 @@ namespace SubmarineMirage {
 
 
 		public void FixedUpdateState() {
+#if TestFSM
+//			SMLog.Debug( $"{this.GetName()}.{nameof( FixedUpdateState )}", SMLogTag.FSM );
+#endif
 			if ( _state == null )									{ return; }
 			if ( _state._ranState < SMStateRunState.AsyncUpdate )	{ return; }
 
@@ -165,12 +199,16 @@ namespace SubmarineMirage {
 			if ( _state._ranState == SMStateRunState.AsyncUpdate ) {
 				_state._ranState = SMStateRunState.FixedUpdate;
 #if TestFSM
-				SMLog.Debug( $"{nameof( SMFSM<TState> )}.{nameof( FixedUpdateState )} : First Run\n{_state}" );
+				SMLog.Debug( $"{this.GetName()}.{nameof( FixedUpdateState )} : First Run\n{_state}",
+					SMLogTag.FSM );
 #endif
 			}
 		}
 
 		public void UpdateState() {
+#if TestFSM
+//			SMLog.Debug( $"{this.GetName()}.{nameof( UpdateState )}", SMLogTag.FSM );
+#endif
 			if ( _state == null )									{ return; }
 			if ( _state._ranState < SMStateRunState.FixedUpdate )	{ return; }
 
@@ -179,12 +217,16 @@ namespace SubmarineMirage {
 			if ( _state._ranState == SMStateRunState.FixedUpdate ) {
 				_state._ranState = SMStateRunState.Update;
 #if TestFSM
-				SMLog.Debug( $"{nameof( SMFSM<TState> )}.{nameof( UpdateState )} : First Run\n{_state}" );
+				SMLog.Debug( $"{this.GetName()}.{nameof( UpdateState )} : First Run\n{_state}",
+					SMLogTag.FSM );
 #endif
 			}
 		}
 
 		public void LateUpdateState() {
+#if TestFSM
+//			SMLog.Debug( $"{this.GetName()}.{nameof( LateUpdateState )}", SMLogTag.FSM );
+#endif
 			if ( _state == null )								{ return; }
 			if ( _state._ranState < SMStateRunState.Update )	{ return; }
 
@@ -193,7 +235,8 @@ namespace SubmarineMirage {
 			if ( _state._ranState == SMStateRunState.Update ) {
 				_state._ranState = SMStateRunState.LateUpdate;
 #if TestFSM
-				SMLog.Debug( $"{nameof( SMFSM<TState> )}.{nameof( LateUpdateState )} : First Run\n{_state}" );
+				SMLog.Debug( $"{this.GetName()}.{nameof( LateUpdateState )} : First Run\n{_state}",
+					SMLogTag.FSM );
 #endif
 			}
 		}
@@ -207,6 +250,10 @@ namespace SubmarineMirage {
 				nameof( ChangeState ),
 				SMModifyType.Single,
 				async () => {
+#if TestFSM
+					SMLog.Debug( $"{this.GetName()}.{nameof( ChangeState )}( {stateType.GetAboutName()} ) : Run",
+						SMLogTag.FSM );
+#endif
 					TState state = null;
 					if ( stateType != null ) {
 						state = GetState( stateType );
@@ -218,27 +265,58 @@ namespace SubmarineMirage {
 							) );
 						}
 					}
+#if TestFSM
+					SMLog.Debug( $"{nameof( state )} : {state}", SMLogTag.FSM );
+#endif
 
+
+#if TestFSM
+					SMLog.Debug( $"{nameof( _asyncCancelerOnExit )}.Cancel( false )", SMLogTag.FSM );
+#endif
 					_asyncCancelerOnExit.Cancel( false );
+
 					if ( _state != null && _state._ranState != SMStateRunState.Exit ) {
-						await _state._exitEvent.Run( _asyncCancelerOnDispose );
+#if TestFSM
+						SMLog.Debug( $"{nameof( _state._exitEvent )}.Run", SMLogTag.FSM );
+#endif
 						_state._ranState = SMStateRunState.Exit;
+						await _state._exitEvent.Run( _asyncCancelerOnDispose );
 					}
+
+
 					if ( _modifyler._isHaveData )	{ return; }
 
+#if TestFSM
+					SMLog.Debug( $"{nameof( _state )} = {state.GetAboutName()}", SMLogTag.FSM );
+#endif
 					_state = state;
 					if ( _state == null )	{ return; }
 
+
+#if TestFSM
+					SMLog.Debug( $"{nameof( _asyncCancelerOnExit )}.Recreate", SMLogTag.FSM );
+#endif
 					_asyncCancelerOnExit.Recreate();
+
 					if ( _state._ranState == SMStateRunState.Exit ) {
+#if TestFSM
+						SMLog.Debug( $"{nameof( _state._enterEvent )}.Run", SMLogTag.FSM );
+#endif
 						await _state._enterEvent.Run( _asyncCancelerOnExit );
 						_state._ranState = SMStateRunState.Enter;
 					}
+
+
 					_isInitialized = true;
+
 					if ( _modifyler._isHaveData )	{ return; }
+
 
 					if ( _state._ranState == SMStateRunState.Enter ) {
 						UTask.Void( async () => {
+#if TestFSM
+							SMLog.Debug( $"{nameof( _state._asyncUpdateEvent )}.Run", SMLogTag.FSM );
+#endif
 							_state._ranState = SMStateRunState.AsyncUpdate;
 							await _state._asyncUpdateEvent.Run( _asyncCancelerOnExit );
 						} );
@@ -247,10 +325,7 @@ namespace SubmarineMirage {
 			);
 		}
 
-		public async UniTask ChangeState<T>() where T : TState {
-			CheckDisposeError( $"{nameof( ChangeState )}<{typeof( T ).GetAboutName()}>" );
-
-			await ChangeState( typeof( T ) );
-		}
+		public UniTask ChangeState<T>() where T : TState
+			=> ChangeState( typeof( T ) );
 	}
 }

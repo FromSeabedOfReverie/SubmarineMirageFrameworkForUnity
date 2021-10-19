@@ -23,7 +23,7 @@ namespace SubmarineMirage.Test {
 		protected override void Create() {
 			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 			} );
 		}
@@ -38,7 +38,7 @@ namespace SubmarineMirage.Test {
 
 		Action TestDispose( SMDisposable @event, string name )
 			=> () => {
-				SMLog.Warning( $"解放 : \n{name}" );
+				SMLog.Warning( $"破棄 : \n{name}" );
 				@event.Dispose();
 			};
 
@@ -52,9 +52,9 @@ namespace SubmarineMirage.Test {
 			d.AddLast( () => SMLog.Debug( 1 ) );
 			d.AddLast( () => SMLog.Debug( 2 ) );
 
-			SMLog.Debug( "・解放 1" );
+			SMLog.Debug( "・破棄 1" );
 			d.Dispose();
-			SMLog.Debug( "・解放 2" );
+			SMLog.Debug( "・破棄 2" );
 			d.Dispose();
 
 			SMLog.Warning( "End" );

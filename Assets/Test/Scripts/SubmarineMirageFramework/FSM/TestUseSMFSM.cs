@@ -12,9 +12,8 @@ namespace SubmarineMirage.Test {
 
 
 	public class Human : SMTask {
-		public SMFSM<HumanState> _fsm	{ get; private set; }
+		public readonly SMFSM<HumanState> _fsm = new SMFSM<HumanState>();
 		public override void Create() {
-			_fsm = new SMFSM<HumanState>();
 			_fsm.Setup( this, new HumanState[] { new NormalHumanState(), new DeathHumanState() } );
 		}
 		public void _Owner() {
@@ -51,16 +50,14 @@ namespace SubmarineMirage.Test {
 
 
 	public class Dragon : SMTask {
-		public SMFSM<DragonHeadState> _headFSM	{ get; private set; }
-		public SMFSM<DragonBodyState> _bodyFSM	{ get; private set; }
-		public SMFSM<DummyState> _dummyFSM		{ get; private set; }
+		public readonly SMFSM<DragonHeadState> _headFSM = new SMFSM<DragonHeadState>();
+		public readonly SMFSM<DragonBodyState> _bodyFSM = new SMFSM<DragonBodyState>();
+		public readonly SMFSM<DummyState> _dummyFSM = new SMFSM<DummyState>();
 		public override void Create() {
-			_headFSM = new SMFSM<DragonHeadState>();
 			_headFSM.Setup(
 				this,
 				new DragonHeadState[] { new NormalDragonHeadState(), new BiteDragonHeadState(), }
 			);
-			_bodyFSM = new SMFSM<DragonBodyState>();
 			_bodyFSM.Setup(
 				this,
 				new DragonBodyState[] {
@@ -70,7 +67,6 @@ namespace SubmarineMirage.Test {
 //					new NormalDummyState(),			// エラー
 				}
 			);
-			_dummyFSM = new SMFSM<DummyState>();
 			_dummyFSM.Setup(
 				this,   // コンパイルエラーにならない
 				new Type[] { typeof( NormalDummyState ), }
@@ -146,9 +142,8 @@ namespace SubmarineMirage.Test {
 
 
 	public class Dummy : SMTask {
-		public SMFSM<DummyState> _fsm	{ get; private set; }
+		public readonly SMFSM<DummyState> _fsm = new SMFSM<DummyState>();
 		public override void Create() {
-			_fsm = new SMFSM<DummyState>();
 			_fsm.Setup(
 				this,
 				new DummyState[] { new NormalDummyState() }

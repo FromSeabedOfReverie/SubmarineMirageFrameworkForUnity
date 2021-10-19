@@ -90,7 +90,7 @@ namespace SubmarineMirage {
 			} );
 
 
-			// 解放処理
+			// 破棄処理
 			_disposables.AddFirst( () => {
 				_taskManager._lateUpdateEvent.Remove( nameof( SMDisplayLog ) );
 				_taskManager._onGUIEvent.Remove( nameof( SMDisplayLog ) );

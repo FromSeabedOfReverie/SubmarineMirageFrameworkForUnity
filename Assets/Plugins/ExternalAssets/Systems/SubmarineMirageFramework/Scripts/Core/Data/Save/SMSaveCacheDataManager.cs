@@ -104,7 +104,7 @@ namespace SubmarineMirage {
 						_audioDatas = data._audioDatas;
 						_textDatas = data._textDatas;
 						_rawDatas = data._rawDatas;
-						// data.Dispose時に、自身のデータも解放される為、参照を切る
+						// data.Dispose時に、自身のデータも破棄される為、参照を切る
 						data._textureDatas = null;
 						data._audioDatas = null;
 						data._textDatas = null;
@@ -176,7 +176,7 @@ namespace SubmarineMirage {
 		}
 
 		/// <summary>
-		/// ● 解放（補助）
+		/// ● 破棄（補助）
 		/// </summary>
 		protected override void DisposeSub() {
 			base.DisposeSub();
@@ -242,7 +242,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		void RegisterTempCaches<T>( SMSaveCacheData<T> data ) where T : class {
 			_tempCaches.Register( data._cacheData );
-			// Dispose時に、解放されないように、参照を切る
+			// Dispose時に、破棄されないように、参照を切る
 			data._cacheData = null;
 		}
 

@@ -91,7 +91,7 @@ namespace SubmarineMirage {
 			dataSetting.RegisterDatas( SMDataSettingType.Master );
 
 
-			// 情報設定を解放
+			// 情報設定を破棄
 			SMServiceLocator.Unregister<BaseSMDataSetting>();
 
 

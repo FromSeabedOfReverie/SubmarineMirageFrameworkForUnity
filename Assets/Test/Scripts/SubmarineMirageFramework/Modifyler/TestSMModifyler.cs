@@ -69,7 +69,7 @@ namespace SubmarineMirage.Test {
 				type,
 				async () => {
 					await UTask.Delay( modifyler._asyncCanceler, 500 );
-					SMLog.Warning( $"解放 : \n{name}" );
+					SMLog.Warning( $"破棄 : \n{name}" );
 					modifyler.Dispose();
 				}
 			);

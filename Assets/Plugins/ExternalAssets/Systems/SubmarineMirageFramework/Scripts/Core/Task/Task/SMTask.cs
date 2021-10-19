@@ -120,7 +120,7 @@ namespace SubmarineMirage {
 				throw new ObjectDisposedException(
 					$"{add}",
 					string.Join( "\n",
-						$"既に解放済",
+						$"既に破棄済",
 						$"{this.GetAboutName()}.{nameof( Link )}( {add._id} )"
 					)
 				);

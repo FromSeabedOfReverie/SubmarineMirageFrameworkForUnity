@@ -59,14 +59,14 @@ namespace SubmarineMirage.Test {
 		public IEnumerator TestDisposeTask() => _owner.From( async () => {
 			SMLog.Debug( $"{nameof( TestDisposeTask )}" );
 			await UTask.Never( _asyncCanceler );
-			// エディタ停止ボタンは、解放されない為、F5ボタンの拡張停止を使う
+			// エディタ停止ボタンは、破棄されない為、F5ボタンの拡張停止を使う
 		} );
 
 		public IEnumerator TestDisposeCoroutine() => _owner.From( TestDisposeCoroutineSub() );
 		IEnumerator TestDisposeCoroutineSub() {
 			SMLog.Debug( $"{nameof( TestDisposeCoroutine )}" );
 			yield return _owner.RunForever();
-			// エディタ停止ボタンは、解放されない為、F5ボタンの拡張停止を使う
+			// エディタ停止ボタンは、破棄されない為、F5ボタンの拡張停止を使う
 		}
 	}
 }

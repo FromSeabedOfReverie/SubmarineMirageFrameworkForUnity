@@ -61,7 +61,7 @@ namespace Game {
 		}
 
 		/// <summary>
-		/// ● 解放（補助）
+		/// ● 破棄（補助）
 		/// </summary>
 		protected override void DisposeSub() {
 			base.DisposeSub();

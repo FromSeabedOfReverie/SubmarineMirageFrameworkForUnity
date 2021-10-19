@@ -39,7 +39,7 @@ namespace SubmarineMirage {
 		protected List<string[]> _formatTexts	{ get; set; } = new List<string[]>();
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● 解放
+		/// ● 破棄
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public override void Dispose() => _formatTexts.Clear();

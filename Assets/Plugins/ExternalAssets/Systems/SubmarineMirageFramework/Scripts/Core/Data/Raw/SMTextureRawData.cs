@@ -77,7 +77,7 @@ namespace SubmarineMirage {
 		}
 
 		/// <summary>
-		/// ● 解放
+		/// ● 破棄
 		/// </summary>
 		public override void Dispose() {
 			_size = Vector2.zero;

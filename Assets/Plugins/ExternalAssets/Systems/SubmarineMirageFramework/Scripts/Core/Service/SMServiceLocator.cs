@@ -44,7 +44,7 @@ namespace SubmarineMirage {
 		}
 
 		/// <summary>
-		/// ● 解放
+		/// ● 破棄
 		/// </summary>
 		public static void Dispose()
 			=> s_disposables.Dispose();

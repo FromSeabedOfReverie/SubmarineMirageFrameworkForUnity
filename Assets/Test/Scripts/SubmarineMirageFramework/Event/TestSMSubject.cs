@@ -25,7 +25,7 @@ namespace SubmarineMirage.Test {
 		protected override void Create() {
 			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_asyncCanceler.Dispose();
 			} );
 		}
@@ -40,7 +40,7 @@ namespace SubmarineMirage.Test {
 
 		Action<Unit> TestDispose( SMSubject @event, string name )
 			=> _ => {
-				SMLog.Warning( $"解放 : \n{name}" );
+				SMLog.Warning( $"破棄 : \n{name}" );
 				@event.Dispose();
 			};
 
@@ -79,7 +79,7 @@ namespace SubmarineMirage.Test {
 			ss.ForEach( s => s.OnCompleted() );
 			await UTask.DelayFrame( _asyncCanceler, 3 );
 
-			SMLog.Debug( "・解放" );
+			SMLog.Debug( "・破棄" );
 			ss.ForEach( s => s.Dispose() );
 			ss.Clear();
 			await UTask.DelayFrame( _asyncCanceler, 3 );
@@ -89,7 +89,7 @@ namespace SubmarineMirage.Test {
 			SMLog.Debug( "Create" );
 			await UTask.DelayFrame( _asyncCanceler, 3 );
 
-			SMLog.Debug( "・解放" );
+			SMLog.Debug( "・破棄" );
 			ss.ForEach( s => s.Dispose() );
 			SMLog.Debug( "・OnCompleted" );
 			try {

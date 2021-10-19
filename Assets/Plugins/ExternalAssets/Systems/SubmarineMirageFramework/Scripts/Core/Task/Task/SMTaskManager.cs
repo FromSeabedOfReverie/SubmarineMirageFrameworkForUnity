@@ -212,7 +212,7 @@ namespace SubmarineMirage {
 
 
 		public async UniTask Unregister( SMTask task ) {
-			// Dispose時に各種タスク内部から呼ばれ、_modifyler解放済エラーとなる為、解放済の場合は無視
+			// Dispose時に各種タスク内部から呼ばれ、_modifyler破棄済エラーとなる為、破棄済の場合は無視
 			if ( _isDispose )	{ return; }
 			CheckTaskNullError( nameof( Unregister ), task );
 
@@ -447,7 +447,7 @@ namespace SubmarineMirage {
 			CheckDisposeError( nameof( UpdateTasks ) );
 
 			_modifyler._isLock = true;
-			// Dispose時に、解放済エラー防止の為、即終了する必要があり、ラムダを未使用
+			// Dispose時に、破棄済エラー防止の為、即終了する必要があり、ラムダを未使用
 			foreach ( var type in RUN_TASK_TYPES ) {
 				foreach ( var task in _markers.GetAlls( type, true ) ) {
 					updateTaskEvent( task );
@@ -741,7 +741,7 @@ namespace SubmarineMirage {
 			if ( task != null && !task._isDispose )	{ return; }
 
 			throw new ObjectDisposedException( "", string.Join( "\n",
-				$"既に解放済 : {nameof( task )}",
+				$"既に破棄済 : {nameof( task )}",
 				$"{nameof( SMTaskManager )}.{name}",
 				$"{nameof( task )} : {task}"
 			) );

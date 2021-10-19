@@ -29,7 +29,7 @@ namespace SubmarineMirage {
 		}
 
 		/// <summary>
-		/// ● 解放
+		/// ● 破棄
 		/// </summary>
 		public override void Dispose() {
 			if ( _isDispose )	{ return; }
@@ -39,7 +39,7 @@ namespace SubmarineMirage {
 		}
 
 		/// <summary>
-		/// ● 解放（補助）
+		/// ● 破棄（補助）
 		/// </summary>
 		protected virtual void DisposeSub() {
 		}

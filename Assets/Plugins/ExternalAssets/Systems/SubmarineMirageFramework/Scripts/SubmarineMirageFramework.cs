@@ -43,7 +43,7 @@ namespace SubmarineMirage {
 
 		/// <summary>
 		/// ● アプリ終了
-		///		安全に全機能を解放し、ゲームを終了させる。
+		///		安全に全機能を破棄し、ゲームを終了させる。
 		/// </summary>
 		public static void Shutdown( bool isApplicationQuit = true ) {
 			try {
