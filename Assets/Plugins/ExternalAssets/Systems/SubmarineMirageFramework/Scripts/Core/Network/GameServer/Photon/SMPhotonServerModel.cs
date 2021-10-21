@@ -72,7 +72,7 @@ namespace SubmarineMirage {
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		public SMPhotonServerModel( SMNetworkManager networkManager ) {
-			_masterFSM.Setup(
+			_masterFSM.Initialize(
 				this,
 				new SMPhotonMasterState[] {
 					new DisconnectSMPhotonMasterState(),
@@ -80,7 +80,7 @@ namespace SubmarineMirage {
 					new OnlineSMPhotonMasterState(),
 				}
 			);
-			_roomFSM.Setup(
+			_roomFSM.Initialize(
 				this,
 				new SMPhotonRoomState[] {
 					new DisconnectSMPhotonRoomState(),
@@ -99,7 +99,7 @@ namespace SubmarineMirage {
 			_networkManager._updateEvent.AddLast()
 				.Subscribe( _ => {
 					_displayLog?.Add( Color.cyan );
-					_displayLog?.Add( $"● {this.GetAboutName()}" );
+					_displayLog?.Add( $"● {this.GetName()}" );
 					_displayLog?.Add( Color.white );
 
 					_displayLog?.Add( $"{nameof( _masterFSM )}._state : {_masterFSM._state?.ToLineString()}" );
@@ -211,7 +211,7 @@ namespace SubmarineMirage {
 						SMGameServerErrorType.MismatchPassword,
 						null,
 						string.Join( "\n",
-							$"{this.GetAboutName()}.{nameof( EnterRoom )} : パスワード不一致",
+							$"{this.GetName()}.{nameof( EnterRoom )} : パスワード不一致",
 							$"{nameof( inputPassword )} : {inputPassword}"
 						),
 						false
@@ -222,7 +222,7 @@ namespace SubmarineMirage {
 						SMGameServerErrorType.FullRoom,
 						null,
 						string.Join( "\n",
-							$"{this.GetAboutName()}.{nameof( EnterRoom )} : 部屋が満室",
+							$"{this.GetName()}.{nameof( EnterRoom )} : 部屋が満室",
 							$"{nameof( room._maxPlayerCount )} : {room._maxPlayerCount}"
 						),
 						false
@@ -272,7 +272,7 @@ namespace SubmarineMirage {
 					if ( SMDebugManager.IS_DEVELOP ) {
 						SMLog.Warning(
 							string.Join( "\n",
-								$"{this.GetAboutName()}.{nameof( Send )} : 変換を妥協",
+								$"{this.GetName()}.{nameof( Send )} : 変換を妥協",
 								$"未対応 : {SMGameServerSendTargetType.AllByNetwork}",
 								$"矯正 : {SMGameServerSendTargetType.All}"
 							),

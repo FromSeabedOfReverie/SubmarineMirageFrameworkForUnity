@@ -59,7 +59,7 @@ namespace SubmarineMirage {
 				throw new InvalidOperationException( $"既に登録済 : {type}" );
 			}
 #if TestService
-			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Register )} : {type.GetAboutName()}",
+			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Register )} : {type.GetName()}",
 				SMLogTag.Service );
 #endif
 			s_container[type] = instance;
@@ -71,7 +71,7 @@ namespace SubmarineMirage {
 
 			var type = typeof( T );
 #if TestService
-			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Unregister )} : {type.GetAboutName()}",
+			SMLog.Debug( $"{nameof( SMServiceLocator )}.{nameof( Unregister )} : {type.GetName()}",
 				SMLogTag.Service );
 #endif
 			if ( isCallDispose ) {

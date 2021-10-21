@@ -32,7 +32,7 @@ namespace SubmarineMirage {
 			option.MaxPlayers = ( byte )_room._maxPlayerCount;
 			var isSuccess = PhotonNetwork.CreateRoom( _room.ToToken(), option );
 #if TestNetwork
-			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
+			SMLog.Debug( $"{this.GetName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
 #endif
 			return isSuccess;
 		}
@@ -40,7 +40,7 @@ namespace SubmarineMirage {
 		protected override bool Disconnect() {
 			var isSuccess = PhotonNetwork.LeaveRoom();
 #if TestNetwork
-			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
+			SMLog.Debug( $"{this.GetName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
 #endif
 			return isSuccess;
 		}

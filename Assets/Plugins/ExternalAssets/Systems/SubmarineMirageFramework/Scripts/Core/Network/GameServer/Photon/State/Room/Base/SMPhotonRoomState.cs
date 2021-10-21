@@ -36,7 +36,7 @@ namespace SubmarineMirage {
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		public SMPhotonRoomState() {
-			_setupEvent.AddLast().Subscribe( _ => {
+			_initializeEvent.AddLast().Subscribe( _ => {
 				_owner._playerCountEvent
 					.Where( _ => _room != null )
 					.Subscribe( i => {
@@ -76,7 +76,7 @@ namespace SubmarineMirage {
 					),
 					null,
 					string.Join( "\n",
-						$"サーバー接続失敗 : {this.GetAboutName()}.{nameof( OnError )}",
+						$"サーバー接続失敗 : {this.GetName()}.{nameof( OnError )}",
 						$"{nameof( returnCode )} : {returnCode}",
 						$"{message}"
 					),

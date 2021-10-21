@@ -54,7 +54,7 @@ namespace SubmarineMirage {
 			setting.Setup();
 			setting._datas.ForEach( pair => {
 				var fsm = new SMFSM<SMScene>();
-				fsm.Setup( this, pair.Value );
+				fsm.Initialize( this, pair.Value );
 				if ( _fsms.ContainsKey( pair.Key ) ) {
 					throw new InvalidOperationException( $"既に作成済 : {pair.Key}" );
 				}

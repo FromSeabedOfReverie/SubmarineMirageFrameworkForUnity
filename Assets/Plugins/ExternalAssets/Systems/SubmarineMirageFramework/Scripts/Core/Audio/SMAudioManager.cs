@@ -139,7 +139,7 @@ namespace SubmarineMirage {
 			var displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
 			_lateUpdateEvent.AddFirst().Subscribe( _ => {
 				displayLog.Add( Color.cyan );
-				displayLog.Add( $"● {this.GetAboutName()}" );
+				displayLog.Add( $"● {this.GetName()}" );
 				displayLog.Add( Color.white );
 			} );
 

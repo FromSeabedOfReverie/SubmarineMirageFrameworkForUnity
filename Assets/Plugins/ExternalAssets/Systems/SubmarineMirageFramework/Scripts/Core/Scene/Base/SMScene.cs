@@ -46,7 +46,7 @@ namespace SubmarineMirage {
 		public SMScene() {
 			SetSceneName();
 			ReloadRawScene();
-			_registerEventName = this.GetAboutName();
+			_registerEventName = this.GetName();
 
 			var uiFade = SMServiceLocator.Resolve<SMUIFade>();
 			var audioManager = SMServiceLocator.Resolve<SMAudioManager>();
@@ -150,7 +150,7 @@ namespace SubmarineMirage {
 
 
 		protected virtual void SetSceneName()
-			=> _name = this.GetAboutName().RemoveAtLast( "SMScene" );
+			=> _name = this.GetName().RemoveAtLast( "SMScene" );
 
 		protected virtual void ReloadRawScene()
 			=> _rawScene = SceneManager.GetSceneByName( _name );

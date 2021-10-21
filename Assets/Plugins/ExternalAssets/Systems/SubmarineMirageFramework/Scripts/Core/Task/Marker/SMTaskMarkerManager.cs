@@ -71,13 +71,13 @@ namespace SubmarineMirage {
 
 
 		public void LinkLast( SMTask add ) {
-			CheckDisposeError( $"{nameof( LinkLast )}( {add.GetAboutName()} )" );
+			CheckDisposeError( $"{nameof( LinkLast )}( {add.GetName()} )" );
 			if ( add == null || add._isDispose ) {
 				throw new ObjectDisposedException(
 					$"{add}",
 					string.Join( "\n",
 						$"既に破棄済",
-						$"{this.GetAboutName()}.{nameof( LinkLast )}( {add.GetAboutName()} )"
+						$"{this.GetName()}.{nameof( LinkLast )}( {add.GetName()} )"
 					)
 				);
 			}
@@ -162,7 +162,7 @@ namespace SubmarineMirage {
 			if ( _isInitialized ) {
 				throw new InvalidOperationException( string.Join( "\n",
 					$"既に初期化済 : ",
-					$"{this.GetAboutName()}.{nameof( InitializeAll )}",
+					$"{this.GetName()}.{nameof( InitializeAll )}",
 					$"{this}"
 				) );
 			}

@@ -18,22 +18,16 @@ namespace SubmarineMirage {
 	///====================================================================================================
 	public static class ObjectSMExtension {
 		///------------------------------------------------------------------------------------------------
+		/// <summary>
 		/// ● 名前を取得
+		/// </summary>
 		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 大体の名前を取得
-		/// </summary>
-		public static string GetAboutName( this object self ) {
-			if ( self == null )	{ return "null"; }
-			return self.GetType().GetAboutName();
-		}
-		/// <summary>
-		/// ● 名前を取得
-		/// </summary>
 		public static string GetName( this object self ) {
 			if ( self == null )	{ return "null"; }
+
 			return self.GetType().GetName();
 		}
+
 		///------------------------------------------------------------------------------------------------
 		/// ● 文字列に変換
 		///------------------------------------------------------------------------------------------------
@@ -56,7 +50,7 @@ namespace SubmarineMirage {
 			if ( self == null )	{ return "null"; }
 
 			return string.Join( "\n",
-				$"{self.GetAboutName()}(",
+				$"{self.GetName()}(",
 				string.Join( ",\n", self.GetType().GetAllMembers().Select( i =>
 					$"    {i.Name} : {i.GetValue( self )}"
 				) ),
@@ -84,7 +78,7 @@ namespace SubmarineMirage {
 					else					{ return baseSM.ToString( indent, isUseHeadIndent ); }
 
 				case Type type:
-					return $"{hPrefix}{type.GetAboutName()}";
+					return $"{hPrefix}{type.GetName()}";
 
 				case Enum e:
 				case string s:
@@ -147,7 +141,7 @@ namespace SubmarineMirage {
 						}
 					}
 					return string.Join( "\n",
-						$"{hPrefix}{self.GetAboutName()}(",
+						$"{hPrefix}{self.GetName()}(",
 						ms,
 						$"{prefix})"
 					);
@@ -167,7 +161,7 @@ namespace SubmarineMirage {
 					return baseSM.ToLineString( indent );
 
 				case Type type:
-					return $"{prefix}{type.GetAboutName()}";
+					return $"{prefix}{type.GetName()}";
 
 				case Enum e:
 				case string s:
@@ -203,7 +197,7 @@ namespace SubmarineMirage {
 					var members = self.GetType().GetAllAttributeMembers<SMShowLineAttribute>();
 
 					return string.Join( " ",
-						$"{prefix}{self.GetAboutName()}(",
+						$"{prefix}{self.GetName()}(",
 						string.Join( " ", members.Select( i =>
 							ToLineString( i.GetValue( self ) )
 						) ),

@@ -121,7 +121,7 @@ namespace SubmarineMirage {
 					$"{add}",
 					string.Join( "\n",
 						$"既に破棄済",
-						$"{this.GetAboutName()}.{nameof( Link )}( {add._id} )"
+						$"{this.GetName()}.{nameof( Link )}( {add._id} )"
 					)
 				);
 			}

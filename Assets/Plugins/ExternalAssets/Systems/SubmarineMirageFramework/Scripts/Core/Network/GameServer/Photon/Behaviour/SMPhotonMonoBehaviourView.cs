@@ -128,7 +128,7 @@ namespace SubmarineMirage {
 				}
 				default: {
 					throw new InvalidOperationException( string.Join( "\n",
-						$"{this.GetAboutName()}.{nameof( Send )}<{typeof( TData ).GetAboutName()}>"
+						$"{this.GetName()}.{nameof( Send )}<{typeof( TData ).GetName()}>"
 							+ " : キャスト失敗",
 						$"無効な型 : {nameof( target )}",
 						$"{nameof( SMGameServerSendTarget )}, {nameof( Player )}, {nameof( RpcTarget )}のみ指定可能"
@@ -333,7 +333,7 @@ namespace SubmarineMirage {
 					if ( target._isKeep && SMDebugManager.IS_DEVELOP ) {
 						SMLog.Warning(
 							string.Join( "\n",
-								$"{this.GetAboutName()}.{nameof( ToRPCTarget )} : 変換を妥協",
+								$"{this.GetName()}.{nameof( ToRPCTarget )} : 変換を妥協",
 								$"未対応 : {SMGameServerSendTargetType.Server}で、{nameof( target._isKeep )}"
 									+ $" : {true}",
 								$"矯正 : {nameof( target._isKeep )} : {false}"
@@ -348,7 +348,7 @@ namespace SubmarineMirage {
 
 				default:
 					throw new InvalidOperationException( string.Join( "\n",
-						$"{this.GetAboutName()}.{nameof( ToRPCTarget )} : 変換失敗",
+						$"{this.GetName()}.{nameof( ToRPCTarget )} : 変換失敗",
 						$"謎の型 : {target._type}"
 					) );
 			}

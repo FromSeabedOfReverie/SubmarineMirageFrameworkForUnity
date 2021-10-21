@@ -82,7 +82,7 @@ namespace SubmarineMirage {
 			var mPrefix = StringSMUtility.IndentSpace( indent );
 
 			return string.Join( "\n",
-				$"{hPrefix}{_owner.GetAboutName()}(",
+				$"{hPrefix}{_owner.GetName()}(",
 				string.Join( ",\n", _toStrings.Select( pair =>
 					$"{mPrefix}{pair.Value._name} : {pair.Value._valueEvent( indent )}"
 				) ),
@@ -93,7 +93,7 @@ namespace SubmarineMirage {
 		public string RunLine( int indent = 0 ) {
 			var prefix = StringSMUtility.IndentSpace( indent );
 			return string.Join( " ",
-				$"{prefix}{_owner.GetAboutName()}(",
+				$"{prefix}{_owner.GetName()}(",
 				string.Join( " ", _toLineStrings.Select( pair =>
 					$"{pair.Value._valueEvent()}"
 				) ),

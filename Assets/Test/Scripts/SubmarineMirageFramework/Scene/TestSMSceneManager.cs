@@ -39,9 +39,9 @@ namespace SubmarineMirage.Test {
 				taskManager._updateEvent.AddLast()
 					.Where( _ => !_sceneManager._isDispose )
 					.Subscribe( _ => {
-						_displayLog.Add( $"{_sceneManager.GetAboutName()} : { _sceneManager._ranState }" );
+						_displayLog.Add( $"{_sceneManager.GetName()} : { _sceneManager._ranState }" );
 						_sceneManager.GetScenes().ForEach(
-							s => _displayLog.Add( $"    {s.GetAboutName()} : { s._ranState }" )
+							s => _displayLog.Add( $"    {s.GetName()} : { s._ranState }" )
 						);
 					} );
 
@@ -87,7 +87,7 @@ namespace SubmarineMirage.Test {
 			};
 			_inputManager.GetKey( SMInputKey.Reset )._enabledEvent.AddLast().Subscribe( _ => {
 				var t = scenes[i];
-				SMLog.Warning( $"遷移押下 : {t.GetAboutName()}" );
+				SMLog.Warning( $"遷移押下 : {t.GetName()}" );
 				_sceneManager.GetFSM<MainSMScene>().ChangeState( t ).Forget();
 				i = ( i + 1 ) % scenes.Count();
 			} );

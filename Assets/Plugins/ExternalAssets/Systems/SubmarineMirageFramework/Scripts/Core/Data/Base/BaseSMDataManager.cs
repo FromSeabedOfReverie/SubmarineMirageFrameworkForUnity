@@ -51,7 +51,7 @@ namespace SubmarineMirage {
 		/// ● コンストラクタ
 		/// </summary>
 		public BaseSMDataManager() {
-			_name = typeof( TValue ).GetAboutName();
+			_name = typeof( TValue ).GetName();
 			_registerEventKey = _name;
 
 			_loadEvent.AddLast( _registerEventKey, async canceler => {

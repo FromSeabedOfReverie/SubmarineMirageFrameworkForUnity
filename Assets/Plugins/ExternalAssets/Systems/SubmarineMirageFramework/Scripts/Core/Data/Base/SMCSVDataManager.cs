@@ -39,7 +39,7 @@ namespace SubmarineMirage {
 		public override void SetToString() {
 			base.SetToString();
 
-			_toStringer.AddLine( nameof( TValue ), () => typeof( TValue ).GetAboutName() );
+			_toStringer.AddLine( nameof( TValue ), () => typeof( TValue ).GetName() );
 		}
 #endregion
 

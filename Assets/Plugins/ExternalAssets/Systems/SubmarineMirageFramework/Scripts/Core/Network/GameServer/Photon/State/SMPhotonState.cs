@@ -26,7 +26,7 @@ namespace SubmarineMirage {
 
 		[SMShow] public GameServerSMException _error { get; protected set; }
 
-		protected string _registerEventKey => this.GetAboutName();
+		protected readonly string _registerEventKey;
 
 		protected abstract Type _disconnectStateType { get; }
 
@@ -34,9 +34,11 @@ namespace SubmarineMirage {
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		public SMPhotonState() {
+			_registerEventKey = this.GetName();
+
 			_enterEvent.AddLast( _registerEventKey, async canceler => {
 #if TestNetwork
-				SMLog.Debug( $"サーバー接続中 : {this.GetAboutName()}", SMLogTag.Server );
+				SMLog.Debug( $"サーバー接続中 : {this.GetName()}", SMLogTag.Server );
 #endif
 				_status = SMGameServerStatus.Disconnect;
 				_error = null;
@@ -57,7 +59,7 @@ namespace SubmarineMirage {
 
 			_exitEvent.AddLast( _registerEventKey, async canceler => {
 #if TestNetwork
-				SMLog.Debug( $"サーバー接続切断中 : {this.GetAboutName()}", SMLogTag.Server );
+				SMLog.Debug( $"サーバー接続切断中 : {this.GetName()}", SMLogTag.Server );
 #endif
 				if ( _status == SMGameServerStatus.Connect ) {
 					if ( Disconnect() ) {
@@ -89,7 +91,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public void OnConnect() {
 			_status = SMGameServerStatus.Connect;
-			SMLog.Debug( $"サーバー接続成功 : {this.GetAboutName()}", SMLogTag.Server );
+			SMLog.Debug( $"サーバー接続成功 : {this.GetName()}", SMLogTag.Server );
 		}
 
 		/// <summary>
@@ -97,7 +99,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public void OnDisconnect() {
 			_status = SMGameServerStatus.Disconnect;
-			SMLog.Debug( $"サーバー接続切断 : {this.GetAboutName()}", SMLogTag.Server );
+			SMLog.Debug( $"サーバー接続切断 : {this.GetName()}", SMLogTag.Server );
 		}
 
 		/// <summary>

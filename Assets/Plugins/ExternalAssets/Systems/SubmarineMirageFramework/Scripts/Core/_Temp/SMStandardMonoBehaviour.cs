@@ -124,7 +124,7 @@ namespace SubmarineMirage {
 			if ( !_isDispose ) { return; }
 
 			throw new ObjectDisposedException(
-				$"{this}", $"既に破棄済\n{this.GetAboutName()}.{name}" );
+				$"{this}", $"既に破棄済\n{this.GetName()}.{name}" );
 		}
 
 		///------------------------------------------------------------------------------------------------

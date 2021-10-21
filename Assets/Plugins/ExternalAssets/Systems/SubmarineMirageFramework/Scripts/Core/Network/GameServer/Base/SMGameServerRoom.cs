@@ -53,7 +53,7 @@ namespace SubmarineMirage {
 					SMGameServerErrorType.UseProhibitionWord,
 					null,
 					string.Join( "\n",
-						$"{this.GetAboutName()}.{nameof( Wrap )} : 部屋名に、禁則単語を使用",
+						$"{this.GetName()}.{nameof( Wrap )} : 部屋名に、禁則単語を使用",
 						$"{nameof( _name )} : {_name}"
 					),
 					false
@@ -64,7 +64,7 @@ namespace SubmarineMirage {
 					SMGameServerErrorType.UseProhibitionWord,
 					null,
 					string.Join( "\n",
-						$"{this.GetAboutName()}.{nameof( Wrap )} : パスワードに、禁則単語を使用",
+						$"{this.GetName()}.{nameof( Wrap )} : パスワードに、禁則単語を使用",
 						$"{nameof( _password )} : {_password}"
 					),
 					false

@@ -27,14 +27,14 @@ namespace SubmarineMirage {
 			if ( count == 0 ) {
 				throw new InvalidOperationException( string.Join( "\n",
 					$"設定不可 : 不明場面が無",
-					$"{nameof( UnknownSMScene )}.{nameof( Setup )}",
+					$"{this.GetName()}.{nameof( Setup )}",
 					$"{unknownScenes.ToShowString( 0, true )}"
 				) );
 			}
 			if ( count > 1 ) {
 				throw new InvalidOperationException( string.Join( "\n",
 					$"設定不可 : 不明場面が複数存在",
-					$"{nameof( UnknownSMScene )}.{nameof( Setup )}",
+					$"{this.GetName()}.{nameof( Setup )}",
 					$"{unknownScenes.ToShowString( 0, true )}"
 				) );
 			}

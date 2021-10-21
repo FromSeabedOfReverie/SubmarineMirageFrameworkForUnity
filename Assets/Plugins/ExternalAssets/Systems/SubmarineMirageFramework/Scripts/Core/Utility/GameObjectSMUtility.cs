@@ -22,7 +22,7 @@ namespace SubmarineMirage {
 		/// </summary>
 		public static T Instantiate<T>() where T : MonoBehaviourSMExtension {
 			var type = typeof( T );
-			var go = new GameObject( type.GetAboutName() );
+			var go = new GameObject( type.GetName() );
 			var b = go.AddComponent( type ) as T;
 
 // TODO : SMSceneManagerコメント

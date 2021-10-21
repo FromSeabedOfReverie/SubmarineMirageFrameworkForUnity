@@ -80,7 +80,7 @@ namespace SubmarineMirage {
 			_isStableConnect
 				.Where( @is => @is )
 				.Subscribe( _ => {
-//					SMLog.Debug( $"{this.GetAboutName()} : 安定接続リフレッシュ", SMLogTag.Server );
+//					SMLog.Debug( $"{this.GetName()} : 安定接続リフレッシュ", SMLogTag.Server );
 				} );
 		}
 	}

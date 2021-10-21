@@ -106,7 +106,7 @@ namespace SubmarineMirage {
 			_manager._lateUpdateEvent.AddLast().Subscribe( _ => {
 				// クラス名、音量描画
 				displayLog.Add( Color.yellow ); // 見出し色に設定
-				displayLog.Add( $"・{this.GetAboutName()} : {_state} : 音量 : {_source.volume:F2}" );
+				displayLog.Add( $"・{this.GetName()} : {_state} : 音量 : {_source.volume:F2}" );
 				displayLog.Add( Color.white );	// 基本色に設定
 
 				// キャッシュ中の音を描画

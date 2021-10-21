@@ -19,31 +19,29 @@ namespace SubmarineMirage {
 	///====================================================================================================
 	public static class TypeSMExtension {
 		///------------------------------------------------------------------------------------------------
-		/// <summary>
-		/// ● 大体の名前を取得
-		/// </summary>
+		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public static string GetAboutName( this Type self ) {
-			var name = self.Name;
-			if ( self.IsGenericType )	{ name = name.Split( '`' )[0]; }
-			return name;
-		}
+		const string NAME_FORMAT = "{0}<{1}>";
+
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 名前を取得
 		/// </summary>
 		///------------------------------------------------------------------------------------------------
 		public static string GetName( this Type self ) {
-			if ( !self.IsGenericType ) { return self.Name; }
+			if ( self == null )	{ return "null"; }
 
-			return string.Join( "",
-				$"{self.GetAboutName()}<",
+			if ( !self.IsGenericType )	{ return self.Name; }
+
+			return string.Format(
+				NAME_FORMAT,
+				self.Name.Split( '`' ).First(),
 				string.Join( ", ",
 					self.GetGenericArguments().Select( t => t.GetName() )
-				),
-				">"
+				)
 			);
 		}
+
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● 全基盤クラスを取得

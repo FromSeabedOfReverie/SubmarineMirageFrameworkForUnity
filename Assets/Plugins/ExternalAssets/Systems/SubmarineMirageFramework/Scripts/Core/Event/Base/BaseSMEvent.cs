@@ -18,7 +18,7 @@ namespace SubmarineMirage {
 	public abstract class BaseSMEvent : SMRawBase {
 		// Reverse時に再代入される為、readonly未使用
 		LinkedList<BaseSMEventData> _events	{ get; set; } = new LinkedList<BaseSMEventData>();
-		// this.GetAboutName()使用には、コンストラクタでthis参照が必要の為、下記で設定しない
+		// this.GetName()使用には、コンストラクタでthis参照が必要の為、下記で設定しない
 		[SMShow] readonly SMModifyler _modifyler;
 
 		[SMShow] public bool _isRunning	{ get; private set; }
@@ -66,7 +66,7 @@ namespace SubmarineMirage {
 
 
 		public BaseSMEvent() {
-			_modifyler = new SMModifyler( this.GetAboutName(), false );
+			_modifyler = new SMModifyler( this.GetName(), false );
 
 			_disposables.AddLast( () => {
 #if TestEvent
@@ -87,7 +87,7 @@ namespace SubmarineMirage {
 #endif
 			} );
 #if TestEvent
-			SMLog.Debug( $"{this.GetAboutName()}() : \n{this}" );
+			SMLog.Debug( $"{this.GetName()}() : \n{this}" );
 #endif
 		}
 
@@ -96,7 +96,7 @@ namespace SubmarineMirage {
 		protected async UniTask Run( SMAsyncCanceler canceler ) {
 			CheckDisposeError( nameof( Run ) );
 			if ( _isRunning ) {
-				SMLog.Warning( $"{this.GetAboutName()}.{nameof( Run )} : 既に実行中の為、未実行\n{this}" );
+				SMLog.Warning( $"{this.GetName()}.{nameof( Run )} : 既に実行中の為、未実行\n{this}" );
 				return;
 			}
 #if TestEvent

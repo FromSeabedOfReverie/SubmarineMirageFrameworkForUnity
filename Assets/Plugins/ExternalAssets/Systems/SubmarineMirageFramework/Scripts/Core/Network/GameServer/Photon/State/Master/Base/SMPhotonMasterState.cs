@@ -48,7 +48,7 @@ namespace SubmarineMirage {
 																	: SMGameServerErrorType.Other
 							),
 							cause,
-							$"サーバー接続失敗 : {this.GetAboutName()}.{nameof( OnDisconnect )}",
+							$"サーバー接続失敗 : {this.GetName()}.{nameof( OnDisconnect )}",
 							true
 						)
 					);

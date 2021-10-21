@@ -20,37 +20,37 @@ namespace SubmarineMirage.Test {
 
 		public void SetEvent() {
 			_scene._enterEvent.AddLast( async canceler => {
-				SMLog.Debug( $"start : {_scene.GetAboutName()}.{nameof( _scene._enterEvent )}" );
+				SMLog.Debug( $"start : {_scene.GetName()}.{nameof( _scene._enterEvent )}" );
 				await UTask.Delay( canceler, 1000 );
-				SMLog.Debug( $"end : {_scene.GetAboutName()}.{nameof( _scene._enterEvent )}" );
+				SMLog.Debug( $"end : {_scene.GetName()}.{nameof( _scene._enterEvent )}" );
 			} );
 			_scene._asyncUpdateEvent.AddLast( async canceler => {
-				SMLog.Debug( $"start : {_scene.GetAboutName()}.{nameof( _scene._asyncUpdateEvent )}" );
+				SMLog.Debug( $"start : {_scene.GetName()}.{nameof( _scene._asyncUpdateEvent )}" );
 				await UTask.Delay( canceler, 1000 );
-				SMLog.Debug( $"end : {_scene.GetAboutName()}.{nameof( _scene._asyncUpdateEvent )}" );
+				SMLog.Debug( $"end : {_scene.GetName()}.{nameof( _scene._asyncUpdateEvent )}" );
 			} );
 			_scene._exitEvent.AddLast( async canceler => {
-				SMLog.Debug( $"start : {_scene.GetAboutName()}.{nameof( _scene._exitEvent )}" );
+				SMLog.Debug( $"start : {_scene.GetName()}.{nameof( _scene._exitEvent )}" );
 				await UTask.Delay( canceler, 1000 );
-				SMLog.Debug( $"end : {_scene.GetAboutName()}.{nameof( _scene._exitEvent )}" );
+				SMLog.Debug( $"end : {_scene.GetName()}.{nameof( _scene._exitEvent )}" );
 			} );
 
 			_scene._createBehavioursEvent.AddLast( async canceler => {
-				SMLog.Debug( $"start : {_scene.GetAboutName()}.{nameof( _scene._createBehavioursEvent )}" );
+				SMLog.Debug( $"start : {_scene.GetName()}.{nameof( _scene._createBehavioursEvent )}" );
 				await UTask.Delay( canceler, 1000 );
-				SMLog.Debug( $"end : {_scene.GetAboutName()}.{nameof( _scene._createBehavioursEvent )}" );
+				SMLog.Debug( $"end : {_scene.GetName()}.{nameof( _scene._createBehavioursEvent )}" );
 			} );
 
 			return;
 
 			_scene._fixedUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._fixedUpdateEvent )}" );
+				SMLog.Debug( $"{_scene.GetName()}.{nameof( _scene._fixedUpdateEvent )}" );
 			} );
 			_scene._updateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._updateEvent )}" );
+				SMLog.Debug( $"{_scene.GetName()}.{nameof( _scene._updateEvent )}" );
 			} );
 			_scene._lateUpdateEvent.AddLast().Subscribe( _ => {
-				SMLog.Debug( $"{_scene.GetAboutName()}.{nameof( _scene._lateUpdateEvent )}" );
+				SMLog.Debug( $"{_scene.GetName()}.{nameof( _scene._lateUpdateEvent )}" );
 			} );
 		}
 	}

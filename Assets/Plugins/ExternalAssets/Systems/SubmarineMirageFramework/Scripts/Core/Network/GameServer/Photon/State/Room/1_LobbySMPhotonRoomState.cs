@@ -45,7 +45,7 @@ namespace SubmarineMirage {
 		protected override bool Connect() {
 			var isSuccess = PhotonNetwork.JoinLobby();
 #if TestNetwork
-			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
+			SMLog.Debug( $"{this.GetName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
 #endif
 			return isSuccess;
 		}
@@ -53,7 +53,7 @@ namespace SubmarineMirage {
 		protected override bool Disconnect() {
 			var isSuccess = PhotonNetwork.LeaveLobby();
 #if TestNetwork
-			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
+			SMLog.Debug( $"{this.GetName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
 #endif
 			return isSuccess;
 		}

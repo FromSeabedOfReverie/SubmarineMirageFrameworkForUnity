@@ -59,7 +59,7 @@ namespace SubmarineMirage.Editor {
 			SMServiceLocator.s_container.ForEach( pair => {
 				GUI.SetNextControlName( pair.Value.ToString() );
 				EditorGUILayout.SelectableLabel(
-					$"{pair.Key.GetAboutName()} : {pair.Value.GetAboutName()}",
+					$"{pair.Key.GetName()} : {pair.Value.GetName()}",
 					GUILayout.Height( 16 )
 				);
 			} );

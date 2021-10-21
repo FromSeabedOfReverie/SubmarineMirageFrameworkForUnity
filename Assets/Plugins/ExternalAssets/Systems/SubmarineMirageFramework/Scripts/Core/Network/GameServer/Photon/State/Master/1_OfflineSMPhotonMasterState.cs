@@ -39,7 +39,7 @@ namespace SubmarineMirage {
 			PhotonNetwork.OfflineMode = true;
 			var isSuccess = true;
 #if TestNetwork
-			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
+			SMLog.Debug( $"{this.GetName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
 #endif
 			return isSuccess;
 		}
@@ -48,7 +48,7 @@ namespace SubmarineMirage {
 			PhotonNetwork.Disconnect();
 			var isSuccess = true;
 #if TestNetwork
-			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
+			SMLog.Debug( $"{this.GetName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
 #endif
 			return isSuccess;
 		}
