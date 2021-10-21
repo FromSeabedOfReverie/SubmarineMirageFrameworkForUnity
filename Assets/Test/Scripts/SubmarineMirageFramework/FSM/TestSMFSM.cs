@@ -8,7 +8,6 @@ namespace SubmarineMirage.Test {
 	using System;
 	using System.Linq;
 	using System.Collections;
-	using System.Collections.Generic;
 	using System.Threading;
 	using NUnit.Framework;
 	using UnityEngine;
@@ -42,35 +41,35 @@ namespace SubmarineMirage.Test {
 		} );
 
 
-		// Setup機能するか？
+		// Initialize機能するか？
 		// Type指定できる？、違うType指定だとどうなる？
 		// 破棄済の場合
 		[UnityTest, Timeout( int.MaxValue )]
-		public IEnumerator TestSetup() => From( async () => {
+		public IEnumerator TestInitialize() => From( async () => {
 			var types = new Type[] { typeof( TestStateA ), typeof( TestStateB ), typeof( TestStateC ) };
 			var states = types.Select( t => t.Create<TestState>() ).ToArray();
 
 			var fsm = new SMFSM<TestState>();
-			fsm.Setup( this, states );		// 設定、状態を使用
+			fsm.Initialize( this, states );		// 設定、状態を使用
 			try {
-				fsm.Setup( this, states );	// 二度目の設定、エラー
+				fsm.Initialize( this, states );	// 二度目の設定、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
 			try {
-				states.First().Setup( this, fsm );  // 状態が二度目の設定、エラー
+				states.First().Initialize( this, fsm );  // 状態が二度目の設定、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
 			var s = new TestState2();
 			var temp = 0;
 			try {
-				s.Setup( temp, fsm );       // 状態が_owner設定失敗、エラー
+				s.Initialize( temp, fsm );       // 状態が_owner設定失敗、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
 			try {
-				s.Setup( this, temp );		// 状態が_fsm設定失敗、エラー
+				s.Initialize( this, temp );		// 状態が_fsm設定失敗、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
@@ -78,29 +77,38 @@ namespace SubmarineMirage.Test {
 			fsm.Dispose();
 
 			fsm = new SMFSM<TestState>();
-			fsm.Setup( this, types );		// 設定、型を使用
+			fsm.Initialize( this, types );		// 設定、型を使用
 			try {
-				fsm.Setup( this, types );   // 二度目の設定、エラー
+				fsm.Initialize( this, types );   // 二度目の設定、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
 			fsm.Dispose();
 
 			fsm = new SMFSM<TestState>();
+			var t = fsm.ChangeState<TestStateA>();	// 未実行
+			SMLog.Debug( fsm );
+			fsm.Initialize( this, types );
+			SMLog.Debug( fsm );
+			await t;								// 実行
+			SMLog.Debug( fsm );
+			fsm.Dispose();
+
+			fsm = new SMFSM<TestState>();
 			try {
-				fsm.Setup( this, new Type[] { typeof( TestDummyState ) } ); // 違う状態で設定、エラー
+				fsm.Initialize( this, new Type[] { typeof( TestDummyState ) } ); // 違う状態で設定、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
 			fsm.Dispose();
 
 			try {
-				states.First().Setup( this, fsm );  // 状態が破棄済の設定、エラー
+				states.First().Initialize( this, fsm );  // 状態が破棄済の設定、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
 			try {
-				fsm.Setup( this, types );	// 破棄後の設定、エラー
+				fsm.Initialize( this, types );	// 破棄後の設定、エラー
 			} catch ( Exception e ) {
 				SMLog.Error( e );
 			}
@@ -115,21 +123,21 @@ namespace SubmarineMirage.Test {
 			var types = new Type[] { typeof( TestStateA ), typeof( TestStateB ), typeof( TestStateC ) };
 
 			var fsm = new SMFSM<TestState>();
-			fsm.Setup( this, types );
+			fsm.Initialize( this, types );
 			fsm.FixedUpdateState();				// 実行
 			fsm.UpdateState();					// 実行
 			fsm.LateUpdateState();				// 実行
 			fsm.Dispose();
 
 			var task = new TestOwnerTask();
-			task._fsm.Setup( task, types );
+			task._fsm.Initialize( task, types );
 			await UTask.WaitWhile( _asyncCanceler, () => task._ranState != SMTaskRunState.LateUpdate ); // 実行
 			task.Dispose();
 
 			task = new TestOwnerTask();
 			var updates = new SMSubject[] { new SMSubject(), new SMSubject(), new SMSubject() };
 			updates.ForEach( ( e, i ) => e.AddLast().Subscribe( _ => SMLog.Debug( $"updates[{i}]" ) ) );
-			task._fsm.Setup( task, types, updates[0], updates[1], updates[2] );
+			task._fsm.Initialize( task, types, updates[0], updates[1], updates[2] );
 			await UTask.WaitWhile( _asyncCanceler, () => task._ranState != SMTaskRunState.LateUpdate ); // 未実行
 			updates.ForEach( e => e.Run() );	// 実行
 			task.Dispose();
@@ -139,7 +147,7 @@ namespace SubmarineMirage.Test {
 			task = new TestOwnerTask();
 			updates = new SMSubject[] { new SMSubject(), new SMSubject(), new SMSubject() };
 			updates.ForEach( ( e, i ) => e.AddLast().Subscribe( _ => SMLog.Debug( $"updates[{i}]" ) ) );
-			task._fsm.Setup( task, types, updates[0], updates[1], updates[2] );
+			task._fsm.Initialize( task, types, updates[0], updates[1], updates[2] );
 			await UTask.WaitWhile( _asyncCanceler, () => task._ranState != SMTaskRunState.LateUpdate ); // 未実行
 			updates.ForEach( e => e.Run() );    // 実行
 			updates.ForEach( e => e.Dispose() );
@@ -153,7 +161,7 @@ namespace SubmarineMirage.Test {
 			var types = new Type[] { typeof( TestStateA ), typeof( TestStateB ), typeof( TestStateC ) };
 
 			var fsm = new SMFSM<TestState>();
-			fsm.Setup( this, types );
+			fsm.Initialize( this, types );
 			SMLog.Debug( fsm.GetStates().ToShowString() );			// 全取得
 			SMLog.Debug( fsm.GetState( typeof( TestStateB ) ) );	// 取得
 			SMLog.Debug( fsm.GetState<TestStateB>() );				// 取得
@@ -176,7 +184,7 @@ namespace SubmarineMirage.Test {
 			}
 
 			fsm = new SMFSM<TestState>();
-			fsm.Setup( this, new Type[] {} );
+			fsm.Initialize( this, new Type[] {} );
 			SMLog.Debug( fsm.GetStates().ToShowString() );			// 無取得
 			SMLog.Debug( fsm.GetState( typeof( TestStateB ) ) );    // 無取得
 			SMLog.Debug( fsm.GetState<TestStateB>() );              // 無取得
@@ -186,14 +194,13 @@ namespace SubmarineMirage.Test {
 		} );
 
 
-// TODO : ここから
 		// 正しくイベント実行される？
 		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestEvent() => From( async () => {
 			var types = new Type[] { typeof( TestStateA ), typeof( TestStateB ), typeof( TestStateC ) };
 
 			var task = new TestOwnerTask();
-			task._fsm.Setup( task, types );				// 実行
+			task._fsm.Initialize( task, types );		// 実行
 			await UTask.WaitWhile( _asyncCanceler, () => task._ranState != SMTaskRunState.LateUpdate );
 			await task._fsm.ChangeState<TestStateA>();  // 実行
 			await UTask.Delay( _asyncCanceler, 500 );   // _asyncUpdateEvent、途中停止
@@ -205,54 +212,57 @@ namespace SubmarineMirage.Test {
 		} );
 
 
-		// _isActiveオフで、モディファイアがちゃんと詰まる？
-		[UnityTest, Timeout( int.MaxValue )]
-		public IEnumerator TestActive() => From( async () => {
-			var types = new Type[] { typeof( TestStateA ), typeof( TestStateB ), typeof( TestStateC ) };
-
-			var fsm = new SMFSM<TestState>();
-
-			var t = fsm.ChangeState<TestStateA>();	// 未実行
-			fsm.Setup( this, types );
-			await t;								// 実行
-
-			await fsm.ChangeState<TestStateB>();	// 実行
-
-			fsm._isActive = false;
-			t = fsm.ChangeState<TestStateC>();		// 未実行
-			SMLog.Debug( "待機開始" );
-			await UTask.Delay( _asyncCanceler, 1000 );
-			SMLog.Debug( "待機終了" );
-			fsm._isActive = true;
-			await t;                                // 実行
-
-			t = fsm.ChangeState<TestStateA>();		// 実行
-			await UTask.Delay( _asyncCanceler, 500 );
-			var t2 = fsm.ChangeState<TestStateB>();	// キャッシュに積まれる
-			fsm._isActive = false;
-			SMLog.Debug( fsm );
-			await t;								// 実行中のみ、実行
-			fsm._isActive = true;
-			await t2;								// 実行
-
-			fsm.Dispose();
-		} );
-
-
-		// _isInitializedの挙動確認
 		// ChangeStateのテスト
 		// キャンセルも確認
 		[UnityTest, Timeout( int.MaxValue )]
 		public IEnumerator TestChangeState() => From( async () => {
-
+			var types = new Type[] { typeof( TestStateA ), typeof( TestStateB ), typeof( TestStateC ) };
 			var task = new TestOwnerTask();
-			var displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
-			task._updateEvent.AddLast().Subscribe( _ => {
-				task.ToString().Split( "\n" ).ForEach( s => displayLog.Add( s ) );
-			} );
-			task.Dispose();
+			task._fsm._asyncCancelerOnExit._cancelEvent.AddLast().Subscribe( _ =>
+				SMLog.Debug( $"{nameof( task._fsm._asyncCancelerOnExit )}" ) );
+			task._fsm._asyncCancelerOnDispose._cancelEvent.AddLast().Subscribe( _ =>
+				SMLog.Debug( $"{nameof( task._fsm._asyncCancelerOnDispose )}" ) );
 
-			await UTask.DontWait();
+			var t = task._fsm.ChangeState<TestStateA>();	// 未実行
+			task._fsm.Initialize( task, types );
+			await t;										// 実行
+
+			await task._fsm.ChangeState( null );			// 実行
+			await task._fsm.ChangeState( null );			// 未実行
+
+			await task._fsm.ChangeState<TestStateA>();		// 実行
+			await task._fsm.ChangeState<TestStateA>();		// 実行
+
+			task._fsm.ChangeState<TestStateB>().Forget();	// 実行
+			await task._fsm.ChangeState<TestStateC>();		// 実行
+
+			task._fsm.ChangeState<TestStateA>().Forget();   // 実行
+			SMLog.Debug( task._fsm );
+			task._fsm.ChangeState<TestStateB>().Forget();   // 未実行
+			SMLog.Debug( task._fsm );
+			task._fsm.ChangeState<TestStateC>().Forget();   // 未実行
+			SMLog.Debug( task._fsm );
+			task._fsm.ChangeState<TestStateA>().Forget();   // 未実行
+			SMLog.Debug( task._fsm );
+			task._fsm.ChangeState<TestStateB>().Forget();   // 未実行
+			SMLog.Debug( task._fsm );
+			task._fsm.ChangeState<TestStateC>().Forget();   // 未実行
+			SMLog.Debug( task._fsm );
+			await task._fsm.ChangeState<TestStateA>();		// 実行
+
+			task._fsm.ChangeState( null ).Forget();			// 実行
+			await task._fsm.ChangeState<TestStateA>();      // 実行
+
+			task._fsm.ChangeState<TestStateB>().Forget();   // 実行
+			await task._fsm.ChangeState( null );            // 実行
+
+			task._fsm.ChangeState<TestStateA>().Forget();   // 実行
+			await task._fsm.ChangeState( null );            // 実行
+
+			task._fsm.ChangeState( null ).Forget();         // 実行
+			await task._fsm.ChangeState<TestStateA>();      // 実行
+
+			task.Dispose();
 		} );
 
 
@@ -271,35 +281,35 @@ namespace SubmarineMirage.Test {
 
 		public abstract class TestState : SMState<object, TestState> {
 			public TestState() {
-				_setupEvent.AddLast().Subscribe( _ => {
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _setupEvent )}\n{this}" );
+				_initializeEvent.AddLast().Subscribe( _ => {
+					SMLog.Debug( $"{this.GetName()}.{nameof( _initializeEvent )}\n{this}" );
 				} );
 
 				_enterEvent.AddLast( async cancel => {
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _enterEvent )} : start\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _enterEvent )} : start\n{this}" );
 					await UTask.Delay( cancel, 1000 );
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _enterEvent )} : end\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _enterEvent )} : end\n{this}" );
 				} );
 				_exitEvent.AddLast( async cancel => {
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _exitEvent )} : start\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _exitEvent )} : start\n{this}" );
 					await UTask.Delay( cancel, 1000 );
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _exitEvent )} : end\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _exitEvent )} : end\n{this}" );
 				} );
 
 				_asyncUpdateEvent.AddLast( async cancel => {
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _asyncUpdateEvent )} : start\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _asyncUpdateEvent )} : start\n{this}" );
 					await UTask.Delay( cancel, 1000 );
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _asyncUpdateEvent )} : end\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _asyncUpdateEvent )} : end\n{this}" );
 				} );
 
 				_fixedUpdateEvent.AddLast().Subscribe( _ => {
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _fixedUpdateEvent )}\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _fixedUpdateEvent )}\n{this}" );
 				} );
 				_updateEvent.AddLast().Subscribe( _ => {
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _updateEvent )}\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _updateEvent )}\n{this}" );
 				} );
 				_lateUpdateEvent.AddLast().Subscribe( _ => {
-					SMLog.Debug( $"{this.GetAboutName()}.{nameof( _lateUpdateEvent )}\n{this}" );
+					SMLog.Debug( $"{this.GetName()}.{nameof( _lateUpdateEvent )}\n{this}" );
 				} );
 			}
 		}

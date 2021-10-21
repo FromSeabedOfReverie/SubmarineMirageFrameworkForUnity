@@ -11,7 +11,7 @@ namespace SubmarineMirage {
 	public abstract class BaseSMState : SMStandardBase {
 		[SMShowLine] public SMStateRunState _ranState { get; set; }
 
-		public readonly SMSubject _setupEvent			= new SMSubject();
+		public readonly SMSubject _initializeEvent		= new SMSubject();
 		public readonly SMAsyncEvent _enterEvent		= new SMAsyncEvent();
 		public readonly SMAsyncEvent _exitEvent			= new SMAsyncEvent();
 		public readonly SMAsyncEvent _asyncUpdateEvent	= new SMAsyncEvent();
@@ -25,7 +25,7 @@ namespace SubmarineMirage {
 			_disposables.AddFirst( () => {
 				_ranState = SMStateRunState.Exit;
 
-				_setupEvent.Dispose();
+				_initializeEvent.Dispose();
 				_enterEvent.Dispose();
 				_exitEvent.Dispose();
 				_asyncUpdateEvent.Dispose();
@@ -38,6 +38,6 @@ namespace SubmarineMirage {
 		public override void Dispose()
 			=> base.Dispose();
 
-		public abstract void Setup( object owner, object fsm );
+		public abstract void Initialize( object owner, object fsm );
 	}
 }
