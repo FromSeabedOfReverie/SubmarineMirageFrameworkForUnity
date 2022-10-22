@@ -1,9 +1,0 @@
-﻿{
-  "name": "LunarConsoleEditor",
-  "references": [
-    "LunarConsole"
-  ],
-  "includePlatforms": [
-    "Editor"
-  ]
-}

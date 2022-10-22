@@ -1,0 +1,7 @@
+# テストファイルを除外
+/Tests/
+Tests.meta
+
+# フレームワークインストール用の、バッチファイルを除外
+Install.bat
+Install.bat.meta
