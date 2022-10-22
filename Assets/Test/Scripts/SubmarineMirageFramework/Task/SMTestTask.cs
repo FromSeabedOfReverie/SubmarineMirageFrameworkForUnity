@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 #define TestTask
-namespace SubmarineMirage.Test {
+namespace SubmarineMirageFramework.Test {
 	using UniRx;
 
 

@@ -7,7 +7,7 @@
 namespace Game {
 	using System.Collections.Generic;
 	using KoganeUnityLib;
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 	///====================================================================================================
 	/// <summary>
 	/// ■ アイテムの情報クラス

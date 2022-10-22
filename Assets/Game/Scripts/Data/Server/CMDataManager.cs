@@ -5,7 +5,7 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace Game {
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 製品版の宣伝情報の管理クラス

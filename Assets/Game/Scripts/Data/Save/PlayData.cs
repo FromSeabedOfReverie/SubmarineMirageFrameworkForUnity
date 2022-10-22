@@ -12,7 +12,7 @@ namespace Game {
 	using System.Runtime.Serialization;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 遊戯情報のクラス

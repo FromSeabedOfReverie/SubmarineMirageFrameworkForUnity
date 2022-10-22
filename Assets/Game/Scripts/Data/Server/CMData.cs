@@ -9,7 +9,7 @@ namespace Game {
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 製品版の宣伝情報クラス

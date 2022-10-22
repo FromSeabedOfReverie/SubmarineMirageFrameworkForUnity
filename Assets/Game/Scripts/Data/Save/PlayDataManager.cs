@@ -8,7 +8,7 @@
 namespace Game {
 	using System.Linq;
 	using Cysharp.Threading.Tasks;
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 遊戯情報の管理クラス

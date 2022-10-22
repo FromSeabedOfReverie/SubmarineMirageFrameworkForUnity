@@ -9,7 +9,7 @@ namespace Game {
 	using Cysharp.Threading.Tasks;
 	using UniRx;
 	using DG.Tweening;
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 
 
 

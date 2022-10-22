@@ -6,7 +6,7 @@
 //---------------------------------------------------------------------------------------------------------
 namespace Game {
 	using System.Collections.Generic;
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 
 
 

@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-namespace SubmarineMirage.Test {
+namespace SubmarineMirageFramework.Test {
 	using UnityEngine.TestTools;
 	using Cysharp.Threading.Tasks;
 	using UniRx;

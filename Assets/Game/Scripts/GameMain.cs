@@ -10,7 +10,7 @@ namespace Game {
 	using UniRx;
 	using Cysharp.Threading.Tasks;
 	using KoganeUnityLib;
-	using SubmarineMirage;
+	using SubmarineMirageFramework;
 	using SystemTask = System.Threading.Tasks.Task;
 
 
